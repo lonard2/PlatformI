@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Region {
+  id                      String   @id @default(cuid())
+  code                    String   @unique
+  name                    String
+  centerLatitude          Float
+  centerLongitude         Float
+  zoomLevel               Int      @default(12)
+  boundaryCoordinatesJson String
+  lines                   Line[]
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model Line {
+  id                      String            @id @default(cuid())
+  regionId                String
+  region                  Region            @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  code                    String            @unique
+  name                    String
+  category                String
+  mode                    String
+  colorHex                String
+  textColorHex            String
+  fareType                String
+  baseFareRp              Int
+  farePerKmRp             Int
+  maxFareRp               Int
+  headwayMinutes          Int
+  firstDeparture          String
+  lastDeparture           String
+  polylineCoordinatesJson String
+  stops                   Stop[]
+  vehicles                Vehicle[]
+  disruptionAlerts        DisruptionAlert[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+}
+
+model Stop {
+  id                   String   @id @default(cuid())
+  lineId               String
+  line                 Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  name                 String
+  code                 String
+  latitude             Float
+  longitude            Float
+  sequence             Int
+  isInterchange        Boolean  @default(false)
+  connectedLineIdsJson String
+  facilitiesJson       String
+  accessibleElevator   Boolean  @default(false)
+  tactilePaving        Boolean  @default(false)
+  wheelchairRamp       Boolean  @default(false)
+  platformType         String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Vehicle {
+  id                  String                @id @default(cuid())
+  lineId              String
+  line                Line                  @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  vehicleCode         String                @unique
+  name                String
+  category            String
+  mode                String
+  currentLatitude     Float
+  currentLongitude    Float
+  headingDegrees      Float
+  speedKmh            Float
+  status              String
+  crowdLevel          String
+  acComfort           String
+  coachbuilder        String
+  chassis             String
+  progressFraction    Float                 @default(0.0)
+  currentSegmentIndex Int                   @default(0)
+  nextStopId          String
+  nextStopEtaSeconds  Int                   @default(0)
+  technicalSpec       TechnicalSpec?
+  seatingDiagramJson  String?
+  photos              PhotoGallery[]
+  crowdsourceCheckIns CrowdsourceCheckIn[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+}
+
+model TechnicalSpec {
+  id                 String   @id @default(cuid())
+  vehicleId          String   @unique
+  vehicle            Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  coachbuilder       String
+  chassisModel       String
+  powertrain         String
+  engineOutput       String
+  torque             String
+  transmission       String
+  suspensionType     String
+  lengthMeters       Float
+  passengerCapacity  Int
+  maxSpeedKmh        Int
+  safetyFeaturesJson String
+  historicalNotes    String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model PhotoGallery {
+  id           String   @id @default(cuid())
+  vehicleId    String
+  vehicle      Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url          String
+  caption      String
+  photographer String
+  tag          String
+  createdAt    DateTime @default(now())
+}
+
+model DisruptionAlert {
+  id                String    @id @default(cuid())
+  lineId            String
+  line              Line      @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  severity          String
+  status            String
+  affectedStopsJson String
+  startTime         DateTime  @default(now())
+  estimatedEndTime  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model CrowdsourceCheckIn {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  userId     String
+  crowdLevel String
+  acComfort  String
+  note       String?
+  timestamp  DateTime @default(now())
+}
+
+model Ticket {
+  id                String    @id @default(cuid())
+  ticketNumber      String    @unique
+  userId            String
+  originStopId      String
+  destinationStopId String
+  legsJson          String
+  totalFareRp       Int
+  isJakLingkoCapped Boolean   @default(false)
+  status            String
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime
+  rollingToken      String
+  gateScannedAt     DateTime?
+}
