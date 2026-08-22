@@ -64,7 +64,6 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
       const isSelected = selectedStopId === stop.id;
       const isHub = stop.isInterchange || (stop.connectedLineIds && stop.connectedLineIds.length > 0);
       const parentLine = allLines.find((l) => l.id === stop.lineId);
-      const lineConfig = parentLine ? TRANSIT_MODE_CONFIG[parentLine.mode] : null;
       const primaryColor = parentLine?.colorHex || "#38bdf8";
 
       // Connecting lines badges HTML
@@ -78,10 +77,10 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
 
       // Marker Icon HTML with CSS Pulse & Badges
       const markerHtml = `
-        <div style="position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <div class="hub-marker-wrapper" data-stop-id="${stop.id}" style="position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;">
           ${
             isHub
-              ? `<div class="hub-pulse-ring" style="position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 2px solid ${primaryColor}; background: ${primaryColor}22;"></div>`
+              ? `<div class="hub-pulse-ring" style="position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 2px solid ${primaryColor}; background: ${primaryColor}22; pointer-events: none;"></div>`
               : ""
           }
           <div style="
@@ -95,12 +94,14 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
             align-items: center;
             justify-content: center;
             transition: transform 0.2s ease;
+            pointer-events: none;
           ">
             <div style="
               width: ${isHub ? "8px" : "6px"};
               height: ${isHub ? "8px" : "6px"};
               border-radius: 50%;
               background: ${primaryColor};
+              pointer-events: none;
             "></div>
           </div>
           ${
@@ -121,6 +122,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
                   align-items: center;
                   justify-content: center;
                   border: 1px solid rgba(255,255,255,0.4);
+                  pointer-events: none;
                 ">+${stop.connectedLineIds.length}</div>`
               : ""
           }
@@ -140,47 +142,6 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         zIndexOffset: isSelected ? 500 : isHub ? 200 : 100,
       });
 
-      // Glass Popup Content
-      const popupHtml = `
-        <div style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; color: #f1f5f9; font-family: sans-serif; min-width: 220px; box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
-          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
-            <div>
-              <div style="font-weight: 700; font-size: 13px; color: #ffffff; line-height: 1.2;">${stop.name}</div>
-              <div style="font-size: 10px; color: #94a3b8; font-family: monospace; margin-top: 2px;">CODE: ${stop.code}</div>
-            </div>
-            ${
-              isHub
-                ? `<span style="background: rgba(6,182,212,0.2); border: 1px solid rgba(6,182,212,0.4); color: #38bdf8; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 9999px;">INTERCHANGE</span>`
-                : ""
-            }
-          </div>
-
-          <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 6px;">
-            Platform: <span style="color: #f8fafc; font-weight: 500;">${stop.platformType || "Standard Platform"}</span>
-          </div>
-
-          ${
-            stop.connectedLineIds && stop.connectedLineIds.length > 0
-              ? `<div style="margin-bottom: 8px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
-                  <div style="font-size: 10px; color: #94a3b8; margin-bottom: 3px;">Connecting Networks:</div>
-                  <div style="display: flex; flex-wrap: wrap; gap: 3px;">${connectedBadges}</div>
-                </div>`
-              : ""
-          }
-
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; color: #94a3b8;">
-            <span>Elevator: <strong style="color: ${stop.accessibleElevator ? "#10b981" : "#64748b"}">${stop.accessibleElevator ? "Yes" : "No"}</strong></span>
-            <span>&bull;</span>
-            <span>Tactile: <strong style="color: ${stop.tactilePaving ? "#10b981" : "#64748b"}">${stop.tactilePaving ? "Yes" : "No"}</strong></span>
-          </div>
-        </div>
-      `;
-
-      marker.bindPopup(popupHtml, {
-        className: "custom-glass-popup",
-        closeButton: false,
-      });
-
       marker.on("mouseover", () => {
         setHoveredEntity({ type: "stop", id: stop.id });
       });
@@ -189,12 +150,21 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         setHoveredEntity(null);
       });
 
+      // Click opens the Hub Detail Drawer directly
       marker.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
         selectStop(stop.id);
       });
 
       marker.addTo(layerGroup);
+
+      const el = marker.getElement();
+      if (el) {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          selectStop(stop.id);
+        });
+      }
     }
   }, [
     map,

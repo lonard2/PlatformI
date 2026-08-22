@@ -17,6 +17,7 @@ import { DisruptionAlertBanner } from "../src/components/alerts/DisruptionAlertB
 import { ServiceStatusDrawer } from "../src/components/alerts/ServiceStatusDrawer";
 import { AppSettingsModal } from "../src/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "../src/components/settings/UserTransitPreferencesModal";
+import { TransportationSystemBar } from "../src/components/navigation/TransportationSystemBar";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { TRANSIT_LINES, TRANSIT_STOPS, TRANSIT_VEHICLES, DISRUPTION_ALERTS } from "../src/lib/data/jakarta-dataset";
 
@@ -140,6 +141,47 @@ describe("Milestone 5: React UI Components Integration", () => {
       const selectAllBtn = screen.getByText(/Select All/i);
       fireEvent.click(selectAllBtn);
       expect(useTransitStore.getState().selectedModes.length).toBeGreaterThan(10);
+    });
+  });
+
+  describe("6. TransportationSystemBar Component", () => {
+    it("renders transportation groups: Rail, Bus, Airports, Ports", () => {
+      render(<TransportationSystemBar />);
+
+      expect(screen.getByText(/RAIL/i)).toBeInTheDocument();
+      expect(screen.getByText(/BUS & HUBS/i)).toBeInTheDocument();
+      expect(screen.getByText(/AIRPORTS/i)).toBeInTheDocument();
+      expect(screen.getByText(/PORTS & SEA/i)).toBeInTheDocument();
+
+      // Check key modes and consolidated hubs
+      expect(screen.getByText("MRT")).toBeInTheDocument();
+      expect(screen.getByText("WHOOSH")).toBeInTheDocument();
+      expect(screen.getByText("BRT 1-14")).toBeInTheDocument();
+      expect(screen.getByText("TERMINAL")).toBeInTheDocument();
+      expect(screen.getByText("SHUTTLE HUB")).toBeInTheDocument();
+      expect(screen.getByText("AIRPORT")).toBeInTheDocument();
+      expect(screen.getByText("PORTS")).toBeInTheDocument();
+    });
+
+    it("toggles mode when clicking mode badge", () => {
+      render(<TransportationSystemBar />);
+      const mrtBtn = screen.getByText("MRT").closest("button");
+      if (mrtBtn) {
+        fireEvent.click(mrtBtn);
+        // Toggling MRT should remove it if initially selected
+        expect(useTransitStore.getState().selectedModes.includes("MRT_JAKARTA")).toBe(false);
+        fireEvent.click(mrtBtn);
+        expect(useTransitStore.getState().selectedModes.includes("MRT_JAKARTA")).toBe(true);
+      }
+    });
+
+    it("selects building hub and focuses viewport when clicking consolidated hub", () => {
+      render(<TransportationSystemBar />);
+      const terminalBtn = screen.getByText("TERMINAL").closest("button");
+      if (terminalBtn) {
+        fireEvent.click(terminalBtn);
+        expect(useTransitStore.getState().selectedStopId).toBe("stop-akap-pgb");
+      }
     });
   });
 });

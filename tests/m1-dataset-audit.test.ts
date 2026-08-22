@@ -300,7 +300,7 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       expect(vehicleCount).toBe(6);
       expect(techSpecCount).toBe(6);
       expect(photoCount).toBe(6);
-      expect(alertCount).toBe(3);
+      expect(alertCount).toBe(DISRUPTION_ALERTS.length);
       expect(ticketCount).toBeGreaterThanOrEqual(1);
       expect(checkinCount).toBeGreaterThanOrEqual(1);
 

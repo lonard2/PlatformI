@@ -39,6 +39,7 @@ import { ServiceStatusDrawer } from "@/components/alerts/ServiceStatusDrawer";
 import { AITransitAssistantModal } from "@/components/ai/AITransitAssistantModal";
 import { AppSettingsModal } from "@/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "@/components/settings/UserTransitPreferencesModal";
+import { TransportationSystemBar } from "@/components/navigation/TransportationSystemBar";
 
 export default function Home() {
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
@@ -202,7 +203,10 @@ export default function Home() {
       {/* 2. TOP PRIORITY DISRUPTION NOTICES BANNER */}
       <DisruptionAlertBanner onOpenStatusDrawer={() => setIsStatusDrawerOpen(true)} />
 
-      {/* 3. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
+      {/* 3. MULTIMODAL TRANSPORTATION SYSTEMS & CONSOLIDATED HUBS BAR */}
+      <TransportationSystemBar />
+
+      {/* 4. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
       <div className="flex-1 relative overflow-hidden flex">
         <DynamicMap />
 
