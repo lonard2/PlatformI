@@ -178,15 +178,15 @@ export default function AdminAlertsPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-950 border border-amber-500/40 text-amber-400 text-xs font-mono font-semibold">
-              PUSAT MAKLUMAT & REKAYASA OPERASIONAL
+              {t.admin.occCommandBadge}
             </span>
-            <span className="text-xs text-slate-400 font-mono">Penyebaran Real-time</span>
+            <span className="text-xs text-slate-400 font-mono">{t.admin.liveTelemetryBadge}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Pusat Komando Maklumat Gangguan Perjalanan
+            {t.admin.disruptionManager}
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Penerbitan warta rekayasa lalu lintas, perawatan prasarana rel, peringatan cuaca maritim, dan penyesuaian jadwal operasional.
+            {t.admin.impactDescription}
           </p>
         </div>
 
@@ -196,7 +196,7 @@ export default function AdminAlertsPage() {
           className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition self-start sm:self-auto flex items-center gap-2 text-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-cyan-400" : ""}`} />
-          <span>Perbarui Maklumat</span>
+          <span>{t.common.active}</span>
         </button>
       </div>
 
@@ -219,13 +219,13 @@ export default function AdminAlertsPage() {
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl">
           <div className="flex items-center gap-2 border-b border-white/10 pb-3">
             <Radio className="w-4 h-4 text-amber-400" />
-            <h3 className="text-sm font-bold text-white">Compose Operational Bulletin</h3>
+            <h3 className="text-sm font-bold text-white">{t.admin.newDisruptionAlert}</h3>
           </div>
 
           <form onSubmit={handleBroadcast} className="space-y-4 text-xs">
             {/* Target Line */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Target Transit Line</label>
+              <label className="text-xs font-semibold text-slate-300">{t.admin.affectedLine}</label>
               <select
                 value={targetLineId}
                 onChange={(e) => {
@@ -244,7 +244,7 @@ export default function AdminAlertsPage() {
 
             {/* Severity Selector */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Severity Tier</label>
+              <label className="text-xs font-semibold text-slate-300">{t.admin.severityLevel}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["INFO", "WARNING", "CRITICAL"] as DisruptionSeverity[]).map((sev) => (
                   <button
@@ -261,7 +261,7 @@ export default function AdminAlertsPage() {
                         : "bg-slate-950/60 border-slate-800 text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    {sev}
+                    {sev === "CRITICAL" ? t.admin.criticalAlerts : sev === "WARNING" ? t.admin.warningAlerts : "INFO"}
                   </button>
                 ))}
               </div>
@@ -269,24 +269,25 @@ export default function AdminAlertsPage() {
 
             {/* Bulletin Title */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Bulletin Headline</label>
+              <label className="text-xs font-semibold text-slate-300">{t.admin.alertTitle}</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Signal Interlocking Delay between Manggarai & Cawang"
+                placeholder={t.admin.alertTitle}
                 required
                 className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80"
-              />
+              >
+              </input>
             </div>
 
             {/* Bulletin Description */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Passenger Advisory & Guidance</label>
+              <label className="text-xs font-semibold text-slate-300">{t.admin.impactDescription}</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Detail the cause, speed restrictions, expected delay (+15 mins), and recommended bypass route..."
+                placeholder={t.admin.impactDescription}
                 rows={3}
                 required
                 className="w-full bg-slate-950 border border-white/15 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 resize-none leading-relaxed"
@@ -297,7 +298,7 @@ export default function AdminAlertsPage() {
             {lineStops && lineStops.length > 0 && (
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                  <span>Affected Stations / Stops ({affectedStops.length} selected)</span>
+                  <span>{t.admin.affectedLine} ({affectedStops.length})</span>
                 </label>
                 <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl bg-slate-950/60 border border-white/5">
                   {lineStops.map((stop) => {
@@ -323,7 +324,7 @@ export default function AdminAlertsPage() {
 
             {/* Estimated Resolution Time */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300">Estimated Resolution Duration</label>
+              <label className="text-xs font-semibold text-slate-300">{t.vehicleInspector.eta}</label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -334,7 +335,7 @@ export default function AdminAlertsPage() {
                   onChange={(e) => setEstMinutes(e.target.value)}
                   className="w-24 bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80"
                 />
-                <span className="text-slate-400 text-xs">minutes from now</span>
+                <span className="text-slate-400 text-xs">{t.common.minutes}</span>
               </div>
             </div>
 
@@ -345,7 +346,7 @@ export default function AdminAlertsPage() {
               className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white text-xs font-bold shadow-xl shadow-amber-950/50 flex items-center justify-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95"
             >
               <Send className="w-4 h-4" />
-              <span>Broadcast Bulletin to Entire Network</span>
+              <span>{t.admin.publishAlert}</span>
             </button>
           </form>
         </div>
@@ -356,15 +357,15 @@ export default function AdminAlertsPage() {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4 text-cyan-400" />
-                <h3 className="text-sm font-bold text-white">Live Passenger Cockpit Preview</h3>
+                <h3 className="text-sm font-bold text-white">{t.admin.heroTitle}</h3>
               </div>
-              <span className="text-[10px] font-mono text-cyan-400">WYSIWYG Mode</span>
+              <span className="text-[10px] font-mono text-cyan-400">{t.admin.liveTelemetryBadge}</span>
             </div>
 
             {/* Banner Preview */}
             <div className="space-y-2">
               <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                Top Priority Banner View:
+                {t.admin.alertTitle}:
               </span>
               <div
                 className={`p-3 rounded-xl border backdrop-blur-md shadow-lg ${
@@ -385,7 +386,7 @@ export default function AdminAlertsPage() {
                         : "bg-cyan-900 text-cyan-300 border-cyan-500/40"
                     }`}
                   >
-                    {severity === "CRITICAL" ? "Critical Disruption" : severity === "WARNING" ? "Service Advisory" : "Maintenance Notice"}
+                    {severity === "CRITICAL" ? t.admin.criticalAlerts : severity === "WARNING" ? t.admin.warningAlerts : "INFO"}
                   </span>
                   <span
                     style={{
@@ -398,15 +399,15 @@ export default function AdminAlertsPage() {
                     {selectedLine.code}
                   </span>
                   <h4 className="text-xs font-semibold text-white truncate">
-                    {title || "Monas Area Traffic Diversion Due to Public Event"}
+                    {title || selectedLine.name}
                   </h4>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-slate-200">
-                  {description || "TransJakarta Corridor 1 buses temporarily rerouted via Juanda. Expect +8 mins delay."}
+                  {description || t.admin.impactDescription}
                 </p>
                 {affectedStops.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/10 flex flex-wrap items-center gap-1 text-[10px] font-mono text-slate-400">
-                    <span>Affected:</span>
+                    <span>{t.admin.affectedLine}:</span>
                     {affectedStops.map((s, idx) => (
                       <span key={idx} className="px-1.5 py-0.5 rounded bg-black/40 text-slate-300">
                         {s}
@@ -420,7 +421,7 @@ export default function AdminAlertsPage() {
             {/* Service Status Drawer Preview */}
             <div className="space-y-2">
               <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                Service Status Card View:
+                {t.admin.disruptionType}:
               </span>
               <div className="p-3.5 rounded-xl border border-white/10 bg-slate-950/80 space-y-2">
                 <div className="flex items-center justify-between">
@@ -441,13 +442,13 @@ export default function AdminAlertsPage() {
                     {severity}
                   </div>
                 </div>
-                <div className="text-xs text-slate-300">{title || "Active Incident Reported"}</div>
+                <div className="text-xs text-slate-300">{title || t.admin.activeDisruptions}</div>
               </div>
             </div>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-950 border border-white/5 text-[11px] text-slate-400">
-            Emergency protocols conform to Dishub DKI Jakarta & PT MRT Jakarta operational standards.
+            {t.admin.occCommandBadge} &bull; {t.admin.heroSubtitle}
           </div>
         </div>
       </div>
@@ -457,10 +458,10 @@ export default function AdminAlertsPage() {
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-400" />
-            <h3 className="text-sm font-bold text-white">Active Operational Bulletins Ledger</h3>
+            <h3 className="text-sm font-bold text-white">{t.admin.activeDisruptions}</h3>
           </div>
           <span className="text-xs font-mono text-slate-400">
-            {alerts.filter((a) => a.status === "ACTIVE").length} Active
+            {alerts.filter((a) => a.status === "ACTIVE").length} {t.common.active}
           </span>
         </div>
 
@@ -491,7 +492,7 @@ export default function AdminAlertsPage() {
                           : "bg-amber-900/80 text-amber-300 border-amber-500/40"
                       }`}
                     >
-                      {alert.status} &bull; {alert.severity}
+                      {isResolved ? t.admin.resolveDisruption : alert.severity}
                     </span>
 
                     {line && (
@@ -517,9 +518,9 @@ export default function AdminAlertsPage() {
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-400 font-mono pt-1">
-                    <span>Started: {new Date(alert.startTime).toLocaleTimeString("id-ID")} WIB</span>
+                    <span>{new Date(alert.startTime).toLocaleTimeString()}</span>
                     {alert.affectedStops.length > 0 && (
-                      <span>Affected: {alert.affectedStops.join(", ")}</span>
+                      <span>{t.admin.affectedLine}: {alert.affectedStops.join(", ")}</span>
                     )}
                   </div>
                 </div>
@@ -530,16 +531,15 @@ export default function AdminAlertsPage() {
                     <>
                       <button
                         onClick={() => handleEscalateAlert(alert.id)}
-                        title="Escalate Severity to Critical"
                         className="px-2.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-semibold transition"
                       >
-                        Escalate
+                        {t.admin.criticalAlerts}
                       </button>
                       <button
                         onClick={() => handleResolveAlert(alert.id)}
                         className="px-3 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 text-xs font-semibold transition"
                       >
-                        Resolve
+                        {t.admin.resolveDisruption}
                       </button>
                     </>
                   )}

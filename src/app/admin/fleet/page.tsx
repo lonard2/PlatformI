@@ -161,17 +161,17 @@ export default function FleetManagementPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
-              INVENTARISASI SARANA & ROLLING STOCK
+              {t.admin.occCommandBadge}
             </span>
             <span className="text-xs text-slate-400 font-mono">
-              {simulatedVehicles.length} Unit Terdaftar
+              {simulatedVehicles.length} {t.admin.activeVehicles}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Manajemen Sarana & Spesifikasi Armada Multimoda
+            {t.admin.fleetControl}
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Pengelolaan telemetri real-time rangkaian KRL/MRT/LRT/Whoosh, bus karoseri BRT, travel shuttle eksekutif, pesawat udara, dan speedboat.
+            {t.admin.heroSubtitle}
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export default function FleetManagementPage() {
           className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-950/50 flex items-center gap-1.5 transition self-start sm:self-auto transform active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Tambah Armada Simulasi</span>
+          <span>{t.admin.dispatchNewAlert ? `${t.common.details}` : "Add"}</span>
         </button>
       </div>
 
@@ -193,7 +193,7 @@ export default function FleetManagementPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search code, karoseri, chassis..."
+            placeholder={t.admin.searchFleetPlaceholder}
             className="w-full bg-slate-950 border border-white/15 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 transition"
           />
         </div>
@@ -208,10 +208,19 @@ export default function FleetManagementPage() {
                 : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
             }`}
           >
-            All Modes ({simulatedVehicles.length})
+            {t.navigation.allModes} ({simulatedVehicles.length})
           </button>
           {(["RAIL", "BUS", "AVIATION", "MARITIME"] as TransitCategory[]).map((cat) => {
             const count = simulatedVehicles.filter((v) => v.category === cat).length;
+            const catLabel =
+              cat === "RAIL"
+                ? t.navigation.railModes
+                : cat === "BUS"
+                ? t.navigation.busModes
+                : cat === "AVIATION"
+                ? t.navigation.airModes
+                : t.navigation.seaModes;
+
             return (
               <button
                 key={cat}
@@ -223,7 +232,7 @@ export default function FleetManagementPage() {
                 }`}
               >
                 {getCategoryIcon(cat)}
-                <span>{cat.charAt(0) + cat.slice(1).toLowerCase()} ({count})</span>
+                <span>{catLabel} ({count})</span>
               </button>
             );
           })}
@@ -236,13 +245,13 @@ export default function FleetManagementPage() {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
-                <th className="py-3.5 px-4">Vehicle Code / Name</th>
-                <th className="py-3.5 px-4">Assigned Line</th>
-                <th className="py-3.5 px-4">Coachbuilder & Chassis</th>
-                <th className="py-3.5 px-4">Speed / Telemetry</th>
-                <th className="py-3.5 px-4">Operational Status</th>
-                <th className="py-3.5 px-4">Crowd Density</th>
-                <th className="py-3.5 px-4 text-right">Quick Actions</th>
+                <th className="py-3.5 px-4">{t.admin.vehicleCode}</th>
+                <th className="py-3.5 px-4">{t.admin.affectedLine}</th>
+                <th className="py-3.5 px-4">{t.admin.modelAndCoach}</th>
+                <th className="py-3.5 px-4">{t.admin.currentSpeedAndHeading}</th>
+                <th className="py-3.5 px-4">{t.admin.currentStatus}</th>
+                <th className="py-3.5 px-4">{t.admin.capacityAndDensity}</th>
+                <th className="py-3.5 px-4 text-right">{t.admin.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-sans">
@@ -291,7 +300,7 @@ export default function FleetManagementPage() {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 font-mono">Unassigned</span>
+                        <span className="text-slate-500 font-mono">-</span>
                       )}
                     </td>
 
@@ -336,10 +345,10 @@ export default function FleetManagementPage() {
                             : "bg-slate-900 border-slate-700 text-slate-400"
                         }`}
                       >
-                        <option value="IN_SERVICE">IN_SERVICE</option>
-                        <option value="BOARDING">BOARDING</option>
-                        <option value="CONGESTION_HOLD">CONGESTION_HOLD</option>
-                        <option value="OUT_OF_SERVICE">OUT_OF_SERVICE</option>
+                        <option value="IN_SERVICE">{t.admin.moving}</option>
+                        <option value="BOARDING">{t.admin.boarding}</option>
+                        <option value="CONGESTION_HOLD">{t.admin.hold}</option>
+                        <option value="OUT_OF_SERVICE">{t.common.inactive}</option>
                       </select>
                     </td>
 
@@ -355,10 +364,10 @@ export default function FleetManagementPage() {
                         }
                         className="text-[10px] font-mono px-2 py-1 rounded-lg bg-slate-950 border border-white/10 text-slate-300 focus:outline-none cursor-pointer"
                       >
-                        <option value="LEVEL_1_MANY_SEATS">L1: Many Seats</option>
-                        <option value="LEVEL_2_FEW_SEATS">L2: Few Seats</option>
-                        <option value="LEVEL_3_STANDING_ONLY">L3: Standing Only</option>
-                        <option value="LEVEL_4_FULL_CRUSH">L4: Full Crush</option>
+                        <option value="LEVEL_1_MANY_SEATS">{t.crowdsource.densitySeatsAvailable}</option>
+                        <option value="LEVEL_2_FEW_SEATS">{t.crowdsource.densityFewSeats}</option>
+                        <option value="LEVEL_3_STANDING_ONLY">{t.crowdsource.densityStandingOnly}</option>
+                        <option value="LEVEL_4_FULL_CRUSH">{t.crowdsource.densityFullCrowded}</option>
                       </select>
                     </td>
 
@@ -371,7 +380,7 @@ export default function FleetManagementPage() {
                         }}
                         className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-cyan-950 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-[11px] font-medium transition"
                       >
-                        Inspect
+                        {t.admin.viewTelemetry}
                       </button>
                     </td>
                   </tr>
@@ -397,7 +406,7 @@ export default function FleetManagementPage() {
                     {selectedVehicle.vehicleCode} &bull; {selectedVehicle.name}
                   </h3>
                   <p className="text-xs text-slate-400 font-mono">
-                    {selectedVehicle.mode} &bull; Unit Telemetry
+                    {selectedVehicle.mode} &bull; {t.admin.liveTelemetryBadge}
                   </p>
                 </div>
               </div>
@@ -414,15 +423,15 @@ export default function FleetManagementPage() {
             <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
               <div className="p-4 rounded-xl bg-slate-950/70 border border-white/5 space-y-2">
                 <div className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Enthusiast Coachbuilder Specifications
+                  {t.vehicleInspector.telemetryTitle}
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-slate-300">
                   <div>
-                    <span className="text-slate-500 block text-[10px]">Karoseri (Bodybuilder):</span>
+                    <span className="text-slate-500 block text-[10px]">{t.vehicleInspector.coachbuilder}:</span>
                     <strong className="text-white text-xs">{selectedVehicle.coachbuilder}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block text-[10px]">Chassis Platform:</span>
+                    <span className="text-slate-500 block text-[10px]">{t.vehicleInspector.chassis}:</span>
                     <strong className="text-white text-xs">{selectedVehicle.chassis}</strong>
                   </div>
                 </div>
@@ -430,14 +439,14 @@ export default function FleetManagementPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
-                  <span className="text-slate-500 text-[10px] uppercase font-mono">Telemetry Speed</span>
+                  <span className="text-slate-500 text-[10px] uppercase font-mono">{t.vehicleInspector.speed}</span>
                   <div className="text-lg font-bold text-cyan-300 font-mono">
                     {Math.round(selectedVehicle.speedKmh)} km/h
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
-                  <span className="text-slate-500 text-[10px] uppercase font-mono">Heading Azimuth</span>
+                  <span className="text-slate-500 text-[10px] uppercase font-mono">{t.vehicleInspector.bearing}</span>
                   <div className="text-lg font-bold text-slate-200 font-mono">
                     {Math.round(selectedVehicle.headingDegrees)}&deg;
                   </div>
@@ -445,7 +454,7 @@ export default function FleetManagementPage() {
               </div>
 
               <div className="space-y-2 pt-2">
-                <label className="text-xs font-bold text-slate-300">Change Operational State</label>
+                <label className="text-xs font-bold text-slate-300">{t.admin.currentStatus}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["IN_SERVICE", "BOARDING", "CONGESTION_HOLD", "OUT_OF_SERVICE"] as VehicleOperationalStatus[]).map(
                     (st) => (
@@ -458,7 +467,13 @@ export default function FleetManagementPage() {
                             : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"
                         }`}
                       >
-                        {st}
+                        {st === "IN_SERVICE"
+                          ? t.admin.moving
+                          : st === "BOARDING"
+                          ? t.admin.boarding
+                          : st === "CONGESTION_HOLD"
+                          ? t.admin.hold
+                          : t.common.inactive}
                       </button>
                     )
                   )}
@@ -472,7 +487,7 @@ export default function FleetManagementPage() {
                 onClick={() => setSelectedVehicle(null)}
                 className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-200 font-semibold transition"
               >
-                Close Inspector
+                {t.common.close}
               </button>
             </div>
           </div>
@@ -490,8 +505,8 @@ export default function FleetManagementPage() {
                   <Truck className="w-4 h-4 text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Deploy Simulated Vehicle</h3>
-                  <p className="text-xs text-slate-400">Add active rolling stock or bus unit to simulation</p>
+                  <h3 className="text-base font-bold text-white">{t.admin.activeVehicles}</h3>
+                  <p className="text-xs text-slate-400">{t.admin.heroSubtitle}</p>
                 </div>
               </div>
 
@@ -507,7 +522,7 @@ export default function FleetManagementPage() {
             <form onSubmit={handleAddVehicle} className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
               {/* Assigned Line */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Assign to Transit Line</label>
+                <label className="text-xs font-semibold text-slate-300">{t.admin.affectedLine}</label>
                 <select
                   value={newLineId}
                   onChange={(e) => setNewLineId(e.target.value)}
@@ -524,7 +539,7 @@ export default function FleetManagementPage() {
               {/* Code & Name */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Vehicle Code</label>
+                  <label className="text-xs font-semibold text-slate-300">{t.admin.vehicleCode}</label>
                   <input
                     type="text"
                     value={newVehicleCode}
@@ -535,7 +550,7 @@ export default function FleetManagementPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Display Name</label>
+                  <label className="text-xs font-semibold text-slate-300">{t.common.details}</label>
                   <input
                     type="text"
                     value={newName}
@@ -550,7 +565,7 @@ export default function FleetManagementPage() {
               {/* Coachbuilder & Chassis */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Karoseri (Coachbuilder)</label>
+                  <label className="text-xs font-semibold text-slate-300">{t.vehicleInspector.coachbuilder}</label>
                   <select
                     value={newCoachbuilder}
                     onChange={(e) => setNewCoachbuilder(e.target.value)}
@@ -565,7 +580,7 @@ export default function FleetManagementPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">Chassis Platform</label>
+                  <label className="text-xs font-semibold text-slate-300">{t.vehicleInspector.chassis}</label>
                   <select
                     value={newChassis}
                     onChange={(e) => setNewChassis(e.target.value)}
@@ -584,7 +599,7 @@ export default function FleetManagementPage() {
               {/* Initial Speed */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-300">
-                  Initial Speed: <span className="font-mono text-cyan-400">{newSpeed} km/h</span>
+                  {t.vehicleInspector.speed}: <span className="font-mono text-cyan-400">{newSpeed} km/h</span>
                 </label>
                 <input
                   type="range"
@@ -604,13 +619,13 @@ export default function FleetManagementPage() {
                   onClick={() => setIsAddModalOpen(false)}
                   className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white transition"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-xs font-bold text-white shadow-lg shadow-cyan-950/50 transition"
                 >
-                  Deploy to Live Simulation
+                  {t.common.save}
                 </button>
               </div>
             </form>
