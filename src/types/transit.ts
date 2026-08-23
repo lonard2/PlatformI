@@ -213,6 +213,64 @@ export interface PhotoGalleryItem {
   tag: string;
 }
 
+export interface VehicleCarriageTelemetry {
+  carIndex: number;
+  carCode: string;
+  carType:
+    | "CAB_CAR"
+    | "MOTOR_CAR"
+    | "TRAILER_CAR"
+    | "PANTOGRAPH_MOTOR"
+    | "DINING_BUFFET"
+    | "POWER_GENERATOR"
+    | "SLEEPER_SUITE"
+    | "EXECUTIVE_DECK"
+    | "ECONOMY_DECK";
+  carTypeName: string;
+  occupancyPercent: number;
+  passengerCount: number;
+  maxCapacity: number;
+  acTemperatureC: number;
+  acStatus: "OPTIMAL" | "COOLING" | "MAINTENANCE";
+  pantographActive?: boolean;
+  tractionMotorActive?: boolean;
+  prioritySeatsCount: number;
+  wheelchairAccessible: boolean;
+  cctvActive: boolean;
+  wifiStatus: "ONLINE" | "STANDBY" | "OFFLINE";
+  doorsStatus: "CLOSED_LOCKED" | "OPEN" | "HOLD";
+}
+
+export interface HistoricalIncidentEvent {
+  id: string;
+  lineId: string;
+  lineCode: string;
+  lineName: string;
+  title: string;
+  description: string;
+  severity: DisruptionSeverity;
+  status: "RESOLVED" | "PLANNED_MAINTENANCE" | "ACTIVE";
+  date: string;
+  startTime: string;
+  resolvedTime: string;
+  durationMinutes: number;
+  affectedStops: string[];
+  rootCause: string;
+  mitigationAction: string;
+  ontimeImpactPercent: number;
+}
+
+export interface SystemUptimeMetric {
+  mode: TransitMode;
+  systemName: string;
+  uptimePercent30Days: number;
+  onTimePerformancePercent: number;
+  totalTrips30Days: number;
+  disruptionMinutes30Days: number;
+  mttrMinutes: number;
+  statusHistory7Days: ("NORMAL" | "LIMITED" | "DISRUPTED")[];
+}
+
 export interface Vehicle {
   id: string;
   lineId: string;
@@ -243,6 +301,7 @@ export interface Vehicle {
   busRunNumber?: string;
   licensePlate?: string;
   operatorName?: string;
+  carriages?: VehicleCarriageTelemetry[];
   technicalSpec?: TechnicalSpec;
   seatingDiagram?: SeatingDiagram;
   photos?: PhotoGalleryItem[];

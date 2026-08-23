@@ -12,6 +12,7 @@ import {
   VehicleSeatingDiagram,
   VehiclePhotoGallery,
   VehicleDetailSheet,
+  VehicleCarriageSelector,
   HubDetailSheet,
   SkybridgeTransferGuide,
   SKYBRIDGE_HUBS_DATA,
@@ -256,6 +257,35 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<SkybridgeTransferGuide initialHubId="csw-asean" />);
       expect(screen.getByText(/CSW - ASEAN 5-Story Circular Skybridge/i)).toBeInTheDocument();
       expect(screen.getByText(/MRT ASEAN Concourse to Skybridge North Gate/i)).toBeInTheDocument();
+    });
+  });
+
+  describe("7. VehicleCarriageSelector Component", () => {
+    it("renders interactive train formation and lets user select individual carriages", () => {
+      const trainVehicle = TRANSIT_VEHICLES.find(
+        (v) => v.carriages && v.carriages.length >= 6
+      )!;
+      expect(trainVehicle).toBeDefined();
+      expect(trainVehicle.carriages).toBeDefined();
+
+      const { container } = render(<VehicleCarriageSelector vehicle={trainVehicle} />);
+
+      // Verify title shows SF length
+      expect(screen.getByText(new RegExp(`Susunan Rangkaian Kereta \\(${trainVehicle.carriages!.length} SF\\)`, "i"))).toBeInTheDocument();
+
+      // Verify buttons for K1, K2, etc.
+      expect(screen.getByText("K1")).toBeInTheDocument();
+      expect(screen.getByText("K2")).toBeInTheDocument();
+
+      // Click on Kereta 2
+      const k2Btn = screen.getByText("K2");
+      fireEvent.click(k2Btn);
+
+      // Verify Kereta 2 details show up
+      expect(screen.getByText(/Kereta 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kapasitas Penumpang/i)).toBeInTheDocument();
+      expect(screen.getByText(/Suhu Kabin Kereta/i)).toBeInTheDocument();
+      expect(screen.getByText(/Sistem Traksi \/ Daya/i)).toBeInTheDocument();
     });
   });
 });

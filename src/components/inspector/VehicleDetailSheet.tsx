@@ -36,6 +36,7 @@ import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
 import { VehiclePhotoGallery } from "./VehiclePhotoGallery";
+import { VehicleCarriageSelector } from "./VehicleCarriageSelector";
 
 interface VehicleDetailSheetProps {
   vehicleId: string | null;
@@ -347,6 +348,11 @@ export function VehicleDetailSheet({
                   </div>
                 )}
 
+                {/* Interactive Multi-Car / Multi-Deck Formation Selector */}
+                {vehicle.carriages && vehicle.carriages.length > 0 && (
+                  <VehicleCarriageSelector vehicle={vehicle} />
+                )}
+
                 {/* Dedicated Run Details & Trainset Fleet Telemetry Card */}
                 <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2.5 text-xs font-mono">
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
@@ -478,7 +484,14 @@ export function VehicleDetailSheet({
 
             {activeTab === "specs" && <VehicleTechnicalSpecs vehicle={vehicle} />}
 
-            {activeTab === "seating" && <VehicleSeatingDiagram vehicle={vehicle} />}
+            {activeTab === "seating" && (
+              <div className="space-y-4">
+                {vehicle.carriages && vehicle.carriages.length > 0 && (
+                  <VehicleCarriageSelector vehicle={vehicle} />
+                )}
+                <VehicleSeatingDiagram vehicle={vehicle} />
+              </div>
+            )}
           </div>
         </motion.aside>
       </div>

@@ -70,14 +70,14 @@ export default function AdminDashboardPage() {
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
               OCC DUKUH ATAS COMMAND
             </span>
-            <span className="text-xs text-slate-400 font-mono">Live Telemetry</span>
+            <span className="text-xs text-slate-400 font-mono">Telemetri Langsung</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Regional Multimodal Transit Overview
+            Pusat Kendali Operasi Multimoda Jabodetabek
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
-            Monitoring MRT Jakarta, LRT Jabodebek, KRL Commuter, Whoosh HSR, TransJakarta BRT,
-            and Maritime Speedboat operations across DKI Jakarta & Bodetabek.
+            Monitoring operasional terpadu MRT Jakarta, LRT Jabodebek, LRT Jakarta, KRL Commuter Line,
+            Whoosh HSR, TransJakarta BRT, Feeder MikroTrans, serta Kapal Cepat Kepulauan Seribu.
           </p>
         </div>
 
@@ -88,14 +88,14 @@ export default function AdminDashboardPage() {
             className="px-3.5 py-2 rounded-xl bg-amber-950/80 hover:bg-amber-900/80 border border-amber-500/40 text-amber-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-lg"
           >
             <Radio className="w-3.5 h-3.5 text-amber-400" />
-            <span>Broadcast Alert</span>
+            <span>Terbitkan Maklumat</span>
           </Link>
           <Link
             href="/admin/scanner"
             className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-cyan-950/50"
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>Open Turnstile Scanner</span>
+            <span>Uji Validator Turnstile</span>
           </Link>
         </div>
       </div>
@@ -105,70 +105,70 @@ export default function AdminDashboardPage() {
         {/* KPI 1: Active Fleet Telemetry */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Active Fleet</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Armada Berdinas</span>
             <div className="p-2 rounded-xl bg-cyan-950/80 border border-cyan-500/30">
               <Truck className="w-4 h-4 text-cyan-400" />
             </div>
           </div>
           <div className="text-2xl font-bold text-white font-mono">
-            {simulatedVehicles.length} <span className="text-xs text-slate-400 font-normal">Units</span>
+            {simulatedVehicles.length} <span className="text-xs text-slate-400 font-normal">Armada</span>
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono pt-1">
-            <span className="text-emerald-400">{movingCount} Moving</span>
+            <span className="text-emerald-400">{movingCount} Bergerak</span>
             <span>&bull;</span>
-            <span className="text-amber-400">{boardingCount} Boarding</span>
+            <span className="text-amber-400">{boardingCount} Naik/Turun</span>
             <span>&bull;</span>
-            <span className="text-slate-500">{holdCount} Idle</span>
+            <span className="text-slate-500">{holdCount} Langsir/Idle</span>
           </div>
         </div>
 
         {/* KPI 2: On-Time Network Reliability */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Punctuality Index</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Indeks Ketepatan Waktu</span>
             <div className="p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/30">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
             </div>
           </div>
           <div className="text-2xl font-bold text-emerald-400 font-mono">
-            96.8%
+            98.2%
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            Average headway deviation: <strong className="text-slate-200">&plusmn;1.4 min</strong>
+            Deviasi rata-rata headway: <strong className="text-slate-200">&plusmn;1.2 menit</strong>
           </div>
         </div>
 
         {/* KPI 3: Active Disruption Bulletins */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Disruption Center</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Maklumat Aktif</span>
             <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-500/30">
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
           </div>
           <div className="text-2xl font-bold text-amber-300 font-mono">
-            {activeAlerts.length} <span className="text-xs text-slate-400 font-normal">Bulletins</span>
+            {activeAlerts.length} <span className="text-xs text-slate-400 font-normal">Warta</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono pt-1">
-            <span className="text-rose-400 font-bold">{criticalAlertsCount} Critical</span>
+            <span className="text-rose-400 font-bold">{criticalAlertsCount} Kritis</span>
             <span>&bull;</span>
-            <span className="text-amber-400">{warningAlertsCount} Advisory</span>
+            <span className="text-amber-400">{warningAlertsCount} Peringatan</span>
           </div>
         </div>
 
         {/* KPI 4: JakLingko Tariff Absorption */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">JakLingko Subsidy</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">Integrasi JakLingko</span>
             <div className="p-2 rounded-xl bg-teal-950/80 border border-teal-500/30">
               <DollarSign className="w-4 h-4 text-teal-400" />
             </div>
           </div>
           <div className="text-2xl font-bold text-teal-300 font-mono">
-            Rp 48.6M
+            Rp 48.6 Juta
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            Protected commuter savings today (180m cap)
+            Efisiensi tarif batas 3 jam (Maks Rp 10.000)
           </div>
         </div>
       </div>
@@ -244,9 +244,9 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs text-slate-400 space-y-1">
-            <div className="font-semibold text-slate-300">AC Climate Health:</div>
+            <div className="font-semibold text-slate-300">Kondisi Pendingin Udara (AC):</div>
             <div className="text-[11px]">
-              88% optimal cabin temperature (22&deg;C - 24&deg;C) reported across active trains and BRT fleets.
+              91% armada melaporkan suhu kabin optimal (21&deg;C - 23&deg;C) pada lintas kereta dan koridor busway.
             </div>
           </div>
         </div>
@@ -256,11 +256,11 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white">Live OCC Operations Audit Feed</h3>
+              <h3 className="text-sm font-bold text-white">Log Audit Operasional OCC</h3>
             </div>
             <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live Stream
+              Pembaruan Langsung
             </span>
           </div>
 
@@ -269,35 +269,35 @@ export default function AdminDashboardPage() {
               {
                 time: "14:22:10 WIB",
                 type: "HEADWAY_SYNC",
-                text: "MRT Jakarta Set 04 departed Bundaran HI on target headway (5m00s)",
+                text: "MRT Jakarta Rangkaian TS-01 berangkat dari Bundaran HI sesuai jadwal presisi (5m00s)",
                 badge: "MRT-NS",
                 color: "text-cyan-400 border-cyan-500/40 bg-cyan-950/50",
               },
               {
                 time: "14:21:45 WIB",
                 type: "PASS_SCAN",
-                text: "Turnstile Gate #04 at CSW Interchange validated JakLingko 30s rolling QR token",
+                text: "Gate Turnstile #04 Integrasi CSW-ASEAN memvalidasi tiket QR rolling JakLingko",
                 badge: "GATE-04",
                 color: "text-emerald-400 border-emerald-500/40 bg-emerald-950/50",
               },
               {
                 time: "14:20:12 WIB",
                 type: "DISRUPTION_BROADCAST",
-                text: "Speedboat advisory updated for northern Kepulauan Seribu sea corridor",
+                text: "Maklumat cuaca maritim diperbarui untuk koridor speedboat Kepulauan Seribu Utara",
                 badge: "MARITIME",
                 color: "text-amber-400 border-amber-500/40 bg-amber-950/50",
               },
               {
                 time: "14:18:30 WIB",
                 type: "CHECKIN_UPDATE",
-                text: "Commuter check-in received for TransJakarta TJ-014 (Level 2 Few Seats, AC Optimal)",
+                text: "Laporan commuter masuk untuk TransJakarta TJ-788 (Tingkat 3 Berdiri, AC Sejuk Optimal)",
                 badge: "COR-1",
                 color: "text-blue-400 border-blue-500/40 bg-blue-950/50",
               },
               {
                 time: "14:15:00 WIB",
                 type: "WHOOSH_FEEDER",
-                text: "Whoosh HSR Train G1024 Halim-Padalarang feeder sync confirmed with KAI Bandung",
+                text: "Sinkronisasi KA Feeder Whoosh Stasiun Padalarang terhubung lancar dengan jadwal G1012",
                 badge: "WHOOSH",
                 color: "text-rose-400 border-rose-500/40 bg-rose-950/50",
               },
@@ -319,12 +319,12 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="pt-2 flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-mono text-[11px]">OCC Dukuh Atas Substation Engine</span>
+            <span className="text-slate-500 font-mono text-[11px]">Substasiun Komando Terpadu Dukuh Atas</span>
             <Link
               href="/admin/fleet"
               className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition"
             >
-              <span>Manage Fleet Units</span>
+              <span>Kelola Sarana Armada</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>

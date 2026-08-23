@@ -143,4 +143,28 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
     const deleteBody = await deleteRes.json();
     expect(deleteBody.success).toBe(true);
   });
+
+  it("Verifies Historical Incidents and System Uptime metrics integrity", async () => {
+    const { HISTORICAL_INCIDENTS, SYSTEM_UPTIME_METRICS } = await import("@/lib/data/jakarta-dataset");
+
+    // Historical incidents checks
+    expect(HISTORICAL_INCIDENTS.length).toBeGreaterThanOrEqual(7);
+    for (const inc of HISTORICAL_INCIDENTS) {
+      expect(inc.id).toBeDefined();
+      expect(inc.lineCode).toBeDefined();
+      expect(inc.rootCause).toBeDefined();
+      expect(inc.mitigationAction).toBeDefined();
+      expect(inc.durationMinutes).toBeGreaterThan(0);
+      expect(inc.ontimeImpactPercent).toBeGreaterThanOrEqual(0);
+    }
+
+    // System uptime checks
+    expect(SYSTEM_UPTIME_METRICS.length).toBeGreaterThanOrEqual(8);
+    for (const metric of SYSTEM_UPTIME_METRICS) {
+      expect(metric.uptimePercent30Days).toBeGreaterThan(90.0);
+      expect(metric.onTimePerformancePercent).toBeGreaterThan(90.0);
+      expect(metric.statusHistory7Days.length).toBe(7);
+      expect(metric.totalTrips30Days).toBeGreaterThan(0);
+    }
+  });
 });

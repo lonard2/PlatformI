@@ -178,15 +178,15 @@ export default function AdminScannerPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
-              TURNSTILE GATE & FARE INSPECTION
+              VALIDASI TURNSTILE & TARIF INTEGRASI
             </span>
             <span className="text-xs text-slate-400 font-mono">HMAC-SHA256 Rolling Token Engine</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Turnstile Gate Scanner Simulator
+            Simulator Validator Gerbang Turnstile QR
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Validate 30-second dynamic rolling QR passes, clock skew drift, anti-replay nonces, and JakLingko 3-hour transfer windows.
+            Validasi tiket QR rolling 30 detik, verifikasi kriptografi, toleransi pergeseran waktu (clock skew), anti-replay, dan batasan integrasi 3 jam JakLingko.
           </p>
         </div>
 

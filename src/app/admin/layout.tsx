@@ -30,25 +30,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     {
       href: "/admin",
-      label: "Executive KPI",
+      label: "Dashboard KPI OCC",
       icon: <LayoutDashboard className="w-4 h-4" />,
       exact: true,
     },
     {
       href: "/admin/fleet",
-      label: "Fleet Management",
+      label: "Manajemen Armada",
       icon: <Truck className="w-4 h-4" />,
       exact: false,
     },
     {
       href: "/admin/alerts",
-      label: "Disruption Center",
+      label: "Maklumat Gangguan",
       icon: <Radio className="w-4 h-4" />,
       exact: false,
     },
     {
       href: "/admin/scanner",
-      label: "Turnstile Scanner",
+      label: "Validator Turnstile",
       icon: <QrCode className="w-4 h-4" />,
       exact: false,
     },
@@ -71,14 +71,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   OCC
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400">Operator Control Center</p>
+              <p className="text-[10px] text-slate-400">Pusat Kendali Operasi Multimoda</p>
             </div>
           </div>
 
           {/* Navigation Links */}
           <nav className="p-3 space-y-1.5">
             <div className="px-3 py-1 text-[10px] uppercase font-bold text-slate-500 tracking-wider font-mono">
-              Operations & Telemetry
+              Operasi & Telemetri
             </div>
             {navItems.map((item) => {
               const isActive = item.exact
@@ -111,9 +111,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <UserCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <div className="text-[11px] font-semibold text-white truncate">
-                OCC Lead Dispatcher
+                Kepala Dispatcher OCC
               </div>
-              <div className="text-[9px] text-slate-400 font-mono">Dukuh Atas Integrated Hub</div>
+              <div className="text-[9px] text-slate-400 font-mono">Simpul Integrasi Dukuh Atas</div>
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition"
           >
             <Compass className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Passenger Cockpit</span>
+            <span>Peta Penumpang</span>
           </Link>
         </div>
       </aside>

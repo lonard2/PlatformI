@@ -176,15 +176,15 @@ export default function AdminAlertsPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-950 border border-amber-500/40 text-amber-400 text-xs font-mono font-semibold">
-              NETWORK DISRUPTION & INCIDENT COMMAND
+              PUSAT MAKLUMAT & REKAYASA OPERASIONAL
             </span>
-            <span className="text-xs text-slate-400 font-mono">Live Broadcast Engine</span>
+            <span className="text-xs text-slate-400 font-mono">Penyebaran Real-time</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Disruption Alert Authoring & Broadcast Center
+            Pusat Komando Maklumat Gangguan Perjalanan
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Publish real-time traffic diversions, track maintenance, weather advisories, and service suspensions.
+            Penerbitan warta rekayasa lalu lintas, perawatan prasarana rel, peringatan cuaca maritim, dan penyesuaian jadwal operasional.
           </p>
         </div>
 
@@ -194,7 +194,7 @@ export default function AdminAlertsPage() {
           className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition self-start sm:self-auto flex items-center gap-2 text-xs"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-cyan-400" : ""}`} />
-          <span>Sync Bulletins</span>
+          <span>Perbarui Maklumat</span>
         </button>
       </div>
 

@@ -159,17 +159,17 @@ export default function FleetManagementPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
-              FLEET INVENTORY & ROLLING STOCK
+              INVENTARISASI SARANA & ROLLING STOCK
             </span>
             <span className="text-xs text-slate-400 font-mono">
-              {simulatedVehicles.length} Registered Units
+              {simulatedVehicles.length} Unit Terdaftar
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            Fleet Operations & Specifications Editor
+            Manajemen Sarana & Spesifikasi Armada Multimoda
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            Real-time management of train sets, coachbuilt BRT buses, executive shuttles, aircraft, and speedboats.
+            Pengelolaan telemetri real-time rangkaian KRL/MRT/LRT/Whoosh, bus karoseri BRT, travel shuttle eksekutif, pesawat udara, dan speedboat.
           </p>
         </div>
 
@@ -178,7 +178,7 @@ export default function FleetManagementPage() {
           className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-950/50 flex items-center gap-1.5 transition self-start sm:self-auto transform active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Deploy Simulated Vehicle</span>
+          <span>Tambah Armada Simulasi</span>
         </button>
       </div>
 
