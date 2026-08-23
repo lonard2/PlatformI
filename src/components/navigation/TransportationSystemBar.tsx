@@ -1,7 +1,7 @@
 /**
  * PlatformI - Multimodal Transportation Systems & Consolidated Hubs Bar
- * Real-time operational status indicators (Normal, Limited, Off-Hours),
- * native horizontal scrollbar with smooth arrow navigation, prominent touch-friendly icon badges,
+ * Real-time operational status indicators, category filter tabs & collapse/hide toggles,
+ * viewport-clamped hover preview cards, native horizontal scrollbar with smooth arrow controls,
  * and an unclipped expandable corridor/building detail tray.
  *
  * Rules: Zero raw emojis, strict Lucide SVG icons, strict TypeScript typing (no 'any').
@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import {
   Train,
   TrainTrack,
@@ -30,11 +30,16 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Info,
   X,
   Search,
   Check,
   Compass,
+  Eye,
+  EyeOff,
+  Filter,
+  Layers,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus } from "@/types/transit";
@@ -231,6 +236,16 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             statusText: "Normal (12 mnt)",
             fareText: "Rp 3.000 - Rp 4.000",
           },
+          {
+            code: "TP",
+            name: "Lin Tanjung Priok (Jakarta Kota - Ancol - Tanjung Priok)",
+            lineId: "line-krl-tpk",
+            headwayMinutes: 20,
+            operatingHours: "06:00 - 20:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (20 mnt)",
+            fareText: "Rp 3.000 Flat",
+          },
         ],
       },
       {
@@ -321,6 +336,17 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             statusText: "Operasional Normal",
             fareText: "Rp 80.000 - Rp 450.000",
           },
+          {
+            code: "JNG",
+            name: "Stasiun Jatinegara (Hub Antarmoda Jakarta Timur)",
+            stopId: "stop-kai-jng",
+            coordinates: [-6.2152, 106.8681],
+            headwayMinutes: 20,
+            operatingHours: "24 Jam",
+            status: "NORMAL",
+            statusText: "Operasional Normal",
+            fareText: "KRL & Kereta Jarak Jauh",
+          },
         ],
       },
     ],
@@ -351,7 +377,7 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
           {
             code: "1",
             name: "Koridor 1: Blok M — Kota",
-            lineId: "line-tj-k1",
+            lineId: "line-tj-cor-1",
             headwayMinutes: 3,
             operatingHours: "24 Jam (AMARI)",
             status: "NORMAL",
@@ -359,9 +385,79 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             fareText: "Rp 3.500 (JakLingko)",
           },
           {
+            code: "2",
+            name: "Koridor 2: Pulo Gadung — Monas",
+            lineId: "line-tj-cor-2",
+            headwayMinutes: 4,
+            operatingHours: "24 Jam (AMARI)",
+            status: "NORMAL",
+            statusText: "Normal (4-6 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "3",
+            name: "Koridor 3: Kalideres — Monas",
+            lineId: "line-tj-cor-3",
+            headwayMinutes: 4,
+            operatingHours: "24 Jam (AMARI)",
+            status: "NORMAL",
+            statusText: "Normal (4-6 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "4",
+            name: "Koridor 4: Pulo Gadung — Galunggung (Dukuh Atas)",
+            lineId: "line-tj-cor-4",
+            headwayMinutes: 5,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (5-8 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "5",
+            name: "Koridor 5: Kampung Melayu — Ancol",
+            lineId: "line-tj-cor-5",
+            headwayMinutes: 5,
+            operatingHours: "24 Jam (AMARI)",
+            status: "NORMAL",
+            statusText: "Normal (5 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "6",
+            name: "Koridor 6: Ragunan — Galunggung",
+            lineId: "line-tj-cor-6",
+            headwayMinutes: 5,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (5 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "7",
+            name: "Koridor 7: Kampung Rambutan — Kampung Melayu",
+            lineId: "line-tj-cor-7",
+            headwayMinutes: 4,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (4-7 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "8",
+            name: "Koridor 8: Lebak Bulus — Pasar Baru",
+            lineId: "line-tj-cor-8",
+            headwayMinutes: 5,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (5-8 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
             code: "9",
             name: "Koridor 9: Pinang Ranti — Pluit",
-            lineId: "line-tj-k9",
+            lineId: "line-tj-cor-9",
             headwayMinutes: 4,
             operatingHours: "24 Jam (AMARI)",
             status: "NORMAL",
@@ -369,13 +465,53 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             fareText: "Rp 3.500 (JakLingko)",
           },
           {
+            code: "10",
+            name: "Koridor 10: Tanjung Priok — PGC Cililitan",
+            lineId: "line-tj-cor-10",
+            headwayMinutes: 5,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (5 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "11",
+            name: "Koridor 11: Pulo Gebang — Kampung Melayu",
+            lineId: "line-tj-cor-11",
+            headwayMinutes: 6,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (6-10 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "12",
+            name: "Koridor 12: Pluit — Tanjung Priok",
+            lineId: "line-tj-cor-12",
+            headwayMinutes: 7,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (7-12 mnt)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
             code: "13",
             name: "Koridor 13: Ciledug — Tendean (Layang Elevated)",
-            lineId: "line-tj-k13",
+            lineId: "line-tj-cor-13",
             headwayMinutes: 5,
             operatingHours: "05:00 - 22:00 WIB",
             status: "NORMAL",
             statusText: "Normal (Layang)",
+            fareText: "Rp 3.500 (JakLingko)",
+          },
+          {
+            code: "14",
+            name: "Koridor 14: JIS — Senen Raya",
+            lineId: "line-tj-cor-14",
+            headwayMinutes: 8,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (8-12 mnt)",
             fareText: "Rp 3.500 (JakLingko)",
           },
         ],
@@ -404,6 +540,24 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             fareText: "Rp 0 (Wajib Kartu JakLingko)",
           },
           {
+            code: "JAK.10",
+            name: "JAK.10: Tanah Abang — Kota",
+            headwayMinutes: 8,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (8-10 mnt)",
+            fareText: "Rp 0 (JakLingko)",
+          },
+          {
+            code: "JAK.32",
+            name: "JAK.32: Petamburan — Rawamangun",
+            headwayMinutes: 10,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (10 mnt)",
+            fareText: "Rp 0 (JakLingko)",
+          },
+          {
             code: "JAK.45",
             name: "JAK.45: Lebak Bulus — Ragunan",
             headwayMinutes: 10,
@@ -411,6 +565,15 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             status: "NORMAL",
             statusText: "Normal (10 mnt)",
             fareText: "Rp 0 (Wajib Kartu JakLingko)",
+          },
+          {
+            code: "JAK.52",
+            name: "JAK.52: Kalideres — Muara Angke",
+            headwayMinutes: 12,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal (12 mnt)",
+            fareText: "Rp 0 (JakLingko)",
           },
         ],
       },
@@ -460,6 +623,26 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             statusText: "Beroperasi Normal (Lintas Sumatra & Banten)",
             fareText: "Sesuai PO Bus",
           },
+          {
+            code: "PRS",
+            name: "Terminal Poris Plawad (Kota Tangerang)",
+            coordinates: [-6.1738, 106.6631],
+            headwayMinutes: 25,
+            operatingHours: "24 Jam",
+            status: "NORMAL",
+            statusText: "Beroperasi Normal (Banten & Antarkota)",
+            fareText: "Sesuai PO Bus",
+          },
+          {
+            code: "BRN",
+            name: "Terminal Baranangsiang (Kota Bogor)",
+            coordinates: [-6.6025, 106.8089],
+            headwayMinutes: 20,
+            operatingHours: "24 Jam",
+            status: "NORMAL",
+            statusText: "Beroperasi Normal (Bogor Raya & Lintas Jawa)",
+            fareText: "Sesuai PO Bus",
+          },
         ],
       },
       {
@@ -497,6 +680,16 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             status: "NORMAL",
             statusText: "Normal",
             fareText: "Rp 110.000 - Rp 175.000",
+          },
+          {
+            code: "SMG-JAK",
+            name: "Pool Semanggi / Gatot Subroto (Executive Line)",
+            coordinates: [-6.2189, 106.8156],
+            headwayMinutes: 30,
+            operatingHours: "05:00 - 22:00 WIB",
+            status: "NORMAL",
+            statusText: "Normal",
+            fareText: "Rp 130.000 - Rp 190.000",
           },
         ],
       },
@@ -542,6 +735,16 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
             name: "Bandara Soekarno-Hatta Terminal 2 (LCC & Regional)",
             coordinates: [-6.1275, 106.6521],
             headwayMinutes: 10,
+            operatingHours: "24 Jam",
+            status: "NORMAL",
+            statusText: "Operasional Normal",
+            fareText: "Penerbangan Domestik",
+          },
+          {
+            code: "CGK-T1",
+            name: "Bandara Soekarno-Hatta Terminal 1 (Domestik)",
+            coordinates: [-6.1342, 106.6602],
+            headwayMinutes: 15,
             operatingHours: "24 Jam",
             status: "NORMAL",
             statusText: "Operasional Normal",
@@ -627,15 +830,24 @@ export function TransportationSystemBar() {
   const toggleMode = useTransitStore((state) => state.toggleMode);
   const toggleCategory = useTransitStore((state) => state.toggleCategory);
   const isCategoryActive = useTransitStore((state) => state.isCategoryActive);
+  const selectAllModes = useTransitStore((state) => state.selectAllModes);
+  const clearAllModes = useTransitStore((state) => state.clearAllModes);
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);
 
+  // States
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<"ALL" | TransitCategory>("ALL");
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [hoverCardPos, setHoverCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const [corridorSearchQuery, setCorridorSearchQuery] = useState<string>("");
+
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const barWrapperRef = useRef<HTMLDivElement | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Close active tray when clicking outside
   useEffect(() => {
@@ -664,14 +876,47 @@ export function TransportationSystemBar() {
     }
   };
 
+  const toggleCategoryCollapse = (category: TransitCategory, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCollapsedCategories((prev) => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
+
   const handleItemToggle = (item: TransitSystemItem, e: React.MouseEvent) => {
     e.stopPropagation();
+    setHoveredItemId(null);
     if (activeItemId === item.id) {
       setActiveItemId(null);
     } else {
       setActiveItemId(item.id);
       setCorridorSearchQuery("");
     }
+  };
+
+  const handleItemMouseEnter = (item: TransitSystemItem, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (activeItemId) return; // Don't show hover preview if tray is open
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cardWidth = 320;
+    const padding = 12;
+    let targetLeft = rect.left + rect.width / 2 - cardWidth / 2;
+
+    // Viewport bounding clamp
+    if (typeof window !== "undefined") {
+      targetLeft = Math.max(padding, Math.min(window.innerWidth - cardWidth - padding, targetLeft));
+    }
+
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoverCardPos({ left: targetLeft, top: rect.bottom + 6 });
+      setHoveredItemId(item.id);
+    }, 180);
+  };
+
+  const handleItemMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredItemId(null);
   };
 
   const handleCorridorSelect = (detail: SystemCorridorDetail) => {
@@ -690,9 +935,13 @@ export function TransportationSystemBar() {
     }
   };
 
-  // Find active item across all groups
+  // Find active item and hovered item
   const activeItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
     (item) => item.id === activeItemId
+  );
+
+  const hoveredItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
+    (item) => item.id === hoveredItemId
   );
 
   const filteredCorridors = activeItem
@@ -703,12 +952,79 @@ export function TransportationSystemBar() {
       )
     : [];
 
+  const visibleGroups = SYSTEM_GROUPS.filter((g) => {
+    if (activeCategoryFilter === "ALL") return true;
+    return g.category === activeCategoryFilter;
+  });
+
   return (
     <div
       ref={barWrapperRef}
       className="w-full bg-[#080c16]/98 backdrop-blur-2xl border-b border-white/10 z-30 shrink-0 select-none shadow-xl relative"
     >
-      {/* 1. HORIZONTAL SCROLLABLE BAR WITH LEFT/RIGHT NAVIGATION CONTROLS */}
+      {/* 1. TOP QUICK CATEGORY SECTOR TABS (SEMUA, REL, BUS, UDARA, LAUT) */}
+      <div className="flex items-center justify-between px-3 sm:px-6 pt-1.5 pb-1 border-b border-white/5 text-[11px] font-mono">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider hidden xs:inline flex items-center gap-1">
+            <Filter className="w-3 h-3 text-cyan-400" /> Sektor:
+          </span>
+
+          <button
+            onClick={() => setActiveCategoryFilter("ALL")}
+            className={`px-2.5 py-0.5 rounded-full transition-all text-[11px] font-bold ${
+              activeCategoryFilter === "ALL"
+                ? "bg-cyan-950/90 border border-cyan-400/60 text-cyan-300 shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Semua Sektor
+          </button>
+
+          {SYSTEM_GROUPS.map((g) => {
+            const isFilterActive = activeCategoryFilter === g.category;
+            const isCatActiveOnMap = isCategoryActive(g.category);
+
+            return (
+              <button
+                key={g.category}
+                onClick={() => setActiveCategoryFilter(g.category)}
+                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full transition-all text-[11px] font-bold ${
+                  isFilterActive
+                    ? "bg-slate-800 border border-white/20 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: isCatActiveOnMap ? g.accentColor : "#475569",
+                  }}
+                />
+                <span>{g.shortTitle}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Quick Global All / Clear Actions */}
+        <div className="hidden sm:flex items-center gap-1 text-[10px]">
+          <button
+            onClick={selectAllModes}
+            className="text-slate-400 hover:text-cyan-300 transition"
+          >
+            Semua Aktif
+          </button>
+          <span className="text-slate-600">&bull;</span>
+          <button
+            onClick={clearAllModes}
+            className="text-slate-400 hover:text-rose-400 transition"
+          >
+            Bersihkan
+          </button>
+        </div>
+      </div>
+
+      {/* 2. HORIZONTAL SCROLLABLE BAR WITH LEFT/RIGHT NAVIGATION CONTROLS */}
       <div className="relative flex items-center">
         {/* Left Scroll Arrow (Desktop) */}
         <button
@@ -725,119 +1041,144 @@ export function TransportationSystemBar() {
           ref={scrollContainerRef}
           className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-8 py-2 overflow-x-auto transit-scrollbar w-full scroll-smooth"
         >
-          {SYSTEM_GROUPS.map((group) => {
+          {visibleGroups.map((group) => {
             const GroupIcon = group.groupIcon;
             const isCatActive = isCategoryActive(group.category);
+            const isCollapsed = collapsedCategories[group.category] || false;
 
             return (
               <div
                 key={group.category}
-                className="flex items-center gap-1.5 sm:gap-2 shrink-0 pr-2 sm:pr-3 border-r border-white/10 last:border-r-0"
+                className="flex items-center gap-1.5 sm:gap-2 shrink-0 pr-2 sm:pr-3 border-r border-white/10 last:border-r-0 transition-all duration-300"
               >
-                {/* Group Category Header Badge */}
-                <button
-                  onClick={() => toggleCategory(group.category)}
-                  title={`Aktifkan / Nonaktifkan Semua ${group.title}`}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition shrink-0 ${
-                    isCatActive
-                      ? "bg-slate-900/90 text-white border-white/25 shadow-md"
-                      : "bg-slate-950/60 text-slate-400 border-white/5 hover:text-slate-200"
-                  }`}
-                  style={{
-                    borderLeftColor: isCatActive ? group.accentColor : undefined,
-                    borderLeftWidth: isCatActive ? "3.5px" : undefined,
-                  }}
-                >
-                  <GroupIcon className="w-4 h-4" style={{ color: group.accentColor }} />
-                  <span className="text-[11px] uppercase tracking-wider font-mono">
-                    {group.shortTitle}
-                  </span>
-                </button>
+                {/* Group Category Header Badge with Toggle and Collapse */}
+                <div className="flex items-center rounded-xl bg-slate-950/70 border border-white/10 p-0.5 shrink-0">
+                  <button
+                    onClick={() => toggleCategory(group.category)}
+                    title={`Klik untuk Aktifkan / Nonaktifkan Semua ${group.title} di Peta`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                      isCatActive
+                        ? "bg-slate-900/90 text-white shadow-md"
+                        : "text-slate-500 hover:text-slate-300 opacity-60"
+                    }`}
+                    style={{
+                      borderLeftColor: isCatActive ? group.accentColor : undefined,
+                      borderLeftWidth: isCatActive ? "3.5px" : undefined,
+                    }}
+                  >
+                    <GroupIcon className="w-4 h-4" style={{ color: isCatActive ? group.accentColor : "#64748b" }} />
+                    <span className="text-[11px] uppercase tracking-wider font-mono">
+                      {group.shortTitle}
+                    </span>
+                    {isCatActive ? (
+                      <Eye className="w-3 h-3 text-cyan-400" />
+                    ) : (
+                      <EyeOff className="w-3 h-3 text-slate-500" />
+                    )}
+                  </button>
+
+                  {/* Minimize / Collapse Group Items Toggle */}
+                  <button
+                    onClick={(e) => toggleCategoryCollapse(group.category, e)}
+                    title={isCollapsed ? "Tampilkan item sektor ini" : "Sembunyikan item sektor ini"}
+                    className="p-1 text-slate-400 hover:text-white rounded-md transition"
+                  >
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        isCollapsed ? "-rotate-90 text-slate-500" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
 
                 {/* Sub-group System Items */}
-                <div className="flex items-center gap-1.5">
-                  {group.items.map((item) => {
-                    const ItemIcon = item.icon;
-                    const isModeSelected = item.mode
-                      ? selectedModes.includes(item.mode)
-                      : true;
-                    const isSelected = activeItemId === item.id;
-                    const activeFleetCount = item.mode
-                      ? simulatedVehicles.filter((v) => v.mode === item.mode).length
-                      : 0;
+                {!isCollapsed && (
+                  <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
+                    {group.items.map((item) => {
+                      const ItemIcon = item.icon;
+                      const isModeSelected = item.mode
+                        ? selectedModes.includes(item.mode)
+                        : true;
+                      const isSelected = activeItemId === item.id;
+                      const activeFleetCount = item.mode
+                        ? simulatedVehicles.filter((v) => v.mode === item.mode).length
+                        : 0;
 
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={(e) => handleItemToggle(item, e)}
-                        title={`${item.name} — ${item.statusReason}`}
-                        className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all transform active:scale-95 shrink-0 ${
-                          isSelected
-                            ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30"
-                            : item.type === "building_hub"
-                            ? "bg-slate-900/90 border-cyan-500/40 text-slate-100 hover:border-cyan-400 shadow-sm"
-                            : isModeSelected
-                            ? "bg-slate-900/80 border-slate-700 text-white hover:border-slate-500 shadow-sm"
-                            : "bg-slate-950/50 border-slate-800/60 text-slate-400 opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        {/* Prominent Icon with Brand Color Glow */}
-                        <div
-                          className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
-                          style={{
-                            backgroundColor: `${item.brandColor}30`,
-                            border: `1px solid ${item.brandColor}70`,
-                          }}
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={(e) => handleItemToggle(item, e)}
+                          onMouseEnter={(e) => handleItemMouseEnter(item, e)}
+                          onMouseLeave={handleItemMouseLeave}
+                          title={`${item.name} — ${item.statusReason}`}
+                          className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all transform active:scale-95 shrink-0 ${
+                            isSelected
+                              ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30 scale-105"
+                              : item.type === "building_hub"
+                              ? "bg-slate-900/90 border-cyan-500/40 text-slate-100 hover:border-cyan-400 shadow-sm"
+                              : isModeSelected
+                              ? "bg-slate-900/80 border-slate-700 text-white hover:border-slate-500 shadow-sm"
+                              : "bg-slate-950/50 border-slate-800/60 text-slate-400 opacity-60 hover:opacity-100"
+                          }`}
                         >
-                          <ItemIcon className="w-3.5 h-3.5" style={{ color: item.brandColor }} />
-                        </div>
-
-                        {/* Labels & Operational Status Indicator Dot */}
-                        <div className="flex items-center gap-1.5 text-left">
-                          <span className="font-bold text-xs tracking-tight whitespace-nowrap">
-                            {item.shortCode}
-                          </span>
-
-                          {/* Live Operational Status Dot */}
-                          <span
-                            className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+                          {/* Prominent Icon with Brand Color Glow */}
+                          <div
+                            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110"
                             style={{
-                              backgroundColor:
-                                item.status === "NORMAL"
-                                  ? "#10b981"
-                                  : item.status === "LIMITED"
-                                  ? "#f59e0b"
-                                  : "#64748b",
-                              boxShadow:
-                                item.status === "NORMAL"
-                                  ? "0 0 6px #10b981"
-                                  : item.status === "LIMITED"
-                                  ? "0 0 6px #f59e0b"
-                                  : "none",
+                              backgroundColor: `${item.brandColor}30`,
+                              border: `1px solid ${item.brandColor}70`,
                             }}
-                            title={`Status: ${item.statusReason}`}
-                          />
+                          >
+                            <ItemIcon className="w-3.5 h-3.5" style={{ color: item.brandColor }} />
+                          </div>
 
-                          {item.type === "building_hub" ? (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
-                              HUB
+                          {/* Labels & Operational Status Indicator Dot */}
+                          <div className="flex items-center gap-1.5 text-left">
+                            <span className="font-bold text-xs tracking-tight whitespace-nowrap">
+                              {item.shortCode}
                             </span>
-                          ) : activeFleetCount > 0 ? (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
-                              {activeFleetCount}
-                            </span>
-                          ) : null}
 
-                          <ChevronDown
-                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                              isSelected ? "rotate-180 text-cyan-300" : ""
-                            }`}
-                          />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                            {/* Live Operational Status Dot */}
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0 animate-pulse"
+                              style={{
+                                backgroundColor:
+                                  item.status === "NORMAL"
+                                    ? "#10b981"
+                                    : item.status === "LIMITED"
+                                    ? "#f59e0b"
+                                    : "#64748b",
+                                boxShadow:
+                                  item.status === "NORMAL"
+                                    ? "0 0 6px #10b981"
+                                    : item.status === "LIMITED"
+                                    ? "0 0 6px #f59e0b"
+                                    : "none",
+                              }}
+                              title={`Status: ${item.statusReason}`}
+                            />
+
+                            {item.type === "building_hub" ? (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
+                                HUB
+                              </span>
+                            ) : activeFleetCount > 0 ? (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
+                                {activeFleetCount}
+                              </span>
+                            ) : null}
+
+                            <ChevronDown
+                              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                                isSelected ? "rotate-180 text-cyan-300" : ""
+                              }`}
+                            />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -854,7 +1195,58 @@ export function TransportationSystemBar() {
         </button>
       </div>
 
-      {/* 2. UNCLIPPED EXPANDABLE SERVICE DETAIL & CORRIDORS DRAWER TRAY */}
+      {/* 3. VIEWPORT-CLAMPED HOVER PREVIEW CARD (NEVER CUT OFF) */}
+      {hoveredItem && !activeItemId && (
+        <div
+          style={{
+            position: "fixed",
+            left: `${hoverCardPos.left}px`,
+            top: `${hoverCardPos.top}px`,
+            width: "320px",
+          }}
+          className="z-50 p-3 bg-[#0a0f1d]/98 backdrop-blur-2xl border border-cyan-500/40 rounded-2xl shadow-2xl shadow-black/90 pointer-events-none animate-in fade-in zoom-in-95 duration-150 text-slate-100 space-y-2 select-none"
+        >
+          <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-md"
+              style={{
+                backgroundColor: `${hoveredItem.brandColor}30`,
+                border: `1px solid ${hoveredItem.brandColor}70`,
+              }}
+            >
+              <hoveredItem.icon className="w-4 h-4" style={{ color: hoveredItem.brandColor }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs font-bold text-white truncate">{hoveredItem.name}</h4>
+              <p className="text-[10px] text-slate-400 font-mono truncate">{hoveredItem.description}</p>
+            </div>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
+              {hoveredItem.badgeLabel}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
+            <div>
+              <span className="text-slate-400 text-[9px]">Jam Operasi:</span>
+              <div className="text-slate-200 font-bold truncate">{hoveredItem.operatingHours}</div>
+            </div>
+            <div>
+              <span className="text-slate-400 text-[9px]">Status Layanan:</span>
+              <div className="text-emerald-400 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="truncate">{hoveredItem.statusReason}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] text-cyan-400 font-mono pt-0.5">
+            <span>{hoveredItem.corridorsOrBuildings.length} Koridor/Gedung</span>
+            <span className="text-slate-400 text-[9px]">Klik untuk jelajahi rute &rarr;</span>
+          </div>
+        </div>
+      )}
+
+      {/* 4. UNCLIPPED EXPANDABLE SERVICE DETAIL & CORRIDORS DRAWER TRAY */}
       {activeItem && (
         <div className="w-full border-t border-cyan-500/30 bg-[#060a14]/98 backdrop-blur-2xl shadow-2xl animate-in slide-in-from-top-2 duration-200 p-4 sm:p-5 text-slate-100">
           <div className="max-w-6xl mx-auto space-y-4">
@@ -924,7 +1316,7 @@ export function TransportationSystemBar() {
                     onClick={() => activeItem.mode && toggleMode(activeItem.mode)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold border transition flex items-center gap-1.5 ${
                       selectedModes.includes(activeItem.mode)
-                        ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300"
+                        ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300 shadow-md shadow-emerald-950/40"
                         : "bg-slate-900 border-slate-700 text-slate-400 hover:text-white"
                     }`}
                   >

@@ -11,10 +11,6 @@
 import React, { useState } from "react";
 import L from "leaflet";
 import {
-  Train,
-  Bus,
-  Plane,
-  Ship,
   Layers,
   Pause,
   Play,
@@ -27,19 +23,13 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
-import { TRANSIT_CATEGORY_CONFIG, TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
-import { TransitCategory } from "@/types/transit";
+import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
 
 interface MapControlsProps {
   map: L.Map | null;
 }
 
 export function MapControls({ map }: MapControlsProps) {
-  const selectedCategories = useTransitStore((state) => state.selectedCategories);
-  const toggleCategory = useTransitStore((state) => state.toggleCategory);
-  const selectAllModes = useTransitStore((state) => state.selectAllModes);
-  const clearAllModes = useTransitStore((state) => state.clearAllModes);
-  const selectedModes = useTransitStore((state) => state.selectedModes);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const setSimulationSpeed = useTransitStore((state) => state.setSimulationSpeed);
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
@@ -63,70 +53,9 @@ export function MapControls({ map }: MapControlsProps) {
     resetViewport();
   };
 
-  const categoryIcons: Record<TransitCategory, React.ReactNode> = {
-    RAIL: <Train className="w-4 h-4" />,
-    BUS: <Bus className="w-4 h-4" />,
-    AVIATION: <Plane className="w-4 h-4" />,
-    MARITIME: <Ship className="w-4 h-4" />,
-  };
-
   return (
     <>
-      {/* 1. TOP-LEFT: Multimodal Category Filter Bar */}
-      <div className="absolute top-4 left-4 z-[400] flex flex-wrap items-center gap-2 max-w-[calc(100vw-32px)] sm:max-w-none">
-        <div className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-xl shadow-black/40">
-          {(["RAIL", "BUS", "AVIATION", "MARITIME"] as TransitCategory[]).map((cat) => {
-            const isSelected = selectedCategories.includes(cat);
-            const meta = TRANSIT_CATEGORY_CONFIG[cat];
-            const activeCount = meta.modes.filter((m) => selectedModes.includes(m)).length;
-
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => toggleCategory(cat)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  isSelected
-                    ? `${meta.bgClass} ${meta.borderClass} ${meta.textClass} border shadow-sm`
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-                title={`Toggle ${meta.name}`}
-              >
-                {categoryIcons[cat]}
-                <span className="hidden sm:inline">{meta.shortName}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    isSelected ? "bg-white/10 text-white" : "bg-slate-800 text-slate-400"
-                  }`}
-                >
-                  {activeCount}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Quick Select / Clear Actions */}
-        <div className="hidden md:flex items-center gap-1 glass-panel rounded-xl p-1.5 shadow-xl shadow-black/40">
-          <button
-            type="button"
-            onClick={selectAllModes}
-            className="px-2 py-1 rounded-lg text-[11px] text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors font-medium"
-          >
-            All
-          </button>
-          <span className="text-slate-600 text-xs">&bull;</span>
-          <button
-            type="button"
-            onClick={clearAllModes}
-            className="px-2 py-1 rounded-lg text-[11px] text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-colors font-medium"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-
-      {/* 2. TOP-RIGHT: Basemap Tile Switcher Dropdown */}
+      {/* 1. TOP-RIGHT: Basemap Tile Switcher Dropdown */}
       <div className="absolute top-4 right-4 z-[400]">
         <div className="relative">
           <button

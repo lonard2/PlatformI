@@ -153,10 +153,10 @@ describe("Milestone 5: React UI Components Integration", () => {
     it("renders transportation groups: Rel, Bus & Terminal, Bandara, Pelabuhan", () => {
       render(<TransportationSystemBar />);
 
-      expect(screen.getByText("Rel")).toBeInTheDocument();
-      expect(screen.getByText("Bus & Terminal")).toBeInTheDocument();
-      expect(screen.getByText("Bandara")).toBeInTheDocument();
-      expect(screen.getByText("Pelabuhan & Laut")).toBeInTheDocument();
+      expect(screen.getAllByText("Rel").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Bus & Terminal").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Bandara").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Pelabuhan & Laut").length).toBeGreaterThanOrEqual(1);
 
       // Check key systems and consolidated hubs
       expect(screen.getByText("MRT")).toBeInTheDocument();

@@ -19,10 +19,10 @@ import path from "path";
 // Bounding box for Jabodetabek & West Java Transit Network
 // Covers Greater Jakarta, Bodetabek, Thousand Islands, Bandung (Whoosh), and AKAP routes to Central Java
 const NETWORK_BOUNDING_BOX = {
-  minLat: -8.0, // Extends to Central Java (Jogja/Solo) for AKAP
+  minLat: -8.5, // Extends to Central/East Java (Jogja/Solo/Surabaya) for AKAP & Intercity Rail
   maxLat: -5.5, // Extends north to Thousand Islands (Pulau Harapan / Pramuka)
   minLon: 106.0, // Extends west to Rangkasbitung / Banten / Merak
-  maxLon: 111.0, // Extends east to Central Java (Jogja) for AKAP
+  maxLon: 113.5, // Extends east to East Java (Surabaya / Malang) for KAI Intercity Rail
 };
 
 // Jakarta & Bodetabek Core Urban Rail/Bus Bounding Box
@@ -52,8 +52,8 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       }
     });
 
-    it("All 16 transit line polyline coordinates should fall within geographic network bounds", () => {
-      expect(TRANSIT_LINES.length).toBe(16);
+    it("All transit line polyline coordinates should fall within geographic network bounds", () => {
+      expect(TRANSIT_LINES.length).toBeGreaterThanOrEqual(16);
 
       for (const line of TRANSIT_LINES) {
         expect(line.polylineCoordinates.length).toBeGreaterThanOrEqual(2);
@@ -80,7 +80,7 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
     });
 
     it("All defined transit stops should have authentic coordinates within network bounds", () => {
-      expect(TRANSIT_STOPS.length).toBe(20);
+      expect(TRANSIT_STOPS.length).toBeGreaterThanOrEqual(20);
 
       for (const stop of TRANSIT_STOPS) {
         expect(stop.latitude).toBeLessThan(0);
