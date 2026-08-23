@@ -102,12 +102,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-mrt",
         name: "MRT Jakarta (Ratangga)",
-        shortCode: "M",
+        shortCode: "MRT Jakarta",
         type: "mode",
         mode: "MRT_JAKARTA",
         icon: Train,
         brandColor: "#E11924",
-        badgeLabel: "Metro M",
+        badgeLabel: "M",
         description: "Lebak Bulus Grab — Bundaran HI BNI",
         operatingHours: "05:00 - 24:00 WIB",
         status: "NORMAL",
@@ -129,12 +129,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-lrt-jb",
         name: "LRT Jabodebek",
-        shortCode: "CB / BK",
+        shortCode: "LRT Jabodebek",
         type: "mode",
         mode: "LRT_JABODEBEK_CIBUBUR",
         icon: TrainTrack,
         brandColor: "#0055A5",
-        badgeLabel: "GoA3",
+        badgeLabel: "CB · BK",
         description: "Dukuh Atas — Harjamukti (CB) / Jatimulya (BK)",
         operatingHours: "05:15 - 23:30 WIB",
         status: "NORMAL",
@@ -167,12 +167,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-lrt-jkt",
         name: "LRT Jakarta",
-        shortCode: "S",
+        shortCode: "LRT Jakarta",
         type: "mode",
         mode: "LRT_JAKARTA",
         icon: TrainTrack,
         brandColor: "#E30613",
-        badgeLabel: "Lin 1",
+        badgeLabel: "S",
         description: "Pegangsaan Dua — Velodrome Rawamangun",
         operatingHours: "05:30 - 23:00 WIB",
         status: "NORMAL",
@@ -194,12 +194,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-krl",
         name: "KRL Commuter Line Jabodetabek",
-        shortCode: "B/C/R/T/TP",
+        shortCode: "KRL Commuter",
         type: "mode",
         mode: "KRL_BOGOR",
         icon: Train,
         brandColor: "#ED1C24",
-        badgeLabel: "Commuter",
+        badgeLabel: "B·C·R·T·TP",
         description: "Lin Bogor (B), Cikarang (C), Rangkas (R), Tangerang (T), Priok (TP)",
         operatingHours: "04:00 - 24:00 WIB",
         status: "NORMAL",
@@ -265,12 +265,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-whoosh",
         name: "Whoosh Kereta Cepat Jakarta-Bandung",
-        shortCode: "W",
+        shortCode: "Whoosh HSR",
         type: "mode",
         mode: "WHOOSH_HSR",
         icon: Zap,
         brandColor: "#C41230",
-        badgeLabel: "350 km/h",
+        badgeLabel: "W",
         description: "Halim HSR — Karawang — Padalarang — Tegalluar",
         operatingHours: "06:00 - 21:30 WIB",
         status: "NORMAL",
@@ -292,12 +292,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-railink",
         name: "KAI Bandara (Railink Basoetta)",
-        shortCode: "A",
+        shortCode: "KAI Bandara",
         type: "mode",
         mode: "KAI_BANDARA",
         icon: Train,
         brandColor: "#008080",
-        badgeLabel: "Airport Rail",
+        badgeLabel: "A",
         description: "Manggarai — BNI City — Duri — Batu Ceper — Bandara Soetta",
         operatingHours: "05:00 - 22:45 WIB",
         status: "NORMAL",
@@ -319,12 +319,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-kai-jj",
         name: "KAI Jarak Jauh (Antarkota)",
-        shortCode: "KAI",
+        shortCode: "KAI Intercity",
         type: "mode",
         mode: "KAI_INTERCITY",
         icon: Train,
         brandColor: "#003366",
-        badgeLabel: "Intercity",
+        badgeLabel: "KAI",
         description: "Gambir & Pasar Senen menuju Cirebon, Semarang, Jogja, Surabaya",
         operatingHours: "24 Jam Sesuai Gapeka",
         status: "NORMAL",
@@ -371,12 +371,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-tj-brt",
         name: "TransJakarta BRT & Sub-Koridor",
-        shortCode: "BRT 1-14",
+        shortCode: "TransJakarta BRT",
         type: "mode",
         mode: "TRANSJAKARTA_BRT",
         icon: Bus,
         brandColor: "#0072BC",
-        badgeLabel: "BRT Trunk",
+        badgeLabel: "1 - 14",
         description: "14 Koridor Utama & 9 Sub-Koridor Layang / Lintas Wilayah",
         operatingHours: "05:00 - 22:00 WIB (24 Jam AMARI di Koridor 1, 2, 3, 5, 9)",
         status: "NORMAL",
@@ -412,7 +412,7 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-tj-feeder",
         name: "TransJakarta Feeder (Non-BRT)",
-        shortCode: "FEEDER",
+        shortCode: "TJ Non-BRT",
         type: "mode",
         mode: "TRANSJAKARTA_NON_BRT",
         icon: Bus,
@@ -466,12 +466,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-tj-royal",
         name: "RoyalTrans Premium (Suburban Direct)",
-        shortCode: "ROYAL",
+        shortCode: "RoyalTrans",
         type: "mode",
         mode: "TRANSJAKARTA_NON_BRT",
         icon: Crown,
         brandColor: "#8B5CF6",
-        badgeLabel: "RoyalTrans",
+        badgeLabel: "Premium",
         description: "Layanan Bus Premium Reclining Seat & Port USB Tol Jabodetabek",
         operatingHours: "05:30 - 21:00 WIB",
         status: "NORMAL",
@@ -493,12 +493,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-tj-wisata",
         name: "Bus Wisata Jakarta (Double Decker Tour)",
-        shortCode: "WISATA",
+        shortCode: "Bus Wisata",
         type: "mode",
         mode: "TRANSJAKARTA_NON_BRT",
         icon: Camera,
         brandColor: "#EAB308",
-        badgeLabel: "Bus Wisata",
+        badgeLabel: "Wisata",
         description: "Bus Tingkat Wisata Keliling Landmark Bersejarah Jakarta (Gratis/Komersial)",
         operatingHours: "10:00 - 18:00 WIB (Selasa - Minggu)",
         status: "NORMAL",
@@ -520,12 +520,12 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-mikrotrans",
         name: "MikroTrans (JakLingko Angkot Modern)",
-        shortCode: "JAK.01 - 120",
+        shortCode: "MikroTrans",
         type: "mode",
         mode: "MIKROTRANS",
         icon: CarTaxiFront,
         brandColor: "#00A39D",
-        badgeLabel: "Rp 0",
+        badgeLabel: "JakLingko",
         description: "Feeder Pemukiman & Stasiun (JakLingko 100+ Rute Seluruh Jakarta)",
         operatingHours: "05:00 - 22:00 WIB",
         status: "NORMAL",
@@ -613,13 +613,13 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-hub-terminals",
         name: "Terminal Bus Terpadu (AKAP Antarkota)",
-        shortCode: "TERMINAL",
+        shortCode: "Terminal AKAP",
         type: "building_hub",
         targetStopId: "stop-akap-pgb",
         targetCoordinates: [-6.2125, 106.9532],
         icon: Building2,
         brandColor: "#6366F1",
-        badgeLabel: "Hub AKAP",
+        badgeLabel: "Terminal",
         description: "Gedung Terminal Pulo Gebang, Kp. Rambutan, Kalideres, Poris",
         operatingHours: "24 Jam",
         status: "NORMAL",
@@ -636,13 +636,13 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-hub-shuttles",
         name: "Point-to-Point Executive Shuttle Hub",
-        shortCode: "SHUTTLE",
+        shortCode: "Travel Shuttle",
         type: "building_hub",
         targetStopId: "stop-shuttle-fx",
         targetCoordinates: [-6.2255, 106.8041],
         icon: Car,
         brandColor: "#06B6D4",
-        badgeLabel: "Shuttle",
+        badgeLabel: "Pool",
         description: "Pool fX Sudirman, Pancoran, Semanggi (HiAce Premio)",
         operatingHours: "05:00 - 22:00 WIB",
         status: "NORMAL",
@@ -666,13 +666,13 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-hub-airports",
         name: "Bandara Komersial Jabodetabek",
-        shortCode: "CGK / HLP",
+        shortCode: "Bandara CGK & HLP",
         type: "building_hub",
         targetStopId: "stop-air-cgk-t3",
         targetCoordinates: [-6.1256, 106.6558],
         icon: PlaneTakeoff,
         brandColor: "#0EA5E9",
-        badgeLabel: "Aviation",
+        badgeLabel: "Bandara",
         description: "Soekarno-Hatta (CGK) T1, T2, T3 & Halim Perdanakusuma (HLP)",
         operatingHours: "24 Jam",
         status: "NORMAL",
@@ -697,13 +697,13 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
       {
         id: "sys-hub-ports",
         name: "Pelabuhan & Dermaga Penumpang",
-        shortCode: "SBD / PELNI",
+        shortCode: "Pelabuhan & Speedboat",
         type: "building_hub",
         targetStopId: "stop-sea-angke",
         targetCoordinates: [-6.1095, 106.7735],
         icon: Ship,
         brandColor: "#0284c7",
-        badgeLabel: "Maritime",
+        badgeLabel: "Dermaga",
         description: "Dermaga Muara Angke, Marina Ancol, Pelabuhan Tanjung Priok",
         operatingHours: "06:00 - 18:00 WIB",
         status: "NORMAL",
@@ -1030,8 +1030,20 @@ export function TransportationSystemBar() {
 
                             {/* Labels & Operational Status Indicator Dot */}
                             <div className="flex items-center gap-1.5 text-left">
-                              <span className="font-bold text-xs tracking-tight whitespace-nowrap">
+                              <span className="font-bold text-xs tracking-tight whitespace-nowrap text-white">
                                 {item.shortCode}
+                              </span>
+
+                              {/* Standardized Route / System Badge */}
+                              <span
+                                className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0 hidden sm:inline-block"
+                                style={{
+                                  backgroundColor: `${item.brandColor}25`,
+                                  color: item.brandColor,
+                                  border: `1px solid ${item.brandColor}60`,
+                                }}
+                              >
+                                {item.badgeLabel}
                               </span>
 
                               {/* Live Operational Status Dot */}
@@ -1055,11 +1067,11 @@ export function TransportationSystemBar() {
                               />
 
                               {item.type === "building_hub" ? (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
                                   HUB
                                 </span>
                               ) : (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
                                   {item.corridorsOrBuildings.length}
                                 </span>
                               )}

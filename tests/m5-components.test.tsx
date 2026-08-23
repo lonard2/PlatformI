@@ -159,18 +159,18 @@ describe("Milestone 5: React UI Components Integration", () => {
       expect(screen.getAllByText("Pelabuhan & Laut").length).toBeGreaterThanOrEqual(1);
 
       // Check key systems and consolidated hubs
-      expect(screen.getByText("M")).toBeInTheDocument();
-      expect(screen.getByText("W")).toBeInTheDocument();
-      expect(screen.getByText("BRT 1-14")).toBeInTheDocument();
-      expect(screen.getByText("TERMINAL")).toBeInTheDocument();
-      expect(screen.getByText("SHUTTLE")).toBeInTheDocument();
-      expect(screen.getByText("CGK / HLP")).toBeInTheDocument();
-      expect(screen.getByText("SBD / PELNI")).toBeInTheDocument();
+      expect(screen.getByText("MRT Jakarta")).toBeInTheDocument();
+      expect(screen.getByText("Whoosh HSR")).toBeInTheDocument();
+      expect(screen.getByText("TransJakarta BRT")).toBeInTheDocument();
+      expect(screen.getByText("Terminal AKAP")).toBeInTheDocument();
+      expect(screen.getByText("Travel Shuttle")).toBeInTheDocument();
+      expect(screen.getByText("Bandara CGK & HLP")).toBeInTheDocument();
+      expect(screen.getByText("Pelabuhan & Speedboat")).toBeInTheDocument();
     });
 
     it("opens popover and toggles mode when clicking mode badge popover toggle", () => {
       render(<TransportationSystemBar />);
-      const mrtBtn = screen.getByText("M").closest("button");
+      const mrtBtn = screen.getByText("MRT Jakarta").closest("button");
       if (mrtBtn) {
         // Click to open popover
         fireEvent.click(mrtBtn);
@@ -184,7 +184,7 @@ describe("Milestone 5: React UI Components Integration", () => {
 
     it("selects building hub and focuses viewport when clicking consolidated hub corridor", () => {
       render(<TransportationSystemBar />);
-      const terminalBtn = screen.getByText("TERMINAL").closest("button");
+      const terminalBtn = screen.getByText("Terminal AKAP").closest("button");
       if (terminalBtn) {
         // Open popover
         fireEvent.click(terminalBtn);

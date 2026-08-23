@@ -97,8 +97,8 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden select-none pb-14 lg:pb-0">
-      {/* 1. TOP PASSENGER HEADER */}
-      <header className="h-13 sm:h-14 border-b border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0">
+      {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
+      <header className="hidden sm:flex h-13 sm:h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
         {/* Left Brand Badge */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
