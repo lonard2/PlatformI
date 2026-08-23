@@ -18,10 +18,12 @@ import { HubMarkerLayer } from "./HubMarkerLayer";
 import { VehicleMarkerLayer } from "./VehicleMarkerLayer";
 import { MapControls } from "./MapControls";
 
-export function TransitMap() {
-  // Activate real-time GTFS-RT vector movement simulation engine
+function SimulationDriver() {
   useTransitSimulation();
+  return null;
+}
 
+export function TransitMap() {
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
   const viewportCenter = useTransitStore((state) => state.viewportCenter);
   const viewportZoom = useTransitStore((state) => state.viewportZoom);
@@ -103,6 +105,7 @@ export function TransitMap() {
       <div ref={mapContainerRef} className="w-full h-full leaflet-container" />
 
       {/* Cartography Vector & Marker Layers */}
+      <SimulationDriver />
       {mapReady && (
         <>
           <RoutePolylineLayer map={mapReady} />

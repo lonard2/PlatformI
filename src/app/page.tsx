@@ -44,7 +44,6 @@ import { TransportationSystemBar } from "@/components/navigation/TransportationS
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 
 export default function Home() {
-  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
@@ -83,13 +82,6 @@ export default function Home() {
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const movingVehiclesCount = simulatedVehicles.filter(
-    (v) => v.status === "IN_SERVICE" && v.speedKmh > 0
-  ).length;
-  const boardingVehiclesCount = simulatedVehicles.filter(
-    (v) => v.status === "BOARDING"
-  ).length;
 
   const handleOpenCheckIn = (vehicleId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
@@ -309,63 +301,11 @@ export default function Home() {
       />
 
       {/* 5. BOTTOM TELEMETRY TICKER / METRICS STRIP */}
-      <footer className="h-9 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-xs text-slate-400 font-mono">
-        <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5">
-            <Radio className="w-3 h-3 text-cyan-400" />
-            <span>
-              Fleet:{" "}
-              <strong className="text-slate-200">{simulatedVehicles.length} Units</strong>
-            </span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>
-              Moving: <strong className="text-emerald-400">{movingVehiclesCount}</strong>
-            </span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span>
-              Boarding: <strong className="text-amber-400">{boardingVehiclesCount}</strong>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3 h-3 text-blue-400" />
-            <span>
-              Networks:{" "}
-              <strong className="text-slate-200">{allLines.length} Lines</strong>
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-1.5">
-            <Compass className="w-3 h-3 text-emerald-400" />
-            <span>
-              Interchanges:{" "}
-              <strong className="text-slate-200">{allStops.length} Hubs</strong>
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="text-[11px] text-slate-400">
-            Simulasi:{" "}
-            <span className="text-cyan-400 font-bold">
-              {simulationSpeed === 0 ? "Jeda (0x)" : `${simulationSpeed}x`}
-            </span>
-          </div>
-          <span className="text-slate-600 hidden sm:inline">&bull;</span>
-          <Link
-            href="/admin"
-            className="text-[11px] text-slate-500 hover:text-slate-300 transition underline underline-offset-2 hidden md:inline"
-          >
-            Portal Petugas (OCC)
-          </Link>
-        </div>
-      </footer>
+      <TelemetryFooter
+        allLinesCount={allLines.length}
+        allStopsCount={allStops.length}
+        simulationSpeed={simulationSpeed}
+      />
 
       {/* 6. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
@@ -373,5 +313,86 @@ export default function Home() {
         onOpenStatus={() => setIsStatusDrawerOpen(true)}
       />
     </main>
+  );
+}
+
+/**
+ * Isolated Telemetry Footer Component
+ * Subscribes to vehicle statuses independently so that the main Home component
+ * and its 20+ children do NOT re-render on vehicle movements.
+ */
+function TelemetryFooter({
+  allLinesCount,
+  allStopsCount,
+  simulationSpeed,
+}: {
+  allLinesCount: number;
+  allStopsCount: number;
+  simulationSpeed: number;
+}) {
+  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
+
+  const movingVehiclesCount = simulatedVehicles.filter(
+    (v) => v.status === "IN_SERVICE" && v.speedKmh > 0
+  ).length;
+  const boardingVehiclesCount = simulatedVehicles.filter(
+    (v) => v.status === "BOARDING"
+  ).length;
+
+  return (
+    <footer className="h-9 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-xs text-slate-400 font-mono">
+      <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5">
+          <Radio className="w-3 h-3 text-cyan-400" />
+          <span>
+            Fleet: <strong className="text-slate-200">{simulatedVehicles.length} Units</strong>
+          </span>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>
+            Moving: <strong className="text-emerald-400">{movingVehiclesCount}</strong>
+          </span>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span>
+            Boarding: <strong className="text-amber-400">{boardingVehiclesCount}</strong>
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <Layers className="w-3 h-3 text-blue-400" />
+          <span>
+            Networks: <strong className="text-slate-200">{allLinesCount} Lines</strong>
+          </span>
+        </div>
+
+        <div className="hidden md:flex items-center gap-1.5">
+          <Compass className="w-3 h-3 text-emerald-400" />
+          <span>
+            Interchanges: <strong className="text-slate-200">{allStopsCount} Hubs</strong>
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="text-[11px] text-slate-400">
+          Simulasi:{" "}
+          <span className="text-cyan-400 font-bold">
+            {simulationSpeed === 0 ? "Jeda (0x)" : `${simulationSpeed}x`}
+          </span>
+        </div>
+        <span className="text-slate-600 hidden sm:inline">&bull;</span>
+        <Link
+          href="/admin"
+          className="text-[11px] text-slate-500 hover:text-slate-300 transition underline underline-offset-2 hidden md:inline"
+        >
+          Portal Petugas (OCC)
+        </Link>
+      </div>
+    </footer>
   );
 }

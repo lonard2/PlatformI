@@ -725,7 +725,6 @@ export function TransportationSystemBar() {
   const isCategoryActive = useTransitStore((state) => state.isCategoryActive);
   const selectAllModes = useTransitStore((state) => state.selectAllModes);
   const clearAllModes = useTransitStore((state) => state.clearAllModes);
-  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);

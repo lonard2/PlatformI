@@ -207,3 +207,29 @@ body {
   border-top-color: rgba(8, 12, 22, 0.96) !important;
 }
 
+/* GPU Hardware Acceleration for Vector Simulation & Map Markers */
+.custom-vehicle-div-icon {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.vehicle-arrow-dir {
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+
+.vehicle-marker-wrapper {
+  will-change: transform;
+}
+
+/* Low-Power & Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .hub-pulse-ring,
+  .beacon-pulse,
+  .radar-scan,
+  .shimmer-active {
+    animation: none !important;
+  }
+}
+

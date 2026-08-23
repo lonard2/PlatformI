@@ -34,7 +34,11 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedLineId = useTransitStore((state) => state.selectedLineId);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
-  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
+  const activeVehicleLineId = useTransitStore((state) =>
+    state.selectedVehicleId
+      ? state.simulatedVehicles.find((v) => v.id === state.selectedVehicleId)?.lineId
+      : null
+  );
   const hoveredEntity = useTransitStore((state) => state.hoveredEntity);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
@@ -60,9 +64,6 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
 
     const layerGroup = layerGroupRef.current;
     layerGroup.clearLayers();
-
-    const selectedVehicle = simulatedVehicles.find((v) => v.id === selectedVehicleId);
-    const activeVehicleLineId = selectedVehicle?.lineId;
 
     for (const line of allLines) {
       // 1. Filter out unselected transit modes
@@ -174,7 +175,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
     selectedModes,
     selectedLineId,
     selectedVehicleId,
-    simulatedVehicles,
+    activeVehicleLineId,
     hoveredEntity,
     selectLine,
     setHoveredEntity,

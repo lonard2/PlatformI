@@ -265,13 +265,18 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
           zIndexOffset: isSelected ? 1000 : 800,
         });
 
-        // Attach Desktop Glassmorphic Hover Tooltip
-        const tooltipHtml = buildVehicleTooltipHtml(vehicle, brandColor, nextStop?.name);
-        marker.bindTooltip(tooltipHtml, {
+        // Attach Desktop Glassmorphic Hover Tooltip (Lazy populated on hover)
+        marker.bindTooltip("", {
           direction: "top",
           offset: [0, -22],
           className: "custom-glass-vehicle-tooltip",
           opacity: 1,
+        });
+
+        marker.on("tooltipopen", () => {
+          const freshVeh = simulatedVehicles.find((v) => v.id === vehicle.id) || vehicle;
+          const freshStop = allStops.find((s) => s.id === freshVeh.nextStopId);
+          marker.setTooltipContent(buildVehicleTooltipHtml(freshVeh, brandColor, freshStop?.name));
         });
 
         // Click handler: opens vehicle inspector drawer directly
@@ -310,9 +315,11 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
         // Smoothly update coordinate without DOM recreation
         marker.setLatLng([vehicle.currentLatitude, vehicle.currentLongitude]);
 
-        // Keep tooltip content fresh
-        const tooltipHtml = buildVehicleTooltipHtml(vehicle, brandColor, nextStop?.name);
-        marker.setTooltipContent(tooltipHtml);
+        // Performance: Only update tooltip DOM if the tooltip is actually open/hovered!
+        if (marker.isTooltipOpen && marker.isTooltipOpen()) {
+          const tooltipHtml = buildVehicleTooltipHtml(vehicle, brandColor, nextStop?.name);
+          marker.setTooltipContent(tooltipHtml);
+        }
 
         // If selection state or crowd level changed, update full icon
         if (lastSelected !== isSelected || lastCrowdLevel !== vehicle.crowdLevel) {
