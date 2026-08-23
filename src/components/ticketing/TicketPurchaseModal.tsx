@@ -13,6 +13,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Ticket as TicketIcon,
   Train,
@@ -225,13 +226,27 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/50 text-slate-100 overflow-hidden">
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-blue-950/40 shrink-0">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/50 text-slate-100 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-blue-950/40 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
               <TicketIcon className="w-4 h-4" />
@@ -490,7 +505,9 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
             </button>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };

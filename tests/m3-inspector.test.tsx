@@ -173,7 +173,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleDetailSheet vehicleId={mrtVehicle.id} onClose={onCloseMock} />);
 
       // Overview Tab is default
-      expect(screen.getByText(/MRT Ratangga/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/MRT Ratangga/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/Kecepatan/i)).toBeInTheDocument();
       expect(screen.getByText(/Arah Kompas/i)).toBeInTheDocument();
       expect(screen.getByText(/Kepadatan Penumpang/i)).toBeInTheDocument();
@@ -271,15 +271,15 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       const { container } = render(<VehicleCarriageSelector vehicle={trainVehicle} />);
 
       // Verify title shows SF length
-      expect(screen.getByText(new RegExp(`Susunan Rangkaian Kereta \\(${trainVehicle.carriages!.length} SF\\)`, "i"))).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(`(Diagram Formasi Rangkaian|Susunan Rangkaian Kereta) \\(${trainVehicle.carriages!.length} SF\\)`, "i"))).toBeInTheDocument();
 
       // Verify buttons for K1, K2, etc.
-      expect(screen.getByText("K1")).toBeInTheDocument();
-      expect(screen.getByText("K2")).toBeInTheDocument();
+      expect(screen.getAllByText("K1")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("K2")[0]).toBeInTheDocument();
 
       // Click on Kereta 2
-      const k2Btn = screen.getByText("K2");
-      fireEvent.click(k2Btn);
+      const k2Btns = screen.getAllByText("K2");
+      fireEvent.click(k2Btns[0]);
 
       // Verify Kereta 2 details show up
       expect(screen.getByText(/Kereta 2/i)).toBeInTheDocument();

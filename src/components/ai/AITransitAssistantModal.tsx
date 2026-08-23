@@ -10,6 +10,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Bot,
@@ -215,10 +216,26 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#0e1424] border border-white/15 rounded-2xl w-full max-w-3xl h-[92vh] max-h-[780px] flex flex-col shadow-2xl overflow-hidden relative text-slate-100">
-        {/* 1. MODAL HEADER */}
-        <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between bg-slate-900/80 backdrop-blur-sm shrink-0">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 14 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 14 }}
+            transition={{ type: "spring", damping: 26, stiffness: 290 }}
+            className="bg-[#0e1424] border border-white/15 rounded-2xl w-full max-w-3xl h-[92vh] max-h-[780px] flex flex-col shadow-2xl overflow-hidden relative text-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 1. MODAL HEADER */}
+            <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between bg-slate-900/80 backdrop-blur-sm shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
               <Sparkles className="w-4 h-4 text-white" />
@@ -505,7 +522,9 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             <span>PlatformI Jabodetabek Engine</span>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };

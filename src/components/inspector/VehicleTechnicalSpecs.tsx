@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { Vehicle, TechnicalSpec, TransitMode } from "@/types/transit";
 import { VEHICLE_TECHNICAL_SPECS } from "@/lib/data/jakarta-dataset";
+import { VehicleCarriageSelector } from "./VehicleCarriageSelector";
 
 interface VehicleTechnicalSpecsProps {
   vehicle: Vehicle;
@@ -550,6 +551,11 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
     <div className="space-y-4 text-slate-200">
       {/* 1. TECHNICAL DIMENSION BLUEPRINT SCHEMATIC */}
       {renderVehicleDimensionDiagram(vehicle, spec)}
+
+      {/* Interactive Trainset / Carriage Formation Selector & Telemetry */}
+      {vehicle.carriages && vehicle.carriages.length > 0 && (
+        <VehicleCarriageSelector vehicle={vehicle} />
+      )}
 
       {/* 2. SPECIFICATION MATRIX GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

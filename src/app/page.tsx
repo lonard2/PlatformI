@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
   ShieldCheck,
@@ -203,34 +204,56 @@ export default function Home() {
         <DynamicMap />
 
         {/* Floating Crowdsource Feed Drawer */}
-        {activeDrawer === "crowdsource" && (
-          <div className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-96 max-w-[calc(100vw-24px)] animate-in slide-in-from-right duration-200">
-            <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} />
-          </div>
-        )}
+        <AnimatePresence>
+          {activeDrawer === "crowdsource" && (
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 40 }}
+              transition={{ type: "spring", damping: 25, stiffness: 280 }}
+              className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-96 max-w-[calc(100vw-24px)]"
+            >
+              <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Floating Pass Wallet Drawer */}
-        {activeDrawer === "tickets" && (
-          <div className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-[420px] max-w-[calc(100vw-24px)] animate-in slide-in-from-right duration-200">
-            <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
-          </div>
-        )}
+        <AnimatePresence>
+          {activeDrawer === "tickets" && (
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 40 }}
+              transition={{ type: "spring", damping: 25, stiffness: 280 }}
+              className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-[420px] max-w-[calc(100vw-24px)]"
+            >
+              <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Enthusiast Vehicle Detail Inspector Sheet */}
-        {(selectedVehicleId || activeDrawer === "vehicle") && (
-          <VehicleDetailSheet
-            vehicleId={selectedVehicleId}
-            onClose={clearSelection}
-          />
-        )}
+        <AnimatePresence>
+          {(selectedVehicleId || activeDrawer === "vehicle") && (
+            <VehicleDetailSheet
+              key={selectedVehicleId || "vehicle-drawer"}
+              vehicleId={selectedVehicleId}
+              onClose={clearSelection}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Station, Hub, Terminal & Port Detail Sheet */}
-        {(selectedStopId || activeDrawer === "hub") && (
-          <HubDetailSheet
-            stopId={selectedStopId}
-            onClose={clearSelection}
-          />
-        )}
+        <AnimatePresence>
+          {(selectedStopId || activeDrawer === "hub") && (
+            <HubDetailSheet
+              key={selectedStopId || "hub-drawer"}
+              stopId={selectedStopId}
+              onClose={clearSelection}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Floating Bottom-Right Quick Action Button */}
         <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2">

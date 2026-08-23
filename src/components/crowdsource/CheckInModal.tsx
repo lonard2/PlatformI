@@ -14,6 +14,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   Wind,
@@ -211,10 +212,26 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden">
-        {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-cyan-950/40 shrink-0">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-cyan-950/40 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
               <Users className="w-4 h-4" />
@@ -453,7 +470,9 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             </button>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };

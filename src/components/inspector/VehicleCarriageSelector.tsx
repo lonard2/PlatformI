@@ -25,6 +25,8 @@ import {
   Info,
   CheckCircle2,
   AlertCircle,
+  Maximize2,
+  Cpu,
 } from "lucide-react";
 import { Vehicle, VehicleCarriageTelemetry } from "@/types/transit";
 
@@ -49,13 +51,19 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
   const isAviation = vehicle.category === "AVIATION";
 
   const getOccupancyColor = (percent: number) => {
-    if (percent < 50) return { bg: "bg-emerald-500", text: "text-emerald-400", border: "border-emerald-500/40", lightBg: "bg-emerald-950/40" };
-    if (percent < 75) return { bg: "bg-cyan-500", text: "text-cyan-400", border: "border-cyan-500/40", lightBg: "bg-cyan-950/40" };
-    if (percent < 90) return { bg: "bg-amber-500", text: "text-amber-400", border: "border-amber-500/40", lightBg: "bg-amber-950/40" };
-    return { bg: "bg-rose-500", text: "text-rose-400", border: "border-rose-500/40", lightBg: "bg-rose-950/40" };
+    if (percent < 50) return { bg: "bg-emerald-500", text: "text-emerald-400", border: "border-emerald-500/40", lightBg: "bg-emerald-950/40", hex: "#10b981" };
+    if (percent < 75) return { bg: "bg-cyan-500", text: "text-cyan-400", border: "border-cyan-500/40", lightBg: "bg-cyan-950/40", hex: "#06b6d4" };
+    if (percent < 90) return { bg: "bg-amber-500", text: "text-amber-400", border: "border-amber-500/40", lightBg: "bg-amber-950/40", hex: "#f59e0b" };
+    return { bg: "bg-rose-500", text: "text-rose-400", border: "border-rose-500/40", lightBg: "bg-rose-950/40", hex: "#f43f5e" };
   };
 
   const occStyle = getOccupancyColor(selectedCar.occupancyPercent);
+
+  // SVG Geometry Calculation for Trainset Blueprint
+  const totalCars = carriages.length;
+  const carWidth = isTrain ? (totalCars > 8 ? 72 : 86) : 95;
+  const carGap = 6;
+  const svgTotalWidth = Math.max(500, totalCars * (carWidth + carGap) + 40);
 
   return (
     <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800/90 space-y-3 shadow-lg">
@@ -65,18 +73,273 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <Layers className="w-4 h-4 text-cyan-400" />
           <h3 className="text-xs font-bold text-white tracking-tight uppercase font-mono">
             {isTrain
-              ? `Susunan Rangkaian Kereta (${carriages.length} SF)`
+              ? `Diagram Formasi Rangkaian (${carriages.length} SF)`
               : isAviation
               ? `Kompartemen Kabin Pesawat (${carriages.length} Zona)`
               : `Tingkat Dek Kendaraan (${carriages.length} Lantai)`}
           </h3>
         </div>
-        <span className="text-[10px] text-slate-400 font-mono">
-          Klik kereta untuk rincian
+        <span className="text-[10px] text-cyan-400 font-mono flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-cyan-300" />
+          Sentuh gerbong diagram untuk rincian
         </span>
       </div>
 
-      {/* 2. INTERACTIVE HORIZONTAL FORMATION STRIP */}
+      {/* 2. INTERACTIVE TECHNICAL BLUEPRINT SVG SCHEMATIC */}
+      <div className="p-3 bg-[#060a14] rounded-xl border border-cyan-500/30 space-y-2 overflow-hidden shadow-inner">
+        <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300 pb-1">
+          <span className="flex items-center gap-1 font-bold">
+            <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+            {isTrain
+              ? `Skema Rangkaian: ${vehicle.name} (${carriages.length} Car Formation)`
+              : isAviation
+              ? `Skema Kabin Fuselage: ${vehicle.name}`
+              : `Skema Struktur Karoseri: ${vehicle.name}`}
+          </span>
+          <span className="text-[10px] text-slate-400">
+            Gerbong Aktif: <strong className="text-cyan-300">K{selectedCar.carIndex} ({selectedCar.carCode})</strong>
+          </span>
+        </div>
+
+        {/* Scrollable / Touchable Blueprint Canvas */}
+        <div className="overflow-x-auto pb-1 no-scrollbar">
+          <svg
+            viewBox={`0 0 ${svgTotalWidth} 105`}
+            className="w-full h-auto min-w-[520px] select-none"
+            style={{ minHeight: "105px" }}
+          >
+            {/* Background Grid Pattern */}
+            <defs>
+              <pattern id="diagGrid" width="12" height="12" patternUnits="userSpaceOnUse">
+                <path d="M 12 0 L 0 0 0 12" fill="none" stroke="#0f1f38" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width={svgTotalWidth} height="105" fill="url(#diagGrid)" rx="6" />
+
+            {/* Continuous Track Rail (Train only) */}
+            {isTrain && (
+              <g>
+                <line x1="10" y1="84" x2={svgTotalWidth - 10} y2="84" stroke="#475569" strokeWidth="2.5" />
+                <line x1="10" y1="88" x2={svgTotalWidth - 10} y2="88" stroke="#334155" strokeWidth="1.5" strokeDasharray="6,3" />
+                {/* Overhead Catenary Line wire */}
+                <line x1="10" y1="14" x2={svgTotalWidth - 10} y2="14" stroke="#0284c7" strokeWidth="1" strokeDasharray="8,4" opacity="0.6" />
+              </g>
+            )}
+
+            {/* Render Each Individual Carriage in the Diagram */}
+            {carriages.map((car, idx) => {
+              const isSelected = car.carIndex === selectedCarIndex;
+              const carX = 20 + idx * (carWidth + carGap);
+              const carOcc = getOccupancyColor(car.occupancyPercent);
+              const isLeadCab = idx === 0;
+              const isTailCab = idx === totalCars - 1;
+
+              return (
+                <g
+                  key={car.carIndex}
+                  onClick={() => setSelectedCarIndex(car.carIndex)}
+                  className="cursor-pointer transition-all duration-150 group"
+                >
+                  {/* Articulated Coupler between cars */}
+                  {idx > 0 && isTrain && (
+                    <g>
+                      <rect x={carX - carGap} y="58" width={carGap} height="5" fill="#334155" />
+                      <line x1={carX - carGap} y1="60.5" x2={carX} y2="60.5" stroke="#64748b" strokeWidth="1.5" />
+                    </g>
+                  )}
+
+                  {/* Pantograph (If Active on this Car) */}
+                  {car.pantographActive && isTrain && (
+                    <g>
+                      {/* Base & Diamond Collector Arm */}
+                      <path
+                        d={`M ${carX + carWidth / 2 - 10} 32 L ${carX + carWidth / 2 - 3} 18 L ${carX + carWidth / 2 + 3} 18 L ${carX + carWidth / 2 + 10} 32`}
+                        stroke={isSelected ? "#38bdf8" : "#f59e0b"}
+                        strokeWidth="1.8"
+                        fill="none"
+                      />
+                      {/* Overhead Contact Bar */}
+                      <line
+                        x1={carX + carWidth / 2 - 9}
+                        y1="18"
+                        x2={carX + carWidth / 2 + 9}
+                        y2="18"
+                        stroke={isSelected ? "#67e8f9" : "#f59e0b"}
+                        strokeWidth="2.5"
+                      />
+                      {/* Electric Arc Sparkle */}
+                      <circle
+                        cx={carX + carWidth / 2}
+                        cy="18"
+                        r="2.5"
+                        fill="#38bdf8"
+                        className="animate-ping"
+                      />
+                    </g>
+                  )}
+
+                  {/* HVAC Roof Pod */}
+                  <rect
+                    x={carX + 12}
+                    y="27"
+                    width={carWidth - 24}
+                    height="5"
+                    rx="1.5"
+                    fill="#1e293b"
+                    stroke={isSelected ? "#38bdf8" : "#475569"}
+                    strokeWidth="0.8"
+                  />
+
+                  {/* Carriage Body Shell */}
+                  {isLeadCab && isTrain ? (
+                    // Aerodynamic / Angled Front Cab (Tc1)
+                    <path
+                      d={`M ${carX} 76 Q ${carX + 8} 32 ${carX + 22} 32 L ${carX + carWidth} 32 L ${carX + carWidth} 76 L ${carX} 76 Z`}
+                      fill={isSelected ? "#0c2847" : "#0f172a"}
+                      stroke={isSelected ? "#38bdf8" : "#334155"}
+                      strokeWidth={isSelected ? "2" : "1.2"}
+                    />
+                  ) : isTailCab && isTrain ? (
+                    // Aerodynamic / Angled Rear Cab (Tc2)
+                    <path
+                      d={`M ${carX} 32 L ${carX + carWidth - 22} 32 Q ${carX + carWidth - 8} 32 ${carX + carWidth} 76 L ${carX} 76 Z`}
+                      fill={isSelected ? "#0c2847" : "#0f172a"}
+                      stroke={isSelected ? "#38bdf8" : "#334155"}
+                      strokeWidth={isSelected ? "2" : "1.2"}
+                    />
+                  ) : (
+                    // Standard Intermediate Passenger Coach (M1, M2, T)
+                    <rect
+                      x={carX}
+                      y="32"
+                      width={carWidth}
+                      height="44"
+                      rx="3"
+                      fill={isSelected ? "#0c2847" : "#0f172a"}
+                      stroke={isSelected ? "#38bdf8" : "#334155"}
+                      strokeWidth={isSelected ? "2" : "1.2"}
+                    />
+                  )}
+
+                  {/* Cab Windscreen & Lights (If Lead/Tail Cab) */}
+                  {isLeadCab && isTrain && (
+                    <g>
+                      <path
+                        d={`M ${carX + 5} 58 Q ${carX + 11} 38 ${carX + 20} 38 L ${carX + 22} 58 Z`}
+                        fill="#0284c7"
+                        stroke="#38bdf8"
+                        strokeWidth="0.8"
+                      />
+                      {/* Headlights (Warm Yellow) */}
+                      <circle cx={carX + 6} cy="70" r="2.2" fill="#fde047" stroke="#ca8a04" strokeWidth="0.5" />
+                    </g>
+                  )}
+                  {isTailCab && isTrain && (
+                    <g>
+                      <path
+                        d={`M ${carX + carWidth - 22} 38 Q ${carX + carWidth - 11} 38 ${carX + carWidth - 5} 58 L ${carX + carWidth - 22} 58 Z`}
+                        fill="#0284c7"
+                        stroke="#38bdf8"
+                        strokeWidth="0.8"
+                      />
+                      {/* Tail Red Marker Lights */}
+                      <circle cx={carX + carWidth - 6} cy="70" r="2.2" fill="#f43f5e" stroke="#be123c" strokeWidth="0.5" />
+                    </g>
+                  )}
+
+                  {/* Passenger Windows Row */}
+                  {Array.from({ length: isLeadCab || isTailCab ? 3 : 4 }).map((_, wIdx) => {
+                    const winX = carX + (isLeadCab ? 26 : 8) + wIdx * (carWidth > 80 ? 15 : 12);
+                    return (
+                      <rect
+                        key={wIdx}
+                        x={winX}
+                        y="40"
+                        width={carWidth > 80 ? "10" : "8"}
+                        height="9"
+                        rx="1.5"
+                        fill={isSelected ? "#0284c7" : "#1e293b"}
+                        stroke={isSelected ? "#67e8f9" : "#475569"}
+                        strokeWidth="0.7"
+                      />
+                    );
+                  })}
+
+                  {/* Passenger Sliding Doors */}
+                  <rect
+                    x={carX + (isLeadCab ? 42 : isTailCab ? 20 : carWidth / 2 - 5)}
+                    y="40"
+                    width="10"
+                    height="32"
+                    fill="#091322"
+                    stroke={isSelected ? "#38bdf8" : "#334155"}
+                    strokeWidth="0.7"
+                  />
+
+                  {/* Micro Occupancy Bar inside Carriage */}
+                  <rect
+                    x={carX + 6}
+                    y="55"
+                    width={carWidth - 12}
+                    height="3.5"
+                    rx="1.5"
+                    fill="#1e293b"
+                  />
+                  <rect
+                    x={carX + 6}
+                    y="55"
+                    width={((carWidth - 12) * car.occupancyPercent) / 100}
+                    height="3.5"
+                    rx="1.5"
+                    fill={carOcc.hex}
+                  />
+
+                  {/* Carriage Label (K1..K12 / Z1..Z3) */}
+                  <text
+                    x={carX + carWidth / 2}
+                    y="69"
+                    fill={isSelected ? "#ffffff" : "#94a3b8"}
+                    fontSize="8.5"
+                    fontWeight="bold"
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                  >
+                    {isTrain ? `K${car.carIndex}` : isAviation ? `Z${car.carIndex}` : `L${car.carIndex}`}
+                  </text>
+
+                  {/* Bogies / Wheels underneath */}
+                  {isTrain && (
+                    <g>
+                      <circle cx={carX + 16} cy="80" r="4.5" fill="#0f172a" stroke="#64748b" strokeWidth="1.2" />
+                      <circle cx={carX + 26} cy="80" r="4.5" fill="#0f172a" stroke="#64748b" strokeWidth="1.2" />
+                      <circle cx={carX + carWidth - 26} cy="80" r="4.5" fill="#0f172a" stroke="#64748b" strokeWidth="1.2" />
+                      <circle cx={carX + carWidth - 16} cy="80" r="4.5" fill="#0f172a" stroke="#64748b" strokeWidth="1.2" />
+                    </g>
+                  )}
+
+                  {/* Active Selection Glow Ring */}
+                  {isSelected && (
+                    <rect
+                      x={carX - 2}
+                      y="24"
+                      width={carWidth + 4}
+                      height="64"
+                      rx="6"
+                      fill="none"
+                      stroke="#38bdf8"
+                      strokeWidth="1.5"
+                      strokeDasharray="4,2"
+                      className="animate-pulse"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+
+      {/* 3. HORIZONTAL QUICK-SELECTION PILLS */}
       <div className="overflow-x-auto pb-1 no-scrollbar">
         <div className="flex items-center gap-1.5 min-w-max py-1">
           {carriages.map((car) => {
@@ -124,7 +387,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
         </div>
       </div>
 
-      {/* 3. SELECTED CARRIAGE TELEMETRY CARD */}
+      {/* 4. SELECTED CARRIAGE TELEMETRY CARD */}
       <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2.5 text-xs font-mono">
         {/* Header of Selected Car */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
@@ -165,7 +428,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
               Suhu Kabin Kereta
             </span>
             <strong className="text-emerald-300 font-bold">
-              {selectedCar.acTemperatureC.toFixed(1)}°C ({selectedCar.acStatus})
+              {selectedCar.acTemperatureC.toFixed(1)}&deg;C ({selectedCar.acStatus})
             </strong>
           </div>
 
@@ -225,3 +488,4 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
     </div>
   );
 }
+

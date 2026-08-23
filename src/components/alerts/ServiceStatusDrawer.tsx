@@ -10,6 +10,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
   AlertTriangle,
@@ -169,8 +170,6 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     });
   }, [selectedHistoryDate, selectedHistorySeverity]);
 
-  if (!isOpen) return null;
-
   const getCategoryIcon = (category: TransitCategory) => {
     switch (category) {
       case "RAIL":
@@ -190,11 +189,27 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full sm:w-[580px] h-full bg-[#0c1220] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in slide-in-from-right duration-250">
-        {/* 1. MAIN HEADER */}
-        <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-50 flex items-center justify-end bg-black/70 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            className="w-full sm:w-[580px] h-full bg-[#0c1220] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 1. MAIN HEADER */}
+            <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
               <Activity className="w-4 h-4 text-white" />
             </div>
@@ -672,7 +687,9 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
           <span>Pusat Maklumat Kendali &bull; OCC Dukuh Atas</span>
           <span>Diperbarui: {lastUpdated || "Baru saja"}</span>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };
