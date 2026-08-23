@@ -246,7 +246,15 @@ export function VehicleDetailSheet({
               }`}
             >
               <Armchair className="w-3.5 h-3.5" />
-              <span>Kabin & Kapasitas</span>
+              <span>
+                {vehicle.category === "RAIL"
+                  ? "Kabin & Formasi Rangkaian"
+                  : vehicle.category === "BUS"
+                  ? "Kabin & Dek Karoseri"
+                  : vehicle.category === "MARITIME"
+                  ? "Kabin & Geladak Kapal"
+                  : "Kabin & Kompartemen"}
+              </span>
             </button>
           </div>
 
@@ -346,11 +354,6 @@ export function VehicleDetailSheet({
                       <span>Antara Kedatangan: ~{line.headwayMinutes} mnt</span>
                     </div>
                   </div>
-                )}
-
-                {/* Interactive Multi-Car / Multi-Deck Formation Selector */}
-                {vehicle.carriages && vehicle.carriages.length > 0 && (
-                  <VehicleCarriageSelector vehicle={vehicle} />
                 )}
 
                 {/* Dedicated Run Details & Trainset Fleet Telemetry Card */}

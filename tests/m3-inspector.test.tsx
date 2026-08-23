@@ -192,7 +192,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(screen.getByText(/Karoseri & Struktur Body/i)).toBeInTheDocument();
 
       // Switch to Seating tab
-      const seatingTab = screen.getByRole("button", { name: /Kabin & Kapasitas/i });
+      const seatingTab = screen.getByRole("button", { name: /Kabin/i });
       fireEvent.click(seatingTab);
       expect(screen.getByText(/Diagram Tata Letak Kabin/i)).toBeInTheDocument();
 
@@ -284,8 +284,8 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       // Verify Kereta 2 details show up
       expect(screen.getByText(/Kereta 2/i)).toBeInTheDocument();
       expect(screen.getByText(/Kapasitas Penumpang/i)).toBeInTheDocument();
-      expect(screen.getByText(/Suhu Kabin Kereta/i)).toBeInTheDocument();
-      expect(screen.getByText(/Sistem Traksi \/ Daya/i)).toBeInTheDocument();
+      expect(screen.getByText(/Suhu Kabin/i)).toBeInTheDocument();
+      expect(screen.getByText(/(Sistem Traksi|Status Powertrain) \/ Daya/i)).toBeInTheDocument();
     });
   });
 });

@@ -862,10 +862,10 @@ export function TransportationSystemBar() {
 
           <button
             onClick={() => setActiveCategoryFilter("ALL")}
-            className={`relative px-2.5 py-0.5 rounded-full transition-all text-[11px] font-bold ${
+            className={`relative px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold ${
               activeCategoryFilter === "ALL"
                 ? "bg-cyan-950/90 border border-cyan-400/60 text-cyan-300 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                : "text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/90 border border-slate-800/80 hover:border-slate-700 shadow-sm"
             }`}
           >
             Semua Sektor
@@ -879,10 +879,10 @@ export function TransportationSystemBar() {
               <button
                 key={g.category}
                 onClick={() => setActiveCategoryFilter(g.category)}
-                className={`relative flex items-center gap-1.5 px-2.5 py-0.5 rounded-full transition-all text-[11px] font-bold ${
+                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold ${
                   isFilterActive
-                    ? "bg-slate-800 border border-white/20 text-white shadow-sm"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-slate-800 border border-cyan-500/50 text-white shadow-sm ring-1 ring-cyan-500/30"
+                    : "text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/90 border border-slate-800/80 hover:border-slate-700 shadow-sm"
                 }`}
               >
                 <span
@@ -953,10 +953,10 @@ export function TransportationSystemBar() {
                     <button
                       onClick={() => toggleCategory(group.category)}
                       title={`Klik untuk Aktifkan / Nonaktifkan Semua ${group.title} di Peta`}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
                         isCatActive
-                          ? "bg-slate-900/90 text-white shadow-md"
-                          : "text-slate-500 hover:text-slate-300 opacity-60"
+                          ? "bg-slate-900/90 text-white shadow-md hover:bg-slate-800"
+                          : "text-slate-400 hover:text-slate-200 bg-slate-950/80 hover:bg-slate-900 border border-transparent hover:border-white/10 opacity-70 hover:opacity-100"
                       }`}
                       style={{
                         borderLeftColor: isCatActive ? group.accentColor : undefined,
@@ -978,7 +978,7 @@ export function TransportationSystemBar() {
                     <button
                       onClick={(e) => toggleCategoryCollapse(group.category, e)}
                       title={isCollapsed ? "Tampilkan item sektor ini" : "Sembunyikan item sektor ini"}
-                      className="p-1 text-slate-400 hover:text-white rounded-md transition"
+                      className="p-1 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-md transition"
                     >
                       <ChevronDown
                         className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -1007,14 +1007,14 @@ export function TransportationSystemBar() {
                             onMouseEnter={(e) => handleItemMouseEnter(item, e)}
                             onMouseLeave={handleItemMouseLeave}
                             title={`${item.name} — ${item.statusReason}`}
-                            className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all shrink-0 ${
+                            className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-200 shrink-0 ${
                               isSelected
                                 ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30 scale-105"
                                 : item.type === "building_hub"
-                                ? "bg-slate-900/90 border-cyan-500/40 text-slate-100 hover:border-cyan-400 shadow-sm"
+                                ? "bg-slate-900/90 border-cyan-500/40 text-slate-100 hover:bg-slate-800 hover:border-cyan-400 hover:shadow-md shadow-sm"
                                 : isModeSelected
-                                ? "bg-slate-900/80 border-slate-700 text-white hover:border-slate-500 shadow-sm"
-                                : "bg-slate-950/50 border-slate-800/60 text-slate-400 opacity-60 hover:opacity-100"
+                                ? "bg-slate-900/80 border-slate-700 text-white hover:bg-slate-800 hover:border-cyan-500/60 hover:shadow-md shadow-sm"
+                                : "bg-slate-950/60 border-slate-800/60 text-slate-400 hover:bg-slate-900/90 hover:text-slate-200 hover:border-slate-700 opacity-60 hover:opacity-100"
                             }`}
                           >
                             {/* Prominent Icon with Brand Color Glow */}

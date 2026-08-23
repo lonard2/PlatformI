@@ -193,3 +193,17 @@ body {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
 }
+
+/* Leaflet Custom Glassmorphic Tooltip for Simulated Vehicles */
+.leaflet-tooltip.custom-glass-vehicle-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+}
+
+.leaflet-tooltip.custom-glass-vehicle-tooltip::before {
+  border-top-color: rgba(8, 12, 22, 0.96) !important;
+}
+

@@ -151,6 +151,81 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
     `;
   };
 
+  // Construct Glassmorphic Desktop Hover Tooltip HTML
+  const buildVehicleTooltipHtml = (
+    vehicle: Vehicle,
+    brandColor: string,
+    nextStopName?: string
+  ) => {
+    const modeConfig = TRANSIT_MODE_CONFIG[vehicle.mode];
+    const occPercent =
+      vehicle.carriages && vehicle.carriages.length > 0
+        ? Math.round(
+            vehicle.carriages.reduce((acc, c) => acc + c.occupancyPercent, 0) /
+              vehicle.carriages.length
+          )
+        : 45;
+
+    const occColor =
+      occPercent > 80 ? "#f43f5e" : occPercent > 60 ? "#f59e0b" : "#10b981";
+
+    const runCode =
+      vehicle.runNumber ||
+      vehicle.trainsetNumber ||
+      vehicle.vehicleCode ||
+      vehicle.fleetNumber ||
+      vehicle.id;
+
+    const statusText =
+      vehicle.status === "BOARDING"
+        ? "Sedang Menaikkan Penumpang"
+        : vehicle.speedKmh > 5
+        ? `Sedang Berjalan (${Math.round(vehicle.speedKmh)} km/h)`
+        : "Berhenti / Sinyal";
+
+    return `
+      <div style="background: rgba(8, 12, 22, 0.96); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 10px 12px; font-family: ui-sans-serif, system-ui, sans-serif; min-width: 220px; max-width: 280px; box-shadow: 0 12px 36px rgba(0,0,0,0.85); backdrop-filter: blur(16px); color: #f8fafc; pointer-events: none;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: ${brandColor}; color: #ffffff; font-family: monospace; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 5px; letter-spacing: 0.5px;">
+              ${runCode}
+            </span>
+            <span style="font-size: 9px; color: #94a3b8; font-family: monospace;">
+              ${modeConfig?.name || vehicle.category}
+            </span>
+          </div>
+          <span style="font-size: 10px; font-family: monospace; color: #38bdf8; font-weight: 700;">
+            ${Math.round(vehicle.speedKmh)} km/h
+          </span>
+        </div>
+
+        <div style="font-size: 11.5px; font-weight: 700; color: #ffffff; line-height: 1.35; margin-bottom: 4px;">
+          ${vehicle.name}
+        </div>
+
+        ${
+          nextStopName
+            ? `
+          <div style="font-size: 10px; color: #cbd5e1; font-family: monospace; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="color: #64748b;">Menuju:</span>
+            <strong style="color: #38bdf8; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nextStopName}</strong>
+          </div>
+        `
+            : ""
+        }
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 9.5px; font-family: monospace;">
+          <span style="color: #94a3b8;">${statusText}</span>
+          <span style="color: ${occColor}; font-weight: 800;">${occPercent}% Muatan</span>
+        </div>
+
+        <div style="font-size: 8.5px; color: #38bdf8; margin-top: 5px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 2px 4px; border-radius: 5px; font-family: monospace;">
+          Klik untuk rincian sarana & formasi
+        </div>
+      </div>
+    `;
+  };
+
   // Update Markers Synchronously with Simulation Loop
   useEffect(() => {
     if (!map || !layerGroupRef.current) return;
@@ -190,6 +265,15 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
           zIndexOffset: isSelected ? 1000 : 800,
         });
 
+        // Attach Desktop Glassmorphic Hover Tooltip
+        const tooltipHtml = buildVehicleTooltipHtml(vehicle, brandColor, nextStop?.name);
+        marker.bindTooltip(tooltipHtml, {
+          direction: "top",
+          offset: [0, -22],
+          className: "custom-glass-vehicle-tooltip",
+          opacity: 1,
+        });
+
         // Click handler: opens vehicle inspector drawer directly
         marker.on("click", (e) => {
           L.DomEvent.stopPropagation(e);
@@ -225,6 +309,10 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
 
         // Smoothly update coordinate without DOM recreation
         marker.setLatLng([vehicle.currentLatitude, vehicle.currentLongitude]);
+
+        // Keep tooltip content fresh
+        const tooltipHtml = buildVehicleTooltipHtml(vehicle, brandColor, nextStop?.name);
+        marker.setTooltipContent(tooltipHtml);
 
         // If selection state or crowd level changed, update full icon
         if (lastSelected !== isSelected || lastCrowdLevel !== vehicle.crowdLevel) {
