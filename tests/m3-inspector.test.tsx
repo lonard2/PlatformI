@@ -175,8 +175,8 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       // Overview Tab is default
       expect(screen.getAllByText(/MRT Ratangga/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/Kecepatan/i)).toBeInTheDocument();
-      expect(screen.getByText(/Arah Kompas/i)).toBeInTheDocument();
-      expect(screen.getByText(/Kepadatan Penumpang/i)).toBeInTheDocument();
+      expect(screen.getByText(/Arah|Heading|Kompas/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kepadatan|Tingkat/i)).toBeInTheDocument();
 
       // Verify trainset, run number, formation, and depot details
       expect(screen.getByText(/Informasi Dinas & Rangkaian KA/i)).toBeInTheDocument();
@@ -187,12 +187,12 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(screen.getByText(/Depo MRT Lebak Bulus/i)).toBeInTheDocument();
 
       // Switch to Tech Specs tab
-      const specsTab = screen.getByRole("button", { name: /Spesifikasi & Dimensi/i });
+      const specsTab = screen.getByRole("button", { name: /Spesifikasi/i });
       fireEvent.click(specsTab);
       expect(screen.getByText(/Karoseri & Struktur Body/i)).toBeInTheDocument();
 
       // Switch to Seating tab
-      const seatingTab = screen.getByRole("button", { name: /Kabin/i });
+      const seatingTab = screen.getByRole("button", { name: /Gerbong|Kabin|Dek/i });
       fireEvent.click(seatingTab);
       expect(screen.getByText(/Diagram Tata Letak Kabin/i)).toBeInTheDocument();
 
@@ -238,7 +238,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       render(<HubDetailSheet stopId={cswStop.id} />);
 
-      const skybridgeTab = screen.getByRole("button", { name: /Panduan Jembatan/i });
+      const skybridgeTab = screen.getByRole("button", { name: /Skybridge|Jembatan/i });
       expect(skybridgeTab).toBeDefined();
       fireEvent.click(skybridgeTab);
 

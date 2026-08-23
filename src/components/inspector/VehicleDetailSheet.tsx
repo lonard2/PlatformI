@@ -33,6 +33,7 @@ import {
 import { Vehicle, TransitMode, CrowdDensityLevel, ACComfortRating } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
 import { VehiclePhotoGallery } from "./VehiclePhotoGallery";
@@ -105,6 +106,7 @@ export function VehicleDetailSheet({
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
   const clearSelection = useTransitStore((state) => state.clearSelection);
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<TabType>("overview");
 
@@ -222,7 +224,7 @@ export function VehicleDetailSheet({
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
-              <span>Detail Armada & Foto</span>
+              <span>{t.common.details} & {t.vehicleInspector.tabPhotos}</span>
             </button>
 
             <button
@@ -234,7 +236,7 @@ export function VehicleDetailSheet({
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
-              <span>Spesifikasi & Dimensi</span>
+              <span>{t.vehicleInspector.tabSpecs}</span>
             </button>
 
             <button
@@ -246,15 +248,7 @@ export function VehicleDetailSheet({
               }`}
             >
               <Armchair className="w-3.5 h-3.5" />
-              <span>
-                {vehicle.category === "RAIL"
-                  ? "Kabin & Formasi Rangkaian"
-                  : vehicle.category === "BUS"
-                  ? "Kabin & Dek Karoseri"
-                  : vehicle.category === "MARITIME"
-                  ? "Kabin & Geladak Kapal"
-                  : "Kabin & Kompartemen"}
-              </span>
+              <span>{t.vehicleInspector.tabCarriages}</span>
             </button>
           </div>
 
@@ -269,7 +263,7 @@ export function VehicleDetailSheet({
                     <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
                       <span className="flex items-center gap-1">
                         <Gauge className="w-3.5 h-3.5 text-emerald-400" />
-                        Kecepatan
+                        {t.vehicleInspector.speed}
                       </span>
                       <span className="text-[10px] text-emerald-400 font-bold uppercase">
                         {vehicle.status.replace(/_/g, " ")}
@@ -288,7 +282,7 @@ export function VehicleDetailSheet({
                     <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
                       <span className="flex items-center gap-1">
                         <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                        Arah Kompas
+                        {t.vehicleInspector.bearing}
                       </span>
                       <span className="text-[10px] text-cyan-400 font-bold font-mono">
                         {vehicle.headingDegrees.toFixed(0)}°

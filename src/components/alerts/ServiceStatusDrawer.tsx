@@ -1,8 +1,9 @@
 /**
  * PlatformI - Complete Network Service Status & Incident History Center
  *
- * Provides real-time operational status for all transit lines, past incident history,
- * maintenance calendar logs, and 30-day network uptime & on-time performance (OTP) metrics.
+ * Provides real-time operational status for all transit lines, interactive multi-month
+ * incident & maintenance calendar, multi-window historical uptime analytics (30d/90d/180d/365d),
+ * and monthly reliability progression trends.
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
@@ -28,12 +29,18 @@ import {
   ArrowRight,
   Filter,
   RefreshCw,
-  Calendar,
+  Calendar as CalendarIcon,
   TrendingUp,
   BarChart3,
   Check,
   ShieldCheck,
   Zap,
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   DisruptionAlert,
@@ -42,6 +49,7 @@ import {
   Line,
   HistoricalIncidentEvent,
   SystemUptimeMetric,
+  MonthlyUptimeRecord,
 } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import {
@@ -49,6 +57,7 @@ import {
   HISTORICAL_INCIDENTS,
   SYSTEM_UPTIME_METRICS,
 } from "@/lib/data/jakarta-dataset";
+import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 
 export interface ServiceStatusDrawerProps {
   isOpen: boolean;
@@ -57,11 +66,44 @@ export interface ServiceStatusDrawerProps {
 
 type MainTab = "LIVE" | "HISTORY" | "UPTIME";
 type SeverityFilter = "ALL" | "CRITICAL" | "WARNING" | "NORMAL";
+type UptimeTimeframe = "30_DAYS" | "90_DAYS" | "180_DAYS" | "365_DAYS";
+
+const MONTH_NAMES_ID = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const MONTH_NAMES_EN = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t, language, setLanguage, supportedLanguages } = useTranslation();
+
   const [activeMainTab, setActiveMainTab] = useState<MainTab>("LIVE");
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -71,9 +113,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>("");
 
-  // History tab filter state
+  // History & Calendar state (Default August 2026)
+  const [calendarYear, setCalendarYear] = useState<number>(2026);
+  const [calendarMonth, setCalendarMonth] = useState<number>(7); // 0-indexed: 7 = August
   const [selectedHistoryDate, setSelectedHistoryDate] = useState<string>("ALL");
   const [selectedHistorySeverity, setSelectedHistorySeverity] = useState<string>("ALL");
+
+  // Uptime analytics state
+  const [uptimeTimeframe, setUptimeTimeframe] = useState<UptimeTimeframe>("30_DAYS");
+  const [expandedUptimeMode, setExpandedUptimeMode] = useState<TransitMode | null>(null);
+  const [selectedTrendMonth, setSelectedTrendMonth] = useState<string | null>(null);
+  const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
 
   const allLines = useTransitStore((state) => state.allLines);
   const selectLine = useTransitStore((state) => state.selectLine);
@@ -93,7 +143,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     } finally {
       setIsRefreshing(false);
       setLastUpdated(
-        new Date().toLocaleTimeString("id-ID", {
+        new Date().toLocaleTimeString(language === "id" ? "id-ID" : "en-US", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
@@ -157,31 +207,165 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     });
   }, [allLines, alerts, activeCategory, searchQuery, severityFilter]);
 
+  // Calendar calculations
+  const monthKeyPrefix = useMemo(() => {
+    const mm = String(calendarMonth + 1).padStart(2, "0");
+    return `${calendarYear}-${mm}`;
+  }, [calendarYear, calendarMonth]);
+
+  const monthLabel = useMemo(() => {
+    const names = language === "id" ? MONTH_NAMES_ID : MONTH_NAMES_EN;
+    return `${names[calendarMonth]} ${calendarYear}`;
+  }, [calendarMonth, calendarYear, language]);
+
+  // Days in selected calendar month
+  const calendarDays = useMemo(() => {
+    const firstDayOfWeek = new Date(calendarYear, calendarMonth, 1).getDay();
+    // Monday as first column (0 = Monday, 6 = Sunday)
+    const startOffset = (firstDayOfWeek + 6) % 7;
+    const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+    const days: {
+      dayNum: number;
+      dateStr: string;
+      events: HistoricalIncidentEvent[];
+      isCurrentMonth: boolean;
+    }[] = [];
+
+    // Add empty padding for previous month days
+    for (let i = 0; i < startOffset; i++) {
+      days.push({ dayNum: 0, dateStr: "", events: [], isCurrentMonth: false });
+    }
+
+    // Add actual days
+    for (let d = 1; d <= totalDays; d++) {
+      const ddStr = String(d).padStart(2, "0");
+      const mmStr = String(calendarMonth + 1).padStart(2, "0");
+      const fullDateStr = `${calendarYear}-${mmStr}-${ddStr}`;
+      const dayEvents = HISTORICAL_INCIDENTS.filter((h) => h.date === fullDateStr);
+
+      days.push({
+        dayNum: d,
+        dateStr: fullDateStr,
+        events: dayEvents,
+        isCurrentMonth: true,
+      });
+    }
+
+    return days;
+  }, [calendarYear, calendarMonth]);
+
+  const handlePrevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear((y) => y - 1);
+    } else {
+      setCalendarMonth((m) => m - 1);
+    }
+    setSelectedHistoryDate("ALL");
+  };
+
+  const handleNextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear((y) => y + 1);
+    } else {
+      setCalendarMonth((m) => m + 1);
+    }
+    setSelectedHistoryDate("ALL");
+  };
+
   // Filtered History Events
   const filteredHistory = useMemo(() => {
     return HISTORICAL_INCIDENTS.filter((item) => {
-      if (selectedHistoryDate !== "ALL" && item.date !== selectedHistoryDate) {
-        return false;
+      if (selectedHistoryDate !== "ALL") {
+        if (item.date !== selectedHistoryDate) return false;
+      } else {
+        // If "ALL" in current month
+        if (!item.date.startsWith(monthKeyPrefix)) return false;
       }
       if (selectedHistorySeverity !== "ALL" && item.severity !== selectedHistorySeverity) {
         return false;
       }
       return true;
     });
-  }, [selectedHistoryDate, selectedHistorySeverity]);
+  }, [selectedHistoryDate, selectedHistorySeverity, monthKeyPrefix]);
 
-  const getCategoryIcon = (category: TransitCategory) => {
-    switch (category) {
-      case "RAIL":
-        return <Train className="w-3.5 h-3.5" />;
-      case "BUS":
-        return <Bus className="w-3.5 h-3.5" />;
-      case "AVIATION":
-        return <Plane className="w-3.5 h-3.5" />;
-      case "MARITIME":
-        return <Anchor className="w-3.5 h-3.5" />;
-    }
-  };
+  // Aggregate Uptime KPI based on selected timeframe
+  const aggregatedUptime = useMemo(() => {
+    let totalUptimeSum = 0;
+    let totalOtpSum = 0;
+    let totalDisruptionMin = 0;
+    let totalMttrSum = 0;
+
+    SYSTEM_UPTIME_METRICS.forEach((m) => {
+      let percent = m.uptimePercent30Days;
+      if (uptimeTimeframe === "90_DAYS") percent = m.uptimePercent90Days;
+      else if (uptimeTimeframe === "180_DAYS") percent = m.uptimePercent180Days;
+      else if (uptimeTimeframe === "365_DAYS") percent = m.uptimePercent365Days;
+
+      totalUptimeSum += percent;
+      totalOtpSum += m.onTimePerformancePercent;
+      totalDisruptionMin += m.disruptionMinutes30Days;
+      totalMttrSum += m.mttrMinutes;
+    });
+
+    const count = SYSTEM_UPTIME_METRICS.length;
+    return {
+      avgUptime: (totalUptimeSum / count).toFixed(2),
+      avgOtp: (totalOtpSum / count).toFixed(2),
+      avgMttr: (totalMttrSum / count).toFixed(1),
+      totalDisruption: totalDisruptionMin,
+    };
+  }, [uptimeTimeframe]);
+
+  // 12-Month System Wide Progression Trend
+  const monthlyTrendAggregates = useMemo(() => {
+    const months = [
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+    ];
+
+    return months.map((mKey) => {
+      let monthSum = 0;
+      let monthOtp = 0;
+      let monthTrips = 0;
+      let count = 0;
+      let label = mKey;
+
+      SYSTEM_UPTIME_METRICS.forEach((sys) => {
+        const rec = sys.monthlyHistory.find((r) => r.monthKey === mKey);
+        if (rec) {
+          monthSum += rec.uptimePercent;
+          monthOtp += rec.onTimePerformancePercent;
+          monthTrips += rec.totalTrips;
+          count++;
+          label = rec.monthLabel;
+        }
+      });
+
+      const avg = count > 0 ? (monthSum / count).toFixed(2) : "98.00";
+      const avgOtp = count > 0 ? (monthOtp / count).toFixed(2) : "97.50";
+
+      return {
+        monthKey: mKey,
+        monthLabel: label,
+        avgUptime: parseFloat(avg),
+        avgOtp: parseFloat(avgOtp),
+        totalTrips: monthTrips,
+      };
+    });
+  }, []);
 
   const handleSelectLine = (lineId: string) => {
     selectLine(lineId);
@@ -196,7 +380,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-50 flex items-center justify-end bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-end bg-black/75 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -204,492 +388,740 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="w-full sm:w-[580px] h-full bg-[#0c1220] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100"
+            className="w-full sm:w-[640px] md:w-[680px] h-full bg-[#090d18] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 1. MAIN HEADER */}
-            <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
+            {/* 1. MAIN HEADER & LANGUAGE SWITCHER */}
+            <div className="px-5 py-4 border-b border-white/10 bg-[#0c1222] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
-              <Activity className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white tracking-tight">
-                  Pusat Operasional & Keandalan
-                </h2>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-mono font-medium">
-                  {stats.onTimePercentage}% Normal
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Pemantauan status langsung, riwayat gangguan, dan performa uptime
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={fetchAlerts}
-              title="Perbarui Maklumat"
-              disabled={isRefreshing}
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-cyan-400" : ""}`} />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* 2. THREE PRIMARY TABS */}
-        <div className="px-5 pt-2 bg-slate-900/60 border-b border-white/10 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveMainTab("LIVE")}
-            className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-t-xl transition-all border-b-2 whitespace-nowrap ${
-              activeMainTab === "LIVE"
-                ? "border-cyan-400 text-cyan-300 bg-cyan-950/40 shadow-sm"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Status Langsung</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
-              {stats.disruptedLines > 0 ? stats.disruptedLines : "OK"}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveMainTab("HISTORY")}
-            className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-t-xl transition-all border-b-2 whitespace-nowrap ${
-              activeMainTab === "HISTORY"
-                ? "border-cyan-400 text-cyan-300 bg-cyan-950/40 shadow-sm"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Riwayat & Kalender</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-800 text-slate-300 font-mono">
-              {HISTORICAL_INCIDENTS.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveMainTab("UPTIME")}
-            className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-t-xl transition-all border-b-2 whitespace-nowrap ${
-              activeMainTab === "UPTIME"
-                ? "border-cyan-400 text-cyan-300 bg-cyan-950/40 shadow-sm"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>Indeks Keandalan (Uptime)</span>
-          </button>
-        </div>
-
-        {/* 3. TAB 1: LIVE STATUS */}
-        {activeMainTab === "LIVE" && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* KPI HUD STRIP */}
-            <div className="px-5 py-3 bg-slate-950/80 border-b border-white/10 grid grid-cols-4 gap-2 text-center shrink-0">
-              <div className="p-2 rounded-lg bg-slate-900/70 border border-white/5">
-                <div className="text-[10px] uppercase font-bold text-slate-400 font-mono">Total Jalur</div>
-                <div className="text-sm font-bold text-slate-200 font-mono">{stats.totalLines}</div>
-              </div>
-              <div className="p-2 rounded-lg bg-emerald-950/40 border border-emerald-500/20">
-                <div className="text-[10px] uppercase font-bold text-emerald-400 font-mono">Normal</div>
-                <div className="text-sm font-bold text-emerald-300 font-mono">{stats.normalLines}</div>
-              </div>
-              <div className="p-2 rounded-lg bg-amber-950/40 border border-amber-500/20">
-                <div className="text-[10px] uppercase font-bold text-amber-400 font-mono">Peringatan</div>
-                <div className="text-sm font-bold text-amber-300 font-mono">{stats.warningCount}</div>
-              </div>
-              <div className="p-2 rounded-lg bg-rose-950/40 border border-rose-500/20">
-                <div className="text-[10px] uppercase font-bold text-rose-400 font-mono">Kritis</div>
-                <div className="text-sm font-bold text-rose-300 font-mono">{stats.criticalCount}</div>
-              </div>
-            </div>
-
-            {/* FILTERS & SEARCH BAR */}
-            <div className="p-4 bg-slate-950/60 border-b border-white/10 space-y-2.5 shrink-0">
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari kode jalur atau rute (misal MRT, Koridor 1, Cikarang)..."
-                  className="w-full bg-slate-900 border border-white/15 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 transition"
-                />
-              </div>
-
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
-                <button
-                  onClick={() => setActiveCategory("ALL")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
-                    activeCategory === "ALL"
-                      ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 shadow-md"
-                      : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  Semua Moda
-                </button>
-                {(["RAIL", "BUS", "AVIATION", "MARITIME"] as TransitCategory[]).map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
-                      activeCategory === cat
-                        ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 shadow-md"
-                        : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    {getCategoryIcon(cat)}
-                    <span>{cat === "RAIL" ? "Kereta" : cat === "BUS" ? "Bus / Feeder" : cat === "AVIATION" ? "Udara" : "Laut"}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <span className="text-[10px] text-slate-400 font-mono">Status:</span>
-                {(["ALL", "CRITICAL", "WARNING", "NORMAL"] as SeverityFilter[]).map((sev) => (
-                  <button
-                    key={sev}
-                    onClick={() => setSeverityFilter(sev)}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono border transition ${
-                      severityFilter === sev
-                        ? "bg-slate-800 border-white/30 text-white font-bold"
-                        : "bg-slate-900/40 border-slate-800 text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    {sev === "ALL" ? "SEMUA" : sev === "NORMAL" ? "NORMAL" : sev === "WARNING" ? "PERINGATAN" : "KRITIS"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* LINE BULLETINS LIST */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3">
-              {filteredLines.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-xs">
-                  Tidak ada jalur transit yang cocok dengan kriteria pencarian.
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
+                  <Activity className="w-5 h-5 text-white" />
                 </div>
-              ) : (
-                filteredLines.map((line) => {
-                  const lineAlerts = alerts.filter(
-                    (a) => a.lineId === line.id && a.status === "ACTIVE"
-                  );
-                  const isExpanded = expandedLineId === line.id;
-                  const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
-                  const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base font-bold text-white tracking-tight">
+                      {t.statusCenter.title}
+                    </h2>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-mono font-bold">
+                      {stats.onTimePercentage}% {t.common.normal}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {t.statusCenter.subtitle}
+                  </p>
+                </div>
+              </div>
 
-                  let statusBadge = (
-                    <div className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 font-mono">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Normal</span>
+              <div className="flex items-center gap-2">
+                {/* Language Selector Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLanguageMenu((v) => !v)}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5"
+                    title={t.common.selectLanguage}
+                  >
+                    <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="font-mono font-bold uppercase">{language}</span>
+                  </button>
+
+                  <AnimatePresence>
+                    {showLanguageMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full mt-1.5 z-50 w-44 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-1.5 space-y-1"
+                      >
+                        {supportedLanguages.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => {
+                              setLanguage(lang.code);
+                              setShowLanguageMenu(false);
+                            }}
+                            className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition ${
+                              language === lang.code
+                                ? "bg-cyan-950/90 text-cyan-300 border border-cyan-500/40"
+                                : "text-slate-300 hover:bg-slate-800"
+                            }`}
+                          >
+                            <span>{lang.nativeName}</span>
+                            <span className="text-[10px] font-mono opacity-60 uppercase">
+                              {lang.flagLabel}
+                            </span>
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <button
+                  onClick={fetchAlerts}
+                  title={t.common.refresh}
+                  disabled={isRefreshing}
+                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-cyan-400" : ""}`} />
+                </button>
+
+                <button
+                  onClick={onClose}
+                  aria-label={t.common.close}
+                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* 2. THREE PRIMARY TABS */}
+            <div className="px-5 pt-2 bg-slate-900/60 border-b border-white/10 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setActiveMainTab("LIVE")}
+                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeMainTab === "LIVE"
+                    ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
+                    : "border-transparent text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>{t.statusCenter.tabLive}</span>
+                <span className="px-1.5 py-0.2 rounded bg-slate-900 text-[10px]">
+                  {allLines.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveMainTab("HISTORY")}
+                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeMainTab === "HISTORY"
+                    ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
+                    : "border-transparent text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <CalendarIcon className="w-3.5 h-3.5" />
+                <span>{t.statusCenter.tabHistory}</span>
+                <span className="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 text-[10px]">
+                  {HISTORICAL_INCIDENTS.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveMainTab("UPTIME")}
+                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeMainTab === "UPTIME"
+                    ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
+                    : "border-transparent text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>{t.statusCenter.tabUptime}</span>
+                <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[10px]">
+                  {aggregatedUptime.avgUptime}%
+                </span>
+              </button>
+            </div>
+
+            {/* 3. TAB 1: LIVE NETWORK STATUS */}
+            {activeMainTab === "LIVE" && (
+              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-3.5">
+                {/* Search & Category Filter */}
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder={t.navigation.searchRoutesAndHubs}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  {/* Mode Categories */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                    {(["ALL", "RAIL", "BUS", "AVIATION", "MARITIME"] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
+                          activeCategory === cat
+                            ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
+                            : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {cat === "ALL"
+                          ? t.navigation.allModes
+                          : cat === "RAIL"
+                          ? t.navigation.railModes
+                          : cat === "BUS"
+                          ? t.navigation.busModes
+                          : cat === "AVIATION"
+                          ? t.navigation.airModes
+                          : t.navigation.seaModes}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Line Status List */}
+                <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                  {filteredLines.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-slate-500 font-mono">
+                      {t.hubInspector.noDeparturesFound}
                     </div>
-                  );
+                  ) : (
+                    filteredLines.map((line) => {
+                      const lineAlerts = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+                      const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
+                      const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
+                      const isExpanded = expandedLineId === line.id;
 
-                  if (hasCritical) {
-                    statusBadge = (
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-rose-400 font-mono animate-pulse">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                        <span>Gangguan Kritis</span>
-                      </div>
-                    );
-                  } else if (hasWarning) {
-                    statusBadge = (
-                      <div className="flex items-center gap-1 text-[11px] font-semibold text-amber-400 font-mono">
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                        <span>Peringatan Operasi</span>
-                      </div>
-                    );
-                  }
+                      let statusBadge = {
+                        label: t.common.normal,
+                        color: "bg-emerald-950/80 border-emerald-500/40 text-emerald-400",
+                        icon: CheckCircle2,
+                      };
 
-                  return (
-                    <div
-                      key={line.id}
-                      className={`p-3.5 rounded-xl border transition-all ${
-                        hasCritical
-                          ? "bg-rose-950/20 border-rose-500/40 hover:border-rose-500/60"
-                          : hasWarning
-                          ? "bg-amber-950/20 border-amber-500/40 hover:border-amber-500/60"
-                          : "bg-slate-900/60 border-white/10 hover:border-white/20"
+                      if (hasCritical) {
+                        statusBadge = {
+                          label: t.common.critical,
+                          color: "bg-rose-950/80 border-rose-500/40 text-rose-400 animate-pulse",
+                          icon: ShieldAlert,
+                        };
+                      } else if (hasWarning) {
+                        statusBadge = {
+                          label: t.common.warning,
+                          color: "bg-amber-950/80 border-amber-500/40 text-amber-400",
+                          icon: AlertTriangle,
+                        };
+                      }
+
+                      const StatusIcon = statusBadge.icon;
+
+                      return (
+                        <div
+                          key={line.id}
+                          className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition shadow-sm"
+                        >
+                          <div
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => setExpandedLineId(isExpanded ? null : line.id)}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span
+                                className="px-2 py-0.5 rounded text-xs font-mono font-bold shrink-0 shadow-sm"
+                                style={{
+                                  backgroundColor: `${line.colorHex}25`,
+                                  color: line.colorHex,
+                                  border: `1px solid ${line.colorHex}70`,
+                                }}
+                              >
+                                {line.code}
+                              </span>
+                              <div className="min-w-0">
+                                <h4 className="text-xs font-bold text-white truncate">{line.name}</h4>
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  Headway: {line.headwayMinutes} {t.common.minutes} &bull; {line.firstDeparture} - {line.lastDeparture}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border flex items-center gap-1 ${statusBadge.color}`}
+                              >
+                                <StatusIcon className="w-3 h-3" />
+                                <span>{statusBadge.label}</span>
+                              </span>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-slate-400" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-slate-400" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Expanded Alerts Details */}
+                          {isExpanded && (
+                            <div className="mt-3 pt-3 border-t border-white/10 space-y-2 animate-in fade-in duration-150">
+                              {lineAlerts.length === 0 ? (
+                                <div className="text-xs text-slate-400 font-mono flex items-center justify-between">
+                                  <span>{t.statusCenter.operationalNormalTitle}</span>
+                                  <button
+                                    onClick={() => handleSelectLine(line.id)}
+                                    className="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold hover:bg-cyan-900/50 transition flex items-center gap-1"
+                                  >
+                                    <span>{t.common.viewOnMap}</span>
+                                    <ArrowRight className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                lineAlerts.map((alert) => (
+                                  <div
+                                    key={alert.id}
+                                    className={`p-3 rounded-lg border text-xs space-y-1.5 ${
+                                      alert.severity === "CRITICAL"
+                                        ? "bg-rose-950/40 border-rose-500/40 text-rose-200"
+                                        : "bg-amber-950/40 border-amber-500/40 text-amber-200"
+                                    }`}
+                                  >
+                                    <div className="font-bold flex items-center justify-between">
+                                      <span>{alert.title}</span>
+                                      <span className="text-[10px] font-mono opacity-70">
+                                        {new Date(alert.startTime).toLocaleTimeString("id-ID", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}{" "}
+                                        WIB
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] leading-relaxed opacity-90">
+                                      {alert.description}
+                                    </p>
+                                    {alert.affectedStops && alert.affectedStops.length > 0 && (
+                                      <div className="text-[10px] font-mono opacity-80 pt-0.5">
+                                        {t.statusCenter.affectedStations}{" "}
+                                        <strong>{alert.affectedStops.join(", ")}</strong>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 4. TAB 2: INTERACTIVE MULTI-MONTH CALENDAR & INCIDENT HISTORY */}
+            {activeMainTab === "HISTORY" && (
+              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+                {/* CALENDAR NAVIGATION & MONTH SELECTOR */}
+                <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-md">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-cyan-400" />
+                      <h3 className="text-sm font-bold text-white tracking-tight">{monthLabel}</h3>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={handlePrevMonth}
+                        title={t.statusCenter.prevMonth}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleNextMonth}
+                        title={t.statusCenter.nextMonth}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quick Filter Buttons */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    <button
+                      onClick={() => setSelectedHistoryDate("ALL")}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${
+                        selectedHistoryDate === "ALL"
+                          ? "bg-cyan-950 border-cyan-500 text-cyan-300 shadow-sm"
+                          : "bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200"
                       }`}
                     >
-                      <div
-                        onClick={() => setExpandedLineId(isExpanded ? null : line.id)}
-                        className="flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div
-                            className="px-2 py-0.5 rounded text-[11px] font-bold font-mono shadow-sm"
-                            style={{
-                              backgroundColor: line.colorHex,
-                              color: line.textColorHex,
-                            }}
+                      {t.statusCenter.allDates} ({monthLabel})
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCalendarYear(2026);
+                        setCalendarMonth(7); // August
+                        setSelectedHistoryDate("2026-08-22");
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200"
+                    >
+                      {t.statusCenter.today} (22 Agu)
+                    </button>
+                  </div>
+
+                  {/* 7-COLUMN CALENDAR MATRIX (Mon-Sun) */}
+                  <div className="space-y-1">
+                    {/* Day Headers */}
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-mono text-slate-400 font-bold uppercase">
+                      <span>{t.statusCenter.mon}</span>
+                      <span>{t.statusCenter.tue}</span>
+                      <span>{t.statusCenter.wed}</span>
+                      <span>{t.statusCenter.thu}</span>
+                      <span>{t.statusCenter.fri}</span>
+                      <span>{t.statusCenter.sat}</span>
+                      <span>{t.statusCenter.sun}</span>
+                    </div>
+
+                    {/* Day Cells */}
+                    <div className="grid grid-cols-7 gap-1">
+                      {calendarDays.map((cell, cIdx) => {
+                        if (!cell.isCurrentMonth) {
+                          return <div key={cIdx} className="h-10 rounded-lg bg-slate-950/30" />;
+                        }
+
+                        const isSelected = selectedHistoryDate === cell.dateStr;
+                        const hasCritical = cell.events.some((e) => e.severity === "CRITICAL");
+                        const hasWarning = cell.events.some((e) => e.severity === "WARNING");
+                        const hasInfo = cell.events.length > 0;
+
+                        return (
+                          <button
+                            key={cIdx}
+                            onClick={() => setSelectedHistoryDate(cell.dateStr)}
+                            className={`h-10 rounded-lg p-1 flex flex-col items-center justify-between border transition-all ${
+                              isSelected
+                                ? "bg-cyan-950 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400 shadow-md shadow-cyan-950/50"
+                                : cell.events.length > 0
+                                ? "bg-slate-850 border-slate-700 hover:border-cyan-500/50 text-white"
+                                : "bg-slate-950/60 border-slate-850 text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                            }`}
                           >
-                            {line.code}
+                            <span className="text-[11px] font-mono font-bold">{cell.dayNum}</span>
+                            {cell.events.length > 0 && (
+                              <div className="flex items-center gap-0.5">
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    hasCritical
+                                      ? "bg-rose-500 animate-pulse"
+                                      : hasWarning
+                                      ? "bg-amber-400"
+                                      : "bg-cyan-400"
+                                  }`}
+                                />
+                                <span className="text-[9px] font-mono font-bold text-slate-300">
+                                  {cell.events.length}
+                                </span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* INCIDENT TIMELINE LIST */}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+                    <span>
+                      {selectedHistoryDate === "ALL"
+                        ? `Catatan Riwayat (${monthLabel}):`
+                        : `Catatan Tanggal ${selectedHistoryDate}:`}
+                    </span>
+                    <span className="text-cyan-400 font-bold">
+                      {filteredHistory.length} Catatan
+                    </span>
+                  </div>
+
+                  {filteredHistory.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-xs font-mono bg-slate-900/40 rounded-xl border border-slate-800">
+                      {t.statusCenter.noIncidentsOnDate}
+                    </div>
+                  ) : (
+                    filteredHistory.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-3.5 rounded-xl bg-slate-900/85 border border-slate-800 space-y-2 text-xs shadow-md"
+                      >
+                        {/* Line Header */}
+                        <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-[10px]">
+                              [{item.lineCode}] {item.lineName}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              {item.date} &bull; {item.startTime} - {item.resolvedTime} WIB
+                            </span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            {t.common.resolved} ({item.durationMinutes} {t.common.minutes})
+                          </span>
+                        </div>
+
+                        {/* Title & Description */}
+                        <div>
+                          <h4 className="text-xs font-bold text-white tracking-tight">{item.title}</h4>
+                          <p className="text-[11px] text-slate-300 leading-relaxed pt-0.5">
+                            {item.description}
+                          </p>
+                        </div>
+
+                        {/* Root Cause & Engineering Mitigation */}
+                        <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/90 space-y-1 text-[11px] font-mono">
+                          <div>
+                            <span className="text-amber-400 font-semibold">{t.statusCenter.rootCause} </span>
+                            <span className="text-slate-300">{item.rootCause}</span>
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-white leading-tight">
-                              {line.name}
-                            </h4>
+                            <span className="text-emerald-400 font-semibold">{t.statusCenter.engineeringMitigation} </span>
+                            <span className="text-slate-300">{item.mitigationAction}</span>
+                          </div>
+                          {item.affectedStops.length > 0 && (
+                            <div className="text-slate-400 pt-0.5">
+                              {t.statusCenter.affectedStations}{" "}
+                              <strong className="text-slate-200">{item.affectedStops.join(", ")}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 5. TAB 3: MULTI-WINDOW HISTORICAL UPTIME & RELIABILITY KPI */}
+            {activeMainTab === "UPTIME" && (
+              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+                {/* TIMEFRAME SELECTOR BUTTONS */}
+                <div className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shrink-0">
+                  {(
+                    [
+                      { id: "30_DAYS", label: t.statusCenter.timeframe30Days },
+                      { id: "90_DAYS", label: t.statusCenter.timeframe90Days },
+                      { id: "180_DAYS", label: t.statusCenter.timeframe180Days },
+                      { id: "365_DAYS", label: t.statusCenter.timeframe365Days },
+                    ] as const
+                  ).map((tf) => (
+                    <button
+                      key={tf.id}
+                      onClick={() => setUptimeTimeframe(tf.id)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold transition text-center ${
+                        uptimeTimeframe === tf.id
+                          ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {tf.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* KPI OVERVIEW HERO BANNER */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-white/10 space-y-2 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-mono font-bold text-cyan-400 flex items-center gap-1.5">
+                      <TrendingUp className="w-4 h-4" />
+                      {t.statusCenter.systemWideUptime}
+                    </span>
+                    <span className="text-xs font-mono text-emerald-400 font-bold">
+                      {t.statusCenter.targetSlaPrima}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-4 pt-1">
+                    <div>
+                      <div className="text-3xl font-black font-mono text-white">
+                        {aggregatedUptime.avgUptime}%
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {t.statusCenter.onTimePerformance}
+                      </span>
+                    </div>
+                    <div className="border-l border-white/10 pl-4">
+                      <div className="text-3xl font-black font-mono text-cyan-300">
+                        {aggregatedUptime.avgMttr} {t.common.minutes}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {t.statusCenter.meanTimeToRecovery}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 12-MONTH PROGRESSION TREND BAR CHART */}
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 shrink-0">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-300 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <BarChart3 className="w-4 h-4 text-cyan-400" />
+                      {t.statusCenter.monthlyTrendTitle}
+                    </span>
+                    <span className="text-[10px] text-emerald-400">Target &gt;98%</span>
+                  </div>
+
+                  {/* Bar Chart Visual */}
+                  <div className="grid grid-cols-12 gap-1 items-end h-20 pt-2 border-b border-white/5">
+                    {monthlyTrendAggregates.map((m) => {
+                      const heightPercent = Math.max(20, (m.avgUptime - 94) * 16);
+                      const isHovered = selectedTrendMonth === m.monthKey;
+
+                      return (
+                        <div
+                          key={m.monthKey}
+                          onClick={() =>
+                            setSelectedTrendMonth(isHovered ? null : m.monthKey)
+                          }
+                          className="flex flex-col items-center gap-1 cursor-pointer group h-full justify-end"
+                        >
+                          <div
+                            style={{ height: `${heightPercent}%` }}
+                            className={`w-full rounded-t transition-all ${
+                              isHovered
+                                ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
+                                : m.avgUptime >= 98
+                                ? "bg-emerald-500/80 group-hover:bg-emerald-400"
+                                : "bg-amber-500/80 group-hover:bg-amber-400"
+                            }`}
+                          />
+                          <span className="text-[8px] font-mono text-slate-400 truncate max-w-full">
+                            {m.monthLabel.split(" ")[0]}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Selected Month Tooltip */}
+                  {selectedTrendMonth && (
+                    <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
+                      <span className="text-white font-bold">{selectedTrendMonth}:</span>
+                      <span className="text-emerald-400">
+                        Uptime:{" "}
+                        {
+                          monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
+                            ?.avgUptime
+                        }
+                        %
+                      </span>
+                      <span className="text-cyan-300">
+                        OTP:{" "}
+                        {
+                          monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
+                            ?.avgOtp
+                        }
+                        %
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* DETAILED MODE-BY-MODE UPTIME LIST WITH 12-MONTH EXPANSION */}
+                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                  <div className="text-xs font-mono text-slate-400 px-1">
+                    {t.statusCenter.modeReliabilityTable}:
+                  </div>
+
+                  {SYSTEM_UPTIME_METRICS.map((metric) => {
+                    let displayedUptime = metric.uptimePercent30Days;
+                    if (uptimeTimeframe === "90_DAYS") displayedUptime = metric.uptimePercent90Days;
+                    else if (uptimeTimeframe === "180_DAYS") displayedUptime = metric.uptimePercent180Days;
+                    else if (uptimeTimeframe === "365_DAYS") displayedUptime = metric.uptimePercent365Days;
+
+                    const isExpanded = expandedUptimeMode === metric.mode;
+
+                    return (
+                      <div
+                        key={metric.mode}
+                        className="p-3.5 rounded-xl bg-slate-900/85 border border-slate-800 space-y-2.5 text-xs shadow-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <strong className="text-white font-bold">{metric.systemName}</strong>
                             <span className="text-[10px] text-slate-400 font-mono">
-                              Antara Kedatangan: ~{line.headwayMinutes} mnt &bull; Operasi {line.firstDeparture} - {line.lastDeparture}
+                              ({metric.totalTrips30Days.toLocaleString()} Trip/Bulan)
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2 font-mono">
+                            <span className="text-emerald-400 font-bold text-xs">
+                              {displayedUptime}% Uptime
+                            </span>
+                            <span className="text-slate-600">&bull;</span>
+                            <span className="text-cyan-300 font-bold text-xs">
+                              {metric.onTimePerformancePercent}% OTP
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">{statusBadge}</div>
-                      </div>
-
-                      {/* Expanded Alerts */}
-                      {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-white/10 space-y-2.5 animate-in fade-in duration-150">
-                          {lineAlerts.length === 0 ? (
-                            <div className="text-xs text-slate-400 font-mono flex items-center justify-between">
-                              <span>Semua perjalanan beroperasi sesuai jadwal reguler.</span>
-                              <button
-                                onClick={() => handleSelectLine(line.id)}
-                                className="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold hover:bg-cyan-900/50 transition flex items-center gap-1"
-                              >
-                                <span>Lihat di Peta</span>
-                                <ArrowRight className="w-3 h-3" />
-                              </button>
+                        {/* 7-Day Mini Status Tiles & History Expand Button */}
+                        <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono text-slate-400">
+                          <div className="flex items-center gap-1.5">
+                            <span>Status 7 Hari:</span>
+                            <div className="flex items-center gap-1">
+                              {metric.statusHistory7Days.map((status, sIdx) => (
+                                <div
+                                  key={sIdx}
+                                  title={`H-${7 - sIdx}: ${status}`}
+                                  className={`w-3 h-3 rounded ${
+                                    status === "NORMAL"
+                                      ? "bg-emerald-500"
+                                      : status === "LIMITED"
+                                      ? "bg-amber-500"
+                                      : "bg-rose-500"
+                                  }`}
+                                />
+                              ))}
                             </div>
-                          ) : (
-                            lineAlerts.map((alert) => (
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              setExpandedUptimeMode(isExpanded ? null : metric.mode)
+                            }
+                            className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1"
+                          >
+                            <span>{t.statusCenter.monthHistorySubpanel}</span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            ) : (
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Expandable 12-Month Table */}
+                        {isExpanded && (
+                          <div className="mt-2 pt-2 border-t border-slate-800 space-y-1.5 animate-in fade-in duration-150">
+                            <div className="grid grid-cols-4 text-[10px] font-mono text-slate-400 font-bold pb-1 border-b border-white/5">
+                              <span>Bulan</span>
+                              <span>Uptime</span>
+                              <span>OTP</span>
+                              <span className="text-right">Total Trip</span>
+                            </div>
+                            {metric.monthlyHistory.map((mRec) => (
                               <div
-                                key={alert.id}
-                                className={`p-3 rounded-lg border text-xs space-y-1.5 ${
-                                  alert.severity === "CRITICAL"
-                                    ? "bg-rose-950/40 border-rose-500/40 text-rose-200"
-                                    : alert.severity === "WARNING"
-                                    ? "bg-amber-950/40 border-amber-500/40 text-amber-200"
-                                    : "bg-slate-800/80 border-slate-700 text-slate-300"
-                                }`}
+                                key={mRec.monthKey}
+                                className="grid grid-cols-4 text-[10px] font-mono text-slate-300 py-0.5 hover:bg-slate-800/40 rounded"
                               >
-                                <div className="font-bold flex items-center justify-between">
-                                  <span>{alert.title}</span>
-                                  <span className="text-[10px] font-mono opacity-70">
-                                    {new Date(alert.startTime).toLocaleTimeString("id-ID", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })} WIB
-                                  </span>
-                                </div>
-                                <p className="text-[11px] leading-relaxed opacity-90">
-                                  {alert.description}
-                                </p>
-                                {alert.affectedStops && alert.affectedStops.length > 0 && (
-                                  <div className="text-[10px] font-mono opacity-80 pt-1">
-                                    Halte/Stasiun Terdampak: <strong>{alert.affectedStops.join(", ")}</strong>
-                                  </div>
-                                )}
+                                <span className="font-semibold text-white">{mRec.monthLabel}</span>
+                                <span className="text-emerald-400 font-bold">{mRec.uptimePercent}%</span>
+                                <span className="text-cyan-300">{mRec.onTimePerformancePercent}%</span>
+                                <span className="text-right text-slate-400">{mRec.totalTrips.toLocaleString()}</span>
                               </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 4. TAB 2: INCIDENT HISTORY & EVENT CALENDAR */}
-        {activeMainTab === "HISTORY" && (
-          <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
-            {/* 7-DAY CALENDAR DATE STRIP */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-                  Kalender Riwayat Peristiwa (Agustus 2026)
-                </span>
-                <span className="text-[10px]">Pilih tanggal</span>
-              </div>
-
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                <button
-                  onClick={() => setSelectedHistoryDate("ALL")}
-                  className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold transition shrink-0 ${
-                    selectedHistoryDate === "ALL"
-                      ? "bg-cyan-950 border-cyan-400 text-cyan-300 shadow-md shadow-cyan-950/60"
-                      : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  Semua Tanggal
-                </button>
-                {["2026-08-22", "2026-08-21", "2026-08-20", "2026-08-19", "2026-08-18", "2026-08-17", "2026-08-16"].map(
-                  (dStr) => {
-                    const isSelected = selectedHistoryDate === dStr;
-                    const dateNum = dStr.split("-")[2];
-                    const count = HISTORICAL_INCIDENTS.filter((h) => h.date === dStr).length;
-
-                    return (
-                      <button
-                        key={dStr}
-                        onClick={() => setSelectedHistoryDate(dStr)}
-                        className={`flex flex-col items-center justify-between px-3 py-1.5 rounded-xl border transition shrink-0 ${
-                          isSelected
-                            ? "bg-slate-800 border-cyan-400 text-white shadow-md shadow-cyan-950/60 ring-1 ring-cyan-400"
-                            : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
-                        }`}
-                      >
-                        <span className="text-[10px] font-mono uppercase">Agu</span>
-                        <span className="text-sm font-bold font-mono text-white">{dateNum}</span>
-                        <span className="text-[9px] font-mono text-cyan-400">{count} Catatan</span>
-                      </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     );
-                  }
-                )}
-              </div>
-            </div>
-
-            {/* INCIDENT TIMELINE LIST */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              {filteredHistory.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-xs font-mono">
-                  Tidak ada catatan gangguan pada tanggal yang dipilih.
-                </div>
-              ) : (
-                filteredHistory.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-3.5 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 text-xs shadow-md"
-                  >
-                    {/* Header: Line Code & Resolved Badge */}
-                    <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-[10px]">
-                          [{item.lineCode}] {item.lineName}
-                        </span>
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {item.date} &bull; {item.startTime} - {item.resolvedTime} WIB
-                        </span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold flex items-center gap-1">
-                        <Check className="w-3 h-3" />
-                        Selesai ({item.durationMinutes} mnt)
-                      </span>
-                    </div>
-
-                    {/* Incident Title & Description */}
-                    <div>
-                      <h4 className="text-xs font-bold text-white tracking-tight">{item.title}</h4>
-                      <p className="text-[11px] text-slate-300 leading-relaxed pt-0.5">{item.description}</p>
-                    </div>
-
-                    {/* Root Cause & Resolution Card */}
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 space-y-1 text-[11px] font-mono">
-                      <div>
-                        <span className="text-amber-400 font-semibold">Penyebab: </span>
-                        <span className="text-slate-300">{item.rootCause}</span>
-                      </div>
-                      <div>
-                        <span className="text-emerald-400 font-semibold">Tindakan Rekayasa: </span>
-                        <span className="text-slate-300">{item.mitigationAction}</span>
-                      </div>
-                      {item.affectedStops.length > 0 && (
-                        <div className="text-slate-400 pt-0.5">
-                          Titik Terdampak: <strong className="text-slate-200">{item.affectedStops.join(", ")}</strong>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 5. TAB 3: SYSTEM UPTIME & RELIABILITY KPI */}
-        {activeMainTab === "UPTIME" && (
-          <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
-            {/* KPI OVERVIEW HERO */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-cyan-950/40 border border-white/10 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase font-mono font-bold text-cyan-400 flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4" />
-                  Rata-Rata Keandalan Seluruh Jaringan (30 Hari)
-                </span>
-                <span className="text-xs font-mono text-emerald-400 font-bold">Prima (Target &gt;95%)</span>
-              </div>
-              <div className="flex items-baseline gap-4 pt-1">
-                <div>
-                  <div className="text-3xl font-black font-mono text-white">98.15%</div>
-                  <span className="text-[10px] text-slate-400 font-mono">Indeks On-Time (OTP)</span>
-                </div>
-                <div className="border-l border-white/10 pl-4">
-                  <div className="text-3xl font-black font-mono text-cyan-300">14.8 mnt</div>
-                  <span className="text-[10px] text-slate-400 font-mono">Rata-Rata Penanganan (MTTR)</span>
+                  })}
                 </div>
               </div>
+            )}
+
+            {/* 6. FOOTER BAR */}
+            <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
+              <span>Pusat Maklumat Kendali &bull; OCC Dukuh Atas</span>
+              <span>
+                {t.common.lastUpdated}: {lastUpdated || t.common.updatedJustNow}
+              </span>
             </div>
-
-            {/* DETAILED MODE-BY-MODE UPTIME LIST */}
-            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-              {SYSTEM_UPTIME_METRICS.map((metric) => (
-                <div
-                  key={metric.mode}
-                  className="p-3 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 text-xs"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <strong className="text-white font-bold">{metric.systemName}</strong>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        ({metric.totalTrips30Days.toLocaleString()} Trip/Bulan)
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 font-mono">
-                      <span className="text-emerald-400 font-bold text-xs">{metric.uptimePercent30Days}% Uptime</span>
-                      <span className="text-slate-500">&bull;</span>
-                      <span className="text-cyan-300 font-bold text-xs">{metric.onTimePerformancePercent}% OTP</span>
-                    </div>
-                  </div>
-
-                  {/* 7-Day Mini Status Tiles */}
-                  <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    <span>Status 7 Hari Terakhir:</span>
-                    <div className="flex items-center gap-1">
-                      {metric.statusHistory7Days.map((status: "NORMAL" | "LIMITED" | "DISRUPTED", sIdx: number) => (
-                        <div
-                          key={sIdx}
-                          title={`H-${7 - sIdx}: ${status}`}
-                          className={`w-3.5 h-3.5 rounded-md ${
-                            status === "NORMAL"
-                              ? "bg-emerald-500"
-                              : status === "LIMITED"
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 6. FOOTER BAR */}
-        <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
-          <span>Pusat Maklumat Kendali &bull; OCC Dukuh Atas</span>
-          <span>Diperbarui: {lastUpdated || "Baru saja"}</span>
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

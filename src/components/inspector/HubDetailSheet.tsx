@@ -50,6 +50,7 @@ import {
 import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
 
@@ -414,6 +415,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);
   const clearSelection = useTransitStore((state) => state.clearSelection);
+  const { t } = useTranslation();
 
   const stop = allStops.find((s) => s.id === stopId);
   const skybridgeHubId = stop ? getMatchingSkybridgeId(stop) : null;
@@ -605,7 +607,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>Jadwal Keberangkatan</span>
+              <span>{t.hubInspector.tabDepartures}</span>
             </button>
 
             {destinationGroups && destinationGroups.length > 0 && (
@@ -618,7 +620,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 }`}
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Rute & Destinasi Wilayah</span>
+                <span>{t.hubInspector.tabDestinations}</span>
               </button>
             )}
 
@@ -631,7 +633,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
               }`}
             >
               <Accessibility className="w-3.5 h-3.5" />
-              <span>Fasilitas & Aksesibilitas</span>
+              <span>{t.hubInspector.tabFacilities}</span>
             </button>
 
             {skybridgeHubId && (
@@ -644,7 +646,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 }`}
               >
                 <Footprints className="w-3.5 h-3.5" />
-                <span>Panduan Jembatan (Skybridge)</span>
+                <span>{t.hubInspector.tabSkybridge}</span>
               </button>
             )}
           </div>

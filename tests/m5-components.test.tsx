@@ -94,9 +94,9 @@ describe("Milestone 5: React UI Components Integration", () => {
       const onClose = vi.fn();
       render(<ServiceStatusDrawer isOpen={true} onClose={onClose} />);
 
-      expect(screen.getByText(/Pusat Operasional & Keandalan/i)).toBeInTheDocument();
-      expect(screen.getByText(/Semua Moda/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Cari kode jalur atau rute/i)).toBeInTheDocument();
+      expect(screen.getByText(/Pusat Maklumat Operasional & Keandalan|Pusat Operasional/i)).toBeInTheDocument();
+      expect(screen.getByText(/Semua Moda|Semua Sektor/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Cari rute|Cari kode jalur/i)).toBeInTheDocument();
     });
   });
 

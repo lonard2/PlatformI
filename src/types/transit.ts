@@ -260,15 +260,30 @@ export interface HistoricalIncidentEvent {
   ontimeImpactPercent: number;
 }
 
+export interface MonthlyUptimeRecord {
+  monthKey: string;
+  monthLabel: string;
+  uptimePercent: number;
+  onTimePerformancePercent: number;
+  totalTrips: number;
+  incidentCount: number;
+  disruptionMinutes: number;
+}
+
 export interface SystemUptimeMetric {
   mode: TransitMode;
   systemName: string;
   uptimePercent30Days: number;
+  uptimePercent90Days: number;
+  uptimePercent180Days: number;
+  uptimePercent365Days: number;
   onTimePerformancePercent: number;
   totalTrips30Days: number;
   disruptionMinutes30Days: number;
   mttrMinutes: number;
   statusHistory7Days: ("NORMAL" | "LIMITED" | "DISRUPTED")[];
+  statusHistory30Days?: ("NORMAL" | "LIMITED" | "DISRUPTED")[];
+  monthlyHistory: MonthlyUptimeRecord[];
 }
 
 export interface Vehicle {
