@@ -3,6 +3,7 @@
  *
  * Renders priority operational disruption notices matching user-pinned transit modes
  * or critical system-wide bulletins with expandable details and line highlighting.
+ * Designed with a compact, non-intrusive layout on mobile/tablet to prioritize transit icons.
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
@@ -40,7 +41,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
   const allLines = useTransitStore((state) => state.allLines);
-  const allStops = useTransitStore((state) => state.allStops);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
@@ -91,28 +91,28 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
     switch (severity) {
       case "CRITICAL":
         return {
-          icon: <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />,
+          icon: <ShieldAlert className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />,
           containerStyle:
-            "bg-rose-950/80 border-rose-500/50 text-rose-200 shadow-rose-950/40",
+            "bg-rose-950/70 border-rose-500/40 text-rose-200 shadow-rose-950/30",
           tagStyle: "bg-rose-900/80 text-rose-300 border-rose-500/40",
-          label: "Critical Disruption",
+          label: "Gangguan",
         };
       case "WARNING":
         return {
-          icon: <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />,
+          icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />,
           containerStyle:
-            "bg-amber-950/80 border-amber-500/50 text-amber-200 shadow-amber-950/40",
+            "bg-amber-950/70 border-amber-500/40 text-amber-200 shadow-amber-950/30",
           tagStyle: "bg-amber-900/80 text-amber-300 border-amber-500/40",
-          label: "Service Advisory",
+          label: "Peringatan",
         };
       case "INFO":
       default:
         return {
-          icon: <Info className="w-4 h-4 text-cyan-400 shrink-0" />,
+          icon: <Info className="w-3.5 h-3.5 text-cyan-400 shrink-0" />,
           containerStyle:
-            "bg-cyan-950/80 border-cyan-500/50 text-cyan-200 shadow-cyan-950/40",
+            "bg-cyan-950/70 border-cyan-500/40 text-cyan-200 shadow-cyan-950/30",
           tagStyle: "bg-cyan-900/80 text-cyan-300 border-cyan-500/40",
-          label: "Maintenance Notice",
+          label: "Info",
         };
     }
   };
@@ -141,48 +141,46 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   };
 
   return (
-    <div className="w-full px-3 sm:px-6 py-1.5 z-20 transition-all duration-200">
+    <div className="w-full px-3 sm:px-6 py-1 z-20 transition-all duration-200">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full rounded-xl border backdrop-blur-md shadow-lg p-2.5 sm:p-3 cursor-pointer transition-all duration-200 ${badgeConfig.containerStyle}`}
+        className={`w-full rounded-xl border backdrop-blur-md shadow-md px-2.5 py-1.5 sm:py-2 cursor-pointer transition-all duration-200 ${badgeConfig.containerStyle}`}
       >
         <div className="flex items-center justify-between gap-2">
-          {/* Left Icon & Title */}
-          <div className="flex items-center gap-2.5 min-w-0">
+          {/* Left Icon & Compact Title */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             {badgeConfig.icon}
-            <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span
+              className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-md border font-mono shrink-0 hidden xs:inline-block ${badgeConfig.tagStyle}`}
+            >
+              {badgeConfig.label}
+            </span>
+
+            {affectedLine && (
               <span
-                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border font-mono ${badgeConfig.tagStyle}`}
+                style={{
+                  backgroundColor: `${affectedLine.colorHex}25`,
+                  borderColor: `${affectedLine.colorHex}60`,
+                  color: affectedLine.colorHex,
+                }}
+                className="text-[9px] font-bold px-1.5 py-0.2 rounded border font-mono shrink-0"
               >
-                {badgeConfig.label}
+                {affectedLine.code}
               </span>
+            )}
 
-              {affectedLine && (
-                <span
-                  style={{
-                    backgroundColor: `${affectedLine.colorHex}25`,
-                    borderColor: `${affectedLine.colorHex}60`,
-                    color: affectedLine.colorHex,
-                  }}
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-md border font-mono shrink-0"
-                >
-                  {affectedLine.code}
-                </span>
-              )}
-
-              <h4 className="text-xs sm:text-sm font-semibold text-white truncate max-w-sm sm:max-w-md md:max-w-xl">
-                {currentAlert.title}
-              </h4>
-            </div>
+            <h4 className="text-[11px] sm:text-xs font-semibold text-white truncate max-w-xs sm:max-w-md md:max-w-xl">
+              {currentAlert.title}
+            </h4>
           </div>
 
           {/* Right Actions & Counter */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             {activeAlerts.length > 1 && (
               <button
                 onClick={handleNextAlert}
-                title="Next Alert"
-                className="text-[10px] px-2 py-1 rounded-md bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition"
+                title="Pemberitahuan berikutnya"
+                className="text-[9px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition"
               >
                 {currentIndex + 1}/{activeAlerts.length} &rarr;
               </button>
@@ -190,10 +188,10 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
             <button
               onClick={handleOpenDrawer}
-              title="View Complete Network Status"
-              className="hidden md:flex items-center gap-1 text-[11px] font-medium text-slate-300 hover:text-white px-2 py-1 rounded-md bg-black/30 hover:bg-black/50 border border-white/10 transition"
+              title="Lihat Status Lengkap"
+              className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-slate-300 hover:text-white px-2 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition"
             >
-              <span>Network Status</span>
+              <span>Status</span>
               <ArrowRight className="w-3 h-3" />
             </button>
 
@@ -202,9 +200,13 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 e.stopPropagation();
                 setIsExpanded(!isExpanded);
               }}
-              className="p-1 rounded-lg hover:bg-white/10 text-slate-300 transition"
+              className="p-1 rounded-md hover:bg-white/10 text-slate-300 transition"
             >
-              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              {isExpanded ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5" />
+              )}
             </button>
 
             <button
@@ -212,18 +214,18 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 e.stopPropagation();
                 setIsDismissed(true);
               }}
-              title="Dismiss Banner"
-              className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition"
+              title="Tutup pemberitahuan"
+              className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Expandable Details Body */}
         {isExpanded && (
-          <div className="mt-3 pt-2.5 border-t border-white/10 text-xs text-slate-300 space-y-2 animate-in fade-in duration-150">
-            <p className="leading-relaxed text-slate-200">
+          <div className="mt-2 pt-2 border-t border-white/10 text-xs text-slate-300 space-y-2 animate-in fade-in duration-150">
+            <p className="leading-relaxed text-slate-200 text-[11px] sm:text-xs">
               {currentAlert.description}
             </p>
 
@@ -232,7 +234,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    Affected Stops:
+                    Titik Terdampak:
                   </span>
                   {currentAlert.affectedStops.map((stopName, sIdx) => (
                     <span
@@ -249,18 +251,18 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 {affectedLine && (
                   <button
                     onClick={handleHighlightLine}
-                    className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-md bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
+                    className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
                   >
                     <Layers className="w-3 h-3" />
-                    <span>Highlight {affectedLine.code} on Map</span>
+                    <span>Sorot {affectedLine.code} di Peta</span>
                   </button>
                 )}
 
                 <button
                   onClick={handleOpenDrawer}
-                  className="flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
+                  className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
                 >
-                  <span>All Operational Bulletins</span>
+                  <span>Pusat Informasi Operasional</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>

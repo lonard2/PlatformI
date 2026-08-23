@@ -192,11 +192,11 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. TOP PRIORITY DISRUPTION NOTICES BANNER */}
-      <DisruptionAlertBanner onOpenStatusDrawer={() => setIsStatusDrawerOpen(true)} />
-
-      {/* 3. MULTIMODAL TRANSPORTATION SYSTEMS & CONSOLIDATED HUBS BAR */}
+      {/* 2. MULTIMODAL TRANSPORTATION SYSTEMS & CONSOLIDATED HUBS BAR */}
       <TransportationSystemBar />
+
+      {/* 3. PRIORITY DISRUPTION NOTICES BANNER (COMPACT) */}
+      <DisruptionAlertBanner onOpenStatusDrawer={() => setIsStatusDrawerOpen(true)} />
 
       {/* 4. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
       <div className="flex-1 relative overflow-hidden flex">

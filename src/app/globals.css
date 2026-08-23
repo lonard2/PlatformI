@@ -76,6 +76,31 @@ body {
   background: rgba(148, 163, 184, 0.8);
 }
 
+/* Horizontal Transit Systems Bar Scrollbar */
+.transit-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.4) rgba(15, 23, 42, 0.6);
+}
+
+.transit-scrollbar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.transit-scrollbar::-webkit-scrollbar-track {
+  background: rgba(8, 12, 22, 0.8);
+  border-radius: 9999px;
+}
+
+.transit-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.4);
+  border-radius: 9999px;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.transit-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.8);
+}
+
 /* Leaflet Container & Markers */
 .leaflet-container {
   width: 100%;
