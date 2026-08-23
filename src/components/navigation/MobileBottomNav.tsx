@@ -19,6 +19,7 @@ import {
   Activity,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 
 interface MobileBottomNavProps {
   onOpenAI: () => void;
@@ -26,6 +27,7 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps) {
+  const { t } = useTranslation();
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
   const clearSelection = useTransitStore((state) => state.clearSelection);
@@ -62,7 +64,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps
         }`}
       >
         <MapPin className="w-5 h-5" />
-        <span className="text-[10px] tracking-tight">Peta</span>
+        <span className="text-[10px] tracking-tight">{t.common.viewOnMap}</span>
       </button>
 
       {/* 2. LAYANAN & STATUS (SERVICES) */}
@@ -75,14 +77,14 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps
         }`}
       >
         <Activity className="w-5 h-5" />
-        <span className="text-[10px] tracking-tight">Layanan</span>
+        <span className="text-[10px] tracking-tight">{t.statusCenter.tabLive}</span>
       </button>
 
       {/* 3. CENTER ELEVATED ACTION BUTTON: TIKET & SCAN QR */}
       <div className="relative -top-4 flex flex-col items-center">
         <button
           onClick={handleWalletClick}
-          aria-label="Buka Tiket & QR Gate Turnstile"
+          aria-label={t.ticketing.tapAtGate}
           className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 transform active:scale-90 shadow-xl border ${
             isWalletActive
               ? "bg-gradient-to-tr from-cyan-400 to-blue-500 text-slate-950 border-white shadow-cyan-500/60 ring-4 ring-cyan-500/30"
@@ -96,7 +98,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps
             isWalletActive ? "text-cyan-300 font-extrabold" : "text-slate-300"
           }`}
         >
-          Tiket & QR
+          {t.navigation.ticketing}
         </span>
       </div>
 
@@ -110,7 +112,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps
         }`}
       >
         <Users className="w-5 h-5" />
-        <span className="text-[10px] tracking-tight">Laporan</span>
+        <span className="text-[10px] tracking-tight">{t.navigation.crowdsource}</span>
       </button>
 
       {/* 5. ASISTEN AI (AI ADVISOR) */}
@@ -119,7 +121,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus }: MobileBottomNavProps
         className="flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
       >
         <Sparkles className="w-5 h-5 text-cyan-400" />
-        <span className="text-[10px] tracking-tight">Asisten</span>
+        <span className="text-[10px] tracking-tight">{t.navigation.aiAdvisor}</span>
       </button>
     </nav>
   );

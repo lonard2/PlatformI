@@ -29,6 +29,7 @@ import {
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
+import { useTranslation } from "@/lib/i18n";
 
 export interface DisruptionAlertBannerProps {
   onOpenStatusDrawer?: () => void;
@@ -37,6 +38,7 @@ export interface DisruptionAlertBannerProps {
 export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   onOpenStatusDrawer,
 }) => {
+  const { t } = useTranslation();
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -94,7 +96,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             "bg-gradient-to-r from-rose-950/90 via-slate-950/90 to-rose-950/80 border-rose-500/50 text-rose-200 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/30",
           tagStyle: "bg-rose-900/80 text-rose-300 border-rose-500/40",
           pulseColor: "bg-rose-500",
-          label: "Gangguan Kritis",
+          label: t.common.critical,
         };
       case "WARNING":
         return {
@@ -103,7 +105,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             "bg-gradient-to-r from-amber-950/80 via-slate-950/90 to-amber-950/70 border-amber-500/40 text-amber-200 shadow-lg shadow-amber-950/30 ring-1 ring-amber-500/20",
           tagStyle: "bg-amber-900/80 text-amber-300 border-amber-500/40",
           pulseColor: "bg-amber-500",
-          label: "Peringatan",
+          label: t.common.warning,
         };
       case "INFO":
       default:
@@ -113,7 +115,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             "bg-gradient-to-r from-cyan-950/80 via-slate-950/90 to-cyan-950/70 border-cyan-500/40 text-cyan-200 shadow-lg shadow-cyan-950/30 ring-1 ring-cyan-500/20",
           tagStyle: "bg-cyan-900/80 text-cyan-300 border-cyan-500/40",
           pulseColor: "bg-cyan-500",
-          label: "Maklumat",
+          label: t.common.normal,
         };
     }
   };
@@ -287,7 +289,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                             className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
                           >
                             <Layers className="w-3 h-3" />
-                            <span>Sorot {affectedLine.code} di Peta</span>
+                            <span>{t.common.viewOnMap} ({affectedLine.code})</span>
                           </button>
                         )}
 
@@ -295,7 +297,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                           onClick={handleOpenDrawer}
                           className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
                         >
-                          <span>Pusat Informasi Operasional</span>
+                          <span>{t.statusCenter.title}</span>
                           <ArrowRight className="w-3 h-3" />
                         </button>
                       </div>

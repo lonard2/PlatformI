@@ -24,12 +24,14 @@ import {
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
+import { useTranslation } from "@/lib/i18n";
 
 interface MapControlsProps {
   map: L.Map | null;
 }
 
 export function MapControls({ map }: MapControlsProps) {
+  const { t } = useTranslation();
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const setSimulationSpeed = useTransitStore((state) => state.setSimulationSpeed);
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);

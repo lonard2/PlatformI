@@ -36,6 +36,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import { Vehicle, VehicleCarriageTelemetry } from "@/types/transit";
+import { useTranslation } from "@/lib/i18n";
 
 interface VehicleCarriageSelectorProps {
   vehicle: Vehicle;
@@ -485,6 +486,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
 }
 
 export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProps) {
+  const { t } = useTranslation();
   const carriages = getVehicleCarriages(vehicle);
   const [selectedCarIndex, setSelectedCarIndex] = useState<number>(1);
   const [isFitMode, setIsFitMode] = useState<boolean>(false);

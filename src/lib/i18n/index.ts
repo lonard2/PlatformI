@@ -8,12 +8,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { SupportedLanguage, SUPPORTED_LANGUAGES, TranslationDictionary } from "./types";
-import { idTranslations } from "./dictionaries/id";
-import { enTranslations } from "./dictionaries/en";
-import { jaTranslations } from "./dictionaries/ja";
-import { zhTranslations } from "./dictionaries/zh";
-import { koTranslations } from "./dictionaries/ko";
-import { arTranslations } from "./dictionaries/ar";
+import { id as idTranslations } from "./dictionaries/id";
+import { en as enTranslations } from "./dictionaries/en";
+import { ja as jaTranslations } from "./dictionaries/ja";
+import { zh as zhTranslations } from "./dictionaries/zh";
+import { ko as koTranslations } from "./dictionaries/ko";
+import { ar as arTranslations } from "./dictionaries/ar";
 
 export * from "./types";
 

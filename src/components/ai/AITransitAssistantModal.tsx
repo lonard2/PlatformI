@@ -35,10 +35,11 @@ import {
   AIAdvisorResponse,
 } from "@/lib/services/aiTransitService";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 
 export interface AITransitAssistantModalProps {
-  isOpen: boolean;
   onClose: () => void;
+  isOpen: boolean;
 }
 
 interface ExtendedChatMessage extends AIChatMessage {
@@ -53,6 +54,7 @@ export const AITransitAssistantModal: React.FC<AITransitAssistantModalProps> = (
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_AI_MODEL_ID);
   const [inputQuery, setInputQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -243,14 +245,14 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
-                  AI Transit Advisor
+                  {t.aiAdvisor.title}
                 </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono font-medium">
                   Multi-Model
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
-                Jakarta & Bodetabek Multimodal Navigation Copilot
+                {t.aiAdvisor.subtitle}
               </p>
             </div>
           </div>
@@ -258,13 +260,14 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
           <div className="flex items-center gap-2">
             <button
               onClick={handleResetChat}
-              title="Reset Conversation"
+              title={t.common.refresh}
               className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 transition"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
+              aria-label={t.common.close}
               className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 transition"
             >
               <X className="w-4 h-4" />
@@ -498,7 +501,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
               type="text"
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
-              placeholder="Ask about multimodal routes, transfers, Whoosh, fares, or airport..."
+              placeholder={t.aiAdvisor.inputPlaceholder}
               disabled={isLoading}
               className="flex-1 bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/50 transition disabled:opacity-50"
             />
@@ -511,7 +514,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
-                  <span>Send</span>
+                  <span>{t.aiAdvisor.send}</span>
                   <Send className="w-3.5 h-3.5" />
                 </>
               )}

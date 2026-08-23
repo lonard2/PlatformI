@@ -36,6 +36,7 @@ import {
   DEFAULT_QR_SECRET,
   TIME_STEP_MS,
 } from "@/lib/services/qrSecurityService";
+import { useTranslation } from "@/lib/i18n";
 
 interface ScanAuditEntry {
   id: string;
@@ -50,6 +51,7 @@ interface ScanAuditEntry {
 }
 
 export default function AdminScannerPage() {
+  const { t } = useTranslation();
   const [selectedGate, setSelectedGate] = useState<string>("CSW-ASEAN Hub Gate #04");
   const [scannedPayload, setScannedPayload] = useState<string>("");
   const [lastValidationResult, setLastValidationResult] = useState<GateValidationResult | null>(null);

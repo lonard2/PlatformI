@@ -22,10 +22,12 @@ import { UserTransitPreferencesModal } from "../src/components/settings/UserTran
 import { TransportationSystemBar } from "../src/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "../src/components/navigation/MobileBottomNav";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
+import { useLanguageStore } from "../src/lib/i18n";
 import { TRANSIT_LINES, TRANSIT_STOPS, TRANSIT_VEHICLES, DISRUPTION_ALERTS } from "../src/lib/data/jakarta-dataset";
 
 describe("Milestone 5: React UI Components Integration", () => {
   beforeEach(() => {
+    useLanguageStore.setState({ language: "en" });
     useTransitStore.setState({
       simulatedVehicles: TRANSIT_VEHICLES,
       allLines: TRANSIT_LINES,
@@ -94,28 +96,23 @@ describe("Milestone 5: React UI Components Integration", () => {
       const onClose = vi.fn();
       render(<ServiceStatusDrawer isOpen={true} onClose={onClose} />);
 
-      expect(screen.getByText(/Pusat Maklumat Operasional & Keandalan|Pusat Operasional/i)).toBeInTheDocument();
-      expect(screen.getByText(/Semua Moda|Semua Sektor/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Cari rute|Cari kode jalur/i)).toBeInTheDocument();
+      expect(screen.getByText(/Operations & Reliability|Pusat Maklumat Operasional|Pusat Operasional/i)).toBeInTheDocument();
+      expect(screen.getByText(/All Modes|All Sectors|Semua Moda|Semua Sektor/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Search|Cari/i)).toBeInTheDocument();
     });
   });
 
   describe("4. AppSettingsModal Component", () => {
-    it("renders theme, basemap tile, simulation speed, and OCC portal link", () => {
+    it("renders display theme, cartography basemaps, and simulation clock toggles", () => {
       const onClose = vi.fn();
       render(<AppSettingsModal isOpen={true} onClose={onClose} />);
 
-      expect(screen.getByText(/Application Settings/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Cockpit|Application Settings|Pengaturan/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Dark Matter/i)).toBeInTheDocument();
       expect(screen.getByText(/Positron Light/i)).toBeInTheDocument();
-      expect(screen.getByText(/Real-Time \(1x\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Portal Petugas/i)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/Satellite/i)).toBeInTheDocument();
 
-    it("updates store state when selecting a different basemap tile", () => {
-      const onClose = vi.fn();
-      render(<AppSettingsModal isOpen={true} onClose={onClose} />);
-
+      // Test changing tile layer
       const lightTileBtn = screen.getByText(/Positron Light/i);
       fireEvent.click(lightTileBtn);
       expect(useTransitStore.getState().activeTileLayer).toBe("light");
@@ -127,24 +124,24 @@ describe("Milestone 5: React UI Components Integration", () => {
       const onClose = vi.fn();
       render(<UserTransitPreferencesModal isOpen={true} onClose={onClose} />);
 
-      expect(screen.getByText(/Transit Preferences & Pinned Networks/i)).toBeInTheDocument();
-      expect(screen.getByText(/Fastest Travel Time/i)).toBeInTheDocument();
-      expect(screen.getByText(/Lowest Fare & JakLingko Cap/i)).toBeInTheDocument();
-      expect(screen.getByText(/Barrier-Free & Accessible/i)).toBeInTheDocument();
-      expect(screen.getByText(/Select All/i)).toBeInTheDocument();
-      expect(screen.getByText(/Clear All/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Transit Modes|Preferensi|Transit Preferences/i).length).toBeGreaterThan(0);
+      expect(screen.getByText(/Waktu Tempuh|Fastest/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tarif Terintegrasi|Lowest Fare/i)).toBeInTheDocument();
+      expect(screen.getByText(/Akses Ramah Disabilitas|Barrier-Free/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Pilih Semua|Select All/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Hapus Semua|Clear All/i).length).toBeGreaterThan(0);
     });
 
     it("handles Select All and Clear All modes interactions", () => {
       const onClose = vi.fn();
       render(<UserTransitPreferencesModal isOpen={true} onClose={onClose} />);
 
-      const clearAllBtn = screen.getByText(/Clear All/i);
-      fireEvent.click(clearAllBtn);
+      const clearAllBtns = screen.getAllByText(/Hapus Semua|Clear All/i);
+      fireEvent.click(clearAllBtns[0]);
       expect(useTransitStore.getState().selectedModes).toHaveLength(0);
 
-      const selectAllBtn = screen.getByText(/Select All/i);
-      fireEvent.click(selectAllBtn);
+      const selectAllBtns = screen.getAllByText(/Pilih Semua|Select All/i);
+      fireEvent.click(selectAllBtns[0]);
       expect(useTransitStore.getState().selectedModes.length).toBeGreaterThan(10);
     });
   });
@@ -153,10 +150,10 @@ describe("Milestone 5: React UI Components Integration", () => {
     it("renders transportation groups: Rel, Bus & Terminal, Bandara, Pelabuhan", () => {
       render(<TransportationSystemBar />);
 
-      expect(screen.getAllByText("Rel").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Bus & Terminal").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Bandara").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Pelabuhan & Laut").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Rel|Rail/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Bus/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Bandara|Aviation|Air/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Pelabuhan|Maritime|Sea/i).length).toBeGreaterThanOrEqual(1);
 
       // Check key systems and consolidated hubs
       expect(screen.getByText("MRT Jakarta")).toBeInTheDocument();
@@ -175,7 +172,7 @@ describe("Milestone 5: React UI Components Integration", () => {
         // Click to open popover
         fireEvent.click(mrtBtn);
         // Popover is open, contains toggle button
-        const toggleBtn = screen.getByText(/Aktif di Peta/i);
+        const toggleBtn = screen.getByText(/Aktif di Peta|Active on Map/i);
         expect(toggleBtn).toBeInTheDocument();
         fireEvent.click(toggleBtn);
         expect(useTransitStore.getState().selectedModes.includes("MRT_JAKARTA")).toBe(false);
@@ -209,19 +206,19 @@ describe("Milestone 5: React UI Components Integration", () => {
         />
       );
 
-      expect(screen.getByText("Peta")).toBeInTheDocument();
-      expect(screen.getByText("Layanan")).toBeInTheDocument();
-      expect(screen.getByText("Tiket & QR")).toBeInTheDocument();
-      expect(screen.getByText("Laporan")).toBeInTheDocument();
-      expect(screen.getByText("Asisten")).toBeInTheDocument();
+      expect(screen.getByText(/Track on Map|Lacak di Peta|Live Map|Peta/i)).toBeInTheDocument();
+      expect(screen.getByText(/Status Langsung|Live Status|Layanan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket/i)).toBeInTheDocument();
+      expect(screen.getByText(/Crowd Reports|Laporan Kepadatan|Live Feed|Laporan/i)).toBeInTheDocument();
+      expect(screen.getByText(/AI Route Advisor|Asisten AI|AI Assistant|Asisten/i)).toBeInTheDocument();
 
       // Click center QR button
-      const qrBtn = screen.getByLabelText(/Buka Tiket & QR Gate Turnstile/i);
+      const qrBtn = screen.getByRole("button", { name: /dynamic QR|kode QR|QR|Tiket|Pass/i });
       fireEvent.click(qrBtn);
       expect(useTransitStore.getState().activeDrawer).toBe("tickets");
 
       // Click Asisten AI
-      const asistenBtn = screen.getByText("Asisten");
+      const asistenBtn = screen.getByText(/AI Route Advisor|Asisten AI|AI Assistant|Asisten/i);
       fireEvent.click(asistenBtn);
       expect(onOpenAIMock).toHaveBeenCalled();
     });

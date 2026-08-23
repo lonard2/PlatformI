@@ -30,8 +30,10 @@ import {
 import { DisruptionAlert, DisruptionSeverity, Line } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AdminAlertsPage() {
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
 

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { FormattedFeedItem } from "@/app/api/crowdsource/feed/route";
+import { useTranslation } from "@/lib/i18n";
 
 interface CommunityLiveFeedProps {
   onOpenCheckIn: (vehicleId?: string) => void;
@@ -38,6 +39,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
   onOpenCheckIn,
   className = "",
 }) => {
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const selectVehicle = useTransitStore((state) => state.selectVehicle);
 
@@ -145,11 +147,11 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              Community Live Ticker
+              {t.crowdsource.liveFeedTitle}
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             </h3>
             <p className="text-[10px] text-slate-400">
-              Crowdsourced Jabodetabek passenger telemetry
+              {t.crowdsource.liveFeedSubtitle}
             </p>
           </div>
         </div>
@@ -159,7 +161,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
             onClick={() => fetchFeed()}
             disabled={isLoading}
             className="p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
-            title="Refresh Feed"
+            title={t.common.refresh}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-cyan-400" : ""}`} />
           </button>
@@ -169,7 +171,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
             className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-md shadow-cyan-600/20 flex items-center gap-1.5 transition"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Check-In</span>
+            <span>{t.crowdsource.checkInTitle}</span>
           </button>
         </div>
       </div>
@@ -178,7 +180,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
       <div className="px-4 py-2.5 border-b border-white/5 bg-slate-900/40 flex items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 text-xs text-slate-400">
           <Filter className="w-3.5 h-3.5 text-slate-500" />
-          <span>Filter Line:</span>
+          <span>{t.common.filter}:</span>
         </div>
 
         <select
@@ -186,7 +188,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
           onChange={(e) => setSelectedLineFilter(e.target.value)}
           className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 max-w-[200px] truncate"
         >
-          <option value="ALL">All Network Lines</option>
+          <option value="ALL">{t.navigation.allModes}</option>
           {allLines.map((line) => (
             <option key={line.id} value={line.id}>
               {line.code} - {line.name}

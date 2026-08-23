@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { SUPPORTED_AI_MODELS, DEFAULT_AI_MODEL_ID } from "@/lib/services/aiTransitService";
+import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 
 export interface AppSettingsModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export interface AppSettingsModalProps {
 }
 
 export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onClose }) => {
+  const { t, language, setLanguage, supportedLanguages } = useTranslation();
   const theme = useTransitStore((state) => state.theme);
   const setTheme = useTransitStore((state) => state.setTheme);
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
@@ -110,13 +112,14 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               <Settings className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">Application Settings</h2>
-              <p className="text-xs text-slate-400">Display, cartography basemaps, and simulation clock</p>
+              <h2 className="text-base font-bold text-white tracking-tight">{t.settings.title}</h2>
+              <p className="text-xs text-slate-400">{t.settings.subtitle}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
+            aria-label={t.common.close}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
           >
             <X className="w-4 h-4" />
@@ -314,18 +317,42 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          {/* Section E: Operator Portal Link */}
-          <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2">
+          {/* Section: Language Switcher */}
+          <div className="space-y-2.5">
+            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              {t.settings.languageSelection}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {supportedLanguages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code)}
+                  className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between transition ${
+                    language === lang.code
+                      ? "bg-cyan-950/80 border-cyan-500/60 text-cyan-300 shadow-md ring-1 ring-cyan-500/30"
+                      : "bg-slate-900/50 border-slate-800 text-slate-300 hover:bg-slate-800"
+                  }`}
+                >
+                  <span>{lang.nativeName}</span>
+                  <span className="text-[10px] font-mono opacity-60 uppercase">{lang.flagLabel}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Section: Admin Portal Link */}
+          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold text-white text-xs">Portal Petugas & Operator (OCC)</div>
-                <div className="text-[11px] text-slate-400">Akses back-office pengelolaan armada & validator gate</div>
+                <div className="font-semibold text-white text-xs">{t.settings.adminPortal}</div>
+                <div className="text-[11px] text-slate-400">{t.settings.adminPortalDesc}</div>
               </div>
               <a
                 href="/admin"
                 className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
               >
-                Buka Portal Admin
+                {t.navigation.adminPanel}
               </a>
             </div>
           </div>
@@ -346,7 +373,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               onClick={onClose}
               className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 transition"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               onClick={handleSave}
@@ -355,10 +382,10 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               {saveToast ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Saved</span>
+                  <span>{t.common.success}</span>
                 </>
               ) : (
-                <span>Save Preferences</span>
+                <span>{t.common.save}</span>
               )}
             </button>
           </div>

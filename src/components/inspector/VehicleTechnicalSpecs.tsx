@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { Vehicle, TechnicalSpec, TransitMode } from "@/types/transit";
 import { VEHICLE_TECHNICAL_SPECS } from "@/lib/data/jakarta-dataset";
+import { useTranslation } from "@/lib/i18n";
 
 interface VehicleTechnicalSpecsProps {
   vehicle: Vehicle;
@@ -544,6 +545,7 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
 }
 
 export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
+  const { t } = useTranslation();
   const spec = getVehicleSpec(vehicle);
 
   return (

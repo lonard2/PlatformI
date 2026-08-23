@@ -42,8 +42,10 @@ import { AppSettingsModal } from "@/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "@/components/settings/UserTransitPreferencesModal";
 import { TransportationSystemBar } from "@/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Home() {
+  const { t, language } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
@@ -105,7 +107,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-[10px] text-slate-400 hidden xs:block">
-              Pusat Informasi & Navigasi Transportasi Terpadu
+              {t.common.tagline}
             </p>
           </div>
         </div>
@@ -117,9 +119,9 @@ export default function Home() {
             className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 transition"
           >
             <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">Status Jaringan Transportasi</span>
+            <span className="font-semibold text-white">{t.navigation.systemStatus}</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 font-mono">
-              {allLines.length} Jalur Aktif
+              {allLines.length} {t.navigation.activeLines}
             </span>
           </button>
         </div>
@@ -132,7 +134,7 @@ export default function Home() {
             className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-500 hover:to-blue-500 text-white border border-cyan-400/40 text-xs font-semibold shadow-md shadow-cyan-950/40 transition transform active:scale-95"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-200" />
-            <span>Asisten Rute AI</span>
+            <span>{t.navigation.aiAdvisor}</span>
           </button>
 
           {/* Crowdsource Feed Toggle Button (Desktop) */}
@@ -147,7 +149,7 @@ export default function Home() {
             }`}
           >
             <Users className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Laporan Komunitas</span>
+            <span>{t.navigation.crowdsource}</span>
           </button>
 
           {/* Pass Wallet Toggle Button (Desktop) */}
@@ -162,13 +164,13 @@ export default function Home() {
             }`}
           >
             <Wallet className="w-3.5 h-3.5 text-blue-400" />
-            <span>Tiket & QR</span>
+            <span>{t.navigation.ticketing}</span>
           </button>
 
           {/* Transit Preferences Toggle */}
           <button
             onClick={() => setIsPreferencesModalOpen(true)}
-            title="Preferensi Perjalanan"
+            title={t.navigation.preferences}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 transition"
           >
             <Sliders className="w-4 h-4 text-slate-300" />
@@ -177,7 +179,7 @@ export default function Home() {
           {/* Settings Modal Toggle */}
           <button
             onClick={() => setIsSettingsModalOpen(true)}
-            title="Pengaturan Aplikasi"
+            title={t.navigation.settings}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />

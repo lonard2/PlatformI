@@ -64,11 +64,17 @@ export interface TranslationDictionary {
     lastUpdated: string;
     minutes: string;
     hours: string;
+    seconds: string;
     seatsAvailable: string;
     fewSeats: string;
     standingOnly: string;
     fullCrowded: string;
     selectLanguage: string;
+    save: string;
+    cancel: string;
+    confirm: string;
+    success: string;
+    error: string;
   };
   navigation: {
     systemStatus: string;
@@ -95,6 +101,10 @@ export interface TranslationDictionary {
     lightBasemap: string;
     satelliteBasemap: string;
     trafficLayer: string;
+    myWallet: string;
+    liveFeed: string;
+    preferences: string;
+    passengerView: string;
   };
   modes: {
     mrt: string;
@@ -139,6 +149,12 @@ export interface TranslationDictionary {
     submitCheckin: string;
     crowdRatingTitle: string;
     acRatingTitle: string;
+    operationalDetails: string;
+    trackOnMap: string;
+    carriageTitle: string;
+    deckTitle: string;
+    selectedCarriage: string;
+    seatLayoutTitle: string;
   };
   hubInspector: {
     hubTitle: string;
@@ -158,6 +174,16 @@ export interface TranslationDictionary {
     connectedServices: string;
     scheduleSearch: string;
     noDeparturesFound: string;
+    trackVehicle: string;
+    servicesLabel: string;
+    accessibilityMatrix: string;
+    tactilePaving: string;
+    prayerRoom: string;
+    nursingRoom: string;
+    bikeParking: string;
+    ticketVending: string;
+    retailCafe: string;
+    customerService: string;
   };
   statusCenter: {
     title: string;
@@ -206,6 +232,8 @@ export interface TranslationDictionary {
   ticketing: {
     title: string;
     passWallet: string;
+    activePasses: string;
+    tripHistory: string;
     jaklingkoCapNotice: string;
     rollingSecurityCode: string;
     tapAtGate: string;
@@ -215,9 +243,47 @@ export interface TranslationDictionary {
     totalFare: string;
     integratedDiscount: string;
     purchaseTicket: string;
-    activePasses: string;
     ticketExpired: string;
     validUntil: string;
+    singleTripPass: string;
+    dailyPass: string;
+    monthlySubscription: string;
+    jaklingkoIntegratedCard: string;
+    selectOriginPrompt: string;
+    selectDestinationPrompt: string;
+    fareBreakdown: string;
+    baseFare: string;
+    distanceRate: string;
+    jaklingkoCapApplied: string;
+    buyNow: string;
+    paymentMethod: string;
+    eWallet: string;
+    qrisPayment: string;
+    balanceRemaining: string;
+    gateInstruction: string;
+  };
+  crowdsource: {
+    liveFeedTitle: string;
+    liveFeedSubtitle: string;
+    checkInTitle: string;
+    checkInSubtitle: string;
+    selectDensity: string;
+    selectACComfort: string;
+    submitCheckIn: string;
+    checkInSuccess: string;
+    recentReports: string;
+    densitySeatsAvailable: string;
+    densityFewSeats: string;
+    densityStandingOnly: string;
+    densityFullCrowded: string;
+    acCold: string;
+    acComfortable: string;
+    acWarm: string;
+    acHot: string;
+    justNow: string;
+    minutesAgo: string;
+    communityLiveTracker: string;
+    shareComfortReport: string;
   };
   aiAdvisor: {
     title: string;
@@ -229,5 +295,61 @@ export interface TranslationDictionary {
     fastAdvisor: string;
     deepReasoning: string;
     multimodalTransit: string;
+    disclaimer: string;
+    routingRecommendations: string;
+  };
+  settings: {
+    title: string;
+    subtitle: string;
+    appearanceTheme: string;
+    basemapStyle: string;
+    darkMatter: string;
+    positronLight: string;
+    voyager: string;
+    satelliteHybrid: string;
+    simulationEngine: string;
+    realtimeSpeed: string;
+    fastSpeed2x: string;
+    hyperSpeed5x: string;
+    pausedEngine: string;
+    languageSelection: string;
+    adminPortal: string;
+    adminPortalDesc: string;
+    networkDiagnostics: string;
+  };
+  preferences: {
+    title: string;
+    subtitle: string;
+    pinnedModes: string;
+    routingPreferences: string;
+    fastestTime: string;
+    lowestFare: string;
+    barrierFree: string;
+    savePreferences: string;
+    selectAll: string;
+    clearAll: string;
+  };
+  skybridge: {
+    elevation: string;
+    concourseLevel: string;
+    transferRoute: string;
+    stepByStep: string;
+    step: string;
+    accessibleElevator: string;
+    travelator: string;
+    connectingHubs: string;
+  };
+  admin: {
+    dashboard: string;
+    fleetControl: string;
+    disruptionManager: string;
+    gateScanner: string;
+    broadcastAlert: string;
+    activeVehicles: string;
+    validateTicket: string;
+    scanResult: string;
+    qrScannerSimulator: string;
+    fleetStatusOverview: string;
+    dispatchNewAlert: string;
   };
 }

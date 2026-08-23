@@ -22,33 +22,36 @@ import {
   Shield,
   Activity,
   UserCheck,
+  Languages,
 } from "lucide-react";
+import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { t, language, setLanguage, supportedLanguages } = useTranslation();
 
   const navItems = [
     {
       href: "/admin",
-      label: "Dashboard KPI OCC",
+      label: t.admin.dashboard,
       icon: <LayoutDashboard className="w-4 h-4" />,
       exact: true,
     },
     {
       href: "/admin/fleet",
-      label: "Manajemen Armada",
+      label: t.admin.fleetControl,
       icon: <Truck className="w-4 h-4" />,
       exact: false,
     },
     {
       href: "/admin/alerts",
-      label: "Maklumat Gangguan",
+      label: t.admin.disruptionManager,
       icon: <Radio className="w-4 h-4" />,
       exact: false,
     },
     {
       href: "/admin/scanner",
-      label: "Validator Turnstile",
+      label: t.admin.gateScanner,
       icon: <QrCode className="w-4 h-4" />,
       exact: false,
     },
@@ -164,12 +167,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               ))}
             </div>
 
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+              aria-label="Admin language switcher"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 font-medium"
+            >
+              {supportedLanguages.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.nativeName} ({lang.flagLabel})
+                </option>
+              ))}
+            </select>
+
             <Link
               href="/"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition"
             >
               <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">Passenger View</span>
+              <span className="hidden sm:inline">{t.navigation.passengerView}</span>
             </Link>
           </div>
         </header>

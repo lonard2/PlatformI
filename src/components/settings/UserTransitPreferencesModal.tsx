@@ -32,6 +32,7 @@ import {
 import { TransitMode, TransitCategory } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_MODE_CONFIG, TRANSIT_CATEGORY_CONFIG } from "@/lib/constants/modes";
+import { useTranslation } from "@/lib/i18n";
 
 export interface UserTransitPreferencesModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const toggleMode = useTransitStore((state) => state.toggleMode);
   const selectAllModes = useTransitStore((state) => state.selectAllModes);
@@ -134,16 +136,17 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
             </div>
             <div>
               <h2 className="text-base font-bold text-white tracking-tight">
-                Transit Preferences & Pinned Networks
+                {t.preferences.title}
               </h2>
               <p className="text-xs text-slate-400">
-                Personalized multimodal filtering and routing rules
+                {t.preferences.subtitle}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
+            aria-label={t.common.close}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
           >
             <X className="w-4 h-4" />
@@ -309,7 +312,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition font-medium"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset All Modes</span>
+            <span>{t.preferences.selectAll}</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -317,7 +320,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
               onClick={onClose}
               className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 transition"
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               onClick={handleSave}
@@ -326,10 +329,10 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
               {saveToast ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>Saved</span>
+                  <span>{t.common.success}</span>
                 </>
               ) : (
-                <span>Save Preferences</span>
+                <span>{t.preferences.savePreferences}</span>
               )}
             </button>
           </div>

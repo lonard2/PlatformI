@@ -30,6 +30,7 @@ import {
   Bus,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export interface SkybridgeStep {
   stepNumber: number;
@@ -365,6 +366,7 @@ export function SkybridgeTransferGuide({
   initialHubId = "csw-asean",
   onClose,
 }: SkybridgeTransferGuideProps) {
+  const { t } = useTranslation();
   const [selectedHubKey, setSelectedHubKey] = useState<string>(
     SKYBRIDGE_HUBS_DATA[initialHubId] ? initialHubId : "csw-asean"
   );

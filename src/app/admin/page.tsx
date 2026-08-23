@@ -32,8 +32,10 @@ import {
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);

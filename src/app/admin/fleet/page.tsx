@@ -41,8 +41,10 @@ import {
 } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
+import { useTranslation } from "@/lib/i18n";
 
 export default function FleetManagementPage() {
+  const { t } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const updateSingleVehicle = useTransitStore((state) => state.updateSingleVehicle);
   const updateSimulatedVehicles = useTransitStore((state) => state.updateSimulatedVehicles);

@@ -38,6 +38,7 @@ import { TicketPurchaseModal } from "./TicketPurchaseModal";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { formatRupiah } from "@/lib/services/fareCalculator";
 import { Ticket, TicketStatus } from "@/types/transit";
+import { useTranslation } from "@/lib/i18n";
 
 interface DigitalPassWalletProps {
   isOpen?: boolean;
@@ -50,6 +51,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
   onClose,
   className = "",
 }) => {
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
 
@@ -204,13 +206,13 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-              Pass Wallet & QR Gate
+              {t.ticketing.passWallet}
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-300 font-mono">
-                {activePasses.length} Active
+                {activePasses.length} {t.common.active}
               </span>
             </h3>
             <p className="text-[10px] text-slate-400">
-              Dynamic 30s rolling QR boarding passes & gate turnstile simulator
+              {t.ticketing.rollingSecurityCode}
             </p>
           </div>
         </div>
@@ -221,12 +223,13 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
             className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Buy Pass</span>
+            <span>{t.ticketing.purchaseTicket}</span>
           </button>
 
           {onClose && (
             <button
               onClick={onClose}
+              aria-label={t.common.close}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
             >
               <X className="w-4 h-4" />
@@ -246,7 +249,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           }`}
         >
           <QrCode className="w-3.5 h-3.5" />
-          <span>Active Passes ({activePasses.length})</span>
+          <span>{t.ticketing.activePasses} ({activePasses.length})</span>
         </button>
 
         <button
@@ -258,7 +261,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           }`}
         >
           <History className="w-3.5 h-3.5" />
-          <span>Trip History ({pastTrips.length})</span>
+          <span>{t.ticketing.tripHistory} ({pastTrips.length})</span>
         </button>
       </div>
 
