@@ -93,7 +93,7 @@ export const SKYBRIDGE_HUBS_DATA: Record<string, SkybridgeGuideData> = {
         isAccessible: true,
         transitConnection: {
           modeName: "MRT Jakarta",
-          lineCode: "MRT-NS-RED",
+          lineCode: "M",
           colorHex: "#E11924",
         },
       },
@@ -215,7 +215,7 @@ export const SKYBRIDGE_HUBS_DATA: Record<string, SkybridgeGuideData> = {
         isAccessible: true,
         transitConnection: {
           modeName: "MRT Jakarta",
-          lineCode: "MRT-NS-RED",
+          lineCode: "M",
           colorHex: "#E11924",
         },
       },

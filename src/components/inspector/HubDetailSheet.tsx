@@ -305,7 +305,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
   const handleTrackVehicle = (item: DepartureBoardItem) => {
     // Find simulated vehicle on this line or mode
-    const matchedVehicle = simulatedVehicles.find((v) => v.mode === item.mode);
+    const matchedVehicle = (simulatedVehicles || []).find((v) => v.mode === item.mode);
     if (matchedVehicle) {
       setViewport([matchedVehicle.currentLatitude, matchedVehicle.currentLongitude], 15);
       selectVehicle(matchedVehicle.id);
@@ -560,7 +560,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     }
 
                     const StatusIcon = statusBadge.icon;
-                    const matchedVehicle = simulatedVehicles.find((v) => v.mode === item.mode);
+                    const matchedVehicle = (simulatedVehicles || []).find((v) => v.mode === item.mode);
 
                     return (
                       <div

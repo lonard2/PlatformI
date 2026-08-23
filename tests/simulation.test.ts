@@ -28,7 +28,7 @@ describe('Tier 1: Core Vector Simulation Engine Models', () => {
   it('advances vehicle position along polyline proportionally to speed and delta time at 1x speed', () => {
     const initialVehicle: SimulatedVehicleState = {
       id: 'MRT-SET-01',
-      lineId: 'MRT-NS-RED',
+      lineId: 'M',
       mode: 'mrt',
       currentDistanceMeters: 0,
       speedKmh: 60, // 60 km/h = 16.667 m/s
@@ -156,7 +156,7 @@ describe('Tier 2: Boundary & Corner Vector Simulation Conditions', () => {
 
     const vehicleAtEnd: SimulatedVehicleState = {
       id: 'MRT-WRAP-01',
-      lineId: 'MRT-NS-RED',
+      lineId: 'M',
       mode: 'mrt',
       currentDistanceMeters: totalLength - 50, // 50m before end
       speedKmh: 72, // 20 m/s

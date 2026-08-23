@@ -31,7 +31,7 @@ describe('Tier 3: Pairwise Cross-Feature Integration Matrix', () => {
 
     let vehicle: SimulatedVehicleState = {
       id: 'MRT-SET-10',
-      lineId: 'MRT-NS-RED',
+      lineId: 'M',
       mode: 'mrt',
       currentDistanceMeters: 100,
       speedKmh: 60, // 16.67 m/s
@@ -92,7 +92,7 @@ describe('Tier 3: Pairwise Cross-Feature Integration Matrix', () => {
       origin: 'Lebak Bulus Grab',
       destination: 'Monas',
       legs: [
-        { mode: 'mrt', lineCode: 'MRT-NS-RED', from: 'Lebak Bulus', to: 'Bundaran HI' },
+        { mode: 'mrt', lineCode: 'M', from: 'Lebak Bulus', to: 'Bundaran HI' },
         { mode: 'tj_brt', lineCode: 'TJ-COR-01', from: 'Bundaran HI', to: 'Monas' },
       ],
       polylineCoordinates: [
@@ -208,7 +208,7 @@ describe('Tier 3: Pairwise Cross-Feature Integration Matrix', () => {
     const isLineDisrupted = (line: string) => line === disruptionAlert.lineCode;
 
     expect(isLineDisrupted('KRL-BOGOR-RED')).toBe(true);
-    expect(isLineDisrupted('MRT-NS-RED')).toBe(false);
+    expect(isLineDisrupted('M')).toBe(false);
 
     // AI prompt context injection
     const promptContext = `Line ${disruptionAlert.lineCode} has active disruption: ${disruptionAlert.headline}. Divert commuters to ${disruptionAlert.recommendedAlternative}.`;

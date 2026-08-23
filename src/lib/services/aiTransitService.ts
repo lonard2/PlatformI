@@ -262,7 +262,7 @@ export function generateLocalGroundedResponse(userQuery: string, modelId: string
    - Alight at Stasiun LRT Dukuh Atas.
    - Follow the covered **JPM Dukuh Atas (Jembatan Penyeberangan Multimoda)** skybridge to MRT Dukuh Atas BNI (distance: 280m, ~4 mins accessible walk with elevator and travelator).
 
-3. **Board MRT Jakarta North-South Line (MRT-NS-RED)**
+3. **Board MRT Jakarta North-South Line (M)**
    - **Boarding**: Stasiun MRT Dukuh Atas BNI.
    - **Connections**: Towards Bundaran HI (North) or Blok M / Lebak Bulus (South).
    - **Headway**: 5 minutes (Peak), 10 minutes (Off-peak).
@@ -288,7 +288,7 @@ export function generateLocalGroundedResponse(userQuery: string, modelId: string
 
 #### Step-by-Step Itinerary:
 
-1. **Leg 1: MRT Jakarta North-South (MRT-NS-RED)**
+1. **Leg 1: MRT Jakarta North-South (M)**
    - **Origin**: Stasiun MRT Lebak Bulus Grab.
    - **Destination**: Alight at Stasiun Blok M BCA (or continue straight to Bundaran HI).
    - **Duration**: ~14 minutes.
@@ -361,7 +361,7 @@ The **JakLingko Integrated Fare System (Tarif Integrasi)** allows passengers to 
 
 #### Step-by-Step Itinerary:
 
-1. **Leg 1: LRT Jabodebek Bekasi Line (LRT-JB-BK-GREEN)**
+1. **Leg 1: LRT Jabodebek Bekasi Line (BK)**
    - **Boarding**: Stasiun LRT Bekasi Barat (or Jati Mulya).
    - **Destination**: Stasiun Dukuh Atas (End terminus).
    - **Duration**: ~42 minutes.
@@ -371,7 +371,7 @@ The **JakLingko Integrated Fare System (Tarif Integrasi)** allows passengers to 
    - **Transfer**: Walk from Stasiun LRT Dukuh Atas across the **JPM Dukuh Atas Skybridge** to **Stasiun BNI City (Sudirman Baru)**.
    - **Distance**: 220 meters (~3 mins walk, fully sheltered with elevators).
 
-3. **Leg 3: KAI Bandara Soekarno-Hatta (KAI-AIRPORT-TEAL)**
+3. **Leg 3: KAI Bandara Soekarno-Hatta (A)**
    - **Boarding**: Stasiun BNI City.
    - **Route**: BNI City $\\to$ Duri $\\to$ Rawa Buaya $\\to$ Batu Ceper $\\to$ Bandara Soekarno-Hatta (SHIA).
    - **Duration**: ~40 minutes.
@@ -402,7 +402,7 @@ The **CSW (Centrale Stichting Wederopbouw) - ASEAN Integration Hub** is Jakarta'
 
 - **Level 1 (Ground Floor)**:
   - Street-level access to Jalan Kyai Maja, Jalan Trunojoyo, and Jalan Sisingamangaraja.
-  - Pedestrian underpass and crosswalk to **Stasiun MRT ASEAN (MRT-NS-RED)** entrance.
+  - Pedestrian underpass and crosswalk to **Stasiun MRT ASEAN (M)** entrance.
   - MikroTrans feeder stop and taxi drop-off bay.
 
 - **Level 2 (Concourse & Retail Mezzanine)**:

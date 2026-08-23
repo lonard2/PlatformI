@@ -159,18 +159,18 @@ describe("Milestone 5: React UI Components Integration", () => {
       expect(screen.getAllByText("Pelabuhan & Laut").length).toBeGreaterThanOrEqual(1);
 
       // Check key systems and consolidated hubs
-      expect(screen.getByText("MRT")).toBeInTheDocument();
-      expect(screen.getByText("WHOOSH")).toBeInTheDocument();
+      expect(screen.getByText("M")).toBeInTheDocument();
+      expect(screen.getByText("W")).toBeInTheDocument();
       expect(screen.getByText("BRT 1-14")).toBeInTheDocument();
       expect(screen.getByText("TERMINAL")).toBeInTheDocument();
-      expect(screen.getByText("SHUTTLE HUB")).toBeInTheDocument();
-      expect(screen.getByText("BANDARA")).toBeInTheDocument();
-      expect(screen.getByText("PELABUHAN")).toBeInTheDocument();
+      expect(screen.getByText("SHUTTLE")).toBeInTheDocument();
+      expect(screen.getByText("CGK / HLP")).toBeInTheDocument();
+      expect(screen.getByText("SBD / PELNI")).toBeInTheDocument();
     });
 
     it("opens popover and toggles mode when clicking mode badge popover toggle", () => {
       render(<TransportationSystemBar />);
-      const mrtBtn = screen.getByText("MRT").closest("button");
+      const mrtBtn = screen.getByText("M").closest("button");
       if (mrtBtn) {
         // Click to open popover
         fireEvent.click(mrtBtn);

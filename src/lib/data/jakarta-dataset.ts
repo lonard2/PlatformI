@@ -303,7 +303,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-mrt-ns",
     regionId: JABODETABEK_REGION.id,
-    code: "MRT-NS-RED",
+    code: "M",
     name: "MRT Jakarta North-South Line (Ratangga)",
     category: "RAIL",
     mode: "MRT_JAKARTA",
@@ -337,8 +337,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-lrt-jb-cb",
     regionId: JABODETABEK_REGION.id,
-    code: "LRT-JB-CB-BLUE",
-    name: "LRT Jabodebek Cibubur Line",
+    code: "CB",
+    name: "LRT Jabodebek Cibubur Line (Dukuh Atas - Harjamukti)",
     category: "RAIL",
     mode: "LRT_JABODEBEK_CIBUBUR",
     colorHex: "#0055A5",
@@ -369,8 +369,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-lrt-jb-bk",
     regionId: JABODETABEK_REGION.id,
-    code: "LRT-JB-BK-GREEN",
-    name: "LRT Jabodebek Bekasi Line",
+    code: "BK",
+    name: "LRT Jabodebek Bekasi Line (Dukuh Atas - Jatimulya)",
     category: "RAIL",
     mode: "LRT_JABODEBEK_BEKASI",
     colorHex: "#009A44",
@@ -398,11 +398,11 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-lrt-jkt",
     regionId: JABODETABEK_REGION.id,
-    code: "LRT-JKT-RED",
-    name: "LRT Jakarta (Pegangsaan Dua - Velodrome)",
+    code: "S",
+    name: "LRT Jakarta Lin 1 Selatan (Pegangsaan Dua - Velodrome)",
     category: "RAIL",
     mode: "LRT_JAKARTA",
-    colorHex: "#ED1B24",
+    colorHex: "#E30613",
     textColorHex: "#FFFFFF",
     fareType: "FLAT",
     baseFareRp: 5000,
@@ -425,7 +425,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-krl-bogor",
     regionId: JABODETABEK_REGION.id,
-    code: "KRL-BOGOR-RED",
+    code: "B",
     name: "KRL Commuter Line (Jakarta Kota - Bogor)",
     category: "RAIL",
     mode: "KRL_BOGOR",
@@ -457,7 +457,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-krl-cikarang",
     regionId: JABODETABEK_REGION.id,
-    code: "KRL-CIK-BLUE",
+    code: "C",
     name: "KRL Commuter Line (Cikarang - Manggarai - Angke)",
     category: "RAIL",
     mode: "KRL_CIKARANG",
@@ -487,7 +487,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-krl-rangkas",
     regionId: JABODETABEK_REGION.id,
-    code: "KRL-RKB-GREEN",
+    code: "R",
     name: "KRL Commuter Line (Tanah Abang - Rangkasbitung)",
     category: "RAIL",
     mode: "KRL_RANGKASBITUNG",
@@ -515,7 +515,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-whoosh-hsr",
     regionId: JABODETABEK_REGION.id,
-    code: "WHOOSH-HSR-RED",
+    code: "W",
     name: "Whoosh High-Speed Rail (Halim - Tegalluar)",
     category: "RAIL",
     mode: "WHOOSH_HSR",
@@ -540,7 +540,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-kai-bandara",
     regionId: JABODETABEK_REGION.id,
-    code: "KAI-AIRPORT-TEAL",
+    code: "A",
     name: "KAI Bandara Soekarno-Hatta Rail Link",
     category: "RAIL",
     mode: "KAI_BANDARA",
@@ -567,8 +567,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-1",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-1",
-    name: "TransJakarta Corridor 1 (Blok M - Kota)",
+    code: "1",
+    name: "TransJakarta Koridor 1 (Blok M - Kota)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#D9252A",
@@ -598,8 +598,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-2",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-2",
-    name: "TransJakarta Corridor 2 (Pulo Gadung - Monas)",
+    code: "2",
+    name: "TransJakarta Koridor 2 (Pulo Gadung - Monas)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#0072BC",
@@ -623,8 +623,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-3",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-3",
-    name: "TransJakarta Corridor 3 (Kalideres - Monas)",
+    code: "3",
+    name: "TransJakarta Koridor 3 (Kalideres - Monas)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#F37023",
@@ -649,8 +649,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-4",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-4",
-    name: "TransJakarta Corridor 4 (Pulo Gadung - Galunggung)",
+    code: "4",
+    name: "TransJakarta Koridor 4 (Pulo Gadung - Galunggung)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#782F40",
@@ -674,8 +674,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-5",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-5",
-    name: "TransJakarta Corridor 5 (Kampung Melayu - Ancol)",
+    code: "5",
+    name: "TransJakarta Koridor 5 (Kampung Melayu - Ancol)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#ED7624",
@@ -700,8 +700,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-6",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-6",
-    name: "TransJakarta Corridor 6 (Ragunan - Galunggung)",
+    code: "6",
+    name: "TransJakarta Koridor 6 (Ragunan - Galunggung)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#22B14C",
@@ -725,8 +725,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-7",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-7",
-    name: "TransJakarta Corridor 7 (Kampung Rambutan - Kampung Melayu)",
+    code: "7",
+    name: "TransJakarta Koridor 7 (Kampung Rambutan - Kampung Melayu)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#8B5E3C",
@@ -750,8 +750,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-8",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-8",
-    name: "TransJakarta Corridor 8 (Lebak Bulus - Pasar Baru)",
+    code: "8",
+    name: "TransJakarta Koridor 8 (Lebak Bulus - Pasar Baru)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#D12175",
@@ -776,8 +776,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-9",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-9",
-    name: "TransJakarta Corridor 9 (Pinang Ranti - Pluit)",
+    code: "9",
+    name: "TransJakarta Koridor 9 (Pinang Ranti - Pluit)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#009344",
@@ -803,8 +803,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-10",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-10",
-    name: "TransJakarta Corridor 10 (Tanjung Priok - PGC)",
+    code: "10",
+    name: "TransJakarta Koridor 10 (Tanjung Priok - PGC)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#9B278D",
@@ -829,8 +829,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-11",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-11",
-    name: "TransJakarta Corridor 11 (Pulo Gebang - Kampung Melayu)",
+    code: "11",
+    name: "TransJakarta Koridor 11 (Pulo Gebang - Kampung Melayu)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#2E3192",
@@ -854,8 +854,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-12",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-12",
-    name: "TransJakarta Corridor 12 (Pluit - Tanjung Priok)",
+    code: "12",
+    name: "TransJakarta Koridor 12 (Pluit - Tanjung Priok)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#8CC63F",
@@ -875,12 +875,12 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 22. TransJakarta BRT Corridor 13 (Ciledug - CSW - Tegal Mampang)
+  // 22. TransJakarta BRT Corridor 13 (Ciledug - CSW - Tegal Mampang Layang)
   {
     id: "line-tj-cor-13",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-13",
-    name: "TransJakarta Corridor 13 (Ciledug - CSW - Tegal Mampang)",
+    code: "13",
+    name: "TransJakarta Koridor 13 (Ciledug - CSW - Tegal Mampang)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#5B67A5",
@@ -905,8 +905,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-cor-14",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-BRT-COR-14",
-    name: "TransJakarta Corridor 14 (JIS - Senen Raya)",
+    code: "14",
+    name: "TransJakarta Koridor 14 (JIS - Senen Raya)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     colorHex: "#1B75BC",
@@ -929,7 +929,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-krl-tpk",
     regionId: JABODETABEK_REGION.id,
-    code: "KRL-TPK-PINK",
+    code: "TP",
     name: "KRL Commuter Line (Jakarta Kota - Tanjung Priok)",
     category: "RAIL",
     mode: "KRL_TANJUNG_PRIOK",
@@ -953,7 +953,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-krl-tgr",
     regionId: JABODETABEK_REGION.id,
-    code: "KRL-TGR-PURPLE",
+    code: "T",
     name: "KRL Commuter Line (Duri - Tangerang)",
     category: "RAIL",
     mode: "KRL_TANGERANG",
@@ -980,7 +980,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-kai-intercity",
     regionId: JABODETABEK_REGION.id,
-    code: "KAI-JJ-NAVY",
+    code: "KAI",
     name: "KAI Jarak Jauh (Gambir / Senen - Lintas Jawa)",
     category: "RAIL",
     mode: "KAI_INTERCITY",
@@ -1008,7 +1008,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-2a",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-2A",
+    code: "2A",
     name: "TransJakarta 2A (Pulo Gadung - Rawa Buaya via Juanda)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1034,7 +1034,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-3f",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-3F",
+    code: "3F",
     name: "TransJakarta 3F (Kalideres - Gelora Bung Karno)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1059,7 +1059,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-5c",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-5C",
+    code: "5C",
     name: "TransJakarta 5C (PGC 1 - Juanda via Matraman)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1084,7 +1084,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-6a",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-6A",
+    code: "6A",
     name: "TransJakarta 6A (Ragunan - Monas via Kuningan)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1109,7 +1109,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-6b",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-6B",
+    code: "6B",
     name: "TransJakarta 6B (Ragunan - Monas via Semanggi)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1134,7 +1134,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-7f",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-7F",
+    code: "7F",
     name: "TransJakarta 7F (Kampung Rambutan - Juanda via Cempaka Putih)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1159,7 +1159,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-9a",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-9A",
+    code: "9A",
     name: "TransJakarta 9A (PGC 2 - Pluit via Latumeten)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1184,7 +1184,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-10h",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-10H",
+    code: "10H",
     name: "TransJakarta 10H (Tanjung Priok - Blok M via Senen)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1209,7 +1209,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-sub-13c",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-13C",
+    code: "13C",
     name: "TransJakarta 13C (Puri Beta Ciledug - Dukuh Atas Layang)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
@@ -1234,7 +1234,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-1a",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-1A",
+    code: "1A",
     name: "TransJakarta Feeder 1A (Pantai Maju PIK - Balai Kota)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1259,7 +1259,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-1n",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-1N",
+    code: "1N",
     name: "TransJakarta Feeder 1N (Tanah Abang - Blok M via Gandaria)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1283,7 +1283,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-1p",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-1P",
+    code: "1P",
     name: "TransJakarta Feeder 1P (Senen - Blok M via Sudirman)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1308,7 +1308,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-4c",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-4C",
+    code: "4C",
     name: "TransJakarta Feeder 4C (TU Gas Rawamangun - Bundaran Senayan)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1332,7 +1332,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-6v",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-6V",
+    code: "6V",
     name: "TransJakarta Feeder 6V (Ragunan - Gelora Bung Karno via Mampang)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1356,8 +1356,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-7a",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-7A",
-    name: "TransJakarta Feeder 7A (Kampung Rambutan - Lebak Bulus via TB Simatupang)",
+    code: "7A",
+    name: "TransJakarta Feeder 7A (Kampung Rambutan - Lebak Bulus)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
     colorHex: "#F58220",
@@ -1381,7 +1381,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-feeder-9d",
     regionId: JABODETABEK_REGION.id,
-    code: "TJ-9D",
+    code: "9D",
     name: "TransJakarta Feeder 9D (Pasar Minggu - Tanah Abang via Sahardjo)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1406,8 +1406,8 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-royal-1t",
     regionId: JABODETABEK_REGION.id,
-    code: "ROYAL-1T",
-    name: "RoyalTrans 1T Premium (Cibubur Junction - Blok M via Tol Jagorawi)",
+    code: "1T",
+    name: "RoyalTrans 1T Premium (Cibubur Junction - Blok M)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
     colorHex: "#8B5CF6",
@@ -1430,7 +1430,7 @@ export const TRANSIT_LINES: Line[] = [
   {
     id: "line-tj-royal-1u",
     regionId: JABODETABEK_REGION.id,
-    code: "ROYAL-1U",
+    code: "1U",
     name: "RoyalTrans 1U Premium (TMII Pintu 1 - Balai Kota)",
     category: "BUS",
     mode: "TRANSJAKARTA_NON_BRT",
@@ -1450,7 +1450,59 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 45. MikroTrans JAK.01 (Tanjung Priok - Plumpang)
+  // 45. Bus Wisata BW2 (Monas Explorer / Jakarta Modern - Gratis)
+  {
+    id: "line-tj-wisata-bw2",
+    regionId: JABODETABEK_REGION.id,
+    code: "BW2",
+    name: "Bus Wisata BW2 (Monas Explorer / Jakarta Modern - Double Decker Gratis)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_NON_BRT",
+    colorHex: "#EAB308",
+    textColorHex: "#000000",
+    fareType: "FREE_TAP",
+    baseFareRp: 0,
+    farePerKmRp: 0,
+    maxFareRp: 0,
+    headwayMinutes: 15,
+    firstDeparture: "10:00",
+    lastDeparture: "18:00",
+    polylineCoordinates: [
+      { latitude: -6.1754, longitude: 106.8272 },
+      { latitude: -6.1804, longitude: 106.8235 },
+      { latitude: -6.1928, longitude: 106.8231 },
+      { latitude: -6.1856, longitude: 106.8302 },
+      { latitude: -6.1754, longitude: 106.8272 },
+    ],
+  },
+
+  // 46. Bus Wisata BW4 (Pencakar Langit / Skyscrapers - Gratis)
+  {
+    id: "line-tj-wisata-bw4",
+    regionId: JABODETABEK_REGION.id,
+    code: "BW4",
+    name: "Bus Wisata BW4 (Pencakar Langit / Jakarta Skyscrapers - Double Decker Gratis)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_NON_BRT",
+    colorHex: "#EAB308",
+    textColorHex: "#000000",
+    fareType: "FREE_TAP",
+    baseFareRp: 0,
+    farePerKmRp: 0,
+    maxFareRp: 0,
+    headwayMinutes: 15,
+    firstDeparture: "10:00",
+    lastDeparture: "18:00",
+    polylineCoordinates: [
+      { latitude: -6.1754, longitude: 106.8272 },
+      { latitude: -6.1928, longitude: 106.8231 },
+      { latitude: -6.2198, longitude: 106.8055 },
+      { latitude: -6.2253, longitude: 106.8021 },
+      { latitude: -6.1754, longitude: 106.8272 },
+    ],
+  },
+
+  // 47. MikroTrans JAK.01 (Tanjung Priok - Plumpang)
   {
     id: "line-tj-mikro-jak01",
     regionId: JABODETABEK_REGION.id,
@@ -1474,7 +1526,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 46. MikroTrans JAK.02 (Kampung Rambutan - Duren Sawit)
+  // 48. MikroTrans JAK.02 (Kampung Rambutan - Duren Sawit)
   {
     id: "line-tj-mikro-jak02",
     regionId: JABODETABEK_REGION.id,
@@ -1498,7 +1550,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 47. MikroTrans JAK.03 (Lebak Bulus - Andara)
+  // 49. MikroTrans JAK.03 (Lebak Bulus - Andara)
   {
     id: "line-tj-mikro-jak03",
     regionId: JABODETABEK_REGION.id,
@@ -1522,7 +1574,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 48. MikroTrans JAK.10 (Tanah Abang - Kota)
+  // 50. MikroTrans JAK.10 (Tanah Abang - Kota)
   {
     id: "line-tj-mikro-jak10",
     regionId: JABODETABEK_REGION.id,
@@ -1547,7 +1599,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 49. MikroTrans JAK.12 (Tanah Abang - Pos Pengumben)
+  // 51. MikroTrans JAK.12 (Tanah Abang - Pos Pengumben)
   {
     id: "line-tj-mikro-jak12",
     regionId: JABODETABEK_REGION.id,
@@ -1571,7 +1623,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 50. MikroTrans JAK.32 (Petamburan - Rawamangun)
+  // 52. MikroTrans JAK.32 (Petamburan - Rawamangun)
   {
     id: "line-tj-mikro-jak32",
     regionId: JABODETABEK_REGION.id,
@@ -1595,7 +1647,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 51. MikroTrans JAK.45 (Lebak Bulus - Ragunan)
+  // 53. MikroTrans JAK.45 (Lebak Bulus - Ragunan)
   {
     id: "line-tj-mikro-jak45",
     regionId: JABODETABEK_REGION.id,
@@ -1619,7 +1671,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 52. MikroTrans JAK.52 (Kalideres - Muara Angke)
+  // 54. MikroTrans JAK.52 (Kalideres - Muara Angke)
   {
     id: "line-tj-mikro-jak52",
     regionId: JABODETABEK_REGION.id,
@@ -1643,7 +1695,7 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 53. MikroTrans JAK.88 (Terminal Tanjung Priok - Ancol Barat)
+  // 55. MikroTrans JAK.88 (Terminal Tanjung Priok - Ancol Barat)
   {
     id: "line-tj-mikro-jak88",
     regionId: JABODETABEK_REGION.id,
@@ -1667,11 +1719,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 54. Intercity AKAP Bus (Rosalia Indah Super Top)
+  // 56. Intercity AKAP Bus (Rosalia Indah Super Top)
   {
     id: "line-akap-rosalia",
     regionId: JABODETABEK_REGION.id,
-    code: "AKAP-ROSALIA-EX",
+    code: "AKAP",
     name: "PO Rosalia Indah First Class Double Decker (Pulo Gebang - Jogja)",
     category: "BUS",
     mode: "AKAP_INTERCITY_BUS",
@@ -1693,11 +1745,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 55. Executive Shuttle (DayTrans FX Sudirman - Dipatiukur)
+  // 57. Executive Shuttle (DayTrans FX Sudirman - Dipatiukur)
   {
     id: "line-shuttle-daytrans",
     regionId: JABODETABEK_REGION.id,
-    code: "SHUTTLE-DAYTRANS",
+    code: "SHUTTLE",
     name: "DayTrans Executive HiAce Shuttle (FX Sudirman - Dipatiukur)",
     category: "BUS",
     mode: "EXECUTIVE_SHUTTLE",
@@ -1718,11 +1770,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 56. Aviation Soekarno-Hatta (CGK Terminals 1, 2, 3)
+  // 58. Aviation Soekarno-Hatta (CGK Terminals 1, 2, 3)
   {
     id: "line-airport-cgk",
     regionId: JABODETABEK_REGION.id,
-    code: "AIRPORT-CGK-FLIGHT",
+    code: "CGK",
     name: "Soekarno-Hatta International (CGK Terminals 1, 2, 3)",
     category: "AVIATION",
     mode: "AIRPORT_COMMERCIAL",
@@ -1742,11 +1794,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 57. Aviation Halim Perdanakusuma (HLP)
+  // 59. Aviation Halim Perdanakusuma (HLP)
   {
     id: "line-airport-hlp",
     regionId: JABODETABEK_REGION.id,
-    code: "AIRPORT-HLP-FLIGHT",
+    code: "HLP",
     name: "Bandara Halim Perdanakusuma (HLP Domestik & VIP)",
     category: "AVIATION",
     mode: "AIRPORT_COMMERCIAL",
@@ -1765,11 +1817,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 58. Maritime (Speedboat Kepulauan Seribu Express)
+  // 60. Maritime (Speedboat Kepulauan Seribu Express)
   {
     id: "line-maritime-seribu",
     regionId: JABODETABEK_REGION.id,
-    code: "MARITIME-SERIBU-EXP",
+    code: "SBD",
     name: "Speedboat Kepulauan Seribu (Muara Angke - Pramuka - Tidung)",
     category: "MARITIME",
     mode: "MARITIME_SPEEDBOAT",
@@ -1790,11 +1842,11 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 59. Maritime Pelabuhan PELNI (Tanjung Priok - Nusantara)
+  // 61. Maritime Pelabuhan PELNI (Tanjung Priok - Nusantara)
   {
     id: "line-maritime-pelni",
     regionId: JABODETABEK_REGION.id,
-    code: "PELNI-NUSANTARA",
+    code: "PELNI",
     name: "Kapal Penumpang PELNI (Tanjung Priok - Nusantara)",
     category: "MARITIME",
     mode: "MARITIME_PELNI",
@@ -2284,24 +2336,19 @@ export const TRANSIT_STOPS: Stop[] = [
     platformType: "Executive Shuttle Berth",
   },
 ];
-
-// ==========================================
-// VEHICLES WITH ENTHUSIAST TECHNICAL SPECS
-// ==========================================
-
-export const TRANSIT_VEHICLES: Vehicle[] = [
-  // 1. MRT Jakarta Trainset TS-01 (Ratangga)
+export const SIMULATED_VEHICLES: Vehicle[] = [
+  // 1. MRT Jakarta Ratangga Set 01 (Run M-101)
   {
     id: "veh-mrt-ts01",
     lineId: "line-mrt-ns",
-    vehicleCode: "MRT-TS01",
-    name: "Ratangga Trainset 01 (Nippon Sharyo)",
+    vehicleCode: "TS-01",
+    name: "MRT Ratangga Trainset TS-01 (Run M-101)",
     category: "RAIL",
     mode: "MRT_JAKARTA",
     currentLatitude: -6.2253,
     currentLongitude: 106.8021,
-    headingDegrees: 18.5,
-    speedKmh: 58.4,
+    headingDegrees: 12.5,
+    speedKmh: 58.0,
     status: "IN_SERVICE",
     crowdLevel: "LEVEL_2_FEW_SEATS",
     acComfort: "OPTIMAL",
@@ -2324,12 +2371,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 2. Whoosh KCIC400AF Trainset CR400AF-2201
+  // 2. Whoosh KCIC400AF Trainset CR400AF-2201 (Run G1012)
   {
     id: "veh-whoosh-2201",
     lineId: "line-whoosh-hsr",
-    vehicleCode: "WHS-2201",
-    name: "Komodo Merah KCIC400AF High-Speed EMU",
+    vehicleCode: "KCIC-2201",
+    name: "Whoosh CR400AF-2201 Komodo Merah (Run G1012)",
     category: "RAIL",
     mode: "WHOOSH_HSR",
     currentLatitude: -6.3683,
@@ -2358,12 +2405,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 3. PO Rosalia Indah Double Decker (Scania K410IB)
+  // 3. PO Rosalia Indah Double Decker (Scania K410IB / Run RI-08)
   {
     id: "veh-rosalia-dd112",
     lineId: "line-akap-rosalia",
-    vehicleCode: "RI-DD112",
-    name: "Rosalia Indah First Class DD-112",
+    vehicleCode: "RI-112",
+    name: "Rosalia Indah First Class DD-112 (Run RI-08)",
     category: "BUS",
     mode: "AKAP_INTERCITY_BUS",
     currentLatitude: -6.2361,
@@ -2392,12 +2439,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 4. DayTrans Luxury Executive HiAce (Toyota HiAce Premio)
+  // 4. DayTrans Luxury Executive HiAce (Toyota HiAce Premio / Run DT-04)
   {
     id: "veh-daytrans-hiace07",
     lineId: "line-shuttle-daytrans",
-    vehicleCode: "DT-PREMIO-07",
-    name: "DayTrans VIP Executive HiAce #07",
+    vehicleCode: "DT-702",
+    name: "DayTrans VIP Executive HiAce #702 (Run DT-04)",
     category: "BUS",
     mode: "EXECUTIVE_SHUTTLE",
     currentLatitude: -6.2435,
@@ -2426,12 +2473,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 5. TransJakarta Articulated BRT (Scania K320IA / Laksana Cityline 3)
+  // 5. TransJakarta Articulated BRT Koridor 1 (Scania K320IA #TJ-788 / Run 1-04)
   {
     id: "veh-tj-brt-042",
     lineId: "line-tj-cor-1",
-    vehicleCode: "TJ-BRT-042",
-    name: "TransJakarta Articulated Busway #042",
+    vehicleCode: "TJ-788",
+    name: "TransJakarta Articulated Busway #TJ-788 (Run 1-04)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     currentLatitude: -6.2088,
@@ -2464,8 +2511,8 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
   {
     id: "veh-boat-express03",
     lineId: "line-maritime-seribu",
-    vehicleCode: "EXP-SRB-03",
-    name: "KM Trans Wisata Bahari 03",
+    vehicleCode: "DISHUB-EXP-08",
+    name: "KM Trans Wisata Bahari 08 (Run SB-02)",
     category: "MARITIME",
     mode: "MARITIME_SPEEDBOAT",
     currentLatitude: -5.9754,
@@ -2494,12 +2541,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 7. KRL Commuter Line JR 205 Series (Lin Cikarang)
+  // 7. KRL Commuter Line JR 205 Series (Lin Cikarang / Run KA-2044)
   {
     id: "veh-krl-cik-205",
     lineId: "line-krl-cikarang",
-    vehicleCode: "KRL-JR205-C08",
-    name: "KRL Commuter Line JR 205 Series #C08",
+    vehicleCode: "SF12-JR205-C08",
+    name: "KRL Commuter Line JR205 #C08 (Run KA-2044)",
     category: "RAIL",
     mode: "KRL_CIKARANG",
     currentLatitude: -6.2189,
@@ -2528,12 +2575,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 8. LRT Jabodebek GoA3 Trainset #08 (Lin Cibubur)
+  // 8. LRT Jabodebek GoA3 Trainset #08 (Lin Cibubur / Run CB-208)
   {
     id: "veh-lrt-jb-08",
     lineId: "line-lrt-jb-cb",
-    vehicleCode: "LRT-JB-TS08",
-    name: "LRT Jabodebek GoA3 Trainset 08 (INKA)",
+    vehicleCode: "TS-08",
+    name: "LRT Jabodebek GoA3 Trainset TS-08 (Run CB-208)",
     category: "RAIL",
     mode: "LRT_JABODEBEK_CIBUBUR",
     currentLatitude: -6.2558,
@@ -2562,12 +2609,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 9. TransJakarta Koridor 9 Maxi Bus (Mercedes-Benz OH 1626)
+  // 9. TransJakarta Koridor 9 Maxi Bus #MYS-17024 (Run 9-12)
   {
     id: "veh-tj-cor9-108",
     lineId: "line-tj-cor-9",
-    vehicleCode: "TJ-MB-108",
-    name: "TransJakarta Maxi Bus #108 (Mercedes OH 1626)",
+    vehicleCode: "MYS-17024",
+    name: "TransJakarta Mayasari Bakti #MYS-17024 (Run 9-12)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
     currentLatitude: -6.2412,
@@ -2596,12 +2643,12 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
     ],
   },
 
-  // 10. KAI Jarak Jauh Argo Bromo Anggrek (New Generation)
+  // 10. KAI Jarak Jauh Argo Bromo Anggrek (Run KA-1)
   {
     id: "veh-kai-argo-01",
     lineId: "line-kai-intercity",
-    vehicleCode: "KAI-ARGO-01",
-    name: "KA Argo Bromo Anggrek Luxury New Gen",
+    vehicleCode: "CC206-13-42",
+    name: "KA 1 Argo Bromo Anggrek Luxury New Gen (Run KA-1)",
     category: "RAIL",
     mode: "KAI_INTERCITY",
     currentLatitude: -6.2152,
@@ -2629,12 +2676,148 @@ export const TRANSIT_VEHICLES: Vehicle[] = [
       },
     ],
   },
+
+  // 11. TransJakarta Single Bus Koridor 5 (#TJ-1788 / Run 5-08)
+  {
+    id: "veh-tj-single-1788",
+    lineId: "line-tj-cor-5",
+    vehicleCode: "TJ-1788",
+    name: "TransJakarta Single City Bus #TJ-1788 (Run 5-08)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_BRT",
+    currentLatitude: -6.1942,
+    currentLongitude: 106.8532,
+    headingDegrees: 350.0,
+    speedKmh: 31.0,
+    status: "IN_SERVICE",
+    crowdLevel: "LEVEL_2_FEW_SEATS",
+    acComfort: "OPTIMAL",
+    coachbuilder: "Karoseri Laksana (Cityline 2)",
+    chassis: "Hino RK8 R260 Air Suspension",
+    progressFraction: 0.44,
+    currentSegmentIndex: 1,
+    nextStopId: "stop-kai-pse",
+    nextStopEtaSeconds: 110,
+    seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-single-1788"),
+    photos: [
+      {
+        id: "photo-tj-single-01",
+        vehicleId: "veh-tj-single-1788",
+        url: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
+        caption: "Hino RK8 single bus running on Corridor 5",
+        photographer: "TransJakarta Media",
+        tag: "CITY_BUS_BRT",
+      },
+    ],
+  },
+
+  // 12. TransJakarta Feeder 1P (#TJ-1693 / Run 1P-06)
+  {
+    id: "veh-tj-feeder-1693",
+    lineId: "line-tj-feeder-1p",
+    vehicleCode: "TJ-1693",
+    name: "TransJakarta Feeder Low-Deck #TJ-1693 (Run 1P-06)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_NON_BRT",
+    currentLatitude: -6.1928,
+    currentLongitude: 106.8231,
+    headingDegrees: 185.0,
+    speedKmh: 24.0,
+    status: "IN_SERVICE",
+    crowdLevel: "LEVEL_1_MANY_SEATS",
+    acComfort: "OPTIMAL",
+    coachbuilder: "Karoseri Morodadi Prima (Grand Vega)",
+    chassis: "Mercedes-Benz OF 917 Euro 4 Low-Entry",
+    progressFraction: 0.32,
+    currentSegmentIndex: 1,
+    nextStopId: "stop-mrt-bhi",
+    nextStopEtaSeconds: 70,
+    seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-feeder-1693"),
+    photos: [
+      {
+        id: "photo-tj-feeder-01",
+        vehicleId: "veh-tj-feeder-1693",
+        url: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
+        caption: "Mercedes OF 917 Low-Deck Feeder on Sudirman corridor",
+        photographer: "TransJakarta Media",
+        tag: "FEEDER_NON_BRT",
+      },
+    ],
+  },
+
+  // 13. MikroTrans JAK.10 (#JAK-108 / Run J10-05)
+  {
+    id: "veh-tj-mikro-108",
+    lineId: "line-tj-mikro-jak10",
+    vehicleCode: "JAK-108",
+    name: "MikroTrans JakLingko #JAK-108 (Run J10-05)",
+    category: "BUS",
+    mode: "MIKROTRANS",
+    currentLatitude: -6.1689,
+    currentLongitude: 106.8078,
+    headingDegrees: 25.0,
+    speedKmh: 22.0,
+    status: "IN_SERVICE",
+    crowdLevel: "LEVEL_2_FEW_SEATS",
+    acComfort: "OPTIMAL",
+    coachbuilder: "Karoseri New Armada (Minibus AC)",
+    chassis: "Suzuki New Carry 1.5L Euro 4 EFI",
+    progressFraction: 0.40,
+    currentSegmentIndex: 1,
+    nextStopId: "stop-krl-tgr",
+    nextStopEtaSeconds: 95,
+    seatingDiagram: generateHiAceCaptainSeats("veh-tj-mikro-108"),
+    photos: [
+      {
+        id: "photo-mikro-01",
+        vehicleId: "veh-tj-mikro-108",
+        url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+        caption: "JakLingko AC Minibus at Roxy - Tanah Abang connection",
+        photographer: "Dishub Jakarta",
+        tag: "MIKROTRANS",
+      },
+    ],
+  },
+
+  // 14. Bus Wisata BW2 (#BW-005 / Run BW2-01)
+  {
+    id: "veh-tj-wisata-005",
+    lineId: "line-tj-wisata-bw2",
+    vehicleCode: "BW-005",
+    name: "Bus Wisata Tingkat MAN A95 #BW-005 (Run BW2-01)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_NON_BRT",
+    currentLatitude: -6.1804,
+    currentLongitude: 106.8235,
+    headingDegrees: 180.0,
+    speedKmh: 25.0,
+    status: "IN_SERVICE",
+    crowdLevel: "LEVEL_1_MANY_SEATS",
+    acComfort: "COLD",
+    coachbuilder: "Karoseri Nusantara Gemilang (Cityliner Double Decker)",
+    chassis: "MAN A95 ND323F Double Decker Euro 5",
+    progressFraction: 0.25,
+    currentSegmentIndex: 1,
+    nextStopId: "stop-mrt-bhi",
+    nextStopEtaSeconds: 160,
+    seatingDiagram: generateExecutive22Seats("veh-tj-wisata-005"),
+    photos: [
+      {
+        id: "photo-bw-01",
+        vehicleId: "veh-tj-wisata-005",
+        url: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
+        caption: "MAN A95 double decker open-roof tourist sightseeing bus at Monas",
+        photographer: "Jakarta Tourism Archive",
+        tag: "TOURIST_BUS",
+      },
+    ],
+  },
 ];
+
+export const TRANSIT_VEHICLES: Vehicle[] = SIMULATED_VEHICLES;
 
 // ==========================================
 // TECHNICAL SPECS DATASET (ENTHUSIAST LEVEL)
-// ==========================================
-
 export const VEHICLE_TECHNICAL_SPECS: TechnicalSpec[] = [
   {
     id: "spec-mrt-ts01",

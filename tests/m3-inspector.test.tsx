@@ -172,7 +172,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleDetailSheet vehicleId={mrtVehicle.id} onClose={onCloseMock} />);
 
       // Overview Tab is default
-      expect(screen.getByText(/Ratangga Trainset 01/i)).toBeInTheDocument();
+      expect(screen.getByText(/MRT Ratangga/i)).toBeInTheDocument();
       expect(screen.getByText(/Kecepatan/i)).toBeInTheDocument();
       expect(screen.getByText(/Arah Kompas/i)).toBeInTheDocument();
       expect(screen.getByText(/Kepadatan Penumpang/i)).toBeInTheDocument();
