@@ -30,6 +30,26 @@ export type TransitMode =
   | "MARITIME_SPEEDBOAT"
   | "MARITIME_PELNI";
 
+export type ServiceOperatingStatus =
+  | "NORMAL"
+  | "LIMITED"
+  | "SUSPENDED"
+  | "OFF_HOURS";
+
+export interface HubDestinationGroup {
+  id: string;
+  category: "PROVINCE" | "INTERNATIONAL_ZONE" | "DOMESTIC_ISLAND" | "REGIONAL_CITY";
+  groupName: string;
+  destinations: {
+    city: string;
+    terminalOrAirport?: string;
+    operators: string[];
+    priceRangeRp: string;
+    travelDurationEst: string;
+    dailyTripsCount: number;
+  }[];
+}
+
 export type FareStructureType =
   | "FLAT"
   | "PROGRESSIVE_DISTANCE"

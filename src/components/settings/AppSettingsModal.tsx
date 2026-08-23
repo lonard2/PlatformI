@@ -296,6 +296,22 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               </div>
             </div>
           </div>
+
+          {/* Section E: Operator Portal Link */}
+          <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-white text-xs">Portal Petugas & Operator (OCC)</div>
+                <div className="text-[11px] text-slate-400">Akses back-office pengelolaan armada & validator gate</div>
+              </div>
+              <a
+                href="/admin"
+                className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
+              >
+                Buka Portal Admin
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* 3. FOOTER ACTIONS */}

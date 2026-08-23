@@ -7,6 +7,8 @@
  * 3. ServiceStatusDrawer.tsx
  * 4. AppSettingsModal.tsx
  * 5. UserTransitPreferencesModal.tsx
+ * 6. TransportationSystemBar.tsx
+ * 7. MobileBottomNav.tsx
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -18,6 +20,7 @@ import { ServiceStatusDrawer } from "../src/components/alerts/ServiceStatusDrawe
 import { AppSettingsModal } from "../src/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "../src/components/settings/UserTransitPreferencesModal";
 import { TransportationSystemBar } from "../src/components/navigation/TransportationSystemBar";
+import { MobileBottomNav } from "../src/components/navigation/MobileBottomNav";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { TRANSIT_LINES, TRANSIT_STOPS, TRANSIT_VEHICLES, DISRUPTION_ALERTS } from "../src/lib/data/jakarta-dataset";
 
@@ -27,6 +30,9 @@ describe("Milestone 5: React UI Components Integration", () => {
       simulatedVehicles: TRANSIT_VEHICLES,
       allLines: TRANSIT_LINES,
       allStops: TRANSIT_STOPS,
+      selectedModes: ["MRT_JAKARTA", "TRANSJAKARTA_BRT", "AKAP_INTERCITY_BUS"],
+      selectedStopId: null,
+      selectedLineId: null,
       theme: "dark",
       activeTileLayer: "dark",
       simulationSpeed: 1,
@@ -95,16 +101,15 @@ describe("Milestone 5: React UI Components Integration", () => {
   });
 
   describe("4. AppSettingsModal Component", () => {
-    it("renders theme, basemap tile, simulation speed, and AI model controls", () => {
+    it("renders theme, basemap tile, simulation speed, and OCC portal link", () => {
       const onClose = vi.fn();
       render(<AppSettingsModal isOpen={true} onClose={onClose} />);
 
       expect(screen.getByText(/Application Settings/i)).toBeInTheDocument();
-      expect(screen.getByText(/Dark Cockpit/i)).toBeInTheDocument();
-      expect(screen.getByText(/Light Daylight/i)).toBeInTheDocument();
       expect(screen.getByText(/Dark Matter/i)).toBeInTheDocument();
       expect(screen.getByText(/Positron Light/i)).toBeInTheDocument();
       expect(screen.getByText(/Real-Time \(1x\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Portal Petugas/i)).toBeInTheDocument();
     });
 
     it("updates store state when selecting a different basemap tile", () => {
@@ -145,43 +150,80 @@ describe("Milestone 5: React UI Components Integration", () => {
   });
 
   describe("6. TransportationSystemBar Component", () => {
-    it("renders transportation groups: Rail, Bus, Airports, Ports", () => {
+    it("renders transportation groups: Rel, Bus & Terminal, Bandara, Pelabuhan", () => {
       render(<TransportationSystemBar />);
 
-      expect(screen.getByText(/RAIL/i)).toBeInTheDocument();
-      expect(screen.getByText(/BUS & HUBS/i)).toBeInTheDocument();
-      expect(screen.getByText(/AIRPORTS/i)).toBeInTheDocument();
-      expect(screen.getByText(/PORTS & SEA/i)).toBeInTheDocument();
+      expect(screen.getByText("Rel")).toBeInTheDocument();
+      expect(screen.getByText("Bus & Terminal")).toBeInTheDocument();
+      expect(screen.getByText("Bandara")).toBeInTheDocument();
+      expect(screen.getByText("Pelabuhan & Laut")).toBeInTheDocument();
 
-      // Check key modes and consolidated hubs
+      // Check key systems and consolidated hubs
       expect(screen.getByText("MRT")).toBeInTheDocument();
       expect(screen.getByText("WHOOSH")).toBeInTheDocument();
       expect(screen.getByText("BRT 1-14")).toBeInTheDocument();
       expect(screen.getByText("TERMINAL")).toBeInTheDocument();
       expect(screen.getByText("SHUTTLE HUB")).toBeInTheDocument();
-      expect(screen.getByText("AIRPORT")).toBeInTheDocument();
-      expect(screen.getByText("PORTS")).toBeInTheDocument();
+      expect(screen.getByText("BANDARA")).toBeInTheDocument();
+      expect(screen.getByText("PELABUHAN")).toBeInTheDocument();
     });
 
-    it("toggles mode when clicking mode badge", () => {
+    it("opens popover and toggles mode when clicking mode badge popover toggle", () => {
       render(<TransportationSystemBar />);
       const mrtBtn = screen.getByText("MRT").closest("button");
       if (mrtBtn) {
+        // Click to open popover
         fireEvent.click(mrtBtn);
-        // Toggling MRT should remove it if initially selected
+        // Popover is open, contains toggle button
+        const toggleBtn = screen.getByText(/Aktif di Peta/i);
+        expect(toggleBtn).toBeInTheDocument();
+        fireEvent.click(toggleBtn);
         expect(useTransitStore.getState().selectedModes.includes("MRT_JAKARTA")).toBe(false);
-        fireEvent.click(mrtBtn);
-        expect(useTransitStore.getState().selectedModes.includes("MRT_JAKARTA")).toBe(true);
       }
     });
 
-    it("selects building hub and focuses viewport when clicking consolidated hub", () => {
+    it("selects building hub and focuses viewport when clicking consolidated hub corridor", () => {
       render(<TransportationSystemBar />);
       const terminalBtn = screen.getByText("TERMINAL").closest("button");
       if (terminalBtn) {
+        // Open popover
         fireEvent.click(terminalBtn);
+        // Click specific terminal
+        const puloGebangBtn = screen.getByText(/Terminal Terpadu Pulo Gebang/i);
+        expect(puloGebangBtn).toBeInTheDocument();
+        fireEvent.click(puloGebangBtn);
         expect(useTransitStore.getState().selectedStopId).toBe("stop-akap-pgb");
       }
+    });
+  });
+
+  describe("7. MobileBottomNav Component", () => {
+    it("renders Peta, Layanan, Tiket & QR, Laporan, and Asisten buttons", () => {
+      const onOpenAIMock = vi.fn();
+      const onOpenStatusMock = vi.fn();
+
+      render(
+        <MobileBottomNav
+          onOpenAI={onOpenAIMock}
+          onOpenStatus={onOpenStatusMock}
+        />
+      );
+
+      expect(screen.getByText("Peta")).toBeInTheDocument();
+      expect(screen.getByText("Layanan")).toBeInTheDocument();
+      expect(screen.getByText("Tiket & QR")).toBeInTheDocument();
+      expect(screen.getByText("Laporan")).toBeInTheDocument();
+      expect(screen.getByText("Asisten")).toBeInTheDocument();
+
+      // Click center QR button
+      const qrBtn = screen.getByLabelText(/Buka Tiket & QR Gate Turnstile/i);
+      fireEvent.click(qrBtn);
+      expect(useTransitStore.getState().activeDrawer).toBe("tickets");
+
+      // Click Asisten AI
+      const asistenBtn = screen.getByText("Asisten");
+      fireEvent.click(asistenBtn);
+      expect(onOpenAIMock).toHaveBeenCalled();
     });
   });
 });

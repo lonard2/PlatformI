@@ -2,6 +2,8 @@
  * PlatformI - Route Polyline Vector Layer
  * Renders interactive multimodal transit polylines with brand colors,
  * hover glow states, and interactive route selection tooltips.
+ * High-volume consolidated modes (AKAP, Shuttles, Air, Sea) are rendered conditionally
+ * on vehicle/line selection to avoid map clutter.
  *
  * Rules: Zero emojis, strict TypeScript typing (no 'any').
  */
@@ -12,16 +14,27 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
-import { Line } from "@/types/transit";
+import { Line, TransitMode } from "@/types/transit";
 
 interface RoutePolylineLayerProps {
   map: L.Map | null;
 }
 
+// Modes with hundreds/thousands of dynamic routes that should only draw when active/selected
+const HIGH_VOLUME_CONSOLIDATED_MODES = new Set<TransitMode>([
+  "AKAP_INTERCITY_BUS",
+  "EXECUTIVE_SHUTTLE",
+  "AIRPORT_COMMERCIAL",
+  "MARITIME_SPEEDBOAT",
+  "MARITIME_PELNI",
+]);
+
 export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedLineId = useTransitStore((state) => state.selectedLineId);
+  const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
+  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const hoveredEntity = useTransitStore((state) => state.hoveredEntity);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
@@ -48,10 +61,24 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
     const layerGroup = layerGroupRef.current;
     layerGroup.clearLayers();
 
+    const selectedVehicle = simulatedVehicles.find((v) => v.id === selectedVehicleId);
+    const activeVehicleLineId = selectedVehicle?.lineId;
+
     for (const line of allLines) {
-      // Filter out unselected transit modes
+      // 1. Filter out unselected transit modes
       if (!selectedModes.includes(line.mode)) {
         continue;
+      }
+
+      const isLineExplicitlySelected = selectedLineId === line.id;
+      const isVehicleOnThisLineSelected = activeVehicleLineId === line.id;
+      const isHovered = hoveredEntity?.type === "line" && hoveredEntity?.id === line.id;
+
+      // 2. High-volume modes: only render when explicitly selected, hovered, or active vehicle on it
+      if (HIGH_VOLUME_CONSOLIDATED_MODES.has(line.mode)) {
+        if (!isLineExplicitlySelected && !isVehicleOnThisLineSelected && !isHovered) {
+          continue;
+        }
       }
 
       const coords: L.LatLngExpression[] = line.polylineCoordinates.map((c) => [
@@ -61,9 +88,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
 
       if (coords.length < 2) continue;
 
-      const isSelected = selectedLineId === line.id;
-      const isHovered = hoveredEntity?.type === "line" && hoveredEntity?.id === line.id;
       const modeConfig = TRANSIT_MODE_CONFIG[line.mode];
+      const isSelected = isLineExplicitlySelected || isVehicleOnThisLineSelected;
 
       // Dash pattern for aviation and maritime
       let dashArray: string | undefined = undefined;
@@ -78,7 +104,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
         const glowPolyline = L.polyline(coords, {
           color: line.colorHex,
           weight: 10,
-          opacity: 0.35,
+          opacity: 0.4,
           lineCap: "round",
           lineJoin: "round",
         });
@@ -95,7 +121,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
         dashArray,
       });
 
-      // Tooltip content with zero emojis
+      // Tooltip content
       const tooltipContent = `
         <div style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; color: #f1f5f9; font-family: sans-serif; min-width: 180px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
@@ -103,8 +129,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
             <span style="background: ${line.colorHex}; color: ${line.textColorHex}; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${line.code}</span>
           </div>
           <div style="font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; gap: 2px;">
-            <div>Operator: <span style="color: #cbd5e1;">${modeConfig?.operator || "Dishub"}</span></div>
-            <div>Headway: <span style="color: #38bdf8; font-family: monospace;">${line.headwayMinutes} mins</span> &bull; Operating: <span style="color: #e2e8f0; font-family: monospace;">${line.firstDeparture}-${line.lastDeparture}</span></div>
+            <div>Operator: <span style="color: #cbd5e1;">${modeConfig?.operator || "Dishub DKI"}</span></div>
+            <div>Jadwal: <span style="color: #e2e8f0; font-family: monospace;">${line.firstDeparture} - ${line.lastDeparture}</span> &bull; Antara: <span style="color: #38bdf8; font-family: monospace;">${line.headwayMinutes} mnt</span></div>
             <div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: #10b981; font-weight: 600;">
               ${modeConfig?.fareDescription || `Rp ${line.baseFareRp.toLocaleString()}`}
             </div>
@@ -147,6 +173,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
     allLines,
     selectedModes,
     selectedLineId,
+    selectedVehicleId,
+    simulatedVehicles,
     hoveredEntity,
     selectLine,
     setHoveredEntity,

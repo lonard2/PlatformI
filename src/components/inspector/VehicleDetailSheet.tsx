@@ -1,9 +1,10 @@
 /**
- * PlatformI - Vehicle Detail Sheet (Enthusiast Telemetry Inspector)
+ * PlatformI - Vehicle Detail Sheet (Armada & Telemetri Transportasi)
  * Responsive slide-up bottom sheet on mobile (< 640px) with Framer Motion drag gestures,
  * and docked glass telemetry side panel on desktop (> 1024px) and tablet.
+ * Integrated photo gallery, technical dimension blueprints, and mode-specific cabin layouts.
  *
- * Rules: Strict TypeScript typing (zero 'any'), zero emojis, Lucide SVG icons.
+ * Rules: Strict TypeScript typing (zero 'any'), zero raw emojis, Lucide SVG icons.
  */
 
 "use client";
@@ -41,11 +42,11 @@ interface VehicleDetailSheetProps {
   onClose?: () => void;
 }
 
-type TabType = "overview" | "specs" | "seating" | "photos";
+type TabType = "overview" | "specs" | "seating";
 
 function getHeadingDirection(degrees: number): string {
   const normalized = (degrees % 360 + 360) % 360;
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  const directions = ["U (Utara)", "TL (Timur Laut)", "T (Timur)", "TG (Tenggara)", "S (Selatan)", "BD (Barat Daya)", "B (Barat)", "BL (Barat Laut)"];
   const index = Math.round(normalized / 45) % 8;
   return directions[index];
 }
@@ -54,22 +55,22 @@ function getCrowdBadge(level: CrowdDensityLevel) {
   switch (level) {
     case "LEVEL_1_MANY_SEATS":
       return {
-        label: "Many Seats Available",
+        label: "Banyak Kursi Kosong",
         color: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30",
       };
     case "LEVEL_2_FEW_SEATS":
       return {
-        label: "Few Seats Available",
+        label: "Beberapa Kursi Tersedia",
         color: "text-amber-400 bg-amber-950/60 border-amber-500/30",
       };
     case "LEVEL_3_STANDING_ONLY":
       return {
-        label: "Standing Only",
+        label: "Hanya Ruang Berdiri",
         color: "text-orange-400 bg-orange-950/60 border-orange-500/30",
       };
     case "LEVEL_4_FULL_CRUSH":
       return {
-        label: "Full / Crush Load",
+        label: "Padat Penuh / Jam Sibuk",
         color: "text-rose-400 bg-rose-950/60 border-rose-500/30",
       };
     default:
@@ -83,15 +84,15 @@ function getCrowdBadge(level: CrowdDensityLevel) {
 function getACComfortBadge(ac: ACComfortRating) {
   switch (ac) {
     case "COLD":
-      return { label: "Cold Airflow (18-20°C)", color: "text-cyan-300" };
+      return { label: "Sangat Dingin (18-20°C)", color: "text-cyan-300" };
     case "OPTIMAL":
-      return { label: "Optimal Comfort (22-24°C)", color: "text-emerald-300" };
+      return { label: "Suhu Sejuk Nyaman (22-24°C)", color: "text-emerald-300" };
     case "WARM":
-      return { label: "Warm (25-27°C)", color: "text-amber-300" };
+      return { label: "Cukup Hangat (25-27°C)", color: "text-amber-300" };
     case "HOT":
-      return { label: "Elevated Temp (>28°C)", color: "text-rose-300" };
+      return { label: "Suhu Meningkat (>28°C)", color: "text-rose-300" };
     default:
-      return { label: "Optimal", color: "text-slate-300" };
+      return { label: "Nyaman", color: "text-slate-300" };
   }
 }
 
@@ -156,7 +157,7 @@ export function VehicleDetailSheet({
               handleClose();
             }
           }}
-          className="pointer-events-auto w-full lg:w-[460px] max-h-[85vh] lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100"
+          className="pointer-events-auto w-full lg:w-[480px] max-h-[85vh] lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100"
         >
           {/* Mobile Drag Handle */}
           <div className="w-full flex items-center justify-center pt-2.5 pb-1 lg:hidden">
@@ -191,9 +192,9 @@ export function VehicleDetailSheet({
               {nextStop && (
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
                   <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span className="truncate">Next: <strong className="text-slate-200">{nextStop.name}</strong></span>
+                  <span className="truncate">Tujuan Halte: <strong className="text-slate-200">{nextStop.name}</strong></span>
                   <span className="text-cyan-400 font-bold shrink-0">
-                    ({vehicle.nextStopEtaSeconds}s)
+                    ({vehicle.nextStopEtaSeconds} dtk)
                   </span>
                 </div>
               )}
@@ -202,7 +203,7 @@ export function VehicleDetailSheet({
             {/* Close Button */}
             <button
               onClick={handleClose}
-              aria-label="Close inspector"
+              aria-label="Tutup detail kendaraan"
               className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
             >
               <X className="w-4 h-4" />
@@ -213,50 +214,38 @@ export function VehicleDetailSheet({
           <div className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "overview"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
-              <span>Overview</span>
+              <span>Detail Armada & Foto</span>
             </button>
 
             <button
               onClick={() => setActiveTab("specs")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "specs"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
-              <span>Tech Specs</span>
+              <span>Spesifikasi & Dimensi</span>
             </button>
 
             <button
               onClick={() => setActiveTab("seating")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "seating"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Armchair className="w-3.5 h-3.5" />
-              <span>Seating</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("photos")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
-                activeTab === "photos"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Camera className="w-3.5 h-3.5" />
-              <span>Photos</span>
+              <span>Kabin & Kapasitas</span>
             </button>
           </div>
 
@@ -271,7 +260,7 @@ export function VehicleDetailSheet({
                     <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
                       <span className="flex items-center gap-1">
                         <Gauge className="w-3.5 h-3.5 text-emerald-400" />
-                        Speed
+                        Kecepatan
                       </span>
                       <span className="text-[10px] text-emerald-400 font-bold uppercase">
                         {vehicle.status.replace(/_/g, " ")}
@@ -281,7 +270,7 @@ export function VehicleDetailSheet({
                       <span className="text-2xl font-black font-mono text-white">
                         {vehicle.speedKmh.toFixed(1)}
                       </span>
-                      <span className="text-xs text-slate-400 font-mono">km/h</span>
+                      <span className="text-xs text-slate-400 font-mono">km/jam</span>
                     </div>
                   </div>
 
@@ -290,17 +279,16 @@ export function VehicleDetailSheet({
                     <div className="flex items-center justify-between text-slate-400 text-xs font-mono">
                       <span className="flex items-center gap-1">
                         <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                        Azimuth
+                        Arah Kompas
                       </span>
                       <span className="text-[10px] text-cyan-400 font-bold font-mono">
-                        {headingCompass}
+                        {vehicle.headingDegrees.toFixed(0)}°
                       </span>
                     </div>
                     <div className="pt-2 flex items-baseline gap-1">
-                      <span className="text-2xl font-black font-mono text-white">
-                        {vehicle.headingDegrees.toFixed(1)}°
+                      <span className="text-sm font-bold font-mono text-white">
+                        {headingCompass}
                       </span>
-                      <span className="text-xs text-slate-400 font-mono">bearing</span>
                     </div>
                   </div>
                 </div>
@@ -312,7 +300,7 @@ export function VehicleDetailSheet({
                     <Users className="w-5 h-5 shrink-0" />
                     <div>
                       <span className="text-[10px] font-mono uppercase tracking-wider block opacity-70">
-                        Crowd Density
+                        Kepadatan Penumpang
                       </span>
                       <strong className="text-xs font-bold leading-tight">
                         {crowdBadge.label}
@@ -325,7 +313,7 @@ export function VehicleDetailSheet({
                     <Wind className="w-5 h-5 text-cyan-400 shrink-0" />
                     <div>
                       <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-                        Climate Comfort
+                        Suhu & Pendingin AC
                       </span>
                       <strong className={`text-xs font-bold ${acBadge.color}`}>
                         {acBadge.label}
@@ -353,8 +341,8 @@ export function VehicleDetailSheet({
                     </div>
 
                     <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between pt-1 border-t border-slate-800/80">
-                      <span>Fare Model: {line.fareType.replace(/_/g, " ")}</span>
-                      <span>Headway: ~{line.headwayMinutes} mins</span>
+                      <span>Tarif: {line.fareType.replace(/_/g, " ")}</span>
+                      <span>Antara Kedatangan: ~{line.headwayMinutes} mnt</span>
                     </div>
                   </div>
                 )}
@@ -362,15 +350,27 @@ export function VehicleDetailSheet({
                 {/* Quick Coachbuilder Summary */}
                 <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-mono text-[11px]">Karoseri / Body:</span>
+                    <span className="text-slate-400 font-mono text-[11px]">Karoseri / Pabrikan:</span>
                     <strong className="text-white">{vehicle.coachbuilder}</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-mono text-[11px]">Chassis:</span>
+                    <span className="text-slate-400 font-mono text-[11px]">Sasis / Rangka:</span>
                     <strong className="text-white truncate max-w-[240px] text-right">
                       {vehicle.chassis}
                     </strong>
                   </div>
+                </div>
+
+                {/* Integrated Vehicle Photo Gallery in Overview Tab */}
+                <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                      Galeri Foto & Dokumentasi Lapangan
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">Spotter Transit</span>
+                  </div>
+                  <VehiclePhotoGallery vehicle={vehicle} />
                 </div>
               </div>
             )}
@@ -378,8 +378,6 @@ export function VehicleDetailSheet({
             {activeTab === "specs" && <VehicleTechnicalSpecs vehicle={vehicle} />}
 
             {activeTab === "seating" && <VehicleSeatingDiagram vehicle={vehicle} />}
-
-            {activeTab === "photos" && <VehiclePhotoGallery vehicle={vehicle} />}
           </div>
         </motion.aside>
       </div>

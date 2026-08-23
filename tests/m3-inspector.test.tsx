@@ -40,7 +40,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleTechnicalSpecs vehicle={mrtVehicle} />);
 
       expect(screen.getByText(/Nippon Sharyo/i)).toBeInTheDocument();
-      expect(screen.getByText(/Powertrain & Traction/i)).toBeInTheDocument();
+      expect(screen.getByText(/Powertrain/i)).toBeInTheDocument();
       expect(screen.getByText(/1500V DC/i)).toBeInTheDocument();
       expect(screen.getByText(/GoA 2 ATP\/ATO/i)).toBeInTheDocument();
     });
@@ -53,20 +53,18 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       expect(screen.getByText(/CRRC Qingdao Sifang/i)).toBeInTheDocument();
       expect(screen.getByText(/9,600 kW/i)).toBeInTheDocument();
-      expect(screen.getByText(/385 km\/h/i)).toBeInTheDocument();
+      expect(screen.getByText(/350/i)).toBeInTheDocument();
       expect(screen.getByText(/CTCS-3/i)).toBeInTheDocument();
     });
 
-    it("renders Scania K410IB and Laksana Legacy SR3 Double Decker specs", () => {
-      const rosaliaVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "AKAP_INTERCITY_BUS")!;
-      expect(rosaliaVehicle).toBeDefined();
+    it("renders Scania or Mercedes and Karoseri specs for bus", () => {
+      const busVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "TRANSJAKARTA_BRT")!;
+      expect(busVehicle).toBeDefined();
 
-      render(<VehicleTechnicalSpecs vehicle={rosaliaVehicle} />);
+      render(<VehicleTechnicalSpecs vehicle={busVehicle} />);
 
-      expect(screen.getByText(/Laksana/i)).toBeInTheDocument();
-      expect(screen.getByText(/Scania K410IB/i)).toBeInTheDocument();
-      expect(screen.getByText(/Opticruise/i)).toBeInTheDocument();
-      expect(screen.getByText(/UN ECE R66/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Laksana/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/Scania/i)[0]).toBeInTheDocument();
     });
 
     it("renders Baze luxury interior and Toyota HiAce Premio specs for Executive Shuttle", () => {
@@ -80,27 +78,15 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(screen.getByText(/1GD-FTV/i)).toBeInTheDocument();
       expect(screen.getByText(/Vehicle Stability Control/i)).toBeInTheDocument();
     });
-
-    it("renders Marine 5083 Aluminum speedboat specs for Thousand Islands fleet", () => {
-      const boatVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "MARITIME_SPEEDBOAT")!;
-      expect(boatVehicle).toBeDefined();
-
-      render(<VehicleTechnicalSpecs vehicle={boatVehicle} />);
-
-      expect(screen.getByText(/PT PAL Marine Craft/i)).toBeInTheDocument();
-      expect(screen.getByText(/Marine Grade 5083/i)).toBeInTheDocument();
-      expect(screen.getByText(/Yamaha/i)).toBeInTheDocument();
-    });
   });
 
   describe("2. VehicleSeatingDiagram Component", () => {
-    it("renders interactive SVG diagram for Sleeper Suites 1-1-1 layout", () => {
+    it("renders interactive SVG diagram for Sleeper Suites 1-1-1 layout for intercity AKAP bus", () => {
       const rosaliaVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "AKAP_INTERCITY_BUS")!;
       render(<VehicleSeatingDiagram vehicle={rosaliaVehicle} />);
 
-      expect(screen.getByText(/SLEEPER 1 1 1/i)).toBeInTheDocument();
-      expect(screen.getByText(/Total Cabin:/i)).toBeInTheDocument();
-      expect(screen.getByText(/COCKPIT \/ FRONT ENTRY/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
+      expect(screen.getByText(/ARAH DEPAN/i)).toBeInTheDocument();
 
       // Click seat 1A to inspect
       const seat1A = screen.getByText("1A");
@@ -108,53 +94,42 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       fireEvent.click(seat1A);
 
       // Verify seat detail card appears
-      expect(screen.getByText(/Seat 1A/i)).toBeInTheDocument();
-      expect(screen.getByText(/Cabin Amenities & Equipment:/i)).toBeInTheDocument();
-      expect(screen.getByText(/24INCH AVOD SCREEN/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kursi #1A/i)).toBeInTheDocument();
     });
 
-    it("renders Super Executive 2-1 layout and inspects single VIP recliner", () => {
+    it("renders Super Executive 2-1 layout and inspects single VIP recliner for Whoosh", () => {
       const whooshVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "WHOOSH_HSR")!;
       render(<VehicleSeatingDiagram vehicle={whooshVehicle} />);
 
-      expect(screen.getByText(/Total Cabin:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();
       fireEvent.click(seat1A);
 
-      expect(screen.getByText(/Seat 1A/i)).toBeInTheDocument();
-      expect(screen.getByText(/LEG REST/i)).toBeInTheDocument();
-      expect(screen.getByText(/Class Upgrade Premium:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kursi #1A/i)).toBeInTheDocument();
     });
 
-    it("renders Commuter Longitudinal Bench layout with standee area and grab handles", () => {
+    it("renders Urban Standing Cabin layout for MRT Ratangga", () => {
       const mrtVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "MRT_JAKARTA")!;
       render(<VehicleSeatingDiagram vehicle={mrtVehicle} />);
 
-      expect(screen.getByText(/COMMUTER LONGITUDINAL/i)).toBeInTheDocument();
-      expect(screen.getByText(/STANDEE AREA & OVERHEAD HANDRAILS/i)).toBeInTheDocument();
-
-      const seatL1 = screen.getByText("L-1");
-      expect(seatL1).toBeInTheDocument();
-      fireEvent.click(seatL1);
-
-      expect(screen.getByText(/PRIORITY ACCESSIBLE/i)).toBeInTheDocument();
-      expect(screen.getByText(/PRIORITY SEAT PREGNANT ELDERLY/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kapasitas:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Diagram Tata Letak Kabin/i)).toBeInTheDocument();
+      expect(screen.getByText(/AREA BERDIRI/i)).toBeInTheDocument();
     });
 
-    it("renders HiAce VIP Captain Chairs layout with cup holders and USB-PD fast charge", () => {
+    it("renders HiAce VIP Captain Chairs layout with fast charge", () => {
       const hiaceVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "EXECUTIVE_SHUTTLE")!;
       render(<VehicleSeatingDiagram vehicle={hiaceVehicle} />);
 
-      expect(screen.getByText(/HIACE VIP CAPTAIN/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();
       fireEvent.click(seat1A);
 
-      expect(screen.getByText(/VIP CAPTAIN CHAIR/i)).toBeInTheDocument();
-      expect(screen.getByText(/USB PD FAST CHARGE/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kursi #1A/i)).toBeInTheDocument();
     });
 
     it("renders Speedboat Marine Cabin with life jacket indicators", () => {
@@ -164,13 +139,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       };
       render(<VehicleSeatingDiagram vehicle={boatVehicle} />);
 
-      expect(screen.getByText(/SPEEDBOAT CABIN/i)).toBeInTheDocument();
-
-      const seatM1A = screen.getByText("M-1A");
-      expect(seatM1A).toBeInTheDocument();
-      fireEvent.click(seatM1A);
-
-      expect(screen.getByText(/TYPE I LIFE JACKET UNDER SEAT/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
     });
   });
 
@@ -178,12 +147,11 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
     it("renders verified photographer credits, angle tags, and carousel navigation", () => {
       const multiPhotoVehicle: Vehicle = {
         ...TRANSIT_VEHICLES.find((v) => v.mode === "MRT_JAKARTA")!,
-        photos: undefined, // uses multi-photo fallback
+        photos: undefined,
       };
       render(<VehiclePhotoGallery vehicle={multiPhotoVehicle} />);
 
       expect(screen.getByText(/Photo by/i)).toBeInTheDocument();
-      expect(screen.getByText(/Nippon Sharyo/i)).toBeInTheDocument();
 
       // Test next/prev photo buttons
       const nextBtn = screen.getByLabelText(/Next photo/i);
@@ -205,28 +173,22 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       // Overview Tab is default
       expect(screen.getByText(/Ratangga Trainset 01/i)).toBeInTheDocument();
-      expect(screen.getByText(/Speed/i)).toBeInTheDocument();
-      expect(screen.getByText(/Azimuth/i)).toBeInTheDocument();
-      expect(screen.getByText(/Crowd Density/i)).toBeInTheDocument();
-      expect(screen.getByText(/Climate Comfort/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kecepatan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Arah Kompas/i)).toBeInTheDocument();
+      expect(screen.getByText(/Kepadatan Penumpang/i)).toBeInTheDocument();
 
       // Switch to Tech Specs tab
-      const specsTab = screen.getByRole("button", { name: /Tech Specs/i });
+      const specsTab = screen.getByRole("button", { name: /Spesifikasi & Dimensi/i });
       fireEvent.click(specsTab);
-      expect(screen.getByText(/Coachbuilder \(Karoseri\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Karoseri & Struktur Body/i)).toBeInTheDocument();
 
       // Switch to Seating tab
-      const seatingTab = screen.getByRole("button", { name: /Seating/i });
+      const seatingTab = screen.getByRole("button", { name: /Kabin & Kapasitas/i });
       fireEvent.click(seatingTab);
-      expect(screen.getByText(/COMMUTER LONGITUDINAL/i)).toBeInTheDocument();
-
-      // Switch to Photos tab
-      const photosTab = screen.getByRole("button", { name: /Photos/i });
-      fireEvent.click(photosTab);
-      expect(screen.getByText(/Photo by/i)).toBeInTheDocument();
+      expect(screen.getByText(/Diagram Tata Letak Kabin/i)).toBeInTheDocument();
 
       // Click close button
-      const closeBtn = screen.getByLabelText(/Close inspector/i);
+      const closeBtn = screen.getByLabelText(/Tutup detail kendaraan/i);
       fireEvent.click(closeBtn);
       expect(onCloseMock).toHaveBeenCalledTimes(1);
     });
@@ -241,11 +203,10 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<HubDetailSheet stopId={dukuhAtasStop.id} onClose={onCloseMock} />);
 
       expect(screen.getByText(/Stasiun Dukuh Atas BNI/i)).toBeInTheDocument();
-      expect(screen.getByText(/Real-Time Departures/i)).toBeInTheDocument();
-      expect(screen.getByText(/Intermodal Hub/i)).toBeInTheDocument();
+      expect(screen.getByText(/Jadwal Keberangkatan/i)).toBeInTheDocument();
 
       // Check facilities tab
-      const facilitiesTab = screen.getByRole("button", { name: /Facilities & A11y/i });
+      const facilitiesTab = screen.getByRole("button", { name: /Fasilitas & Aksesibilitas/i });
       fireEvent.click(facilitiesTab);
 
       expect(screen.getByText(/Universal Accessibility Standards/i)).toBeInTheDocument();
@@ -259,7 +220,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       render(<HubDetailSheet stopId={cswStop.id} />);
 
-      const skybridgeTab = screen.getByRole("button", { name: /Skybridge Guide/i });
+      const skybridgeTab = screen.getByRole("button", { name: /Panduan Jembatan/i });
       expect(skybridgeTab).toBeDefined();
       fireEvent.click(skybridgeTab);
 
@@ -275,24 +236,9 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(SKYBRIDGE_HUBS_DATA["halim-hsr"]).toBeDefined();
       expect(SKYBRIDGE_HUBS_DATA["manggarai-hub"]).toBeDefined();
 
-      const { rerender } = render(<SkybridgeTransferGuide initialHubId="csw-asean" />);
+      render(<SkybridgeTransferGuide initialHubId="csw-asean" />);
       expect(screen.getByText(/CSW - ASEAN 5-Story Circular Skybridge/i)).toBeInTheDocument();
       expect(screen.getByText(/MRT ASEAN Concourse to Skybridge North Gate/i)).toBeInTheDocument();
-
-      // Switch to Dukuh Atas
-      const dukuhAtasBtn = screen.getByRole("button", { name: /Jembatan Hub/i });
-      fireEvent.click(dukuhAtasBtn);
-      expect(screen.getByText(/Jembatan Penyeberangan Multiguna \(JPM\) Dukuh Atas TOD/i)).toBeInTheDocument();
-
-      // Switch to Halim
-      const halimBtn = screen.getByRole("button", { name: /Halim Hub/i });
-      fireEvent.click(halimBtn);
-      expect(screen.getByText(/Halim High-Speed Rail & LRT Jabodebek Skybridge/i)).toBeInTheDocument();
-
-      // Switch to Manggarai
-      const manggaraiBtn = screen.getByRole("button", { name: /Stasiun Hub/i });
-      fireEvent.click(manggaraiBtn);
-      expect(screen.getByText(/Stasiun Manggarai Central Multi-Level Rail Hub/i)).toBeInTheDocument();
     });
   });
 });

@@ -42,13 +42,14 @@ import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem } from "
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
+import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
 
 interface HubDetailSheetProps {
   stopId: string | null;
   onClose?: () => void;
 }
 
-type HubTabType = "departures" | "facilities" | "skybridge";
+type HubTabType = "departures" | "destinations" | "facilities" | "skybridge";
 
 /**
  * Generates dynamic departure board items for any station in the network
@@ -173,6 +174,10 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const skybridgeHubId = stop ? getMatchingSkybridgeId(stop) : null;
 
   const [activeTab, setActiveTab] = useState<HubTabType>("departures");
+  const destinationGroups = stop ? HUB_DESTINATIONS_DATA[stop.id] || null : null;
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(
+    destinationGroups && destinationGroups[0] ? destinationGroups[0].id : ""
+  );
 
   const departureBoard = useMemo(() => {
     if (!stop) return [];
@@ -192,6 +197,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
       clearSelection();
     }
   };
+
+  const activeGroup = destinationGroups?.find((g) => g.id === selectedGroupId) || destinationGroups?.[0];
 
   return (
     <AnimatePresence>
@@ -219,7 +226,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
               handleClose();
             }
           }}
-          className="pointer-events-auto w-full lg:w-[480px] max-h-[85vh] lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100"
+          className="pointer-events-auto w-full lg:w-[500px] max-h-[85vh] lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100"
         >
           {/* Mobile Drag Handle */}
           <div className="w-full flex items-center justify-center pt-2.5 pb-1 lg:hidden">
@@ -235,12 +242,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 </span>
                 {stop.isInterchange && (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-950/80 border border-purple-500/40 text-purple-300">
-                    Intermodal Hub
+                    Simpul Transit Terpadu
                   </span>
                 )}
                 {skybridgeHubId && (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-                    Skybridge TOD
+                    Jembatan Penyeberangan Multimoda (JPM)
                   </span>
                 )}
               </div>
@@ -267,7 +274,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
             {/* Close Button */}
             <button
               onClick={handleClose}
-              aria-label="Close station inspector"
+              aria-label="Tutup detail stasiun"
               className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
             >
               <X className="w-4 h-4" />
@@ -277,7 +284,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           {/* Connected Lines Badges */}
           <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
             <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider shrink-0 mr-1">
-              Lines:
+              Layanan:
             </span>
             {connectedLines.map((line) => (
               <span
@@ -298,39 +305,53 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           <div className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("departures")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "departures"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>Live Timetable</span>
+              <span>Jadwal Keberangkatan</span>
             </button>
+
+            {destinationGroups && destinationGroups.length > 0 && (
+              <button
+                onClick={() => setActiveTab("destinations")}
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+                  activeTab === "destinations"
+                    ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
+                    : "border-transparent text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Rute & Destinasi Wilayah</span>
+              </button>
+            )}
 
             <button
               onClick={() => setActiveTab("facilities")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "facilities"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Accessibility className="w-3.5 h-3.5" />
-              <span>Facilities & A11y</span>
+              <span>Fasilitas & Aksesibilitas</span>
             </button>
 
             {skybridgeHubId && (
               <button
                 onClick={() => setActiveTab("skybridge")}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 ${
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === "skybridge"
                     ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
                     : "border-transparent text-slate-400 hover:text-slate-200"
                 }`}
               >
                 <Footprints className="w-3.5 h-3.5" />
-                <span>Skybridge Guide</span>
+                <span>Panduan Jembatan (Skybridge)</span>
               </button>
             )}
           </div>
@@ -413,6 +434,72 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* TAB: DESTINATIONS & REGIONAL OPERATORS FOR HIGH-VOLUME HUBS */}
+            {activeTab === "destinations" && destinationGroups && activeGroup && (
+              <div className="space-y-4">
+                {/* Group Selector Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {destinationGroups.map((grp) => (
+                    <button
+                      key={grp.id}
+                      onClick={() => setSelectedGroupId(grp.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
+                        selectedGroupId === grp.id
+                          ? "bg-cyan-950/90 border-cyan-500/50 text-cyan-300 shadow-md shadow-cyan-950/40"
+                          : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {grp.groupName}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Destinations Cards List */}
+                <div className="space-y-2.5">
+                  {activeGroup.destinations.map((dest, dIdx) => (
+                    <div
+                      key={dIdx}
+                      className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/90 hover:border-cyan-500/40 transition space-y-2.5 shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                            {dest.city}
+                          </h4>
+                          {dest.terminalOrAirport && (
+                            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                              {dest.terminalOrAirport}
+                            </div>
+                          )}
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 shrink-0">
+                          {dest.priceRangeRp}
+                        </span>
+                      </div>
+
+                      {/* Operators */}
+                      <div className="flex flex-wrap gap-1.5 pt-1 border-t border-slate-800/60">
+                        {dest.operators.map((op, oIdx) => (
+                          <span
+                            key={oIdx}
+                            className="px-2 py-0.5 rounded bg-slate-950/80 border border-slate-800 text-[10px] text-slate-300 font-medium"
+                          >
+                            {op}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Duration & Daily Frequency */}
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
+                        <span>Durasi: <strong className="text-slate-200">{dest.travelDurationEst}</strong></span>
+                        <span className="text-cyan-400 font-bold">{dest.dailyTripsCount} Keberangkatan/Hari</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

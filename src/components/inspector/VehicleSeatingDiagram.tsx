@@ -1,15 +1,11 @@
 /**
- * PlatformI - Interactive Vehicle Seating Diagram Component (SVG Matrix)
- * Renders authentic cabin seating layouts for Indonesian transit:
- * 1. Sleeper Suites 1-1-1 (Individual Pods)
- * 2. Super Executive 2-1 (Wide Recliners)
- * 3. Executive Standard 2-2 (Tour Coach)
- * 4. Commuter Longitudinal Bench (Urban Rail / BRT)
- * 5. HiAce VIP Captain Chairs (Executive Shuttle)
- * 6. High-Speed Rail 1st / 2nd Class (Whoosh)
- * 7. Speedboat Marine Passenger Cabin
+ * PlatformI - Interactive Vehicle Cabin & Seating Diagram Component
+ * - For Urban Standing Transit (BRT, MikroTrans, KRL, MRT, LRT):
+ *   Renders Cabin Capacity & Standing Layout Diagram (Doors, Standing grab-straps, Priority seats, Wheelchair bays).
+ * - For Intercity Reserved Transit (AKAP Sleeper/Executive, Travel Shuttle HiAce, Whoosh HSR, Speedboat):
+ *   Renders Interactive Seat Booking Matrix with live selection.
  *
- * Rules: Strict TypeScript typing (zero 'any'), zero emojis, interactive seat inspection.
+ * Rules: Strict TypeScript typing (zero 'any'), zero raw emojis, Lucide SVG icons.
  */
 
 "use client";
@@ -30,6 +26,10 @@ import {
   HelpCircle,
   Maximize2,
   RotateCw,
+  Accessibility,
+  Heart,
+  DoorOpen,
+  Wind,
 } from "lucide-react";
 import {
   Vehicle,
@@ -52,6 +52,21 @@ interface VehicleSeatingDiagramProps {
   vehicle: Vehicle;
   onSeatSelect?: (seat: SeatCoordinate) => void;
 }
+
+const URBAN_STANDING_MODES = new Set<TransitMode>([
+  "TRANSJAKARTA_BRT",
+  "TRANSJAKARTA_NON_BRT",
+  "MIKROTRANS",
+  "MRT_JAKARTA",
+  "LRT_JABODEBEK_CIBUBUR",
+  "LRT_JABODEBEK_BEKASI",
+  "LRT_JAKARTA",
+  "KRL_BOGOR",
+  "KRL_CIKARANG",
+  "KRL_RANGKASBITUNG",
+  "KRL_TANGERANG",
+  "KRL_TANJUNG_PRIOK",
+]);
 
 /**
  * Generates Whoosh HSR First Class & Second Class Seating Diagram
@@ -89,7 +104,6 @@ function generateWhooshHSRSeats(vehicleId: string): SeatingDiagram {
   // Car 2-8: Second Class (3-2 layout, 5 rows = 25 seats shown in coach)
   const secondClassRows = [5, 6, 7, 8, 9];
   secondClassRows.forEach((row, rIdx) => {
-    // Left 3 seats: A, B, C
     ["A", "B", "C"].forEach((col, cIdx) => {
       const isOccupied = (row * 2 + cIdx) % 4 === 1;
       seats.push({
@@ -106,7 +120,6 @@ function generateWhooshHSRSeats(vehicleId: string): SeatingDiagram {
       });
     });
 
-    // Right 2 seats: D, F
     ["D", "F"].forEach((col, cIdx) => {
       const isOccupied = (row + cIdx) % 3 === 2;
       seats.push({
@@ -142,7 +155,6 @@ function generateSpeedboatSeats(vehicleId: string): SeatingDiagram {
   const rows = [1, 2, 3, 4, 5, 6, 7];
 
   rows.forEach((row, rIdx) => {
-    // 2-2 Marine Bench arrangement
     ["A", "B", "C", "D"].forEach((col, cIdx) => {
       const isOccupied = (row + cIdx) % 3 === 0;
       const xPos = cIdx < 2 ? 18 + cIdx * 16 : 54 + (cIdx - 2) * 16;
@@ -191,30 +203,172 @@ function getVehicleSeating(vehicle: Vehicle): SeatingDiagram {
       return generateSleeper111Seats(vehicle.id);
     case "EXECUTIVE_SHUTTLE":
       return generateHiAceCaptainSeats(vehicle.id);
-    case "TRANSJAKARTA_BRT":
-    case "MRT_JAKARTA":
-    case "LRT_JABODEBEK_CIBUBUR":
-    case "LRT_JABODEBEK_BEKASI":
-    case "LRT_JAKARTA":
-    case "KRL_BOGOR":
-    case "KRL_CIKARANG":
-    case "KRL_RANGKASBITUNG":
-    case "KRL_TANGERANG":
-    case "KRL_TANJUNG_PRIOK":
-      return generateCommuterLongitudinalSeats(vehicle.id);
     case "MARITIME_SPEEDBOAT":
       return generateSpeedboatSeats(vehicle.id);
-    case "TRANSJAKARTA_NON_BRT":
-    case "KAI_BANDARA":
     default:
       return generateExecutive22Seats(vehicle.id);
   }
+}
+
+/**
+ * Urban Standing Transit Capacity & Cabin Schematic
+ */
+function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
+  const isBRT = vehicle.mode === "TRANSJAKARTA_BRT" || vehicle.mode === "TRANSJAKARTA_NON_BRT";
+  const isMikro = vehicle.mode === "MIKROTRANS";
+  const isMRT = vehicle.mode === "MRT_JAKARTA";
+  const isLRT = vehicle.mode.includes("LRT");
+
+  const totalCap = isMRT ? 1950 : isLRT ? 1308 : isBRT ? (vehicle.coachbuilder.includes("Articulated") || vehicle.coachbuilder.includes("Scania") ? 120 : 85) : isMikro ? 15 : 65;
+  const seatedCap = isMRT ? 290 : isLRT ? 196 : isBRT ? 32 : isMikro ? 11 : 28;
+  const standingCap = Math.max(0, totalCap - seatedCap);
+  const prioritySeatsCount = isMRT ? 48 : isLRT ? 24 : isBRT ? 6 : 2;
+  const wheelchairBays = isMRT ? 6 : isLRT ? 4 : isBRT ? 2 : 1;
+
+  return (
+    <div className="space-y-4 text-slate-200">
+      {/* 1. CAPACITY HIGHLIGHT CARDS */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">Total Kapasitas:</span>
+          <strong className="text-base font-bold text-white font-mono">{totalCap} Pax</strong>
+        </div>
+        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">Tempat Duduk:</span>
+          <strong className="text-base font-bold text-emerald-400 font-mono">{seatedCap} Kursi</strong>
+        </div>
+        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">Ruang Berdiri:</span>
+          <strong className="text-base font-bold text-cyan-400 font-mono">{standingCap} Pax</strong>
+        </div>
+        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">Ramah Disabilitas:</span>
+          <strong className="text-base font-bold text-purple-300 font-mono">{wheelchairBays} Bay Kursi Roda</strong>
+        </div>
+      </div>
+
+      {/* 2. SVG SCHEMATIC OF CABIN DOORS, STRAPS & PRIORITY AREAS */}
+      <div className="p-3.5 bg-[#060a12] rounded-2xl border border-slate-800 space-y-2.5">
+        <div className="flex items-center justify-between text-xs font-mono text-slate-300">
+          <span className="flex items-center gap-1.5 font-bold text-cyan-300">
+            <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+            Diagram Tata Letak Kabin & Fasilitas Berdiri
+          </span>
+          <span className="text-[10px] text-emerald-400">● Sirkulasi Standar</span>
+        </div>
+
+        <svg viewBox="0 0 400 120" className="w-full h-auto text-slate-300">
+          {/* Cabin Floor Shell */}
+          <rect x="10" y="10" width="380" height="100" rx="8" fill="#090d16" stroke="#334155" strokeWidth="1.5" />
+
+          {/* Driver Cab / Windscreen Area (Left) */}
+          <path d="M 10 20 L 40 20 L 40 100 L 10 100 Z" fill="#0f172a" stroke="#475569" strokeWidth="1" />
+          <text x="25" y="65" fill="#64748b" fontSize="8" fontFamily="monospace" textAnchor="middle" transform="rotate(-90, 25, 65)">
+            KABIN
+          </text>
+
+          {/* Passenger Entry Doors (Top & Bottom Markers) */}
+          {[100, 230, 330].map((x, idx) => (
+            <g key={idx}>
+              {/* Door Cutout */}
+              <rect x={x} y="8" width="32" height="6" fill="#0284c7" rx="1" />
+              <text x={x + 16} y="6" fill="#38bdf8" fontSize="6" fontFamily="sans-serif" textAnchor="middle">
+                PINTU {idx + 1}
+              </text>
+            </g>
+          ))}
+
+          {/* Priority Seating Zone (Elderly / Pregnant / Disability) */}
+          <rect x="50" y="20" width="40" height="24" rx="3" fill="#581c87" stroke="#a855f7" strokeWidth="1" />
+          <text x="70" y="35" fill="#e9d5ff" fontSize="7" fontWeight="bold" textAnchor="middle">
+            PRIORITAS
+          </text>
+
+          {/* Wheelchair Bay */}
+          <rect x="50" y="76" width="40" height="26" rx="3" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" strokeDasharray="3,2" />
+          <text x="70" y="92" fill="#c7d2fe" fontSize="7" textAnchor="middle">
+            KURSI RODA
+          </text>
+
+          {/* Longitudinal Seating Benches (Top & Bottom Rows) */}
+          {[140, 180, 270, 310].map((x, idx) => (
+            <rect key={idx} x={x} y="20" width="32" height="18" rx="2" fill="#1e293b" stroke="#475569" strokeWidth="0.8" />
+          ))}
+          {[100, 140, 180, 270, 310].map((x, idx) => (
+            <rect key={idx} x={x} y="82" width="32" height="18" rx="2" fill="#1e293b" stroke="#475569" strokeWidth="0.8" />
+          ))}
+
+          {/* Central Standing Area with Grab Straps */}
+          <rect x="100" y="44" width="280" height="32" rx="4" fill="#0f172a" stroke="#0ea5e9" strokeWidth="0.8" strokeDasharray="4,3" />
+          <text x="240" y="62" fill="#38bdf8" fontSize="8" fontFamily="monospace" textAnchor="middle">
+            AREA BERDIRI DENGAN HANDRAIL & STRAP GANTUNG
+          </text>
+
+          {/* Grab Poles Indicator Dots */}
+          {[120, 160, 200, 240, 280, 320, 360].map((x, idx) => (
+            <circle key={idx} cx={x} cy="60" r="2" fill="#f59e0b" />
+          ))}
+        </svg>
+
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-slate-800 text-[10px] font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-purple-900 border border-purple-500" />
+            <span className="text-purple-300">Kursi Prioritas ({prioritySeatsCount})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-indigo-950 border border-indigo-500" />
+            <span className="text-indigo-300">Area Kursi Roda ({wheelchairBays})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-slate-800 border border-slate-600" />
+            <span className="text-slate-300">Kursi Reguler ({seatedCap - prioritySeatsCount})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="text-amber-300">Tiang Handrail Stainless</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. COMFORT & VENTILATION FEATURES */}
+      <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+        <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
+          <Wind className="w-4 h-4 text-cyan-400" />
+          <span>Fasilitas Kenyamanan & Standar Pelayanan Minimal (SPM)</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-slate-200">AC Dingin Otomatis (22-24°C)</span>
+          </div>
+          <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-slate-200">Lantai Antislip & Jalur Guiding Block</span>
+          </div>
+          <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-slate-200">Pemberitahuan Suara & Layar Halte Selanjutnya</span>
+          </div>
+          <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-slate-200">CCTV Pengawas & Tombol Darurat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function VehicleSeatingDiagram({
   vehicle,
   onSeatSelect,
 }: VehicleSeatingDiagramProps) {
+  // If urban standing transit: render dedicated UrbanStandingCabinView
+  if (URBAN_STANDING_MODES.has(vehicle.mode)) {
+    return <UrbanStandingCabinView vehicle={vehicle} />;
+  }
+
   const initialDiagram = useMemo(() => getVehicleSeating(vehicle), [vehicle]);
 
   const [activeDeck, setActiveDeck] = useState<SeatDeck>("SINGLE");
@@ -263,15 +417,15 @@ export function VehicleSeatingDiagram({
       <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-xs font-mono">
           <div>
-            <span className="text-slate-400 block text-[10px]">Total Cabin:</span>
-            <strong className="text-white">{totalSeatsCount} Seats</strong>
+            <span className="text-slate-400 block text-[10px]">Total Kursi:</span>
+            <strong className="text-white">{totalSeatsCount} Kursi</strong>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">Available:</span>
-            <strong className="text-emerald-400">{Math.max(0, availableSeatsCount)} Open</strong>
+            <span className="text-slate-400 block text-[10px]">Tersedia:</span>
+            <strong className="text-emerald-400">{Math.max(0, availableSeatsCount)} Kosong</strong>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">Occupancy:</span>
+            <span className="text-slate-400 block text-[10px]">Keterisian:</span>
             <strong className="text-cyan-400">{occupancyPercentage}%</strong>
           </div>
         </div>
@@ -287,7 +441,7 @@ export function VehicleSeatingDiagram({
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Lower Deck (Suites)
+              Dek Bawah (Sleeper)
             </button>
             <button
               onClick={() => setActiveDeck("UPPER")}
@@ -297,290 +451,101 @@ export function VehicleSeatingDiagram({
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Upper Deck (Super Exec)
+              Dek Atas (Super Exec)
             </button>
           </div>
         )}
       </div>
 
-      {/* 2. INTERACTIVE SVG CABIN VIEWPORT */}
-      <div className="relative rounded-2xl bg-[#090d16] border border-slate-800 p-4 overflow-hidden flex flex-col items-center justify-center min-h-[380px]">
-        {/* Cabin Hull Shell & Vehicle Direction Indicator */}
-        <div className="w-full max-w-md flex items-center justify-between text-[11px] text-slate-500 font-mono pb-2 border-b border-slate-800/80 mb-2">
-          <div className="flex items-center gap-1.5 text-cyan-400">
-            <CircleDot className="w-3.5 h-3.5" />
-            <span className="font-semibold uppercase tracking-wider">
-              {diagram.layoutType.replace(/_/g, " ")}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-slate-400">
-            <span>Front (Driver & Helm)</span>
-            <span className="text-cyan-400 font-bold">&uarr;</span>
-          </div>
+      {/* 2. SVG INTERACTIVE CABIN SEATING PLAN */}
+      <div className="p-4 bg-[#070b14] rounded-2xl border border-slate-800/90 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+        {/* Front of Vehicle Indicator */}
+        <div className="w-full flex items-center justify-center gap-2 text-[10px] font-mono uppercase text-slate-400 pb-3 border-b border-slate-800/60 mb-2">
+          <span>▲ ARAH DEPAN KENDARAAN (KEMUDI)</span>
         </div>
 
-        {/* SVG Matrix Canvas */}
-        <div className="w-full max-w-md aspect-[1/1.6] sm:aspect-[1/1.4] relative bg-slate-950/90 rounded-xl border border-slate-800/80 p-2 shadow-inner">
-          <svg
-            viewBox="0 0 100 100"
-            className="w-full h-full select-none"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* Background Coach Perimeter */}
-            <rect
-              x="5"
-              y="2"
-              width="90"
-              height="96"
-              rx="8"
-              fill="none"
-              stroke="#1e293b"
-              strokeWidth="1.2"
-              strokeDasharray="2 2"
-            />
+        {/* Interactive SVG Seat Nodes */}
+        <div className="w-full max-w-[340px] aspect-[4/5] relative bg-slate-950/60 rounded-xl p-3 border border-slate-800/60 shadow-lg">
+          {filteredSeats.map((seat) => {
+            const isUserSelected = userSelectedSeatIds.includes(seat.id);
+            const isInspectSelected = selectedSeatId === seat.id;
+            const isAvailable = seat.status === "AVAILABLE";
 
-            {/* Driver Cockpit / Helm Area */}
-            <rect
-              x="12"
-              y="4"
-              width="76"
-              height="5"
-              rx="2"
-              fill="#0f172a"
-              stroke="#334155"
-              strokeWidth="0.8"
-            />
-            <text
-              x="50"
-              y="7.5"
-              textAnchor="middle"
-              fill="#64748b"
-              fontSize="2.8"
-              fontFamily="monospace"
-              fontWeight="bold"
-            >
-              COCKPIT / FRONT ENTRY
-            </text>
-
-            {/* Commuter Standee Aisle / Rail Poles */}
-            {diagram.layoutType === "COMMUTER_LONGITUDINAL" && (
-              <g>
-                <line
-                  x1="35"
-                  y1="12"
-                  x2="35"
-                  y2="92"
-                  stroke="#334155"
-                  strokeWidth="0.8"
-                  strokeDasharray="1.5 2"
-                />
-                <line
-                  x1="65"
-                  y1="12"
-                  x2="65"
-                  y2="92"
-                  stroke="#334155"
-                  strokeWidth="0.8"
-                  strokeDasharray="1.5 2"
-                />
-                <text
-                  x="50"
-                  y="52"
-                  textAnchor="middle"
-                  fill="#475569"
-                  fontSize="2.4"
-                  fontFamily="monospace"
-                  transform="rotate(-90 50 52)"
-                >
-                  STANDEE AREA & OVERHEAD HANDRAILS
-                </text>
-              </g>
-            )}
-
-            {/* Render Seats */}
-            {filteredSeats.map((seat) => {
-              const isSelectedByUser = userSelectedSeatIds.includes(seat.id);
-              const isInspected = selectedSeatId === seat.id;
-              const isOccupied = seat.status === "OCCUPIED";
-              const isPriority = seat.type === "PRIORITY_ACCESSIBLE";
-              const isWheelchair = seat.type === "WHEELCHAIR_BAY";
-              const isSleeper = seat.type === "SLEEPER_SUITE";
-              const isFirstClass = seat.type === "FIRST_CLASS";
-
-              // Determine Seat Colors
-              let fill = "#0f172a";
-              let stroke = "#334155";
-              let textColor = "#94a3b8";
-
-              if (isOccupied) {
-                fill = "#1e293b";
-                stroke = "#475569";
-                textColor = "#64748b";
-              } else if (isSelectedByUser || isInspected) {
-                fill = "#0891b2";
-                stroke = "#38bdf8";
-                textColor = "#ffffff";
-              } else if (isPriority) {
-                fill = "#1e1b4b";
-                stroke = "#818cf8";
-                textColor = "#c7d2fe";
-              } else if (isWheelchair) {
-                fill = "#14532d";
-                stroke = "#22c55e";
-                textColor = "#bbf7d0";
-              } else if (isSleeper || isFirstClass) {
-                fill = "#311042";
-                stroke = "#c084fc";
-                textColor = "#f5d0fe";
+            let bgClass = "bg-slate-800 border-slate-700 text-slate-400";
+            if (seat.status === "OCCUPIED") {
+              bgClass = "bg-rose-950/40 border-rose-800/50 text-rose-500 opacity-60 cursor-not-allowed";
+            } else if (isUserSelected) {
+              bgClass = "bg-cyan-500 border-cyan-300 text-slate-950 font-bold shadow-lg shadow-cyan-500/50 scale-110";
+            } else if (isAvailable) {
+              if (seat.type === "SLEEPER_SUITE") {
+                bgClass = "bg-indigo-950/80 border-indigo-500/60 text-indigo-300 hover:border-cyan-400 hover:scale-105";
+              } else if (seat.type === "CAPTAIN_CHAIR" || seat.type === "FIRST_CLASS") {
+                bgClass = "bg-amber-950/80 border-amber-500/60 text-amber-300 hover:border-cyan-400 hover:scale-105";
               } else {
-                fill = "#064e3b";
-                stroke = "#10b981";
-                textColor = "#6ee7b7";
+                bgClass = "bg-emerald-950/80 border-emerald-500/50 text-emerald-300 hover:border-cyan-400 hover:scale-105";
               }
+            }
 
-              const width = isSleeper ? 24 : isFirstClass ? 15 : 12;
-              const height = isSleeper ? 10 : 8.5;
-
-              return (
-                <g
-                  key={seat.id}
-                  onClick={() => handleSeatClick(seat)}
-                  className="cursor-pointer transition-transform hover:opacity-90"
-                  style={{ transformOrigin: `${seat.x}% ${seat.y}%` }}
-                >
-                  {/* Seat Pod / Shell Rectangle */}
-                  <rect
-                    x={seat.x - width / 2}
-                    y={seat.y - height / 2}
-                    width={width}
-                    height={height}
-                    rx={isSleeper ? 3 : 2}
-                    fill={fill}
-                    stroke={stroke}
-                    strokeWidth={isInspected || isSelectedByUser ? 1.5 : 0.8}
-                  />
-
-                  {/* Seat Headrest / Armrest Accent */}
-                  <rect
-                    x={seat.x - width / 2 + 1}
-                    y={seat.y - height / 2 + 0.8}
-                    width={width - 2}
-                    height={2}
-                    rx={1}
-                    fill={stroke}
-                    opacity="0.6"
-                  />
-
-                  {/* Seat ID Text */}
-                  <text
-                    x={seat.x}
-                    y={seat.y + 1.2}
-                    textAnchor="middle"
-                    fill={textColor}
-                    fontSize="2.5"
-                    fontFamily="monospace"
-                    fontWeight="bold"
-                  >
-                    {seat.id}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+            return (
+              <button
+                key={seat.id}
+                onClick={() => handleSeatClick(seat)}
+                style={{
+                  position: "absolute",
+                  left: `${seat.x}%`,
+                  top: `${seat.y}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex flex-col items-center justify-center transition-all ${bgClass} ${
+                  isInspectSelected ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950" : ""
+                }`}
+                title={`Kursi ${seat.id} — ${seat.type}`}
+              >
+                <span className="text-[10px] font-mono font-bold leading-none">{seat.id}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* 3. SEATING LEGEND */}
-        <div className="w-full max-w-md pt-3 flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-[#064e3b] border border-[#10b981]"></span>
-            <span>Available</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-[#1e293b] border border-[#475569]"></span>
-            <span>Occupied</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-[#0891b2] border border-[#38bdf8]"></span>
-            <span>Selected</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-[#311042] border border-[#c084fc]"></span>
-            <span>Sleeper/1st</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-[#14532d] border border-[#22c55e]"></span>
-            <span>Accessible</span>
-          </div>
+        {/* Rear of Vehicle Indicator */}
+        <div className="w-full flex items-center justify-center gap-2 text-[10px] font-mono text-slate-500 pt-3 border-t border-slate-800/60 mt-2">
+          <span>▼ BAGIAN BELAKANG KENDARAAN</span>
         </div>
       </div>
 
-      {/* 4. SELECTED SEAT DETAIL INSPECTOR CARD */}
-      {selectedSeat ? (
-        <div className="p-3.5 rounded-xl bg-slate-900/90 border border-cyan-500/40 shadow-lg space-y-2.5 animate-fadeIn">
+      {/* 3. SELECTED SEAT DETAIL CARD */}
+      {selectedSeat && (
+        <div className="p-3.5 rounded-xl bg-slate-900/90 border border-cyan-500/40 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono font-bold text-xs">
-                {selectedSeat.id}
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white tracking-tight flex items-center gap-1.5">
-                  Seat {selectedSeat.id}
-                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono">
-                    {selectedSeat.type.replace(/_/g, " ")}
-                  </span>
-                </h4>
-                <p className="text-[10px] text-slate-400 font-mono">
-                  Row {selectedSeat.row} &bull; Column {selectedSeat.column}
-                </p>
-              </div>
+              <span className="text-sm font-bold text-white font-mono">
+                Kursi #{selectedSeat.id}
+              </span>
+              <span className="text-xs text-cyan-300 font-medium">
+                {selectedSeat.type.replace(/_/g, " ")}
+              </span>
             </div>
-
-            {/* Status Badge */}
-            <div className="flex items-center gap-1.5">
-              {selectedSeat.status === "AVAILABLE" ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Available
-                </span>
-              ) : (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-400 flex items-center gap-1">
-                  <XCircle className="w-3 h-3" />
-                  Occupied
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Seat Features List */}
-          <div className="space-y-1">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              Cabin Amenities & Equipment:
+            <span
+              className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                selectedSeat.status === "AVAILABLE"
+                  ? "bg-emerald-950 text-emerald-400 border border-emerald-500/30"
+                  : "bg-rose-950 text-rose-400 border border-rose-500/30"
+              }`}
+            >
+              {selectedSeat.status === "AVAILABLE" ? "Tersedia" : "Terisi"}
             </span>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedSeat.features.map((feature, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 rounded-md bg-slate-950/80 border border-slate-800 text-[10px] text-slate-300 flex items-center gap-1"
-                >
-                  <Sparkles className="w-2.5 h-2.5 text-cyan-400" />
-                  {feature.replace(/_/g, " ")}
-                </span>
-              ))}
-            </div>
           </div>
 
-          {/* Price Premium if any */}
-          {selectedSeat.pricePremiumRp > 0 && (
-            <div className="text-[11px] text-amber-400 bg-amber-950/30 p-2 rounded-lg border border-amber-500/30 flex items-center justify-between">
-              <span>Class Upgrade Premium:</span>
-              <strong>+Rp {selectedSeat.pricePremiumRp.toLocaleString("id-ID")}</strong>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/60 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-          <Info className="w-4 h-4 text-cyan-400" />
-          <span>Click any seat on the diagram to inspect features and status.</span>
+          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-slate-800">
+            {selectedSeat.features.map((feature, fIdx) => (
+              <span
+                key={fIdx}
+                className="px-2 py-0.5 rounded bg-slate-950 text-[10px] text-slate-300 font-mono border border-slate-800"
+              >
+                {feature.replace(/_/g, " ")}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

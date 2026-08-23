@@ -29,6 +29,10 @@ export interface ModeMetadata {
   speedProfile: TransitSpeedProfile;
   fareDescription: string;
   isJakLingkoIntegrated: boolean;
+  operatingHours: string;
+  headwayText: string;
+  description: string;
+  contactCenter: string;
 }
 
 export interface ModeCategoryMeta {
@@ -78,6 +82,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 + Rp 1.000/km (Maks Rp 14.000)",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:00 - 24:00 WIB",
+    headwayText: "5 Menit (Jam Sibuk) / 10 Menit",
+    description: "Jalur rel berat metro modern bawah tanah dan layang dari Lebak Bulus hingga Bundaran HI.",
+    contactCenter: "Call Center 1500-332",
   },
   LRT_JABODEBEK_CIBUBUR: {
     mode: "LRT_JABODEBEK_CIBUBUR",
@@ -100,6 +108,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 5.000 (km 1) + Rp 700/km (Maks Rp 20.000 Peak / Rp 10.000 Off-Peak)",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:15 - 23:30 WIB",
+    headwayText: "7,5 - 15 Menit",
+    description: "Kereta ringan otomatis tanpa masinis (GoA3) menghubungkan Dukuh Atas dan Harjamukti Cibubur.",
+    contactCenter: "Contact Center 121",
   },
   LRT_JABODEBEK_BEKASI: {
     mode: "LRT_JABODEBEK_BEKASI",
@@ -122,6 +134,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 5.000 (km 1) + Rp 700/km (Maks Rp 20.000 Peak / Rp 10.000 Off-Peak)",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:20 - 23:30 WIB",
+    headwayText: "7,5 - 15 Menit",
+    description: "Kereta ringan otomatis menghubungkan Dukuh Atas, Cawang, Halim HSR, hingga Jatimulya Bekasi.",
+    contactCenter: "Contact Center 121",
   },
   LRT_JAKARTA: {
     mode: "LRT_JAKARTA",
@@ -144,6 +160,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 5.000 (JakLingko Integrasi)",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:30 - 23:00 WIB",
+    headwayText: "10 Menit",
+    description: "Layanan lintas raya terpadu Kelapa Gading - Velodrome Rawamangun dengan integrasi halte TJ.",
+    contactCenter: "Halo LRT (021) 5082-8000",
   },
   KRL_BOGOR: {
     mode: "KRL_BOGOR",
@@ -166,6 +186,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 (25 km pertama) + Rp 1.000/10 km",
     isJakLingkoIntegrated: false,
+    operatingHours: "04:30 - 23:45 WIB",
+    headwayText: "5 - 10 Menit",
+    description: "Jalur komuter rel listrik utama menghubungkan Bogor, Depok, Pasar Minggu, Manggarai, Jakarta Kota.",
+    contactCenter: "Contact Center 121 / 021-121",
   },
   KRL_CIKARANG: {
     mode: "KRL_CIKARANG",
@@ -188,6 +212,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 (25 km pertama) + Rp 1.000/10 km",
     isJakLingkoIntegrated: false,
+    operatingHours: "04:45 - 23:30 WIB",
+    headwayText: "10 - 15 Menit",
+    description: "Jalur lingkar komuter menghubungkan Cikarang, Bekasi, Jatinegara, Manggarai, Sudirman, Kampung Bandan.",
+    contactCenter: "Contact Center 121",
   },
   KRL_RANGKASBITUNG: {
     mode: "KRL_RANGKASBITUNG",
@@ -210,6 +238,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 (25 km pertama) + Rp 1.000/10 km",
     isJakLingkoIntegrated: false,
+    operatingHours: "04:30 - 23:15 WIB",
+    headwayText: "10 - 20 Menit",
+    description: "Jalur barat komuter menghubungkan Tanah Abang, Kebayoran, Serpong, Parung Panjang, Rangkasbitung.",
+    contactCenter: "Contact Center 121",
   },
   KRL_TANGERANG: {
     mode: "KRL_TANGERANG",
@@ -232,6 +264,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 (25 km pertama) + Rp 1.000/10 km",
     isJakLingkoIntegrated: false,
+    operatingHours: "05:00 - 23:00 WIB",
+    headwayText: "15 Menit",
+    description: "Jalur penghubung Kota Tangerang menuju stasiun transit Duri.",
+    contactCenter: "Contact Center 121",
   },
   KRL_TANJUNG_PRIOK: {
     mode: "KRL_TANJUNG_PRIOK",
@@ -254,6 +290,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Rp 3.000 flat",
     isJakLingkoIntegrated: false,
+    operatingHours: "06:00 - 20:00 WIB",
+    headwayText: "30 - 45 Menit",
+    description: "Jalur penghubung kawasan Kota Tua menuju Pelabuhan Tanjung Priok dan Ancol.",
+    contactCenter: "Contact Center 121",
   },
   WHOOSH_HSR: {
     mode: "WHOOSH_HSR",
@@ -276,6 +316,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Dynamic Tiered (Rp 150.000 - Rp 600.000)",
     isJakLingkoIntegrated: false,
+    operatingHours: "06:00 - 21:30 WIB",
+    headwayText: "30 - 45 Menit",
+    description: "Kereta cepat pertama di Asia Tenggara dengan kecepatan jelajah 350 km/jam rute Jakarta - Bandung.",
+    contactCenter: "KCIC Contact 150909",
   },
   KAI_BANDARA: {
     mode: "KAI_BANDARA",
@@ -298,6 +342,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 50.000 (Premium) / Rp 70.000 (Executive)",
     isJakLingkoIntegrated: false,
+    operatingHours: "05:00 - 22:45 WIB",
+    headwayText: "30 Menit",
+    description: "Kereta ekspres bandara terintegrasi langsung dengan stasiun BNI City, Manggarai, dan Bandara SHIA.",
+    contactCenter: "Railink (021) 121",
   },
   KAI_INTERCITY: {
     mode: "KAI_INTERCITY",
@@ -320,6 +368,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Tiered by Class (Ekonomi, Eksekutif, Luxury, Compartment)",
     isJakLingkoIntegrated: false,
+    operatingHours: "24 Jam Sesuai Jadwal",
+    headwayText: "Jadwal Terjadwal",
+    description: "Kereta api jarak jauh antarkota kelas Eksekutif, Panoramic, Luxury, dan Compartment Suites.",
+    contactCenter: "Contact Center 121",
   },
   TRANSJAKARTA_BRT: {
     mode: "TRANSJAKARTA_BRT",
@@ -342,6 +394,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 3.500 (Rp 2.000 Pk. 05:00-07:00, JakLingko Integrasi)",
     isJakLingkoIntegrated: true,
+    operatingHours: "24 Jam (Layanan Siang & Malam AMARI)",
+    headwayText: "3 - 7 Menit (Siang) / 20 Menit (AMARI)",
+    description: "Sistem Bus Rapid Transit (BRT) terpanjang di dunia dengan 14 koridor jalur khusus steril.",
+    contactCenter: "Call Center 1500-102",
   },
   TRANSJAKARTA_NON_BRT: {
     mode: "TRANSJAKARTA_NON_BRT",
@@ -364,6 +420,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 3.500 / RoyalTrans Rp 20.000",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:00 - 22:00 WIB",
+    headwayText: "10 - 20 Menit",
+    description: "Bus pengumpan terintegrasi dan bus eksekutif suburban RoyalTrans ramah difabel lantai rendah.",
+    contactCenter: "Call Center 1500-102",
   },
   MIKROTRANS: {
     mode: "MIKROTRANS",
@@ -386,13 +446,17 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Gratis Rp 0 (Wajib Tap Kartu JakLingko)",
     isJakLingkoIntegrated: true,
+    operatingHours: "05:00 - 22:00 WIB",
+    headwayText: "5 - 10 Menit",
+    description: "Angkutan kota ber-AC dan tersubsidi penuh gratis Rp 0 menjangkau permukiman warga Jakarta.",
+    contactCenter: "Call Center 1500-102",
   },
   AKAP_INTERCITY_BUS: {
     mode: "AKAP_INTERCITY_BUS",
     category: "BUS",
     name: "Bus Antarkota AKAP (Executive & Sleeper)",
     shortName: "AKAP",
-    operator: "PO Rosalia Indah, PO Sinar Jaya, PO Juragan 99",
+    operator: "PO Rosalia Indah, PO Sinar Jaya, PO Juragan 99, PO Harapan Jaya",
     colorHex: "#6366F1",
     textColorHex: "#FFFFFF",
     bgClass: "bg-indigo-950/60",
@@ -408,13 +472,17 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Dynamic Tiered (Rp 180.000 - Rp 500.000)",
     isJakLingkoIntegrated: false,
+    operatingHours: "24 Jam Sesuai Jadwal Keberangkatan",
+    headwayText: "Jadwal Pulang-Pergi Harian",
+    description: "Bus eksekutif double decker & suites class sleeper melayani rute Jawa, Bali, dan Sumatra.",
+    contactCenter: "Terminal Pulo Gebang (021) 2285-3000",
   },
   EXECUTIVE_SHUTTLE: {
     mode: "EXECUTIVE_SHUTTLE",
     category: "BUS",
     name: "Executive Shuttle Pool-to-Pool (HiAce / Sprinter)",
     shortName: "SHUTTLE",
-    operator: "DayTrans, CitiTrans, Baraya Travel",
+    operator: "DayTrans, CitiTrans, Baraya Travel, Bhinneka Shuttle",
     colorHex: "#06B6D4",
     textColorHex: "#FFFFFF",
     bgClass: "bg-cyan-950/60",
@@ -430,6 +498,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 110.000 - Rp 140.000",
     isJakLingkoIntegrated: false,
+    operatingHours: "05:00 - 22:30 WIB",
+    headwayText: "Setiap 30 - 60 Menit",
+    description: "Travel shuttle eksekutif point-to-point via jalan tol antarkota armada HiAce Premio & Sprinter.",
+    contactCenter: "Customer Service Hotline 0804-108-0808",
   },
   AIRPORT_COMMERCIAL: {
     mode: "AIRPORT_COMMERCIAL",
@@ -452,6 +524,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Domestic & International Airline Tariffs",
     isJakLingkoIntegrated: false,
+    operatingHours: "24 Jam Operasional",
+    headwayText: "Penerbangan Berjadwal",
+    description: "Gerbang udara internasional Soekarno-Hatta (T1, T2, T3, Skytrain Kalayang) & Halim Perdanakusuma.",
+    contactCenter: "Contact Center Angkasa Pura 172",
   },
   MARITIME_SPEEDBOAT: {
     mode: "MARITIME_SPEEDBOAT",
@@ -474,6 +550,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Flat Rp 54.000 - Rp 74.000 (Dishub KM Trans)",
     isJakLingkoIntegrated: false,
+    operatingHours: "07:00 - 15:30 WIB",
+    headwayText: "Pagi: 07:30, 08:30, 09:30 WIB",
+    description: "Kapal cepat penumpang dari Pelabuhan Kali Adem Muara Angke menuju gugusan pulau Kepulauan Seribu.",
+    contactCenter: "UP Angkutan Perairan Dishub (021) 662-8141",
   },
   MARITIME_PELNI: {
     mode: "MARITIME_PELNI",
@@ -496,6 +576,10 @@ export const TRANSIT_MODE_CONFIG: Record<TransitMode, ModeMetadata> = {
     },
     fareDescription: "Tiered by Destination Port & Class",
     isJakLingkoIntegrated: false,
+    operatingHours: "Sesuai Jadwal Sandar & Berlayar Kapal",
+    headwayText: "Mingguan / Dua Mingguan",
+    description: "Kapal penumpang antarpulau Pelabuhan Tanjung Priok (KM Kelud, KM Dorolonda, KM Bukit Raya).",
+    contactCenter: "Contact Center PELNI 162",
   },
 };
 
