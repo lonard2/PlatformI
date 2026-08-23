@@ -404,7 +404,7 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
           { code: "12", name: "Koridor 12: Pluit — Tanjung Priok", lineId: "line-tj-cor-12", headwayMinutes: 7, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#8CC63F" },
           { code: "13", name: "Koridor 13: Ciledug — Tendean (Layang Elevated)", lineId: "line-tj-cor-13", headwayMinutes: 5, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal (Layang)", fareText: "Rp 3.500", badgeColor: "#5B67A5" },
           { code: "13C", name: "Koridor 13C: Puri Beta — Dukuh Atas Layang", lineId: "line-tj-sub-13c", headwayMinutes: 6, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#5B67A5" },
-          { code: "14", name: "Koridor 14: JIS — Senen Raya", lineId: "line-tj-cor-14", headwayMinutes: 8, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#1B75BC" },
+          { code: "14", name: "Koridor 14: JIS — Senen Raya", lineId: "line-tj-cor-14", headwayMinutes: 8, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#E87722" },
         ],
       },
 

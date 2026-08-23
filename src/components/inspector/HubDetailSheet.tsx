@@ -60,34 +60,99 @@ interface HubDetailSheetProps {
 
 type HubTabType = "departures" | "destinations" | "facilities" | "skybridge";
 
+// Authentic TransJakarta Official Corridor Color Mapping
+const TJ_CORRIDOR_COLORS: Record<string, { colorHex: string; name: string }> = {
+  "1": { colorHex: "#D9252A", name: "Koridor 1 (Blok M - Kota)" },
+  "2": { colorHex: "#0072BC", name: "Koridor 2 (Pulo Gadung - Monas)" },
+  "2A": { colorHex: "#0072BC", name: "Koridor 2A (Pulo Gadung - Rawa Buaya)" },
+  "3": { colorHex: "#F37023", name: "Koridor 3 (Kalideres - Monas)" },
+  "3F": { colorHex: "#F37023", name: "Koridor 3F (Kalideres - GBK)" },
+  "4": { colorHex: "#782F40", name: "Koridor 4 (Pulo Gadung - Galunggung)" },
+  "5": { colorHex: "#ED7624", name: "Koridor 5 (Kampung Melayu - Ancol)" },
+  "5C": { colorHex: "#ED7624", name: "Koridor 5C (PGC 1 - Juanda)" },
+  "6": { colorHex: "#22B14C", name: "Koridor 6 (Ragunan - Galunggung)" },
+  "6A": { colorHex: "#22B14C", name: "Koridor 6A (Ragunan - Monas via Kuningan)" },
+  "6B": { colorHex: "#22B14C", name: "Koridor 6B (Ragunan - Monas via Semanggi)" },
+  "7": { colorHex: "#8B5E3C", name: "Koridor 7 (Kampung Rambutan - Kampung Melayu)" },
+  "7F": { colorHex: "#8B5E3C", name: "Koridor 7F (Kampung Rambutan - Juanda)" },
+  "8": { colorHex: "#D12175", name: "Koridor 8 (Lebak Bulus - Pasar Baru)" },
+  "9": { colorHex: "#009344", name: "Koridor 9 (Pinang Ranti - Pluit)" },
+  "9A": { colorHex: "#009344", name: "Koridor 9A (PGC 2 - Pluit)" },
+  "10": { colorHex: "#9B278D", name: "Koridor 10 (Tanjung Priok - PGC)" },
+  "10H": { colorHex: "#9B278D", name: "Koridor 10H (Tanjung Priok - Blok M)" },
+  "11": { colorHex: "#2E3192", name: "Koridor 11 (Pulo Gebang - Kampung Melayu)" },
+  "12": { colorHex: "#8CC63F", name: "Koridor 12 (Pluit - Tanjung Priok)" },
+  "13": { colorHex: "#5B67A5", name: "Koridor 13 (Ciledug - Tegal Mampang Layang)" },
+  "13C": { colorHex: "#5B67A5", name: "Koridor 13C (Puri Beta - Dukuh Atas)" },
+  "14": { colorHex: "#E87722", name: "Koridor 14 (JIS - Senen Raya)" },
+};
+
 /**
  * Returns authentic standardized icon and color for a specific transit mode or line
  */
-function getStandardizedModeMeta(mode: TransitMode, lineCode?: string) {
-  if (lineCode?.startsWith("JAK.")) {
-    return {
-      colorHex: "#00A39D",
-      icon: Car,
-      name: "MikroTrans",
-    };
-  }
-  if (lineCode?.startsWith("ROYAL-")) {
-    return {
-      colorHex: "#8B5CF6",
-      icon: Bus,
-      name: "RoyalTrans",
-    };
-  }
-  if (lineCode?.startsWith("TJ-1") || lineCode?.startsWith("TJ-4") || lineCode?.startsWith("TJ-6") || lineCode?.startsWith("TJ-7") || lineCode?.startsWith("TJ-9")) {
-    if (lineCode.length > 5 && !lineCode.includes("COR")) {
+function getStandardizedModeMeta(mode: TransitMode, lineCode?: string, lineId?: string, lines?: Line[]) {
+  // 1. Direct line lookup if line list or lineId is available
+  if (lines && (lineId || lineCode)) {
+    const foundLine = lines.find((l) => (lineId && l.id === lineId) || (lineCode && l.code === lineCode));
+    if (foundLine) {
+      let icon = Train;
+      if (foundLine.category === "BUS") icon = Bus;
+      else if (foundLine.category === "AVIATION") icon = Plane;
+      else if (foundLine.category === "MARITIME") icon = Ship;
+      else if (foundLine.mode === "WHOOSH_HSR") icon = Zap;
+      else if (foundLine.mode === "MIKROTRANS" || foundLine.mode === "EXECUTIVE_SHUTTLE") icon = Car;
+
       return {
-        colorHex: "#F58220",
-        icon: Bus,
-        name: "TransJakarta Feeder",
+        colorHex: foundLine.colorHex,
+        icon,
+        name: foundLine.name,
       };
     }
   }
 
+  // 2. Specific Line Code matching for TransJakarta BRT Corridors 1-14
+  if (lineCode) {
+    const cleanCode = lineCode.toUpperCase().replace(/^TJ-/, "");
+    if (TJ_CORRIDOR_COLORS[cleanCode]) {
+      return {
+        colorHex: TJ_CORRIDOR_COLORS[cleanCode].colorHex,
+        icon: Bus,
+        name: `TransJakarta ${TJ_CORRIDOR_COLORS[cleanCode].name}`,
+      };
+    }
+  }
+
+  // 3. MikroTrans JakLingko
+  if (lineCode?.startsWith("JAK.") || mode === "MIKROTRANS") {
+    return {
+      colorHex: "#00A39D",
+      icon: Car,
+      name: lineCode ? `MikroTrans ${lineCode}` : "MikroTrans (JakLingko)",
+    };
+  }
+
+  // 4. RoyalTrans Premium AC Express
+  if (lineCode?.startsWith("ROYAL-") || lineCode === "1K" || lineCode === "1T" || lineCode === "6P") {
+    return {
+      colorHex: "#8B5CF6",
+      icon: Bus,
+      name: lineCode ? `RoyalTrans ${lineCode}` : "RoyalTrans Premium",
+    };
+  }
+
+  // 5. TransJakarta Feeder & Non-BRT
+  if (
+    mode === "TRANSJAKARTA_NON_BRT" ||
+    (lineCode && /^(1[A-R]|2[A-Z]|3[A-Z]|4[A-Z]|5[A-Z]|6[A-Z]|7[A-Z]|8[A-Z]|9[A-Z]|10[A-Z]|11[A-Z]|12[A-Z]|S\d+|D\d+|B\d+)/i.test(lineCode) && !TJ_CORRIDOR_COLORS[lineCode])
+  ) {
+    return {
+      colorHex: "#F58220",
+      icon: Bus,
+      name: lineCode ? `Feeder Non-BRT ${lineCode}` : "TransJakarta Feeder",
+    };
+  }
+
+  // 6. Modal Specific Palette
   switch (mode) {
     case "MRT_JAKARTA":
       return { colorHex: "#E11924", icon: Train, name: "MRT Jakarta" };
@@ -115,19 +180,16 @@ function getStandardizedModeMeta(mode: TransitMode, lineCode?: string) {
       return { colorHex: "#003366", icon: Train, name: "KAI Antarkota" };
     case "TRANSJAKARTA_BRT":
       return { colorHex: "#0072BC", icon: Bus, name: "TransJakarta BRT" };
-    case "TRANSJAKARTA_NON_BRT":
-      return { colorHex: "#F58220", icon: Bus, name: "TransJakarta Feeder" };
-    case "MIKROTRANS":
-      return { colorHex: "#00A39D", icon: Car, name: "MikroTrans" };
     case "AKAP_INTERCITY_BUS":
-      return { colorHex: "#6366F1", icon: Bus, name: "Bus AKAP" };
+      return { colorHex: "#6366F1", icon: Bus, name: "Bus AKAP Antarkota" };
     case "EXECUTIVE_SHUTTLE":
-      return { colorHex: "#06B6D4", icon: Car, name: "Executive Shuttle" };
+      return { colorHex: "#06B6D4", icon: Car, name: "Executive Travel Shuttle" };
     case "AIRPORT_COMMERCIAL":
-      return { colorHex: "#0EA5E9", icon: Plane, name: "Aviation" };
+      return { colorHex: "#0EA5E9", icon: Plane, name: "Aviation Commercial Flight" };
     case "MARITIME_SPEEDBOAT":
+      return { colorHex: "#0284C7", icon: Ship, name: "Speedboat Kepulauan Seribu" };
     case "MARITIME_PELNI":
-      return { colorHex: "#0284C7", icon: Ship, name: "Maritime" };
+      return { colorHex: "#0369A1", icon: Ship, name: "Kapal Penumpang PELNI" };
     default:
       return { colorHex: "#38bdf8", icon: Train, name: "Transit" };
   }
@@ -255,11 +317,42 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
           operatorName = "PT Kereta Api Indonesia (Persero)";
         }
       } else if (line.category === "BUS") {
-        runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
-        fleetNumber = `TJ-${700 + lineIdx * 10 + offsetIdx * 4}`;
-        licensePlate = `B ${7000 + lineIdx * 20 + offsetIdx * 4} TJK`;
-        depotHome = "Pool TransJakarta Cawang / Pinang Ranti";
-        operatorName = "PT Transportasi Jakarta";
+        if (line.mode === "MIKROTRANS") {
+          runNumber = `JAK-${line.code.replace(/^JAK\./, "")}-0${offsetIdx + 1}`;
+          fleetNumber = `KWK-${1000 + lineIdx * 25 + offsetIdx * 4}`;
+          licensePlate = `B ${1000 + lineIdx * 25 + offsetIdx * 4} TQN`;
+          depotHome = "Pool KWK / Kencana MikroTrans";
+          operatorName = "JakLingko (Koperasi Wahana Kalpika)";
+        } else if (line.mode === "AKAP_INTERCITY_BUS") {
+          runNumber = `AKAP-${line.code}-0${offsetIdx + 1}`;
+          fleetNumber = `BUS-AKAP-${200 + lineIdx * 10 + offsetIdx * 3}`;
+          licensePlate = `B ${7200 + lineIdx * 15 + offsetIdx * 2} SGA`;
+          depotHome = "Terminal Terpadu Pulo Gebang / Kp. Rambutan";
+          operatorName = "PO Sinar Jaya / Rosalia Indah / Harapan Jaya";
+        } else if (line.mode === "EXECUTIVE_SHUTTLE") {
+          runNumber = `SHT-${line.code}-0${offsetIdx + 1}`;
+          fleetNumber = `SHUTTLE-HIACE-${10 + lineIdx * 5 + offsetIdx}`;
+          licensePlate = `D ${1400 + lineIdx * 20 + offsetIdx * 4} DTR`;
+          depotHome = "Pool fX Sudirman / Blora Dukuh Atas";
+          operatorName = "DayTrans / CitiTrans Executive Travel";
+        } else {
+          // Standard TransJakarta BRT & Feeder
+          runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
+          fleetNumber = `TJ-${700 + lineIdx * 10 + offsetIdx * 4}`;
+          licensePlate = `B ${7000 + lineIdx * 20 + offsetIdx * 4} TJK`;
+          depotHome = "Pool TransJakarta Cawang / Pinang Ranti";
+          operatorName = "PT Transportasi Jakarta";
+        }
+      } else if (line.category === "AVIATION") {
+        runNumber = `GA-${400 + lineIdx * 20 + offsetIdx * 2}`;
+        fleetNumber = "PK-GFA (Boeing 777-300ER)";
+        depotHome = "Terminal 3 Soekarno-Hatta (CGK)";
+        operatorName = "Garuda Indonesia / Citilink";
+      } else if (line.category === "MARITIME") {
+        runNumber = line.mode === "MARITIME_PELNI" ? `PELNI-${offsetIdx + 1}` : `BOAT-${offsetIdx + 1}`;
+        fleetNumber = line.mode === "MARITIME_PELNI" ? "KM Kelud (14.665 GT)" : "Speedboat Marina Express 08";
+        depotHome = line.mode === "MARITIME_PELNI" ? "Pelabuhan Tanjung Priok" : "Dermaga Muara Angke / Marina Ancol";
+        operatorName = line.mode === "MARITIME_PELNI" ? "PT PELNI (Persero)" : "Dinas Perhubungan DKI Jakarta";
       }
 
       departures.push({
@@ -484,7 +577,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
               Layanan:
             </span>
             {connectedLines.map((line) => {
-              const meta = getStandardizedModeMeta(line.mode, line.code);
+              const meta = getStandardizedModeMeta(line.mode, line.code, line.id, allLines);
               return (
                 <span
                   key={line.id}
@@ -614,7 +707,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                   </div>
                 ) : (
                   filteredDepartures.map((item, idx) => {
-                    const meta = getStandardizedModeMeta(item.mode, item.lineCode);
+                    const meta = getStandardizedModeMeta(item.mode, item.lineCode, undefined, allLines);
                     const ModeIcon = meta.icon;
                     const isExpanded = expandedTripId === item.tripId;
 

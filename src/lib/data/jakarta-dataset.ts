@@ -1565,7 +1565,7 @@ export const TRANSIT_LINES: Line[] = [
     name: "TransJakarta Koridor 14 (JIS - Senen Raya)",
     category: "BUS",
     mode: "TRANSJAKARTA_BRT",
-    colorHex: "#1B75BC",
+    colorHex: "#E87722",
     textColorHex: "#FFFFFF",
     fareType: "FLAT",
     baseFareRp: 3500,
