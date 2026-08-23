@@ -165,7 +165,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
   });
 
   describe("4. VehicleDetailSheet Component", () => {
-    it("renders overview telemetry and switches between tabs", () => {
+    it("renders overview telemetry, trainset & run details, and switches between tabs", () => {
       const mrtVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "MRT_JAKARTA")!;
       const onCloseMock = vi.fn();
 
@@ -176,6 +176,14 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(screen.getByText(/Kecepatan/i)).toBeInTheDocument();
       expect(screen.getByText(/Arah Kompas/i)).toBeInTheDocument();
       expect(screen.getByText(/Kepadatan Penumpang/i)).toBeInTheDocument();
+
+      // Verify trainset, run number, formation, and depot details
+      expect(screen.getByText(/Informasi Dinas & Rangkaian KA/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/M-101/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/TS-01/i)[0]).toBeInTheDocument();
+      expect(screen.getByText(/16 Trainset/i)).toBeInTheDocument();
+      expect(screen.getByText(/6 Kereta \(4M2T\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Depo MRT Lebak Bulus/i)).toBeInTheDocument();
 
       // Switch to Tech Specs tab
       const specsTab = screen.getByRole("button", { name: /Spesifikasi & Dimensi/i });
@@ -195,7 +203,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
   });
 
   describe("5. HubDetailSheet Component", () => {
-    it("renders real-time departure boards for Dukuh Atas TOD Hub", () => {
+    it("renders real-time departure boards with authentic run numbers and trainset codes", () => {
       const dukuhAtasStop = TRANSIT_STOPS.find((s) => s.id.includes("dka") || s.name.includes("Dukuh Atas"))!;
       expect(dukuhAtasStop).toBeDefined();
 
@@ -204,6 +212,15 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       expect(screen.getByText(/Stasiun Dukuh Atas BNI/i)).toBeInTheDocument();
       expect(screen.getByText(/Jadwal Keberangkatan/i)).toBeInTheDocument();
+
+      // Check departure item expansion and trainset/run details
+      const departureButtons = screen.getAllByRole("button");
+      const firstDeparture = departureButtons.find((btn) => btn.textContent?.includes("Est:"));
+      expect(firstDeparture).toBeDefined();
+      if (firstDeparture) {
+        fireEvent.click(firstDeparture);
+        expect(screen.getByText(/Lacak di Peta/i)).toBeInTheDocument();
+      }
 
       // Check facilities tab
       const facilitiesTab = screen.getByRole("button", { name: /Fasilitas & Aksesibilitas/i });

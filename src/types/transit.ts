@@ -233,6 +233,16 @@ export interface Vehicle {
   currentSegmentIndex: number;
   nextStopId: string;
   nextStopEtaSeconds: number;
+  // Trainset & Run Specifications
+  runNumber?: string;
+  trainsetNumber?: string;
+  totalTrainsets?: number;
+  carFormation?: string;
+  depotHome?: string;
+  fleetNumber?: string;
+  busRunNumber?: string;
+  licensePlate?: string;
+  operatorName?: string;
   technicalSpec?: TechnicalSpec;
   seatingDiagram?: SeatingDiagram;
   photos?: PhotoGalleryItem[];
@@ -297,6 +307,16 @@ export interface DepartureBoardItem {
   status: "ON_TIME" | "DELAYED" | "BOARDING" | "DEPARTED";
   platform: string;
   crowdLevel: CrowdDensityLevel;
+  // Dynamic Run & Trainset Identifiers
+  runNumber?: string;
+  trainsetNumber?: string;
+  totalTrainsets?: number;
+  carFormation?: string;
+  vehicleCode?: string;
+  fleetNumber?: string;
+  licensePlate?: string;
+  operatorName?: string;
+  depotHome?: string;
 }
 
 export interface IntermodalSkybridgeTransfer {

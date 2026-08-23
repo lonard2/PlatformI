@@ -192,6 +192,76 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
         "LEVEL_3_STANDING_ONLY",
       ];
 
+      // Dynamic Trainset & Run Number calculation based on mode
+      let runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
+      let trainsetNumber: string | undefined = undefined;
+      let totalTrainsets: number | undefined = undefined;
+      let carFormation: string | undefined = undefined;
+      let depotHome: string | undefined = undefined;
+      let fleetNumber: string | undefined = undefined;
+      let licensePlate: string | undefined = undefined;
+      let operatorName: string | undefined = undefined;
+
+      if (line.category === "RAIL") {
+        if (line.mode === "MRT_JAKARTA") {
+          runNumber = `M-${101 + offsetIdx * 2 + lineIdx}`;
+          trainsetNumber = `TS-0${(offsetIdx % 16) + 1}`;
+          totalTrainsets = 16;
+          carFormation = "6 Kereta (4M2T)";
+          depotHome = "Depo MRT Lebak Bulus";
+          operatorName = "PT MRT Jakarta (Perseroda)";
+        } else if (line.mode === "WHOOSH_HSR") {
+          runNumber = `G10${12 + offsetIdx * 4}`;
+          trainsetNumber = `CR400AF-220${(offsetIdx % 11) + 1}`;
+          totalTrainsets = 11;
+          carFormation = "8 Kereta High-Speed (4M4T)";
+          depotHome = "Depo KCIC Tegalluar, Bandung";
+          operatorName = "PT Kereta Cepat Indonesia China (KCIC)";
+        } else if (line.mode === "LRT_JABODEBEK_CIBUBUR" || line.mode === "LRT_JABODEBEK_BEKASI") {
+          const isBekasi = line.mode === "LRT_JABODEBEK_BEKASI";
+          runNumber = isBekasi ? `BK-${301 + offsetIdx * 3}` : `CB-${201 + offsetIdx * 3}`;
+          trainsetNumber = `TS-0${(offsetIdx % 31) + 8}`;
+          totalTrainsets = 31;
+          carFormation = "6 Kereta Articulated GoA3 (4M2T)";
+          depotHome = "Depo LRT Jabodebek Jatimulya, Bekasi";
+          operatorName = "PT Kereta Api Indonesia (LRT Jabodebek)";
+        } else if (line.mode === "LRT_JAKARTA") {
+          runNumber = `S-${101 + offsetIdx * 2}`;
+          trainsetNumber = `TS-0${(offsetIdx % 8) + 1}`;
+          totalTrainsets = 8;
+          carFormation = "2 Kereta Light Rail (1M1T)";
+          depotHome = "Depo LRT Pegangsaan Dua, Kelapa Gading";
+          operatorName = "PT LRT Jakarta (Jakpro Group)";
+        } else if (line.mode.startsWith("KRL_")) {
+          runNumber = `KA-${2040 + offsetIdx * 4 + lineIdx}`;
+          trainsetNumber = `SF12-JR205-C0${(offsetIdx % 10) + 1}`;
+          totalTrainsets = 120;
+          carFormation = "12 Kereta Stainless Steel (6M6T)";
+          depotHome = "Depo KRL Bukit Duri / Manggarai";
+          operatorName = "PT Kereta Commuter Indonesia (KAI Commuter)";
+        } else if (line.mode === "KAI_BANDARA") {
+          runNumber = `A-${10 + offsetIdx * 2}`;
+          trainsetNumber = `EA203-0${(offsetIdx % 10) + 1}`;
+          totalTrainsets = 10;
+          carFormation = "6 Kereta Airport Express";
+          depotHome = "Depo Manggarai";
+          operatorName = "PT KAI Bandara (Railink)";
+        } else if (line.mode === "KAI_INTERCITY") {
+          runNumber = `KA-${1 + offsetIdx * 2}`;
+          trainsetNumber = `CC206-13-42 / K1-NewGen`;
+          totalTrainsets = 30;
+          carFormation = "9 Kereta Eksekutif New Gen + 1 Luxury + 1 Pembangkit";
+          depotHome = "Depo Kereta Cipinang, Jakarta Timur";
+          operatorName = "PT Kereta Api Indonesia (Persero)";
+        }
+      } else if (line.category === "BUS") {
+        runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
+        fleetNumber = `TJ-${700 + lineIdx * 10 + offsetIdx * 4}`;
+        licensePlate = `B ${7000 + lineIdx * 20 + offsetIdx * 4} TJK`;
+        depotHome = "Pool TransJakarta Cawang / Pinang Ranti";
+        operatorName = "PT Transportasi Jakarta";
+      }
+
       departures.push({
         tripId: `trip-${line.id}-${offsetIdx}`,
         lineCode: line.code,
@@ -203,6 +273,15 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
         status,
         platform: platformStr,
         crowdLevel: crowdLevels[(lineIdx + offsetIdx) % crowdLevels.length],
+        runNumber,
+        trainsetNumber,
+        totalTrainsets,
+        carFormation,
+        depotHome,
+        fleetNumber,
+        licensePlate,
+        operatorName,
+        vehicleCode: trainsetNumber || fleetNumber || line.code,
       });
     });
   });
@@ -589,7 +668,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                             </div>
 
                             <div className="space-y-1 min-w-0">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span
                                   className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold shrink-0"
                                   style={{
@@ -600,6 +679,11 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                 >
                                   {item.lineCode}
                                 </span>
+                                {item.runNumber && (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 shrink-0">
+                                    {item.runNumber}
+                                  </span>
+                                )}
                                 <span className="text-xs font-bold text-white tracking-tight truncate">
                                   {item.destination}
                                 </span>
@@ -609,6 +693,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                 <span className="text-slate-300 font-semibold">{item.platform}</span>
                                 <span>&bull;</span>
                                 <span>Est: <strong className="text-cyan-300">{item.estimatedTime} WIB</strong></span>
+                                {item.trainsetNumber && (
+                                  <>
+                                    <span>&bull;</span>
+                                    <span className="text-slate-400 hidden sm:inline">{item.trainsetNumber}</span>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -626,7 +716,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                           </div>
                         </button>
 
-                        {/* Expandable Live Vehicle & Route Detail Drawer */}
+                        {/* Expandable Live Vehicle, Timetable & Run Detail Drawer */}
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div
@@ -634,17 +724,73 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="px-3.5 pb-3.5 pt-1 border-t border-white/10 bg-slate-950/80 space-y-2.5 text-xs font-mono"
+                              className="px-3.5 pb-3.5 pt-1 border-t border-white/10 bg-slate-950/90 space-y-2.5 text-xs font-mono"
                             >
-                              <div className="grid grid-cols-2 gap-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-                                <div>
-                                  <span className="text-[10px] text-slate-400">Armada Beroperasi:</span>
-                                  <div className="text-slate-200 font-bold truncate">
-                                    {matchedVehicle ? matchedVehicle.name : `${meta.name} Active Fleet`}
+                              {/* Run & Trainset Specifics Grid */}
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-[11px]">
+                                {item.runNumber && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">
+                                      {item.mode.includes("MRT") || item.mode.includes("LRT") || item.mode.includes("KRL") || item.mode.includes("WHOOSH") || item.mode.includes("INTERCITY")
+                                        ? "Nomor Perjalanan (KA):"
+                                        : "Nomor Dinas (Rit):"}
+                                    </span>
+                                    <span className="text-cyan-300 font-bold">{item.runNumber}</span>
                                   </div>
+                                )}
+
+                                {item.trainsetNumber && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">Nomor Rangkaian:</span>
+                                    <span className="text-white font-bold">{item.trainsetNumber}</span>
+                                  </div>
+                                )}
+
+                                {item.totalTrainsets && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">Total Armada Jalur:</span>
+                                    <span className="text-emerald-400 font-bold">{item.totalTrainsets} Trainset</span>
+                                  </div>
+                                )}
+
+                                {item.carFormation && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">Formasi Gerbong (SF):</span>
+                                    <span className="text-slate-200 font-bold truncate block">{item.carFormation}</span>
+                                  </div>
+                                )}
+
+                                {item.fleetNumber && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">Nomor Bodi / Lambung:</span>
+                                    <span className="text-white font-bold">{item.fleetNumber}</span>
+                                  </div>
+                                )}
+
+                                {item.licensePlate && (
+                                  <div>
+                                    <span className="text-[10px] text-slate-400 block">Plat Polisi:</span>
+                                    <span className="text-amber-300 font-bold">{item.licensePlate}</span>
+                                  </div>
+                                )}
+
+                                {item.depotHome && (
+                                  <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex items-center justify-between">
+                                    <span className="text-[10px] text-slate-400">Depo / Pool Operasi:</span>
+                                    <span className="text-slate-300 font-bold">{item.depotHome}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                                <div>
+                                  <span className="text-[10px] text-slate-400 block">Status Operasional:</span>
+                                  <span className="text-slate-200 font-bold truncate">
+                                    {matchedVehicle ? matchedVehicle.name : `${meta.name} Active Unit`}
+                                  </span>
                                 </div>
                                 <div>
-                                  <span className="text-[10px] text-slate-400">Kepadatan Penumpang:</span>
+                                  <span className="text-[10px] text-slate-400 block">Kepadatan Penumpang:</span>
                                   <div className="text-emerald-400 font-bold flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                                     <span>{matchedVehicle ? matchedVehicle.crowdLevel.replace(/LEVEL_\d_/, "") : "Tersedia Tempat Duduk"}</span>

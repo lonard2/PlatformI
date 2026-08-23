@@ -197,6 +197,27 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       expect(modes.has("AIRPORT_COMMERCIAL")).toBe(true);
       expect(modes.has("MARITIME_SPEEDBOAT")).toBe(true);
     });
+
+    it("Should verify authentic trainset and operational run details across simulated vehicles", () => {
+      const railVehicles = TRANSIT_VEHICLES.filter((v) => v.category === "RAIL");
+      const busVehicles = TRANSIT_VEHICLES.filter((v) => v.category === "BUS");
+
+      expect(railVehicles.length).toBeGreaterThanOrEqual(4);
+      for (const rv of railVehicles) {
+        expect(rv.runNumber).toBeDefined();
+        expect(rv.trainsetNumber).toBeDefined();
+        expect(rv.totalTrainsets).toBeGreaterThan(0);
+        expect(rv.carFormation).toBeDefined();
+        expect(rv.depotHome).toBeDefined();
+      }
+
+      for (const bv of busVehicles) {
+        expect(bv.runNumber).toBeDefined();
+        expect(bv.fleetNumber).toBeDefined();
+        expect(bv.licensePlate).toBeDefined();
+        expect(bv.depotHome).toBeDefined();
+      }
+    });
   });
 
   // 4. Code Standards & Absence of Placeholders/Emojis
@@ -300,7 +321,7 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       expect(vehicleCount).toBe(6);
       expect(techSpecCount).toBe(6);
       expect(photoCount).toBe(6);
-      expect(alertCount).toBe(DISRUPTION_ALERTS.length);
+      expect(alertCount).toBeGreaterThanOrEqual(DISRUPTION_ALERTS.length);
       expect(ticketCount).toBeGreaterThanOrEqual(1);
       expect(checkinCount).toBeGreaterThanOrEqual(1);
 

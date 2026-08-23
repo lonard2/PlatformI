@@ -2358,6 +2358,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 7,
     nextStopId: "stop-mrt-sny",
     nextStopEtaSeconds: 45,
+    runNumber: "M-101",
+    trainsetNumber: "TS-01",
+    totalTrainsets: 16,
+    carFormation: "6 Kereta (4M2T)",
+    depotHome: "Depo MRT Lebak Bulus",
+    operatorName: "PT MRT Jakarta (Perseroda)",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-mrt-ts01"),
     photos: [
       {
@@ -2392,6 +2398,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-whoosh-pdl",
     nextStopEtaSeconds: 680,
+    runNumber: "G1012",
+    trainsetNumber: "CR400AF-2201",
+    totalTrainsets: 11,
+    carFormation: "8 Kereta High-Speed (4M4T)",
+    depotHome: "Depo KCIC Tegalluar, Bandung",
+    operatorName: "PT Kereta Cepat Indonesia China (KCIC)",
     seatingDiagram: generateSuperExec21Seats("veh-whoosh-2201"),
     photos: [
       {
@@ -2426,6 +2438,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-akap-pgb",
     nextStopEtaSeconds: 320,
+    runNumber: "RI-08",
+    fleetNumber: "RI-112",
+    busRunNumber: "RI-08 (Jakarta - Solo - Madiun)",
+    licensePlate: "AD 7112 RI",
+    depotHome: "Pool Rosalia Indah Palur, Solo",
+    operatorName: "PT Rosalia Indah Transport",
     seatingDiagram: generateSleeper111Seats("veh-rosalia-dd112"),
     photos: [
       {
@@ -2460,6 +2478,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-shuttle-fx",
     nextStopEtaSeconds: 150,
+    runNumber: "DT-04",
+    fleetNumber: "DT-702",
+    busRunNumber: "DT-04 (fX Sudirman - Dipatiukur Bandung)",
+    licensePlate: "D 7702 DT",
+    depotHome: "Pool DayTrans fX Sudirman",
+    operatorName: "PT Panorama DayTrans",
     seatingDiagram: generateHiAceCaptainSeats("veh-daytrans-hiace07"),
     photos: [
       {
@@ -2494,6 +2518,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 4,
     nextStopId: "stop-mrt-dka",
     nextStopEtaSeconds: 90,
+    runNumber: "1-04",
+    fleetNumber: "TJ-788",
+    busRunNumber: "Rit 04 (Blok M - Kota)",
+    licensePlate: "B 7788 TJK",
+    depotHome: "Pool TransJakarta Cawang",
+    operatorName: "PT Transportasi Jakarta (Swakelola)",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-brt-042"),
     photos: [
       {
@@ -2528,6 +2558,11 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-maritime-angke",
     nextStopEtaSeconds: 1200,
+    runNumber: "SB-02",
+    fleetNumber: "EXP-08",
+    licensePlate: "REG-DISHUB-08",
+    depotHome: "Dermaga Muara Angke",
+    operatorName: "UP Angkutan Perairan Dishub DKI Jakarta",
     seatingDiagram: generateExecutive22Seats("veh-boat-express03"),
     photos: [
       {
@@ -2562,6 +2597,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 3,
     nextStopId: "stop-krl-mri",
     nextStopEtaSeconds: 180,
+    runNumber: "KA-2044",
+    trainsetNumber: "SF12-JR205-C08",
+    totalTrainsets: 120,
+    carFormation: "12 Kereta Stainless Steel (6M6T)",
+    depotHome: "Depo KRL Bukit Duri / Manggarai",
+    operatorName: "PT Kereta Commuter Indonesia (KAI Commuter)",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-krl-cik-205"),
     photos: [
       {
@@ -2596,6 +2637,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 6,
     nextStopId: "stop-lrt-caw",
     nextStopEtaSeconds: 120,
+    runNumber: "CB-208",
+    trainsetNumber: "TS-08",
+    totalTrainsets: 31,
+    carFormation: "6 Kereta Articulated GoA3 (4M2T)",
+    depotHome: "Depo LRT Jabodebek Jatimulya, Bekasi",
+    operatorName: "PT Kereta Api Indonesia (Divisi LRT Jabodebek)",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-lrt-jb-08"),
     photos: [
       {
@@ -2630,6 +2677,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 2,
     nextStopId: "stop-mrt-sny",
     nextStopEtaSeconds: 140,
+    runNumber: "9-12",
+    fleetNumber: "MYS-17024",
+    busRunNumber: "Rit 12 (Pinang Ranti - Pluit)",
+    licensePlate: "B 1024 MYS",
+    depotHome: "Pool Mayasari Bakti Klender",
+    operatorName: "PT Mayasari Bakti (Operator Koridor 9)",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-cor9-108"),
     photos: [
       {
@@ -2664,6 +2717,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 2,
     nextStopId: "stop-kai-gmr",
     nextStopEtaSeconds: 400,
+    runNumber: "KA-1",
+    trainsetNumber: "CC206-13-42 / K1-NewGen",
+    totalTrainsets: 30,
+    carFormation: "9 Kereta Eksekutif New Gen + 1 Luxury + 1 Makan + 1 Pembangkit",
+    depotHome: "Depo Kereta Cipinang, Jakarta Timur",
+    operatorName: "PT Kereta Api Indonesia (Persero) Daop 1 Jakarta",
     seatingDiagram: generateSuperExec21Seats("veh-kai-argo-01"),
     photos: [
       {
@@ -2698,6 +2757,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-kai-pse",
     nextStopEtaSeconds: 110,
+    runNumber: "5-08",
+    fleetNumber: "TJ-1788",
+    busRunNumber: "Rit 08 (Kp. Melayu - Ancol)",
+    licensePlate: "B 1788 TJK",
+    depotHome: "Pool TransJakarta Pinang Ranti",
+    operatorName: "PT Transportasi Jakarta",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-single-1788"),
     photos: [
       {
@@ -2732,6 +2797,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-mrt-bhi",
     nextStopEtaSeconds: 70,
+    runNumber: "1P-06",
+    fleetNumber: "TJ-1693",
+    busRunNumber: "Rit 06 (Senen - Blok M via Sudirman)",
+    licensePlate: "B 1693 TJK",
+    depotHome: "Pool TransJakarta Cawang",
+    operatorName: "PT Transportasi Jakarta",
     seatingDiagram: generateCommuterLongitudinalSeats("veh-tj-feeder-1693"),
     photos: [
       {
@@ -2766,6 +2837,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-krl-tgr",
     nextStopEtaSeconds: 95,
+    runNumber: "J10-05",
+    fleetNumber: "JAK-108",
+    busRunNumber: "Rit 05 (Tanah Abang - Kota via Roxy)",
+    licensePlate: "B 1108 JKT",
+    depotHome: "Pool Koperasi Wahana Kalpika (KWK)",
+    operatorName: "Koperasi Wahana Kalpika (Mitra JakLingko)",
     seatingDiagram: generateHiAceCaptainSeats("veh-tj-mikro-108"),
     photos: [
       {
@@ -2800,6 +2877,12 @@ export const SIMULATED_VEHICLES: Vehicle[] = [
     currentSegmentIndex: 1,
     nextStopId: "stop-mrt-bhi",
     nextStopEtaSeconds: 160,
+    runNumber: "BW2-01",
+    fleetNumber: "BW-005",
+    busRunNumber: "Tour 01 (Monas Explorer Tingkat)",
+    licensePlate: "B 7005 TJK",
+    depotHome: "Pool TransJakarta Cawang",
+    operatorName: "PT Transportasi Jakarta (Divisi Wisata)",
     seatingDiagram: generateExecutive22Seats("veh-tj-wisata-005"),
     photos: [
       {
