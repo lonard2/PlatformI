@@ -220,7 +220,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsPurchaseModalOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold shadow-sm flex items-center gap-1.5 btn-tactile transition"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t.ticketing.purchaseTicket}</span>
@@ -230,7 +230,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
             <button
               onClick={onClose}
               aria-label={t.common.close}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 btn-tactile transition"
             >
               <X className="w-4 h-4" />
             </button>
@@ -366,7 +366,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                       <button
                         onClick={() => handleGateScan("TAP_IN")}
                         disabled={isValidatingGate || activeTicket.status === "IN_JOURNEY"}
-                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -381,7 +381,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                       <button
                         onClick={() => handleGateScan("TAP_OUT")}
                         disabled={isValidatingGate || activeTicket.status !== "IN_JOURNEY"}
-                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />

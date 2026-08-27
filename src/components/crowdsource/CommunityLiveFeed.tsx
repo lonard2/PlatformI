@@ -168,7 +168,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
 
           <button
             onClick={() => onOpenCheckIn()}
-            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-md shadow-cyan-600/20 flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold shadow-sm flex items-center gap-1.5 btn-tactile transition"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t.crowdsource.checkInTitle}</span>

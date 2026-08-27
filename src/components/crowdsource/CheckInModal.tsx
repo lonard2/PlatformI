@@ -182,8 +182,6 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
     return () => clearInterval(interval);
   }, [cooldownSeconds]);
 
-  if (!isOpen) return null;
-
   const currentVehicle = simulatedVehicles.find((v) => v.id === targetVehicleId);
 
   const handleSubmit = async () => {
@@ -263,9 +261,9 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             onKeyDown={handleKeyDown}
           >
             {/* Modal Header */}
-            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-cyan-950/40 shrink-0">
+            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
               <Users className="w-4 h-4" />
             </div>
             <div>
@@ -283,7 +281,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 btn-tactile transition-colors"
             aria-label={t.common.close}
           >
             <X className="w-5 h-5" />
@@ -473,7 +471,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-800 btn-tactile transition"
             >
               {t.common.cancel}
             </button>
@@ -481,7 +479,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || cooldownSeconds > 0}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-600/30 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold shadow-md flex items-center gap-2 btn-tactile disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {isSubmitting ? (
                 <>

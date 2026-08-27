@@ -432,8 +432,8 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             {/* 1. MAIN HEADER & LANGUAGE SWITCHER */}
             <div className="px-5 py-4 border-b border-white/10 bg-[#0c1222] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
-                  <Activity className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+                  <Activity className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">

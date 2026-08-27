@@ -76,9 +76,9 @@ export default function Home() {
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
       <header className="hidden sm:flex h-13 sm:h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
         {/* Left Brand */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center border border-cyan-400/30">
-            <Train className="w-3.5 h-3.5 text-white" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-cyan-500/15 flex items-center justify-center border border-cyan-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+            <Train className="w-3.5 h-3.5 text-cyan-300" />
           </div>
           <h1 className="text-base font-bold tracking-tight text-white">
             PlatformI
@@ -89,7 +89,7 @@ export default function Home() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setIsStatusDrawerOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile transition"
           >
             <Activity className="w-3.5 h-3.5 text-emerald-400" />
             <span className="hidden sm:inline">{allLines.length} {t.navigation.activeLines}</span>
@@ -97,9 +97,9 @@ export default function Home() {
 
           <button
             onClick={() => setIsAIModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-500 hover:to-blue-500 text-white border border-cyan-400/40 text-xs font-semibold transition"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile transition"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-200" />
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.navigation.aiAdvisor}</span>
           </button>
 
@@ -107,7 +107,7 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "crowdsource" ? null : "crowdsource")
             }
-            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
+            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "crowdsource"
                 ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -121,7 +121,7 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "tickets" ? null : "tickets")
             }
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "tickets"
                 ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -134,7 +134,7 @@ export default function Home() {
           <button
             onClick={() => setIsSettingsModalOpen(true)}
             aria-label={t.navigation.settings}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 transition"
+            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />
           </button>
@@ -161,7 +161,7 @@ export default function Home() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="glass-panel rounded-xl p-3 w-72 sm:w-80 shadow-2xl shadow-black/50 space-y-2"
+                className="glass-panel rounded-2xl p-3.5 w-72 sm:w-80 shadow-2xl shadow-black/60 space-y-2.5"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default function Home() {
                       placeholder={t.common.origin}
                       value={journeyOrigin}
                       onChange={(e) => setJourneyOrigin(e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
                     />
                   </div>
                   <div className="relative">
@@ -203,7 +203,7 @@ export default function Home() {
                       placeholder={t.common.destination}
                       value={journeyDest}
                       onChange={(e) => setJourneyDest(e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
                     />
                   </div>
                 </div>
@@ -214,9 +214,9 @@ export default function Home() {
                     setIsJourneyExpanded(false);
                     setJourneyNotice(true);
                   }}
-                  className="w-full py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  <Search className="w-3.5 h-3.5" />
+                  <Search className="w-3.5 h-3.5 text-slate-950" />
                   <span>{t.common.findRoute}</span>
                 </button>
               </motion.div>
@@ -228,7 +228,7 @@ export default function Home() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={() => setIsJourneyExpanded(true)}
-                className="glass-panel rounded-full px-3 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 transition-all cursor-pointer"
+                className="glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 btn-tactile transition-all cursor-pointer"
               >
                 <Search className="w-4 h-4 text-cyan-400" />
                 <span className="text-xs font-medium text-slate-300 hidden sm:inline">

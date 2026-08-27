@@ -248,9 +248,9 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-blue-950/40 shrink-0">
+            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center text-blue-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
               <TicketIcon className="w-4 h-4" />
             </div>
             <div>
@@ -269,7 +269,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 btn-tactile transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -313,7 +313,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
               <div className="pt-2 flex justify-center gap-3">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition"
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md btn-tactile transition"
                 >
                   {t.ticketing.passWallet}
                 </button>
@@ -437,7 +437,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("JAKLINGKO_CARD")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 ${
+                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
                       paymentMethod === "JAKLINGKO_CARD"
                         ? "bg-emerald-950/80 border-emerald-400 shadow-md shadow-emerald-950/50"
                         : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
@@ -450,7 +450,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("QRIS")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 ${
+                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
                       paymentMethod === "QRIS"
                         ? "bg-cyan-950/80 border-cyan-400 shadow-md shadow-cyan-950/50"
                         : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
@@ -463,7 +463,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("E_WALLET")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 ${
+                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
                       paymentMethod === "E_WALLET"
                         ? "bg-blue-950/80 border-blue-400 shadow-md shadow-blue-950/50"
                         : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
@@ -484,7 +484,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
             <button
               onClick={onClose}
               disabled={isPurchasing}
-              className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-xl border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-800 btn-tactile transition"
             >
               {t.common.cancel}
             </button>
@@ -492,7 +492,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
             <button
               onClick={handlePurchase}
               disabled={isPurchasing}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition disabled:opacity-50"
+              className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold shadow-md flex items-center gap-2 btn-tactile transition disabled:opacity-50"
             >
               {isPurchasing ? (
                 <>

@@ -121,8 +121,6 @@ You can ask me anything about:
     [onClose]
   );
 
-  if (!isOpen) return null;
-
   const currentModelConfig =
     SUPPORTED_AI_MODELS.find((m) => m.id === selectedModel) || SUPPORTED_AI_MODELS[0];
 
@@ -262,8 +260,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             {/* 1. MODAL HEADER */}
             <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between bg-slate-900/80 backdrop-blur-sm shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/15 flex items-center justify-center border border-cyan-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+              <Sparkles className="w-4 h-4 text-cyan-300" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -284,14 +282,14 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             <button
               onClick={handleResetChat}
               title={t.common.refresh}
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 transition"
+              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 btn-tactile transition"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
               aria-label={t.common.close}
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 transition"
+              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 btn-tactile transition"
             >
               <X className="w-4 h-4" />
             </button>
@@ -308,7 +306,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             <div className="relative">
               <button
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/30 text-xs text-cyan-300 font-medium hover:border-cyan-400 transition"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/30 text-xs text-cyan-300 font-medium hover:border-cyan-400 btn-tactile transition"
               >
                 <span>{currentModelConfig.name}</span>
                 <span className="text-[10px] text-slate-400 font-mono">({currentModelConfig.provider})</span>
@@ -365,7 +363,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
               key={sug.id}
               onClick={() => handleSendMessage(sug.prompt)}
               disabled={isLoading}
-              className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 hover:text-cyan-300 text-slate-300 whitespace-nowrap transition shrink-0"
+              className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 hover:text-cyan-300 text-slate-300 whitespace-nowrap btn-tactile transition shrink-0"
             >
               {sug.label}
             </button>
@@ -383,15 +381,15 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                 className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
               >
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shrink-0 border border-cyan-400/30 shadow-md">
-                    <Bot className="w-3.5 h-3.5 text-white" />
+                  <div className="w-7 h-7 rounded-lg bg-slate-800 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                    <Bot className="w-3.5 h-3.5 text-cyan-300" />
                   </div>
                 )}
 
                 <div
                   className={`max-w-[88%] sm:max-w-[82%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed ${
                     isUser
-                      ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-cyan-950/30 rounded-tr-none"
+                      ? "bg-cyan-600 text-white shadow-md rounded-tr-none font-medium"
                       : "bg-slate-900/90 border border-white/10 text-slate-200 shadow-lg rounded-tl-none"
                   }`}
                 >
@@ -439,7 +437,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                                 <button
                                   key={stopId}
                                   onClick={() => handleSelectStopOnMap(stopId)}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-[10px] font-medium text-emerald-300 hover:bg-emerald-900/60 transition"
+                                  className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-[10px] font-medium text-emerald-300 hover:bg-emerald-900/60 btn-tactile transition"
                                 >
                                   <MapPin className="w-2.5 h-2.5" />
                                   <span>{stop.name}</span>
@@ -459,7 +457,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                                 <button
                                   key={lineId}
                                   onClick={() => handleSelectLineOnMap(lineId)}
-                                  className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/40 text-[10px] font-medium text-cyan-300 hover:bg-cyan-900/60 transition"
+                                  className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/40 text-[10px] font-medium text-cyan-300 hover:bg-cyan-900/60 btn-tactile transition"
                                 >
                                   <Layers className="w-2.5 h-2.5" />
                                   <span>{line.code}</span>
@@ -473,7 +471,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                       {/* Copy Answer Action */}
                       <button
                         onClick={() => handleCopyContent(msg.id, msg.content)}
-                        className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-200 transition"
+                        className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-slate-200 btn-tactile transition"
                       >
                         {copiedId === msg.id ? (
                           <>
@@ -497,8 +495,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
           {/* Loading Indicator */}
           {isLoading && (
             <div className="flex gap-3 justify-start items-center">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shrink-0 border border-cyan-400/30 shadow-md animate-pulse">
-                <Bot className="w-3.5 h-3.5 text-white" />
+              <div className="w-7 h-7 rounded-lg bg-slate-800 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow-sm animate-pulse">
+                <Bot className="w-3.5 h-3.5 text-cyan-400" />
               </div>
               <div className="bg-slate-900/90 border border-white/10 rounded-2xl rounded-tl-none p-3.5 flex items-center gap-2 text-xs text-cyan-300">
                 <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
@@ -531,7 +529,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             <button
               type="submit"
               disabled={!inputQuery.trim() || isLoading}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-cyan-950/50 flex items-center gap-1.5 transition disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95"
+              className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs sm:text-sm font-bold shadow-md flex items-center gap-1.5 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
