@@ -75,6 +75,21 @@ export interface TranslationDictionary {
     confirm: string;
     success: string;
     error: string;
+    oneTapCheckIn: string;
+    cardinalNorth: string;
+    cardinalNorthEast: string;
+    cardinalEast: string;
+    cardinalSouthEast: string;
+    cardinalSouth: string;
+    cardinalSouthWest: string;
+    cardinalWest: string;
+    cardinalNorthWest: string;
+    speedUnit: string;
+    tapToExpand: string;
+    scrollLeft: string;
+    scrollRight: string;
+    activeOnMap: string;
+    hiddenOnMap: string;
   };
   navigation: {
     systemStatus: string;
@@ -155,6 +170,17 @@ export interface TranslationDictionary {
     deckTitle: string;
     selectedCarriage: string;
     seatLayoutTitle: string;
+    safetySystems: string;
+    historicalNotes: string;
+    frontOfVehicle: string;
+    rearOfVehicle: string;
+    seat: string;
+    occupied: string;
+    available: string;
+    photoGalleryTitle: string;
+    spotterCredit: string;
+    fitScreen: string;
+    scale1to1: string;
   };
   hubInspector: {
     hubTitle: string;
@@ -164,7 +190,9 @@ export interface TranslationDictionary {
     tabSkybridge: string;
     liveDeparturesTitle: string;
     popularDestinations: string;
+    popularDestinationsTitle: string;
     stationFacilities: string;
+    stationFacilitiesTitle: string;
     skybridgeTransfer: string;
     walkingDistance: string;
     walkingTime: string;
@@ -184,6 +212,13 @@ export interface TranslationDictionary {
     ticketVending: string;
     retailCafe: string;
     customerService: string;
+    destinationsPerDay: string;
+    tripDuration: string;
+    available: string;
+    notAvailable: string;
+    inInstallation: string;
+    blindStandard: string;
+    safeGentleSlope: string;
   };
   statusCenter: {
     title: string;
@@ -261,6 +296,17 @@ export interface TranslationDictionary {
     qrisPayment: string;
     balanceRemaining: string;
     gateInstruction: string;
+    selectLine: string;
+    originStation: string;
+    destinationStation: string;
+    totalFareAmount: string;
+    jaklingko3HrCap: string;
+    purchaseSuccess: string;
+    issuedPassNumber: string;
+    routeLabel: string;
+    paidAmount: string;
+    activeReadyTap: string;
+    proceedPayment: string;
   };
   crowdsource: {
     liveFeedTitle: string;
@@ -316,6 +362,18 @@ export interface TranslationDictionary {
     adminPortal: string;
     adminPortalDesc: string;
     networkDiagnostics: string;
+    themeAndAppearance: string;
+    mapTileLayer: string;
+    simulationEngineSpeed: string;
+    defaultAiModel: string;
+    accessibilityAndSound: string;
+    highContrast: string;
+    highContrastDesc: string;
+    reducedMotion: string;
+    reducedMotionDesc: string;
+    audioFeedback: string;
+    audioFeedbackDesc: string;
+    resetDefaults: string;
   };
   preferences: {
     title: string;
@@ -328,6 +386,19 @@ export interface TranslationDictionary {
     savePreferences: string;
     selectAll: string;
     clearAll: string;
+    routingPriority: string;
+    fastestRoute: string;
+    fastestRouteDesc: string;
+    cheapestFare: string;
+    cheapestFareDesc: string;
+    leastTransfers: string;
+    leastTransfersDesc: string;
+    wheelchairAccessible: string;
+    wheelchairAccessibleDesc: string;
+    alertNotifications: string;
+    criticalOnly: string;
+    allBulletins: string;
+    muted: string;
   };
   skybridge: {
     elevation: string;
