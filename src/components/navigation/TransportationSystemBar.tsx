@@ -953,7 +953,7 @@ export function TransportationSystemBar() {
                       }`}
                     >
                       <span>{lang.nativeName}</span>
-                      <span className="text-[9px] font-mono opacity-60 uppercase">
+                      <span className="text-[10px] font-mono opacity-60 uppercase">
                         {lang.flagLabel}
                       </span>
                     </button>
@@ -1086,7 +1086,7 @@ export function TransportationSystemBar() {
 
                               {/* Standardized Route / System Badge */}
                               <span
-                                className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0 hidden sm:inline-block"
+                                className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shrink-0 hidden sm:inline-block"
                                 style={{
                                   backgroundColor: `${item.brandColor}25`,
                                   color: item.brandColor,
@@ -1117,11 +1117,11 @@ export function TransportationSystemBar() {
                               />
 
                               {item.type === "building_hub" ? (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
                                   HUB
                                 </span>
                               ) : (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
                                   {item.corridorsOrBuildings.length}
                                 </span>
                               )}
@@ -1184,18 +1184,18 @@ export function TransportationSystemBar() {
                 <h4 className="text-xs font-bold text-white truncate">{hoveredItem.name}</h4>
                 <p className="text-[10px] text-slate-400 font-mono truncate">{hoveredItem.description}</p>
               </div>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
                 {hoveredItem.badgeLabel}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
               <div>
-                <span className="text-slate-400 text-[9px]">Jam Operasi:</span>
+                <span className="text-slate-400 text-[10px]">{t.navigation.serviceHours}:</span>
                 <div className="text-slate-200 font-bold truncate">{hoveredItem.operatingHours}</div>
               </div>
               <div>
-                <span className="text-slate-400 text-[9px]">Status Layanan:</span>
+                 <span className="text-slate-400 text-[10px]">{t.navigation.serviceStatus}:</span>
                 <div className="text-emerald-400 font-bold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="truncate">{hoveredItem.statusReason}</span>
@@ -1204,8 +1204,8 @@ export function TransportationSystemBar() {
             </div>
 
             <div className="flex items-center justify-between text-[10px] text-cyan-400 font-mono pt-0.5">
-              <span>{hoveredItem.corridorsOrBuildings.length} Koridor/Rute</span>
-              <span className="text-slate-400 text-[9px]">Klik untuk buka &rarr;</span>
+               <span>{hoveredItem.corridorsOrBuildings.length} {t.navigation.routeCount}</span>
+               <span className="text-slate-400 text-[10px]">{t.navigation.openDetails} &rarr;</span>
             </div>
           </motion.div>
         )}
@@ -1273,7 +1273,7 @@ export function TransportationSystemBar() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {activeItem.description} &bull; Jam Operasional:{" "}
+                       {activeItem.description} &bull; {t.navigation.serviceHours}:{" "}
                       <strong className="text-slate-200">
                         {activeItem.operatingHours}
                       </strong>
@@ -1335,13 +1335,13 @@ export function TransportationSystemBar() {
                 <div className="flex items-center justify-between gap-3">
                   <h4 className="text-xs font-mono uppercase text-slate-300 font-bold tracking-wider flex items-center gap-1.5">
                     <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>
-                      {activeItem.type === "building_hub"
-                        ? "Daftar Gedung Terminal, Bandara & Pelabuhan Fisik:"
-                        : "Daftar Koridor, Feeder & Rute Layanan:"}
-                    </span>
-                    <span className="text-cyan-400 font-mono">
-                      ({activeItem.corridorsOrBuildings.length} Titik/Rute)
+                     <span>
+                       {activeItem.type === "building_hub"
+                         ? t.navigation.hubListHeading
+                         : t.navigation.routeListHeading}
+                     </span>
+                     <span className="text-cyan-400 font-mono">
+                       ({activeItem.corridorsOrBuildings.length} {t.navigation.locationRouteCount})
                     </span>
                   </h4>
 
@@ -1365,8 +1365,8 @@ export function TransportationSystemBar() {
                   {filteredCorridors.length === 0 && (
                     <div className="col-span-full p-4 text-center text-xs text-slate-500 font-mono">
                       {corridorSearchQuery
-                        ? `${t.common.search}: "${corridorSearchQuery}" - ${t.navigation.searchRoutesAndHubs}`
-                        : t.navigation.searchRoutesAndHubs}
+                        ? `${t.navigation.noMatchingRoutes} (${corridorSearchQuery})`
+                        : t.navigation.noMatchingRoutes}
                     </div>
                   )}
                   {filteredCorridors.map((corridor, idx) => {
