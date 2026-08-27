@@ -63,8 +63,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setTileMenuOpen(!tileMenuOpen)}
+            aria-label={t.settings.basemapStyle}
             className="glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40"
-            title="Basemap Layers"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
             <span className="hidden sm:inline font-mono capitalize">{activeTileLayer}</span>
@@ -73,7 +73,7 @@ export function MapControls({ map }: MapControlsProps) {
           {tileMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 glass-dropdown rounded-xl p-1.5 shadow-2xl border border-white/15 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
-                Cartography Basemap
+                {t.settings.mapTileLayer}
               </div>
               {(Object.keys(TILE_LAYERS) as TileLayerId[]).map((tileId) => {
                 const isCurrent = activeTileLayer === tileId;
@@ -108,19 +108,19 @@ export function MapControls({ map }: MapControlsProps) {
         {/* Simulation Speed Multiplier Controls */}
         <div className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-2xl shadow-black/50 border border-white/15">
           <span className="hidden sm:inline-block px-2 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-            Sim Speed
+            {t.navigation.simulationSpeed}
           </span>
 
           {/* 0x Pause */}
           <button
             type="button"
             onClick={() => setSimulationSpeed(0)}
+            aria-label={t.navigation.paused}
             className={`p-2 rounded-lg text-xs font-mono font-bold transition-all ${
               simulationSpeed === 0
                 ? "bg-amber-950/80 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
-            title="Pause Simulation (0x)"
           >
             <Pause className="w-3.5 h-3.5" />
           </button>
@@ -129,12 +129,12 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(1)}
+            aria-label="Real-Time Cruising Speed (1x)"
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 1
                 ? "bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
-            title="Real-Time Cruising Speed (1x)"
           >
             <Play className="w-3.5 h-3.5" />
             <span>1x</span>
@@ -144,12 +144,12 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(2)}
+            aria-label="Accelerated Movement (2x)"
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 2
                 ? "bg-blue-950/80 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
-            title="Accelerated Movement (2x)"
           >
             <FastForward className="w-3.5 h-3.5" />
             <span>2x</span>
@@ -159,12 +159,12 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(5)}
+            aria-label="High-Speed Schedule Preview (5x)"
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 5
                 ? "bg-rose-950/80 text-rose-300 border border-rose-500/40 shadow-lg shadow-rose-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
-            title="High-Speed Schedule Preview (5x)"
           >
             <Zap className="w-3.5 h-3.5" />
             <span>5x</span>
@@ -176,8 +176,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleZoomIn}
+            aria-label="Zoom In"
             className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
-            title="Zoom In"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -187,8 +187,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleZoomOut}
+            aria-label="Zoom Out"
             className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
-            title="Zoom Out"
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -198,8 +198,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleRecenter}
+            aria-label="Recenter Map to Jakarta Hub"
             className="p-2 rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors"
-            title="Recenter Map to Jakarta Hub"
           >
             <Navigation className="w-4 h-4" />
           </button>

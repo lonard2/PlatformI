@@ -970,8 +970,8 @@ export function TransportationSystemBar() {
         {/* Left Scroll Arrow (Desktop) */}
         <button
           onClick={handleScrollLeft}
-          title="Geser ke kiri"
-          aria-label="Geser ke kiri"
+          title={t.common.scrollLeft}
+          aria-label={t.common.scrollLeft}
           className="hidden md:flex absolute left-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-r from-[#080c16] via-[#080c16]/90 to-transparent text-slate-300 hover:text-white transition"
         >
           <ChevronLeft className="w-5 h-5 drop-shadow" />
@@ -1146,8 +1146,8 @@ export function TransportationSystemBar() {
         {/* Right Scroll Arrow (Desktop) */}
         <button
           onClick={handleScrollRight}
-          title="Geser ke kanan"
-          aria-label="Geser ke kanan"
+          title={t.common.scrollRight}
+          aria-label={t.common.scrollRight}
           className="hidden md:flex absolute right-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-l from-[#080c16] via-[#080c16]/90 to-transparent text-slate-300 hover:text-white transition"
         >
           <ChevronRight className="w-5 h-5 drop-shadow" />
@@ -1295,8 +1295,8 @@ export function TransportationSystemBar() {
                       <Check className="w-3.5 h-3.5" />
                       <span>
                         {selectedModes.includes(activeItem.mode)
-                          ? "Aktif di Peta"
-                          : "Sembunyi"}
+                          ? t.common.activeOnMap
+                          : t.common.hiddenOnMap}
                       </span>
                     </button>
                   )}
@@ -1315,15 +1315,15 @@ export function TransportationSystemBar() {
                       className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50 flex items-center gap-1.5 transition"
                     >
                       <Building2 className="w-3.5 h-3.5" />
-                      <span>Buka Papan Terminal</span>
+                      <span>{t.navigation.openHubBoard}</span>
                     </button>
                   )}
 
                   <button
                     onClick={() => setActiveItemId(null)}
                     className="p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
-                    title="Tutup Panel"
-                    aria-label="Tutup"
+                    title={t.common.close}
+                    aria-label={t.common.close}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -1351,7 +1351,7 @@ export function TransportationSystemBar() {
                       <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
-                        placeholder="Cari nomor/nama rute..."
+                        placeholder={t.navigation.searchRoutesAndHubs}
                         value={corridorSearchQuery}
                         onChange={(e) => setCorridorSearchQuery(e.target.value)}
                         className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-8 pr-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -1362,6 +1362,13 @@ export function TransportationSystemBar() {
 
                 {/* Grid of Corridors / Building Hubs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
+                  {filteredCorridors.length === 0 && (
+                    <div className="col-span-full p-4 text-center text-xs text-slate-500 font-mono">
+                      {corridorSearchQuery
+                        ? `${t.common.search}: "${corridorSearchQuery}" - ${t.navigation.searchRoutesAndHubs}`
+                        : t.navigation.searchRoutesAndHubs}
+                    </div>
+                  )}
                   {filteredCorridors.map((corridor, idx) => {
                     const badgeColor = corridor.badgeColor || activeItem.brandColor;
 
@@ -1394,7 +1401,7 @@ export function TransportationSystemBar() {
                               <span>{corridor.operatingHours}</span>
                               <span>&bull;</span>
                               <span className="text-cyan-400">
-                                {corridor.headwayMinutes} mnt
+                                {corridor.headwayMinutes} {t.common.minutes}
                               </span>
                             </div>
                             <div className="text-emerald-400 font-semibold truncate">
