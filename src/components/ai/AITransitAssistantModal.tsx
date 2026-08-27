@@ -279,7 +279,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
         <div className="px-4 sm:px-6 py-2.5 bg-slate-950/90 border-b border-white/10 flex flex-wrap items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2">
             <Bot className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            <span className="text-xs text-slate-400">Active Model:</span>
+            <span className="text-xs text-slate-400">{t.aiAdvisor.modelSelector}:</span>
 
             {/* Model Dropdown */}
             <div className="relative">

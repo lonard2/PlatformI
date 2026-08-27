@@ -46,55 +46,64 @@ interface VehicleDetailSheetProps {
 
 type TabType = "overview" | "specs" | "seating";
 
-function getHeadingDirection(degrees: number): string {
+function getHeadingDirection(degrees: number, t: any): string {
   const normalized = (degrees % 360 + 360) % 360;
-  const directions = ["U (Utara)", "TL (Timur Laut)", "T (Timur)", "TG (Tenggara)", "S (Selatan)", "BD (Barat Daya)", "B (Barat)", "BL (Barat Laut)"];
+  const directions = [
+    t.common.cardinalNorth,
+    t.common.cardinalNorthEast,
+    t.common.cardinalEast,
+    t.common.cardinalSouthEast,
+    t.common.cardinalSouth,
+    t.common.cardinalSouthWest,
+    t.common.cardinalWest,
+    t.common.cardinalNorthWest,
+  ];
   const index = Math.round(normalized / 45) % 8;
   return directions[index];
 }
 
-function getCrowdBadge(level: CrowdDensityLevel) {
+function getCrowdBadge(level: CrowdDensityLevel, t: any) {
   switch (level) {
     case "LEVEL_1_MANY_SEATS":
       return {
-        label: "Banyak Kursi Kosong",
+        label: t.crowdsource.densitySeatsAvailable,
         color: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30",
       };
     case "LEVEL_2_FEW_SEATS":
       return {
-        label: "Beberapa Kursi Tersedia",
+        label: t.crowdsource.densityFewSeats,
         color: "text-amber-400 bg-amber-950/60 border-amber-500/30",
       };
     case "LEVEL_3_STANDING_ONLY":
       return {
-        label: "Hanya Ruang Berdiri",
+        label: t.crowdsource.densityStandingOnly,
         color: "text-orange-400 bg-orange-950/60 border-orange-500/30",
       };
     case "LEVEL_4_FULL_CRUSH":
       return {
-        label: "Padat Penuh / Jam Sibuk",
+        label: t.crowdsource.densityFullCrowded,
         color: "text-rose-400 bg-rose-950/60 border-rose-500/30",
       };
     default:
       return {
-        label: "Normal",
+        label: t.common.normal,
         color: "text-slate-300 bg-slate-900 border-slate-700",
       };
   }
 }
 
-function getACComfortBadge(ac: ACComfortRating) {
+function getACComfortBadge(ac: ACComfortRating, t: any) {
   switch (ac) {
     case "COLD":
-      return { label: "Sangat Dingin (18-20°C)", color: "text-cyan-300" };
+      return { label: t.crowdsource.acCold, color: "text-cyan-300" };
     case "OPTIMAL":
-      return { label: "Suhu Sejuk Nyaman (22-24°C)", color: "text-emerald-300" };
+      return { label: t.crowdsource.acComfortable, color: "text-emerald-300" };
     case "WARM":
-      return { label: "Cukup Hangat (25-27°C)", color: "text-amber-300" };
+      return { label: t.crowdsource.acWarm, color: "text-amber-300" };
     case "HOT":
-      return { label: "Suhu Meningkat (>28°C)", color: "text-rose-300" };
+      return { label: t.crowdsource.acHot, color: "text-rose-300" };
     default:
-      return { label: "Nyaman", color: "text-slate-300" };
+      return { label: t.common.normal, color: "text-slate-300" };
   }
 }
 
@@ -122,9 +131,9 @@ export function VehicleDetailSheet({
 
   const line = allLines.find((l) => l.id === vehicle.lineId);
   const nextStop = allStops.find((s) => s.id === vehicle.nextStopId);
-  const crowdBadge = getCrowdBadge(vehicle.crowdLevel);
-  const acBadge = getACComfortBadge(vehicle.acComfort);
-  const headingCompass = getHeadingDirection(vehicle.headingDegrees);
+  const crowdBadge = getCrowdBadge(vehicle.crowdLevel, t);
+  const acBadge = getACComfortBadge(vehicle.acComfort, t);
+  const headingCompass = getHeadingDirection(vehicle.headingDegrees, t);
 
   const handleClose = () => {
     if (onClose) {
@@ -195,9 +204,9 @@ export function VehicleDetailSheet({
               {nextStop && (
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
                   <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span className="truncate">Tujuan Halte: <strong className="text-slate-200">{nextStop.name}</strong></span>
+                  <span className="truncate">{t.vehicleInspector.nextStop}: <strong className="text-slate-200">{nextStop.name}</strong></span>
                   <span className="text-cyan-400 font-bold shrink-0">
-                    ({vehicle.nextStopEtaSeconds} dtk)
+                    ({vehicle.nextStopEtaSeconds} {t.common.seconds})
                   </span>
                 </div>
               )}
@@ -273,7 +282,7 @@ export function VehicleDetailSheet({
                       <span className="text-2xl font-black font-mono text-white">
                         {vehicle.speedKmh.toFixed(1)}
                       </span>
-                      <span className="text-xs text-slate-400 font-mono">km/jam</span>
+                      <span className="text-xs text-slate-400 font-mono">{t.common.speedUnit}</span>
                     </div>
                   </div>
 
@@ -303,7 +312,7 @@ export function VehicleDetailSheet({
                     <Users className="w-5 h-5 shrink-0" />
                     <div>
                       <span className="text-[10px] font-mono uppercase tracking-wider block opacity-70">
-                        Kepadatan Penumpang
+                        {t.vehicleInspector.passengerDensity}
                       </span>
                       <strong className="text-xs font-bold leading-tight">
                         {crowdBadge.label}
@@ -369,7 +378,7 @@ export function VehicleDetailSheet({
                     {vehicle.runNumber && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          {vehicle.category === "RAIL" ? "Nomor Perjalanan / KA:" : "Nomor Dinas / Ritase:"}
+                          {vehicle.category === "RAIL" ? "{t.common.runNumber}:" : "{t.common.runNumber}:"}
                         </span>
                         <strong className="text-cyan-300 text-xs font-bold">
                           {vehicle.runNumber}
@@ -381,7 +390,7 @@ export function VehicleDetailSheet({
                     {vehicle.trainsetNumber && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          Nomor Rangkaian (Trainset):
+                          {t.common.trainset}:
                         </span>
                         <strong className="text-white text-xs font-bold">
                           {vehicle.trainsetNumber}
@@ -405,7 +414,7 @@ export function VehicleDetailSheet({
                     {vehicle.carFormation && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          Formasi Rangkaian (SF):
+                          {t.common.formation}:
                         </span>
                         <strong className="text-slate-200 text-xs font-bold truncate block">
                           {vehicle.carFormation}
@@ -417,7 +426,7 @@ export function VehicleDetailSheet({
                     {vehicle.fleetNumber && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          Nomor Bodi / Lambung:
+                          {t.common.fleetNumber}:
                         </span>
                         <strong className="text-white text-xs font-bold">
                           {vehicle.fleetNumber}
@@ -429,7 +438,7 @@ export function VehicleDetailSheet({
                     {vehicle.licensePlate && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          Plat Nomor Polisi:
+                          {t.common.licensePlate}:
                         </span>
                         <strong className="text-amber-300 text-xs font-bold">
                           {vehicle.licensePlate}
@@ -441,7 +450,7 @@ export function VehicleDetailSheet({
                     {vehicle.depotHome && (
                       <div className="col-span-2 p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span className="text-[10px] text-slate-400">
-                          {vehicle.category === "RAIL" ? "Depo Induk & Perawatan:" : "Pool / Pangkalan Operasi:"}
+                          {vehicle.category === "RAIL" ? "{t.common.depot}:" : "Pool / Pangkalan Operasi:"}
                         </span>
                         <strong className="text-slate-200 text-xs font-bold">
                           {vehicle.depotHome}
@@ -454,11 +463,11 @@ export function VehicleDetailSheet({
                 {/* Quick Coachbuilder Summary */}
                 <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-mono text-[11px]">Karoseri / Pabrikan:</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{t.vehicleInspector.coachbuilder}:</span>
                     <strong className="text-white">{vehicle.coachbuilder}</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-mono text-[11px]">Sasis / Rangka:</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{t.vehicleInspector.chassis}:</span>
                     <strong className="text-white truncate max-w-[240px] text-right">
                       {vehicle.chassis}
                     </strong>
@@ -470,9 +479,9 @@ export function VehicleDetailSheet({
                   <div className="flex items-center justify-between text-xs font-bold text-slate-300">
                     <span className="flex items-center gap-1.5">
                       <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                      Galeri Foto & Dokumentasi Lapangan
+                      {t.vehicleInspector.photoGalleryTitle}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">Spotter Transit</span>
+                    <span className="text-[10px] text-slate-400 font-mono">{t.vehicleInspector.spotterCredit}</span>
                   </div>
                   <VehiclePhotoGallery vehicle={vehicle} />
                 </div>

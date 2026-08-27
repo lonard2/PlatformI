@@ -284,29 +284,29 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
               </div>
               <div>
                 <h3 className="text-base font-bold text-emerald-300">
-                  Digital Pass Issued Successfully
+                  {t.ticketing.purchaseSuccess}
                 </h3>
                 <p className="text-xs text-slate-300 mt-1 font-mono">
-                  Pass #{createdTicket.ticketNumber}
+                  {t.ticketing.issuedPassNumber}: #{createdTicket.ticketNumber}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-left space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Route:</span>
+                  <span className="text-slate-400">{t.ticketing.routeLabel}</span>
                   <span className="text-slate-200 font-medium">
                     {originStop?.name || "Origin"} &rarr; {destinationStop?.name || "Destination"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Total Paid:</span>
+                  <span className="text-slate-400">{t.ticketing.paidAmount}</span>
                   <span className="text-emerald-400 font-bold font-mono">
                     {formatRupiah(createdTicket.totalFareRp)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Status:</span>
-                  <span className="text-emerald-400 font-semibold">Active Ready for Tap-In</span>
+                  <span className="text-emerald-400 font-semibold">{t.ticketing.activeReadyTap}</span>
                 </div>
               </div>
 
@@ -315,7 +315,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   onClick={onClose}
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition"
                 >
-                  View in Pass Wallet
+                  {t.ticketing.passWallet}
                 </button>
               </div>
             </div>
@@ -333,7 +333,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-blue-400" />
-                    Select Transit Line / Network
+                    {t.ticketing.selectLine}
                   </span>
                   <span className="text-[10px] text-slate-400">
                     {allLines.length} networks available
@@ -358,7 +358,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                    Origin Station / Stop
+                    {t.ticketing.originStation}
                   </label>
                   <select
                     value={originStopId}
@@ -376,7 +376,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                    Destination Station / Stop
+                    {t.ticketing.destinationStation}
                   </label>
                   <select
                     value={destinationStopId}

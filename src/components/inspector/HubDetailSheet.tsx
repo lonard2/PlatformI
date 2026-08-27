@@ -977,8 +977,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                       </div>
 
                       <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
-                        <span>Durasi: <strong className="text-slate-200">{dest.travelDurationEst}</strong></span>
-                        <span className="text-cyan-400 font-bold">{dest.dailyTripsCount} Keberangkatan/Hari</span>
+                        <span>{t.hubInspector.tripDuration}: <strong className="text-slate-200">{dest.travelDurationEst}</strong></span>
+                        <span className="text-cyan-400 font-bold">{dest.dailyTripsCount} {t.hubInspector.destinationsPerDay}</span>
                       </div>
                     </div>
                   ))}
@@ -992,7 +992,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
                     <Accessibility className="w-4 h-4 text-purple-400" />
-                    <span>Universal Accessibility Standards (A11y)</span>
+                    <span>{t.hubInspector.accessibilityMatrix}</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
@@ -1000,10 +1000,10 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                       <span className="text-slate-300">Lift Penumpang:</span>
                       {stop.accessibleElevator ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Tersedia
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.available}
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-[11px]">Tidak Ada</span>
+                        <span className="text-slate-500 text-[11px]">{t.hubInspector.notAvailable}</span>
                       )}
                     </div>
 
@@ -1011,10 +1011,10 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                       <span className="text-slate-300">Tactile Paving:</span>
                       {stop.tactilePaving ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Standar Tunanetra
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.blindStandard}
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-[11px]">Dalam Pemasangan</span>
+                        <span className="text-slate-500 text-[11px]">{t.hubInspector.inInstallation}</span>
                       )}
                     </div>
 
@@ -1022,7 +1022,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                       <span className="text-slate-300">Ramp Kursi Roda:</span>
                       {stop.wheelchairRamp ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Landai & Aman
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.safeGentleSlope}
                         </span>
                       ) : (
                         <span className="text-slate-500 text-[11px]">Tidak Ada</span>
@@ -1041,7 +1041,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
                     <Building2 className="w-4 h-4 text-cyan-400" />
-                    <span>Fasilitas Stasiun & Integrasi Layanan</span>
+                    <span>{t.hubInspector.stationFacilitiesTitle}</span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">

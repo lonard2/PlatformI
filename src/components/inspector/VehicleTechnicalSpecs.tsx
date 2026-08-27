@@ -559,7 +559,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
         <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-cyan-400">
             <Wrench className="w-3.5 h-3.5" />
-            <span>Karoseri & Struktur Body</span>
+            <span>{t.vehicleInspector.coachbuilder}</span>
           </div>
           <div className="text-xs text-white font-bold">{spec.coachbuilder}</div>
           <div className="text-[11px] text-slate-400 font-mono">
@@ -571,7 +571,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
         <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
             <Cpu className="w-3.5 h-3.5" />
-            <span>Powertrain & Transmisi</span>
+            <span>{t.vehicleInspector.powertrain}</span>
           </div>
           <div className="text-xs text-slate-200 font-medium">
             {spec.powertrain}
@@ -599,7 +599,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
         <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-purple-400">
             <Layers className="w-3.5 h-3.5" />
-            <span>Sistem Suspensi & Dinamika</span>
+            <span>{t.vehicleInspector.chassis}</span>
           </div>
           <div className="text-xs text-slate-200 font-medium">
             {spec.suspensionType}
@@ -611,7 +611,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
       <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold text-blue-400">
           <ShieldCheck className="w-4 h-4" />
-          <span>Arsitektur Keselamatan & Proteksi Penumpang</span>
+          <span>{t.vehicleInspector.safetySystems}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {spec.safetyFeatures.map((feature, idx) => (
@@ -632,7 +632,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
           <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
               <Radio className="w-3.5 h-3.5 text-cyan-400" />
-              {vehicle.category === "RAIL" ? "Spesifikasi Rangkaian & Formasi Kereta" : "Spesifikasi Armada & Dinas Operasional"}
+              {t.vehicleInspector.operationalDetails}
             </span>
             <span className="text-[10px] text-slate-400">Telemetri Otentik</span>
           </div>
@@ -641,7 +641,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
             {vehicle.runNumber && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                 <span className="text-[10px] text-slate-400 block">
-                  {vehicle.category === "RAIL" ? "Nomor Perjalanan (KA):" : "Nomor Dinas (Rit):"}
+                  {t.common.runNumber}:
                 </span>
                 <strong className="text-cyan-300 font-bold">{vehicle.runNumber}</strong>
               </div>
@@ -649,7 +649,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
 
             {vehicle.trainsetNumber && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Nomor Rangkaian:</span>
+                <span className="text-[10px] text-slate-400 block">{t.common.trainset}:</span>
                 <strong className="text-white font-bold">{vehicle.trainsetNumber}</strong>
               </div>
             )}
@@ -663,21 +663,21 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
 
             {vehicle.carFormation && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Formasi Gerbong (SF):</span>
+                <span className="text-[10px] text-slate-400 block">{t.common.formation}:</span>
                 <strong className="text-slate-200 font-bold truncate block">{vehicle.carFormation}</strong>
               </div>
             )}
 
             {vehicle.fleetNumber && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Nomor Bodi / Lambung:</span>
+                <span className="text-[10px] text-slate-400 block">{t.common.fleetNumber}:</span>
                 <strong className="text-white font-bold">{vehicle.fleetNumber}</strong>
               </div>
             )}
 
             {vehicle.licensePlate && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Plat Nomor Polisi:</span>
+                <span className="text-[10px] text-slate-400 block">{t.common.licensePlate}:</span>
                 <strong className="text-amber-300 font-bold">{vehicle.licensePlate}</strong>
               </div>
             )}
@@ -685,7 +685,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
             {vehicle.depotHome && (
               <div className="col-span-2 p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                 <span className="text-[10px] text-slate-400">
-                  {vehicle.category === "RAIL" ? "Depo Induk & Perawatan:" : "Pool / Pangkalan Operasi:"}
+                  {t.common.depot}:
                 </span>
                 <strong className="text-slate-200 font-bold">{vehicle.depotHome}</strong>
               </div>
@@ -699,7 +699,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
         <div className="p-3.5 rounded-xl bg-blue-950/20 border border-blue-500/20 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-blue-300">
             <History className="w-4 h-4 text-blue-400" />
-            <span>Catatan Operasional & Sejarah Armada</span>
+            <span>{t.vehicleInspector.historicalNotes}</span>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">
             {spec.historicalNotes}

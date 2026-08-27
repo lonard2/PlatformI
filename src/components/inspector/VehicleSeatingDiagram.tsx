@@ -40,6 +40,7 @@ import {
   SeatingLayoutType,
   TransitMode,
 } from "@/types/transit";
+import { useTranslation } from "@/lib/i18n";
 import {
   generateSleeper111Seats,
   generateSuperExec21Seats,
@@ -214,6 +215,7 @@ function getVehicleSeating(vehicle: Vehicle): SeatingDiagram {
  * Urban Standing Transit Capacity & Cabin Schematic
  */
 function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
+  const { t } = useTranslation();
   const isBRT = vehicle.mode === "TRANSJAKARTA_BRT" || vehicle.mode === "TRANSJAKARTA_NON_BRT";
   const isMikro = vehicle.mode === "MIKROTRANS";
   const isMRT = vehicle.mode === "MRT_JAKARTA";
@@ -364,6 +366,7 @@ export function VehicleSeatingDiagram({
   vehicle,
   onSeatSelect,
 }: VehicleSeatingDiagramProps) {
+  const { t } = useTranslation();
   // If urban standing transit: render dedicated UrbanStandingCabinView
   if (URBAN_STANDING_MODES.has(vehicle.mode)) {
     return <UrbanStandingCabinView vehicle={vehicle} />;
@@ -417,15 +420,15 @@ export function VehicleSeatingDiagram({
       <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-xs font-mono">
           <div>
-            <span className="text-slate-400 block text-[10px]">Total Kursi:</span>
+            <span className="text-slate-400 block text-[10px]">Total {t.vehicleInspector.seat}:</span>
             <strong className="text-white">{totalSeatsCount} Kursi</strong>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">Tersedia:</span>
+            <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.available}:</span>
             <strong className="text-emerald-400">{Math.max(0, availableSeatsCount)} Kosong</strong>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">Keterisian:</span>
+            <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.occupied}:</span>
             <strong className="text-cyan-400">{occupancyPercentage}%</strong>
           </div>
         </div>
@@ -461,7 +464,7 @@ export function VehicleSeatingDiagram({
       <div className="p-4 bg-[#070b14] rounded-2xl border border-slate-800/90 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
         {/* Front of Vehicle Indicator */}
         <div className="w-full flex items-center justify-center gap-2 text-[10px] font-mono uppercase text-slate-400 pb-3 border-b border-slate-800/60 mb-2">
-          <span>▲ ARAH DEPAN KENDARAAN (KEMUDI)</span>
+          <span>▲ {t.vehicleInspector.frontOfVehicle}</span>
         </div>
 
         {/* Interactive SVG Seat Nodes */}
@@ -509,7 +512,7 @@ export function VehicleSeatingDiagram({
 
         {/* Rear of Vehicle Indicator */}
         <div className="w-full flex items-center justify-center gap-2 text-[10px] font-mono text-slate-500 pt-3 border-t border-slate-800/60 mt-2">
-          <span>▼ BAGIAN BELAKANG KENDARAAN</span>
+          <span>▼ {t.vehicleInspector.rearOfVehicle}</span>
         </div>
       </div>
 
@@ -519,7 +522,7 @@ export function VehicleSeatingDiagram({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white font-mono">
-                Kursi #{selectedSeat.id}
+                {t.vehicleInspector.seat} #{selectedSeat.id}
               </span>
               <span className="text-xs text-cyan-300 font-medium">
                 {selectedSeat.type.replace(/_/g, " ")}
@@ -532,7 +535,7 @@ export function VehicleSeatingDiagram({
                   : "bg-rose-950 text-rose-400 border border-rose-500/30"
               }`}
             >
-              {selectedSeat.status === "AVAILABLE" ? "Tersedia" : "Terisi"}
+              {selectedSeat.status === "AVAILABLE" ? t.vehicleInspector.available : t.vehicleInspector.occupied}
             </span>
           </div>
 

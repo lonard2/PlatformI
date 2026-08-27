@@ -132,7 +132,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="space-y-2.5">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Sun className="w-3.5 h-3.5 text-amber-400" />
-              Theme & Interface Mode
+              {t.settings.themeAndAppearance}
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -171,7 +171,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="space-y-2.5">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Layers className="w-3.5 h-3.5 text-cyan-400" />
-              Cartography Basemap Tile
+              {t.settings.mapTileLayer}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {tileOptions.map((tile) => (
@@ -204,7 +204,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="space-y-2.5">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Gauge className="w-3.5 h-3.5 text-emerald-400" />
-              Vector Simulation Clock Multiplier
+              {t.settings.simulationEngineSpeed}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {speedOptions.map((opt) => (
@@ -228,7 +228,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="space-y-2.5">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Bot className="w-3.5 h-3.5 text-purple-400" />
-              Default AI Advisor Model
+              {t.settings.defaultAiModel}
             </label>
             <div className="space-y-1.5">
               {SUPPORTED_AI_MODELS.map((model) => (
@@ -260,15 +260,15 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="space-y-3 pt-1">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-              Accessibility & Sound
+              {t.settings.accessibilityAndSound}
             </label>
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <Eye className="w-4 h-4 text-cyan-400" />
                   <div>
-                    <div className="font-semibold text-white">High Contrast Elements</div>
-                    <div className="text-[10px] text-slate-400">Sharpen line badges and cartography text</div>
+                    <div className="font-semibold text-white">{t.settings.highContrast}</div>
+                    <div className="text-[10px] text-slate-400">{t.settings.highContrastDesc}</div>
                   </div>
                 </div>
                 <input
@@ -283,8 +283,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 <div className="flex items-center gap-2.5">
                   <Sliders className="w-4 h-4 text-cyan-400" />
                   <div>
-                    <div className="font-semibold text-white">Reduced Motion</div>
-                    <div className="text-[10px] text-slate-400">Disable pulsing and sliding animations</div>
+                    <div className="font-semibold text-white">{t.settings.reducedMotion}</div>
+                    <div className="text-[10px] text-slate-400">{t.settings.reducedMotionDesc}</div>
                   </div>
                 </div>
                 <input
@@ -303,8 +303,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                     <VolumeX className="w-4 h-4 text-slate-500" />
                   )}
                   <div>
-                    <div className="font-semibold text-white">Turnstile Audio Chimes</div>
-                    <div className="text-[10px] text-slate-400">Play chime on gate validation & QR scan</div>
+                    <div className="font-semibold text-white">{t.settings.audioFeedback}</div>
+                    <div className="text-[10px] text-slate-400">{t.settings.audioFeedbackDesc}</div>
                   </div>
                 </div>
                 <input
@@ -365,7 +365,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition font-medium"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Defaults</span>
+            <span>{t.settings.resetDefaults}</span>
           </button>
 
           <div className="flex items-center gap-2">

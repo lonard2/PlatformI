@@ -979,7 +979,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           </div>
 
           <div className={`px-2 py-1 rounded-lg border text-[10px] font-bold ${occStyle.lightBg} ${occStyle.text} ${occStyle.border}`}>
-            {selectedCar.occupancyPercent}% Terisi
+            {selectedCar.occupancyPercent}% {t.vehicleInspector.occupied}
           </div>
         </div>
 
@@ -989,7 +989,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <Users className="w-3 h-3 text-cyan-400" />
-              Kapasitas Penumpang
+              {t.vehicleInspector.capacity}
             </span>
             <strong className="text-white font-bold">
               {selectedCar.passengerCount} / {selectedCar.maxCapacity} org
@@ -1000,7 +1000,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <Wind className="w-3 h-3 text-emerald-400" />
-              Suhu Kabin / Dek
+              {t.vehicleInspector.acComfort}
             </span>
             <strong className="text-emerald-300 font-bold">
               {selectedCar.acTemperatureC.toFixed(1)}&deg;C ({selectedCar.acStatus})

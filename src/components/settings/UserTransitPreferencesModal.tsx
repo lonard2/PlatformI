@@ -167,14 +167,14 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                   onClick={selectAllModes}
                   className="text-[11px] font-medium text-cyan-400 hover:text-cyan-300 transition"
                 >
-                  Select All
+                  {t.preferences.selectAll}
                 </button>
                 <span className="text-slate-600">&bull;</span>
                 <button
                   onClick={clearAllModes}
                   className="text-[11px] font-medium text-slate-400 hover:text-slate-200 transition"
                 >
-                  Clear All
+                  {t.preferences.clearAll}
                 </button>
               </div>
             </div>
@@ -234,7 +234,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
           <div className="space-y-3">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              Itinerary Routing Preference
+              {t.preferences.routingPriority}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {routingOptions.map((opt) => (
@@ -259,7 +259,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
             </div>
           </div>
 
-          {/* Section C: Disruption Alert Notifications */}
+          {/* Section C: {t.preferences.alertNotifications} */}
           <div className="space-y-3">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Bell className="w-3.5 h-3.5 text-rose-400" />
@@ -274,7 +274,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                     : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700"
                 }`}
               >
-                <div className="text-xs">Critical Only</div>
+                <div className="text-xs">{t.preferences.criticalOnly}</div>
                 <div className="text-[9px] text-slate-400">Severe disruptions</div>
               </button>
 
@@ -286,7 +286,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                     : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700"
                 }`}
               >
-                <div className="text-xs">All Bulletins</div>
+                <div className="text-xs">{t.preferences.allBulletins}</div>
                 <div className="text-[9px] text-slate-400">Delays & maintenance</div>
               </button>
 
@@ -298,7 +298,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                     : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700"
                 }`}
               >
-                <div className="text-xs">Muted</div>
+                <div className="text-xs">{t.preferences.muted}</div>
                 <div className="text-[9px] text-slate-400">No popups</div>
               </button>
             </div>
