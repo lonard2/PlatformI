@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-27T06:08:32Z",
+  "title": "Design System: PlatformI",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Midnight Field",
+        "canonical": "#090d16",
+        "tonalRamp": ["#090d16", "#101827", "#182235", "#243149", "#36445c", "#52627c", "#73839c", "#a6b2c4"]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Cloud Text",
+        "canonical": "#f1f5f9",
+        "tonalRamp": ["#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f1f5f9"]
+      },
+      "glass-bg": {
+        "role": "neutral",
+        "displayName": "Glass Surface",
+        "canonical": "rgba(15, 23, 42, 0.75)",
+        "tonalRamp": ["#0f172a", "#142038", "#1b2a46", "#263a5a", "#354d70", "#526b91", "#7891b4", "#b4c3d6"]
+      },
+      "glass-border": {
+        "role": "neutral",
+        "displayName": "Glass Boundary",
+        "canonical": "rgba(255, 255, 255, 0.1)",
+        "tonalRamp": ["#1c2533", "#2d3848", "#414d5d", "#596677", "#718092", "#9aa7b8", "#c4cdd8", "#f1f5f9"]
+      },
+      "glass-card": {
+        "role": "neutral",
+        "displayName": "Glass Card",
+        "canonical": "rgba(30, 41, 59, 0.65)",
+        "tonalRamp": ["#1e293b", "#263448", "#304159", "#3d5068", "#52677f", "#70869e", "#9cacbe", "#d4dce5"]
+      },
+      "accent-cyan": {
+        "role": "primary",
+        "displayName": "Signal Cyan",
+        "canonical": "#06b6d4",
+        "tonalRamp": ["#063b47", "#075669", "#08718a", "#078da8", "#06b6d4", "#43c7dc", "#83dbe8", "#c4f1f5"]
+      },
+      "accent-blue": {
+        "role": "secondary",
+        "displayName": "Route Blue",
+        "canonical": "#2563eb",
+        "tonalRamp": ["#0c245c", "#123988", "#194eb4", "#2563eb", "#4d82f1", "#78a1f5", "#a7c0fa", "#d7e2fe"]
+      },
+      "accent-emerald": {
+        "role": "secondary",
+        "displayName": "Service Emerald",
+        "canonical": "#10b981",
+        "tonalRamp": ["#064b37", "#076b4e", "#078a64", "#09a879", "#10b981", "#48ca9c", "#82dbba", "#c3f1df"]
+      },
+      "accent-amber": {
+        "role": "tertiary",
+        "displayName": "Caution Amber",
+        "canonical": "#f59e0b",
+        "tonalRamp": ["#5c3703", "#825006", "#aa6908", "#d38209", "#f59e0b", "#f7ad3e", "#fac778", "#fde5b9"]
+      },
+      "accent-rose": {
+        "role": "tertiary",
+        "displayName": "Critical Rose",
+        "canonical": "#f43f5e",
+        "tonalRamp": ["#5c0d1b", "#821329", "#aa1c37", "#d62b48", "#f43f5e", "#f76c84", "#fa9aaa", "#fdc9d2"]
+      },
+      "muted-text": {
+        "role": "neutral",
+        "displayName": "Muted Slate",
+        "canonical": "#94a3b8",
+        "tonalRamp": ["#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#b5c0cf", "#d1d9e3", "#edf1f5"]
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "System Sans", "purpose": "Passenger-facing text and explanations." },
+      "title": { "displayName": "System Sans Strong", "purpose": "Section titles and high-value headings." },
+      "label": { "displayName": "Compact Signal Label", "purpose": "Navigation, status, and action labels." },
+      "mono": { "displayName": "Operational Mono", "purpose": "Route codes, fares, timestamps, and telemetry." }
+    },
+    "shadows": [
+      { "name": "control-lift", "value": "0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3)", "purpose": "Floating controls and interactive cards." },
+      { "name": "accent-glow", "value": "0 10px 25px -5px rgba(6, 182, 212, 0.25)", "purpose": "Selected cyan action states." },
+      { "name": "drawer-depth", "value": "0 25px 50px -12px rgba(0, 0, 0, 0.6)", "purpose": "Sheets, wallets, and modal surfaces above the map." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Short hover lifts and responsive state changes." },
+      { "name": "drawer-spring", "value": "spring(damping: 25, stiffness: 280)", "purpose": "Floating drawer entrance and exit." },
+      { "name": "signal-pulse", "value": "2s ease-in-out infinite", "purpose": "Live beacons and status signals; disable for reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Signal Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A compact cyan-blue action for primary navigation and live transit tasks.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg><span>VIEW ON MAP</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(to right, #06b6d4, #2563eb); color: #f1f5f9; padding: 8px 12px; border: 1px solid rgba(103, 232, 249, 0.35); border-radius: 8px; font: 600 10px/1.25 -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: .04em; transition: filter .2s, transform .2s, box-shadow .2s; } .ds-btn-primary svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .ds-btn-primary:hover { filter: brightness(1.12); box-shadow: 0 10px 25px -5px rgba(6, 182, 212, .25); transform: translateY(-1px); } .ds-btn-primary:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; } .ds-btn-primary:active { transform: scale(.97); }"
+    },
+    {
+      "name": "Secondary Glass Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A quieter action for secondary controls over the map.",
+      "html": "<button class=\"ds-btn-secondary\"><span>STATUS</span></button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, .7); color: #cbd5e1; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 8px; font: 600 10px/1.25 -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: .04em; transition: background .2s, color .2s, border-color .2s; } .ds-btn-secondary:hover { background: rgba(30, 41, 59, .9); color: #f1f5f9; border-color: rgba(6, 182, 212, .4); } .ds-btn-secondary:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; }"
+    },
+    {
+      "name": "Glass Panel",
+      "kind": "card",
+      "refersTo": "glass-panel",
+      "description": "A translucent layer that separates UI controls from the cartographic field.",
+      "html": "<section class=\"ds-glass-panel\"><strong>LIVE NETWORK</strong><span>16 active lines</span></section>",
+      "css": ".ds-glass-panel { display: grid; gap: 4px; background: rgba(15, 23, 42, .75); color: #f1f5f9; padding: 12px; border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, .4); } .ds-glass-panel strong { font: 700 10px/1.25 -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: .04em; } .ds-glass-panel span { color: #94a3b8; font: 500 11px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "status-chip",
+      "description": "A small route or service status marker that preserves signal color meaning.",
+      "html": "<span class=\"ds-status-chip\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/></svg>NORMAL</span>",
+      "css": ".ds-status-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(8, 47, 73, .8); color: #06b6d4; padding: 2px 6px; border: 1px solid rgba(6, 182, 212, .3); border-radius: 6px; font: 500 11px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace; } .ds-status-chip svg { width: 10px; height: 10px; fill: currentColor; }"
+    },
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "navigation-item",
+      "description": "A labeled map or service destination with a clear active state.",
+      "html": "<button class=\"ds-nav-item\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z\"/><circle cx=\"12\" cy=\"9\" r=\"2\"/></svg><span>MAP</span></button>",
+      "css": ".ds-nav-item { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; min-width: 56px; padding: 6px 8px; border: 0; border-radius: 12px; background: transparent; color: #94a3b8; font: 600 10px/1.25 -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: .02em; transition: color .2s, background .2s; } .ds-nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .ds-nav-item:hover, .ds-nav-item[aria-current=\"page\"] { color: #06b6d4; background: rgba(8, 47, 73, .55); } .ds-nav-item:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; }"
+    },
+    {
+      "name": "Map Control Group",
+      "kind": "custom",
+      "refersTo": "glass-panel",
+      "description": "A grouped layer, simulation, zoom, or recenter control floating over the map.",
+      "html": "<div class=\"ds-map-control\"><button aria-label=\"Zoom in\">+</button><button aria-label=\"Zoom out\">-</button><button aria-label=\"Recenter map\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2v5M12 17v5M2 12h5M17 12h5\"/></svg></button></div>",
+      "css": ".ds-map-control { display: grid; gap: 1px; width: 38px; padding: 4px; background: rgba(15, 23, 42, .75); border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; backdrop-filter: blur(16px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, .4); } .ds-map-control button { min-height: 32px; border: 0; border-radius: 8px; background: transparent; color: #cbd5e1; font: 500 18px/1 -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; } .ds-map-control button:hover { background: rgba(30, 41, 59, .9); color: #06b6d4; } .ds-map-control button:focus-visible { outline: 2px solid #67e8f9; outline-offset: -2px; } .ds-map-control svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Regional Control Room",
+    "overview": "PlatformI is a curious, expressive transit instrument: a live regional network is treated as something to inspect, understand, and act on rather than as a passive map. Its incumbent visual system combines a midnight field, translucent glass layers, bright mode-specific signals, compact labels, and motion that suggests an active operating network.\n\nThe system is intentionally technical without becoming a generic SaaS dashboard. Transit colors carry network meaning, while cyan is reserved for interaction and live navigation. The density is high because the product serves both commuters and transit enthusiasts, but controls should remain disciplined enough for a user checking a journey on the move.",
+    "keyCharacteristics": ["Map-centered regional awareness", "Electric transit spectrum for mode and status signals", "Layered glass surfaces over a dark cartographic field", "Compact, instrument-like labels with occasional mono telemetry", "Expressive interaction states restrained by operational clarity"],
+    "rules": [
+      { "name": "The Signal Rarity Rule", "body": "Use cyan, emerald, amber, and rose to communicate state or action; do not turn every surface into an accent surface.", "section": "colors" },
+      { "name": "The Network Color Rule", "body": "Preserve operator and route colors where they identify real transit systems. Do not normalize every line into the product accent.", "section": "colors" },
+      { "name": "The Readable Signal Rule", "body": "Compact labels may be dense, but status, action, and route information must remain readable without relying on hover.", "section": "typography" },
+      { "name": "The Glass Boundary Rule", "body": "A glass panel needs a quiet border or tonal contrast so it does not dissolve into the map.", "section": "elevation" },
+      { "name": "The Map Remains Open Rule", "body": "Depth should separate controls from cartography, not cover the network with opaque decoration.", "section": "elevation" }
+    ],
+    "dos": ["Do let route and operator colors carry real network meaning.", "Do use cyan as the primary interaction and live-navigation signal.", "Do keep map, alert, drawer, and telemetry layers visually distinct.", "Do use Lucide SVG icons with visible labels or accessible names.", "Do preserve responsive drawer, sheet, safe-area, and reduced-motion behavior.", "Do use the system sans stack for passenger text and mono text for telemetry."],
+    "donts": ["Don't turn the interface into a generic SaaS dashboard of interchangeable cards and KPI tiles.", "Don't reduce PlatformI to a plain map utility with undifferentiated pins.", "Don't use gradients, pulses, glow, or blur as decoration when they do not communicate state or hierarchy.", "Don't make compact type the only way to communicate essential journey information.", "Don't rely on hover, color alone, or icon-only controls for essential meaning.", "Don't obscure the cartographic canvas with opaque or excessively nested surfaces."]
+  }
+}
