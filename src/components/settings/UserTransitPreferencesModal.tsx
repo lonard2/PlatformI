@@ -57,8 +57,6 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
     useState<NotificationThreshold>("ALL");
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
-  if (!isOpen) return null;
-
   const categories: TransitCategory[] = ["RAIL", "BUS", "AVIATION", "MARITIME"];
 
   const getCategoryIcon = (category: TransitCategory) => {

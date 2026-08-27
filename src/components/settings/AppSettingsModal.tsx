@@ -52,8 +52,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   const [isAudioFeedbackEnabled, setIsAudioFeedbackEnabled] = useState<boolean>(true);
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
-  if (!isOpen) return null;
-
   const tileOptions: { id: TileLayerId; label: string; desc: string }[] = [
     { id: "dark", label: "Dark Matter", desc: "High-contrast dark cartography for night & cockpit view" },
     { id: "light", label: "Positron Light", desc: "Crisp clean daylight theme for bright environments" },
@@ -138,8 +136,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
         {/* 1. HEADER */}
         <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
-              <Settings className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
+              <Settings className="w-4 h-4" />
             </div>
             <div>
               <h2 id={modalTitleId} className="text-base font-bold text-white tracking-tight">{t.settings.title}</h2>
@@ -150,7 +148,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
+            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white btn-tactile transition"
           >
             <X className="w-4 h-4" />
           </button>
@@ -392,7 +390,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
         <div className="px-5 py-3.5 bg-slate-950/90 border-t border-white/10 flex items-center justify-between shrink-0">
           <button
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition font-medium"
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white btn-tactile transition font-medium"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.settings.resetDefaults}</span>
@@ -401,17 +399,17 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 transition"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 btn-tactile transition"
             >
               {t.common.cancel}
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-xs font-bold text-white shadow-lg shadow-cyan-950/50 flex items-center gap-1.5 transition transform active:scale-95"
+              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-slate-950 shadow-md flex items-center gap-1.5 btn-tactile transition"
             >
               {saveToast ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                  <Check className="w-3.5 h-3.5 text-emerald-950" />
                   <span>{t.common.success}</span>
                 </>
               ) : (
