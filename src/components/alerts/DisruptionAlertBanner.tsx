@@ -53,9 +53,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = async (signal?: AbortSignal) => {
     try {
-      const res = await fetch("/api/alerts?status=ACTIVE");
+      const res = await fetch("/api/alerts?status=ACTIVE", { signal });
       if (res.ok) {
         const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
         if (data.success && data.data && data.data.length > 0) {
@@ -66,7 +66,8 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
         }
       }
       setFetchFailed(true);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setFetchFailed(true);
     }
   };
@@ -74,16 +75,18 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   // Fetch live alerts from API periodically
   useEffect(() => {
     let isMounted = true;
+    const controller = new AbortController();
 
     const fetchWithMount = async () => {
       if (!isMounted) return;
-      await fetchAlerts();
+      await fetchAlerts(controller.signal);
     };
 
     fetchWithMount();
     const interval = setInterval(fetchWithMount, 30000);
     return () => {
       isMounted = false;
+      controller.abort();
       clearInterval(interval);
     };
   }, []);
@@ -189,9 +192,10 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             <span>{t.common.close}</span>
             <button
               onClick={handleUndoDismiss}
+              aria-label={t.common.undo}
               className="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition"
             >
-              Undo
+              {t.common.undo}
             </button>
           </div>
         </motion.div>
@@ -233,13 +237,13 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
               <div className="flex items-center gap-1 shrink-0">
                 {fetchFailed && (
                   <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300">
-                    Stale
+                    {t.common.stale}
                   </span>
                 )}
                 {activeAlerts.length > 1 && (
                   <button
                     onClick={handleNextAlert}
-                    aria-label="Pemberitahuan berikutnya"
+                    aria-label={t.common.nextAlert}
                     className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition"
                   >
                     {currentIndex + 1}/{activeAlerts.length}
@@ -259,10 +263,10 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 )}
                 <button
                   onClick={handleOpenDrawer}
-                  aria-label="Lihat Status Lengkap"
-                  className="hidden sm:flex items-center gap-0.5 text-[9px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition"
+                  aria-label={t.common.viewStatus}
+                  className="hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition"
                 >
-                  <span>Status</span>
+                  <span>{t.common.viewStatus}</span>
                   <ArrowRight className="w-2.5 h-2.5" />
                 </button>
                 <button
@@ -297,14 +301,14 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                     {currentAlert.affectedStops && currentAlert.affectedStops.length > 0 && (
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[9px] text-slate-400 font-mono flex items-center gap-1">
+                        <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                           <MapPin className="w-2.5 h-2.5 text-cyan-400" />
                           {t.statusCenter.affectedStations}
                         </span>
                         {currentAlert.affectedStops.map((stopName, sIdx) => (
                           <span
                             key={sIdx}
-                            className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-[9px] text-slate-300 font-mono"
+                            className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-[10px] text-slate-300 font-mono"
                           >
                             {stopName}
                           </span>
@@ -316,7 +320,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                       {affectedLine && (
                         <button
                           onClick={handleHighlightLine}
-                          className="flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
+                          className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
                         >
                           <Layers className="w-2.5 h-2.5" />
                           <span>{t.common.viewOnMap}</span>
@@ -324,7 +328,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                       )}
                       <button
                         onClick={handleOpenDrawer}
-                        className="flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
+                        className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
                       >
                         <span>{t.statusCenter.title}</span>
                         <ArrowRight className="w-2.5 h-2.5" />
@@ -340,4 +344,3 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
     </AnimatePresence>
   );
 };
-
