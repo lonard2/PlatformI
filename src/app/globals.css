@@ -32,7 +32,12 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   overflow-x: hidden;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Glass Cockpit Utility Classes */
@@ -225,20 +230,23 @@ body {
 
 /* Low-Power & Reduced Motion Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
   .hub-pulse-ring,
   .beacon-pulse,
   .radar-scan,
-  .shimmer-active {
+  .shimmer-active,
+  .animate-pulse,
+  .animate-ping,
+  .animate-spin {
     animation: none !important;
+  }
+
+  .card-hover-lift {
+    transition: none !important;
+  }
+
+  .card-hover-lift:hover {
+    transform: none !important;
+    box-shadow: none !important;
   }
 }
 
