@@ -90,6 +90,17 @@ export interface TranslationDictionary {
     scrollRight: string;
     activeOnMap: string;
     hiddenOnMap: string;
+    origin: string;
+    destination: string;
+    findRoute: string;
+    route: string;
+    stale: string;
+    viewStatus: string;
+    vehicles: string;
+    lines: string;
+    undo: string;
+    nextAlert: string;
+    comingSoon: string;
   };
   navigation: {
     systemStatus: string;
@@ -120,6 +131,15 @@ export interface TranslationDictionary {
     liveFeed: string;
     preferences: string;
     passengerView: string;
+    mainNavigation: string;
+    serviceHours: string;
+    serviceStatus: string;
+    routeCount: string;
+    openDetails: string;
+    hubListHeading: string;
+    routeListHeading: string;
+    locationRouteCount: string;
+    noMatchingRoutes: string;
   };
   modes: {
     mrt: string;
@@ -263,6 +283,14 @@ export interface TranslationDictionary {
     fri: string;
     sat: string;
     sun: string;
+    targetAbove98: string;
+    uptimeLabel: string;
+    onTimeShort: string;
+    tripsPerMonth: string;
+    sevenDayStatus: string;
+    dayOffset: string;
+    month: string;
+    totalTrips: string;
   };
   ticketing: {
     title: string;
