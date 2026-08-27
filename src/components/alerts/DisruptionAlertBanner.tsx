@@ -25,6 +25,7 @@ import {
   ArrowRight,
   ShieldAlert,
   Radio,
+  RefreshCw,
 } from "lucide-react";
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -43,37 +44,69 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
+  const [isUndoVisible, setIsUndoVisible] = useState<boolean>(false);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
+  const [fetchFailed, setFetchFailed] = useState<boolean>(false);
 
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
 
+  const fetchAlerts = async () => {
+    try {
+      const res = await fetch("/api/alerts?status=ACTIVE");
+      if (res.ok) {
+        const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
+        if (data.success && data.data && data.data.length > 0) {
+          setAlerts(data.data);
+          setLastFetchTime(new Date());
+          setFetchFailed(false);
+          return;
+        }
+      }
+      setFetchFailed(true);
+    } catch {
+      setFetchFailed(true);
+    }
+  };
+
   // Fetch live alerts from API periodically
   useEffect(() => {
     let isMounted = true;
 
-    const fetchAlerts = async () => {
-      try {
-        const res = await fetch("/api/alerts?status=ACTIVE");
-        if (res.ok) {
-          const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
-          if (data.success && data.data && data.data.length > 0 && isMounted) {
-            setAlerts(data.data);
-          }
-        }
-      } catch {
-        // Fallback to static alerts dataset
-      }
+    const fetchWithMount = async () => {
+      if (!isMounted) return;
+      await fetchAlerts();
     };
 
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 30000); // 30s poll
+    fetchWithMount();
+    const interval = setInterval(fetchWithMount, 30000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
   }, []);
+
+  // Undo dismiss: show undo bar for 5s before truly dismissing
+  useEffect(() => {
+    if (isUndoVisible) {
+      const undoTimer = setTimeout(() => {
+        setIsUndoVisible(false);
+        setIsDismissed(true);
+      }, 5000);
+      return () => clearTimeout(undoTimer);
+    }
+  }, [isUndoVisible]);
+
+  const handleDismiss = () => {
+    setIsUndoVisible(true);
+  };
+
+  const handleUndoDismiss = () => {
+    setIsUndoVisible(false);
+    setIsDismissed(false);
+  };
 
   // Filter alerts relevant to user's active modes, or include all if unfiltered
   const relevantAlerts = alerts.filter((alert) => {
@@ -145,168 +178,163 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
   return (
     <AnimatePresence>
-      {!isDismissed && activeAlerts.length > 0 && currentAlert && badgeConfig && (
+      {isUndoVisible && !isDismissed && (
         <motion.div
-          initial={{ opacity: 0, y: -12, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -12, scale: 0.98 }}
-          transition={{ type: "spring", damping: 24, stiffness: 280 }}
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
           className="w-full px-3 sm:px-6 py-1 z-20"
         >
+          <div className="w-full rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between text-xs text-slate-300">
+            <span>{t.common.close}</span>
+            <button
+              onClick={handleUndoDismiss}
+              className="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition"
+            >
+              Undo
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {!isDismissed && !isUndoVisible && activeAlerts.length > 0 && currentAlert && badgeConfig && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ type: "spring", damping: 28, stiffness: 300 }}
+          className="w-full px-3 sm:px-6 py-0.5 z-20"
+        >
+          {/* Thin Status Strip */}
           <div
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`w-full rounded-xl border backdrop-blur-md px-2.5 py-1.5 sm:py-2 cursor-pointer transition-all duration-200 ${badgeConfig.containerStyle}`}
+            className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 cursor-pointer transition-all duration-200 ${badgeConfig.containerStyle}`}
           >
             <div className="flex items-center justify-between gap-2">
-              {/* Left Icon & Animated Radar Beacon */}
+              {/* Left: Icon + Count + Title */}
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <div className="relative flex items-center justify-center">
                   <span
-                    className={`animate-ping absolute inline-flex h-3 w-3 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
+                    className={`animate-ping absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
                   />
                   {badgeConfig.icon}
                 </div>
 
-                <span
-                  className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-md border font-mono shrink-0 hidden xs:inline-block ${badgeConfig.tagStyle}`}
-                >
-                  {badgeConfig.label}
+                <span className="text-[11px] font-mono font-bold text-slate-300 shrink-0">
+                  {activeAlerts.length}
                 </span>
 
-                {affectedLine && (
-                  <span
-                    style={{
-                      backgroundColor: `${affectedLine.colorHex}25`,
-                      borderColor: `${affectedLine.colorHex}60`,
-                      color: affectedLine.colorHex,
-                    }}
-                    className="text-[9px] font-bold px-1.5 py-0.2 rounded border font-mono shrink-0"
-                  >
-                    {affectedLine.code}
-                  </span>
-                )}
-
-                {/* Animated Carousel Alert Title */}
-                <AnimatePresence mode="wait">
-                  <motion.h4
-                    key={currentAlert.id}
-                    initial={{ opacity: 0, x: 8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-[11px] sm:text-xs font-semibold text-white truncate max-w-xs sm:max-w-md md:max-w-xl"
-                  >
-                    {currentAlert.title}
-                  </motion.h4>
-                </AnimatePresence>
+                <span className="text-[11px] sm:text-xs font-semibold text-white truncate">
+                  {currentAlert.title}
+                </span>
               </div>
 
-              {/* Right Actions & Counter */}
-              <div className="flex items-center gap-1.5 shrink-0">
+              {/* Right: Actions */}
+              <div className="flex items-center gap-1 shrink-0">
+                {fetchFailed && (
+                  <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300">
+                    Stale
+                  </span>
+                )}
                 {activeAlerts.length > 1 && (
                   <button
                     onClick={handleNextAlert}
-                    title="Pemberitahuan berikutnya"
-                    className="text-[9px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition active:scale-95"
+                    aria-label="Pemberitahuan berikutnya"
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition"
                   >
-                    {currentIndex + 1}/{activeAlerts.length} &rarr;
+                    {currentIndex + 1}/{activeAlerts.length}
                   </button>
                 )}
-
+                {fetchFailed && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fetchAlerts();
+                    }}
+                    aria-label={t.common.refresh}
+                    className="p-0.5 rounded hover:bg-white/10 text-amber-400 transition"
+                  >
+                    <RefreshCw className="w-2.5 h-2.5" />
+                  </button>
+                )}
                 <button
                   onClick={handleOpenDrawer}
-                  title="Lihat Status Lengkap"
-                  className="hidden sm:flex items-center gap-1 text-[10px] font-medium text-slate-300 hover:text-white px-2 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition active:scale-95"
+                  aria-label="Lihat Status Lengkap"
+                  className="hidden sm:flex items-center gap-0.5 text-[9px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition"
                 >
                   <span>Status</span>
-                  <ArrowRight className="w-3 h-3" />
+                  <ArrowRight className="w-2.5 h-2.5" />
                 </button>
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsExpanded(!isExpanded);
+                    handleDismiss();
                   }}
-                  className="p-1 rounded-md hover:bg-white/10 text-slate-300 transition"
+                  aria-label={t.common.close}
+                  className="p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition"
                 >
-                  {isExpanded ? (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  )}
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsDismissed(true);
-                  }}
-                  title="Tutup pemberitahuan"
-                  className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
-                >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-2.5 h-2.5" />
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Expandable Details Body with Smooth Height Animation */}
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25, ease: "easeInOut" }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-2 pt-2 border-t border-white/10 text-xs text-slate-300 space-y-2">
-                    <p className="leading-relaxed text-slate-200 text-[11px] sm:text-xs">
-                      {currentAlert.description}
-                    </p>
+          {/* Expandable Details */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="mt-1 p-2.5 rounded-lg glass-panel border border-white/10 text-xs text-slate-300 space-y-2">
+                  <p className="leading-relaxed text-slate-200 text-[11px]">
+                    {currentAlert.description}
+                  </p>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                      {currentAlert.affectedStops && currentAlert.affectedStops.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-cyan-400" />
-                            Titik Terdampak:
-                          </span>
-                          {currentAlert.affectedStops.map((stopName, sIdx) => (
-                            <span
-                              key={sIdx}
-                              className="px-2 py-0.5 rounded-md bg-black/40 border border-white/10 text-[10px] text-slate-300 font-mono"
-                            >
-                              {stopName}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        {affectedLine && (
-                          <button
-                            onClick={handleHighlightLine}
-                            className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    {currentAlert.affectedStops && currentAlert.affectedStops.length > 0 && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] text-slate-400 font-mono flex items-center gap-1">
+                          <MapPin className="w-2.5 h-2.5 text-cyan-400" />
+                          {t.statusCenter.affectedStations}
+                        </span>
+                        {currentAlert.affectedStops.map((stopName, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-[9px] text-slate-300 font-mono"
                           >
-                            <Layers className="w-3 h-3" />
-                            <span>{t.common.viewOnMap} ({affectedLine.code})</span>
-                          </button>
-                        )}
-
-                        <button
-                          onClick={handleOpenDrawer}
-                          className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
-                        >
-                          <span>{t.statusCenter.title}</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
+                            {stopName}
+                          </span>
+                        ))}
                       </div>
+                    )}
+
+                    <div className="flex items-center gap-1.5">
+                      {affectedLine && (
+                        <button
+                          onClick={handleHighlightLine}
+                          className="flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
+                        >
+                          <Layers className="w-2.5 h-2.5" />
+                          <span>{t.common.viewOnMap}</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={handleOpenDrawer}
+                        className="flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
+                      >
+                        <span>{t.statusCenter.title}</span>
+                        <ArrowRight className="w-2.5 h-2.5" />
+                      </button>
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

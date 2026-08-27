@@ -112,6 +112,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   const [expandedLineId, setExpandedLineId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [fetchFailed, setFetchFailed] = useState<boolean>(false);
 
   // History & Calendar state (Default August 2026)
   const [calendarYear, setCalendarYear] = useState<number>(2026);
@@ -136,10 +137,15 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
         const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
         if (data.success && Array.isArray(data.data)) {
           setAlerts(data.data);
+          setFetchFailed(false);
+        } else {
+          setFetchFailed(true);
         }
+      } else {
+        setFetchFailed(true);
       }
     } catch {
-      // Fallback to local dataset
+      setFetchFailed(true);
     } finally {
       setIsRefreshing(false);
       setLastUpdated(
@@ -415,11 +421,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
               <div className="flex items-center gap-2">
                 {/* Language Selector Dropdown */}
                 <div className="relative">
-                  <button
-                    onClick={() => setShowLanguageMenu((v) => !v)}
-                    className="px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5"
-                    title={t.common.selectLanguage}
-                  >
+                <button
+                  onClick={() => setShowLanguageMenu((v) => !v)}
+                  aria-label={t.common.selectLanguage}
+                  className="px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5"
+                >
                     <Globe className="w-3.5 h-3.5 text-cyan-400" />
                     <span className="font-mono font-bold uppercase">{language}</span>
                   </button>
@@ -459,7 +465,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
                 <button
                   onClick={fetchAlerts}
-                  title={t.common.refresh}
+                  aria-label={t.common.refresh}
                   disabled={isRefreshing}
                   className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
                 >
@@ -1114,7 +1120,14 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
             {/* 6. FOOTER BAR */}
             <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
-              <span>Pusat Maklumat Kendali &bull; OCC Dukuh Atas</span>
+              <span className="flex items-center gap-2">
+                Pusat Maklumat Kendali &bull; OCC Dukuh Atas
+                {fetchFailed && (
+                  <span className="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px]">
+                    Stale
+                  </span>
+                )}
+              </span>
               <span>
                 {t.common.lastUpdated}: {lastUpdated || t.common.updatedJustNow}
               </span>
