@@ -65,6 +65,7 @@ out/
 .turbo/
 .cache/
 .parcel-cache/
+tsconfig.tsbuildinfo
 
 # Testing & Coverage
 coverage/
