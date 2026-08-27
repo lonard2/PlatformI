@@ -50,7 +50,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
 
   return (
     <nav
-      aria-label="Navigasi Utama Penumpang"
+      aria-label={t.navigation.mainNavigation}
       className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080c16]/98 backdrop-blur-2xl border-t border-white/15 px-2 py-1.5 flex items-center justify-around shadow-2xl shadow-black safe-area-pb"
     >
       {/* 1. PETA (MAP) */}
@@ -85,7 +85,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
         className="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
       >
         <Navigation className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight">{t.common.search || "Rute"}</span>
+        <span className="text-[11px] tracking-tight">{t.common.route}</span>
       </button>
 
       {/* 4. TIKET (TICKETS / QR) */}
