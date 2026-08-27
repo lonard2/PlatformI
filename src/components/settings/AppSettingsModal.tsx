@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
@@ -68,6 +68,30 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
     { speed: 5, label: "High-Speed (5x)", desc: "5x Rapid network overview & route tracing" },
   ];
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const modalTitleId = "settings-modal-title";
+
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      setTimeout(() => modalRef.current?.focus(), 100);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   const handleSave = () => {
     setSaveToast(true);
     setTimeout(() => {
@@ -98,12 +122,18 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           onClick={onClose}
         >
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={modalTitleId}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-[#0c1220] border border-white/15 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100"
+            className="bg-[#0c1220] border border-white/15 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 outline-none"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={handleKeyDown}
           >
         {/* 1. HEADER */}
         <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
@@ -112,7 +142,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               <Settings className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">{t.settings.title}</h2>
+              <h2 id={modalTitleId} className="text-base font-bold text-white tracking-tight">{t.settings.title}</h2>
               <p className="text-xs text-slate-400">{t.settings.subtitle}</p>
             </div>
           </div>

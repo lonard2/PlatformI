@@ -13,7 +13,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -139,6 +139,30 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const modalTitleId = "checkin-modal-title";
+
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      setTimeout(() => modalRef.current?.focus(), 100);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   // Sync target vehicle when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -225,12 +249,18 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
           onClick={onClose}
         >
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={modalTitleId}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden"
+            className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden outline-none"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={handleKeyDown}
           >
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-slate-900/90 to-cyan-950/40 shrink-0">
@@ -239,7 +269,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              <h2 id={modalTitleId} className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                 {t.crowdsource.checkInTitle}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-300 font-mono">
                   Crowdsource Live
