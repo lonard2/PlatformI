@@ -177,7 +177,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleZoomIn}
             aria-label="Zoom In"
-            className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -188,7 +188,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleZoomOut}
             aria-label="Zoom Out"
-            className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -199,7 +199,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleRecenter}
             aria-label="Recenter Map to Jakarta Hub"
-            className="p-2 rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors"
           >
             <Navigation className="w-4 h-4" />
           </button>
