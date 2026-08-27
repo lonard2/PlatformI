@@ -378,7 +378,7 @@ export function VehicleDetailSheet({
                     {vehicle.runNumber && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          {vehicle.category === "RAIL" ? "{t.common.runNumber}:" : "{t.common.runNumber}:"}
+                          {t.common.runNumber}:
                         </span>
                         <strong className="text-cyan-300 text-xs font-bold">
                           {vehicle.runNumber}
@@ -450,7 +450,7 @@ export function VehicleDetailSheet({
                     {vehicle.depotHome && (
                       <div className="col-span-2 p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span className="text-[10px] text-slate-400">
-                          {vehicle.category === "RAIL" ? "{t.common.depot}:" : "Pool / Pangkalan Operasi:"}
+                          {vehicle.category === "RAIL" ? `${t.common.depot}:` : "Pool / Pangkalan Operasi:"}
                         </span>
                         <strong className="text-slate-200 text-xs font-bold">
                           {vehicle.depotHome}

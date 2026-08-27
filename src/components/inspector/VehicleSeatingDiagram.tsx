@@ -502,7 +502,7 @@ export function VehicleSeatingDiagram({
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex flex-col items-center justify-center transition-all ${bgClass} ${
                   isInspectSelected ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950" : ""
                 }`}
-                title={`Kursi ${seat.id} — ${seat.type}`}
+                title={`Kursi ${seat.id} - ${seat.type}`}
               >
                 <span className="text-[10px] font-mono font-bold leading-none">{seat.id}</span>
               </button>

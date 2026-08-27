@@ -99,21 +99,21 @@ PlatformI is an all-in-one regionalized public transportation platform and glass
 ---
 
 ## Code Layout
-- `src/types/`: Type definitions (`transit.ts`) — owned by M1
-- `prisma/`: Prisma schema (`schema.prisma`) and seed (`seed.ts`) — owned by M1
-- `src/lib/data/`: Static transit dataset (`jakarta-dataset.ts`) — owned by M1
-- `src/lib/math/`: Geodesy & math utilities (`geodesy.ts`) — owned by M2
-- `src/lib/stores/`: Zustand state management (`useTransitStore.ts`) — owned by M2
-- `src/lib/constants/`: Mode definitions & styling (`modes.ts`) — owned by M2
-- `src/lib/hooks/`: Simulation & telemetry hooks (`useTransitSimulation.ts`) — owned by M2
-- `src/components/map/`: Leaflet cartography components — owned by M2
-- `src/components/inspector/`: Vehicle & hub detail sheets, SVG seating — owned by M3
-- `src/components/crowdsource/`: Check-in modal & community feed — owned by M4
-- `src/lib/services/fareCalculator.ts` & `qrSecurityService.ts`: Fare & QR security — owned by M4
-- `src/components/ticketing/`: Dynamic QR & pass wallet — owned by M4
-- `src/lib/services/aiTransitService.ts`: OpenRouter multi-model client — owned by M5
-- `src/components/ai/`: AI Assistant modal — owned by M5
-- `src/components/alerts/`: Disruption banners & service status drawer — owned by M5
-- `src/app/admin/`: Fleet radar, route editor, alert broadcaster, gate scanner simulator — owned by M5
-- `tests/`: 4-Tier test suite & Vitest configs — owned by E2E Testing Track / M6
-- `docs/`: Educational walkthrough & phase critiques — owned by M6
+- `src/types/`: Type definitions (`transit.ts`) - owned by M1
+- `prisma/`: Prisma schema (`schema.prisma`) and seed (`seed.ts`) - owned by M1
+- `src/lib/data/`: Static transit dataset (`jakarta-dataset.ts`) - owned by M1
+- `src/lib/math/`: Geodesy & math utilities (`geodesy.ts`) - owned by M2
+- `src/lib/stores/`: Zustand state management (`useTransitStore.ts`) - owned by M2
+- `src/lib/constants/`: Mode definitions & styling (`modes.ts`) - owned by M2
+- `src/lib/hooks/`: Simulation & telemetry hooks (`useTransitSimulation.ts`) - owned by M2
+- `src/components/map/`: Leaflet cartography components - owned by M2
+- `src/components/inspector/`: Vehicle & hub detail sheets, SVG seating - owned by M3
+- `src/components/crowdsource/`: Check-in modal & community feed - owned by M4
+- `src/lib/services/fareCalculator.ts` & `qrSecurityService.ts`: Fare & QR security - owned by M4
+- `src/components/ticketing/`: Dynamic QR & pass wallet - owned by M4
+- `src/lib/services/aiTransitService.ts`: OpenRouter multi-model client - owned by M5
+- `src/components/ai/`: AI Assistant modal - owned by M5
+- `src/components/alerts/`: Disruption banners & service status drawer - owned by M5
+- `src/app/admin/`: Fleet radar, route editor, alert broadcaster, gate scanner simulator - owned by M5
+- `tests/`: 4-Tier test suite & Vitest configs - owned by E2E Testing Track / M6
+- `docs/`: Educational walkthrough & phase critiques - owned by M6

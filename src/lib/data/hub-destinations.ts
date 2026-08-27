@@ -111,7 +111,7 @@ export const HUB_DESTINATIONS_DATA: Record<string, HubDestinationGroup[]> = {
     {
       id: "shia-domestic-java-bali",
       category: "DOMESTIC_ISLAND",
-      groupName: "Domestik — Jawa, Bali & Nusa Tenggara",
+      groupName: "Domestik - Jawa, Bali & Nusa Tenggara",
       destinations: [
         {
           city: "Denpasar, Bali (DPS)",
@@ -142,7 +142,7 @@ export const HUB_DESTINATIONS_DATA: Record<string, HubDestinationGroup[]> = {
     {
       id: "shia-domestic-sumatra-kalimantan",
       category: "DOMESTIC_ISLAND",
-      groupName: "Domestik — Sumatra, Kalimantan & Sulawesi",
+      groupName: "Domestik - Sumatra, Kalimantan & Sulawesi",
       destinations: [
         {
           city: "Medan (KNO)",
@@ -173,7 +173,7 @@ export const HUB_DESTINATIONS_DATA: Record<string, HubDestinationGroup[]> = {
     {
       id: "shia-intl-asia-oceania",
       category: "INTERNATIONAL_ZONE",
-      groupName: "Internasional — ASEAN, Asia Pasifik & Timur Tengah",
+      groupName: "Internasional - ASEAN, Asia Pasifik & Timur Tengah",
       destinations: [
         {
           city: "Singapura (SIN)",
