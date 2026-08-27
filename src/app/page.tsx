@@ -7,27 +7,21 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
-  ShieldCheck,
   Activity,
-  AlertTriangle,
   Radio,
-  Clock,
-  Compass,
   Layers,
   Wallet,
   Users,
-  Plus,
   X,
   Sparkles,
   Settings,
-  Sliders,
-  Shield,
-  Bot,
+  Search,
+  MapPin,
+  Navigation,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -39,15 +33,13 @@ import { DisruptionAlertBanner } from "@/components/alerts/DisruptionAlertBanner
 import { ServiceStatusDrawer } from "@/components/alerts/ServiceStatusDrawer";
 import { AITransitAssistantModal } from "@/components/ai/AITransitAssistantModal";
 import { AppSettingsModal } from "@/components/settings/AppSettingsModal";
-import { UserTransitPreferencesModal } from "@/components/settings/UserTransitPreferencesModal";
 import { TransportationSystemBar } from "@/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { useTranslation } from "@/lib/i18n";
 
 export default function Home() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
-  const allStops = useTransitStore((state) => state.allStops);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
@@ -61,29 +53,11 @@ export default function Home() {
   const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
   const [isStatusDrawerOpen, setIsStatusDrawerOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-  const [isPreferencesModalOpen, setIsPreferencesModalOpen] = useState<boolean>(false);
+  // Journey pill state
 
-  // Live WIB Clock
-  const [timeStr, setTimeStr] = useState<string>("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeStr(
-        now.toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-          timeZone: "Asia/Jakarta",
-        }) + " WIB"
-      );
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
+  const [journeyOrigin, setJourneyOrigin] = useState<string>("");
+  const [journeyDest, setJourneyDest] = useState<string>("");
 
   const handleOpenCheckIn = (vehicleId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
@@ -91,95 +65,68 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden select-none pb-14 lg:pb-0">
+    <main className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden pb-14 lg:pb-0">
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
       <header className="hidden sm:flex h-13 sm:h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
-        {/* Left Brand Badge */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
-            <Train className="w-4 h-4 text-white" />
+        {/* Left Brand */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center border border-cyan-400/30">
+            <Train className="w-3.5 h-3.5 text-white" />
           </div>
-          <div>
-            <h1 className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              PlatformI
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 font-mono font-normal">
-                Jabodetabek
-              </span>
-            </h1>
-            <p className="text-[10px] text-slate-400 hidden xs:block">
-              {t.common.tagline}
-            </p>
-          </div>
+          <h1 className="text-sm font-bold tracking-tight text-white">
+            PlatformI
+          </h1>
         </div>
 
-        {/* Center Live Network Status Action */}
-        <div className="hidden lg:flex items-center gap-2">
+        {/* Right Navigation (Desktop) */}
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setIsStatusDrawerOpen(true)}
-            className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 transition"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 transition"
           >
-            <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">{t.navigation.systemStatus}</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 font-mono">
-              {allLines.length} {t.navigation.activeLines}
-            </span>
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">{allLines.length} {t.navigation.activeLines}</span>
           </button>
-        </div>
 
-        {/* Right Navigation (Desktop View) */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* AI Advisor Button (Desktop) */}
           <button
             onClick={() => setIsAIModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-500 hover:to-blue-500 text-white border border-cyan-400/40 text-xs font-semibold shadow-md shadow-cyan-950/40 transition transform active:scale-95"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-500 hover:to-blue-500 text-white border border-cyan-400/40 text-xs font-semibold transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-200" />
             <span>{t.navigation.aiAdvisor}</span>
           </button>
 
-          {/* Crowdsource Feed Toggle Button (Desktop) */}
           <button
             onClick={() =>
               setActiveDrawer(activeDrawer === "crowdsource" ? null : "crowdsource")
             }
             className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
               activeDrawer === "crowdsource"
-                ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 shadow-md shadow-cyan-950/40"
+                ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
             }`}
           >
             <Users className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{t.navigation.crowdsource}</span>
+            <span className="hidden md:inline">{t.navigation.crowdsource}</span>
           </button>
 
-          {/* Pass Wallet Toggle Button (Desktop) */}
           <button
             onClick={() =>
               setActiveDrawer(activeDrawer === "tickets" ? null : "tickets")
             }
-            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition ${
               activeDrawer === "tickets"
-                ? "bg-blue-950/80 border-blue-500/50 text-blue-300 shadow-md shadow-blue-950/40"
+                ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
             }`}
           >
             <Wallet className="w-3.5 h-3.5 text-blue-400" />
-            <span>{t.navigation.ticketing}</span>
+            <span className="hidden sm:inline">{t.navigation.ticketing}</span>
           </button>
 
-          {/* Transit Preferences Toggle */}
-          <button
-            onClick={() => setIsPreferencesModalOpen(true)}
-            title={t.navigation.preferences}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 transition"
-          >
-            <Sliders className="w-4 h-4 text-slate-300" />
-          </button>
-
-          {/* Settings Modal Toggle */}
           <button
             onClick={() => setIsSettingsModalOpen(true)}
-            title={t.navigation.settings}
+            aria-label={t.navigation.settings}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />
@@ -196,6 +143,85 @@ export default function Home() {
       {/* 4. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
       <div className="flex-1 relative overflow-hidden flex">
         <DynamicMap />
+
+        {/* Floating Journey Pill (above map, right side) */}
+        <div className="absolute top-3 left-3 sm:left-auto sm:right-3 z-40">
+          <AnimatePresence mode="wait">
+            {isJourneyExpanded ? (
+              <motion.div
+                key="journey-expanded"
+                initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="glass-panel rounded-xl p-3 w-72 sm:w-80 shadow-2xl shadow-black/50 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-xs font-bold text-white">{t.common.search || "Cari Rute"}</span>
+                  </div>
+                  <button
+                    onClick={() => setIsJourneyExpanded(false)}
+                    aria-label={t.common.close}
+                    className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-emerald-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Asal"
+                      value={journeyOrigin}
+                      onChange={(e) => setJourneyOrigin(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                    />
+                  </div>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-rose-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Tujuan"
+                      value={journeyDest}
+                      onChange={(e) => setJourneyDest(e.target.value)}
+                      className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  disabled={!journeyOrigin.trim() || !journeyDest.trim()}
+                  className="w-full py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Cari Rute</span>
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="journey-collapsed"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                onClick={() => setIsJourneyExpanded(true)}
+                className="glass-panel rounded-full px-3 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 transition-all cursor-pointer"
+              >
+                <Search className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-medium text-slate-300 hidden sm:inline">
+                  {journeyOrigin && journeyDest
+                    ? `${journeyOrigin} → ${journeyDest}`
+                    : "Cari Rute"}
+                </span>
+                <span className="text-xs font-medium text-slate-300 sm:hidden">Rute</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Floating Crowdsource Feed Drawer */}
         <AnimatePresence>
@@ -249,16 +275,6 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Floating Bottom-Right Quick Action Button */}
-        <div className="absolute bottom-4 right-4 z-30 flex items-center gap-2">
-          <button
-            onClick={() => handleOpenCheckIn()}
-            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-xl shadow-emerald-950/60 flex items-center gap-1.5 border border-emerald-400/30 transition transform active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>1-Tap Check-In</span>
-          </button>
-        </div>
       </div>
 
       {/* 4. MODALS & DRAWERS */}
@@ -296,16 +312,11 @@ export default function Home() {
         }}
       />
 
-      {/* User Transit Preferences Modal */}
-      <UserTransitPreferencesModal
-        isOpen={isPreferencesModalOpen}
-        onClose={() => setIsPreferencesModalOpen(false)}
-      />
 
-      {/* 5. BOTTOM TELEMETRY TICKER / METRICS STRIP */}
+
+      {/* 5. BOTTOM TELEMETRY STRIP */}
       <TelemetryFooter
         allLinesCount={allLines.length}
-        allStopsCount={allStops.length}
         simulationSpeed={simulationSpeed}
       />
 
@@ -313,6 +324,7 @@ export default function Home() {
       <MobileBottomNav
         onOpenAI={() => setIsAIModalOpen(true)}
         onOpenStatus={() => setIsStatusDrawerOpen(true)}
+        onOpenJourney={() => setIsJourneyExpanded(true)}
       />
     </main>
   );
@@ -325,76 +337,29 @@ export default function Home() {
  */
 function TelemetryFooter({
   allLinesCount,
-  allStopsCount,
   simulationSpeed,
 }: {
   allLinesCount: number;
-  allStopsCount: number;
   simulationSpeed: number;
 }) {
+  const { t } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
 
-  const movingVehiclesCount = simulatedVehicles.filter(
-    (v) => v.status === "IN_SERVICE" && v.speedKmh > 0
-  ).length;
-  const boardingVehiclesCount = simulatedVehicles.filter(
-    (v) => v.status === "BOARDING"
-  ).length;
-
   return (
-    <footer className="h-9 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-xs text-slate-400 font-mono">
-      <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5">
+    <footer className="h-8 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-[11px] text-slate-400 font-mono">
+      <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
+        <span className="flex items-center gap-1.5">
           <Radio className="w-3 h-3 text-cyan-400" />
-          <span>
-            Fleet: <strong className="text-slate-200">{simulatedVehicles.length} Units</strong>
-          </span>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>
-            Moving: <strong className="text-emerald-400">{movingVehiclesCount}</strong>
-          </span>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span>
-            Boarding: <strong className="text-amber-400">{boardingVehiclesCount}</strong>
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5">
+          {simulatedVehicles.length}
+        </span>
+        <span className="flex items-center gap-1.5">
           <Layers className="w-3 h-3 text-blue-400" />
-          <span>
-            Networks: <strong className="text-slate-200">{allLinesCount} Lines</strong>
-          </span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-1.5">
-          <Compass className="w-3 h-3 text-emerald-400" />
-          <span>
-            Interchanges: <strong className="text-slate-200">{allStopsCount} Hubs</strong>
-          </span>
-        </div>
+          {allLinesCount}
+        </span>
       </div>
-
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="text-[11px] text-slate-400">
-          Simulasi:{" "}
-          <span className="text-cyan-400 font-bold">
-            {simulationSpeed === 0 ? "Jeda (0x)" : `${simulationSpeed}x`}
-          </span>
-        </div>
-        <span className="text-slate-600 hidden sm:inline">&bull;</span>
-        <Link
-          href="/admin"
-          className="text-[11px] text-slate-500 hover:text-slate-300 transition underline underline-offset-2 hidden md:inline"
-        >
-          Portal Petugas (OCC)
-        </Link>
-      </div>
+      <span className="shrink-0">
+        {simulationSpeed === 0 ? t.navigation.paused : `${simulationSpeed}x`}
+      </span>
     </footer>
   );
 }
