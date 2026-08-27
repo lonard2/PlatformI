@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
@@ -54,10 +54,17 @@ export default function Home() {
   const [isStatusDrawerOpen, setIsStatusDrawerOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   // Journey pill state
-
   const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
   const [journeyOrigin, setJourneyOrigin] = useState<string>("");
   const [journeyDest, setJourneyDest] = useState<string>("");
+  const [journeyNotice, setJourneyNotice] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (journeyNotice) {
+      const timer = setTimeout(() => setJourneyNotice(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [journeyNotice]);
 
   const handleOpenCheckIn = (vehicleId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
@@ -73,7 +80,7 @@ export default function Home() {
           <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center border border-cyan-400/30">
             <Train className="w-3.5 h-3.5 text-white" />
           </div>
-          <h1 className="text-sm font-bold tracking-tight text-white">
+          <h1 className="text-base font-bold tracking-tight text-white">
             PlatformI
           </h1>
         </div>
@@ -159,7 +166,7 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="text-xs font-bold text-white">{t.common.search || "Cari Rute"}</span>
+                    <span className="text-xs font-bold text-white">{t.common.findRoute}</span>
                   </div>
                   <button
                     onClick={() => setIsJourneyExpanded(false)}
@@ -173,9 +180,13 @@ export default function Home() {
                 <div className="space-y-1.5">
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-emerald-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <label htmlFor="journey-origin" className="sr-only">
+                      {t.common.origin}
+                    </label>
                     <input
+                      id="journey-origin"
                       type="text"
-                      placeholder="Asal"
+                      placeholder={t.common.origin}
                       value={journeyOrigin}
                       onChange={(e) => setJourneyOrigin(e.target.value)}
                       className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
@@ -183,9 +194,13 @@ export default function Home() {
                   </div>
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-rose-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <label htmlFor="journey-destination" className="sr-only">
+                      {t.common.destination}
+                    </label>
                     <input
+                      id="journey-destination"
                       type="text"
-                      placeholder="Tujuan"
+                      placeholder={t.common.destination}
                       value={journeyDest}
                       onChange={(e) => setJourneyDest(e.target.value)}
                       className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
@@ -195,10 +210,14 @@ export default function Home() {
 
                 <button
                   disabled={!journeyOrigin.trim() || !journeyDest.trim()}
+                  onClick={() => {
+                    setIsJourneyExpanded(false);
+                    setJourneyNotice(true);
+                  }}
                   className="w-full py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Search className="w-3.5 h-3.5" />
-                  <span>Cari Rute</span>
+                  <span>{t.common.findRoute}</span>
                 </button>
               </motion.div>
             ) : (
@@ -215,10 +234,24 @@ export default function Home() {
                 <span className="text-xs font-medium text-slate-300 hidden sm:inline">
                   {journeyOrigin && journeyDest
                     ? `${journeyOrigin} → ${journeyDest}`
-                    : "Cari Rute"}
+                    : t.common.findRoute}
                 </span>
-                <span className="text-xs font-medium text-slate-300 sm:hidden">Rute</span>
+                <span className="text-xs font-medium text-slate-300 sm:hidden">{t.common.route}</span>
               </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Brief Journey Coming Soon Notice */}
+          <AnimatePresence>
+            {journeyNotice && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="absolute top-full mt-2 left-0 sm:left-auto sm:right-0 glass-panel rounded-lg px-3 py-1.5 text-xs text-slate-300 whitespace-nowrap shadow-xl"
+              >
+                {t.common.comingSoon}
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -346,15 +379,15 @@ function TelemetryFooter({
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
 
   return (
-    <footer className="h-8 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-[11px] text-slate-400 font-mono">
+    <footer className="h-8 border-t border-white/10 glass-panel px-3 sm:px-6 flex items-center justify-between z-30 shrink-0 text-[11px] text-slate-400 font-mono tabular-nums">
       <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
         <span className="flex items-center gap-1.5">
           <Radio className="w-3 h-3 text-cyan-400" />
-          {simulatedVehicles.length}
+          {simulatedVehicles.length} {t.common.vehicles}
         </span>
         <span className="flex items-center gap-1.5">
           <Layers className="w-3 h-3 text-blue-400" />
-          {allLinesCount}
+          {allLinesCount} {t.common.lines}
         </span>
       </div>
       <span className="shrink-0">
