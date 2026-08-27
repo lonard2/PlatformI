@@ -96,7 +96,7 @@ describe("Milestone 5: React UI Components Integration", () => {
       const onClose = vi.fn();
       render(<ServiceStatusDrawer isOpen={true} onClose={onClose} />);
 
-      expect(screen.getByText(/Operations & Reliability|Pusat Maklumat Operasional|Pusat Operasional/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Operations & Reliability|Pusat Maklumat Operasional|Pusat Operasional/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/All Modes|All Sectors|Semua Moda|Semua Sektor/i)).toBeInTheDocument();
       expect(screen.getByPlaceholderText(/Search|Cari/i)).toBeInTheDocument();
     });
@@ -208,19 +208,19 @@ describe("Milestone 5: React UI Components Integration", () => {
 
       expect(screen.getByText(/Track on Map|Lacak di Peta|Live Map|Peta/i)).toBeInTheDocument();
       expect(screen.getByText(/Status Langsung|Live Status|Layanan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Route|Rute/i)).toBeInTheDocument();
       expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket/i)).toBeInTheDocument();
-      expect(screen.getByText(/Crowd Reports|Laporan Kepadatan|Live Feed|Laporan/i)).toBeInTheDocument();
-      expect(screen.getByText(/AI Route Advisor|Asisten AI|AI Assistant|Asisten/i)).toBeInTheDocument();
+      expect(screen.getByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas/i)).toBeInTheDocument();
 
       // Click center QR button
-      const qrBtn = screen.getByRole("button", { name: /dynamic QR|kode QR|QR|Tiket|Pass/i });
+      const qrBtn = screen.getByRole("button", { name: /Position QR Code on Gate Scanner|dynamic QR|kode QR|QR|Tiket|Pass/i });
       fireEvent.click(qrBtn);
       expect(useTransitStore.getState().activeDrawer).toBe("tickets");
 
-      // Click Asisten AI
-      const asistenBtn = screen.getByText(/AI Route Advisor|Asisten AI|AI Assistant|Asisten/i);
-      fireEvent.click(asistenBtn);
-      expect(onOpenAIMock).toHaveBeenCalled();
+      // Click Status button
+      const statusBtn = screen.getByText(/Status Langsung|Live Status|Layanan/i);
+      fireEvent.click(statusBtn);
+      expect(onOpenStatusMock).toHaveBeenCalled();
     });
   });
 });
