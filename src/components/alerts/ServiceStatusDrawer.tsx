@@ -10,7 +10,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
@@ -373,6 +373,32 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     });
   }, []);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const drawerTitleId = "status-drawer-title";
+
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      setTimeout(() => {
+        drawerRef.current?.focus();
+      }, 100);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
+
+  const handleDrawerKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   const handleSelectLine = (lineId: string) => {
     selectLine(lineId);
     onClose();
@@ -390,12 +416,18 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
           onClick={onClose}
         >
           <motion.div
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={drawerTitleId}
+            tabIndex={-1}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280 }}
-            className="w-full sm:w-[640px] md:w-[680px] h-full bg-[#090d18] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100"
+            className="w-full sm:w-[640px] md:w-[680px] h-full bg-[#090d18] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100 outline-none"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={handleDrawerKeyDown}
           >
             {/* 1. MAIN HEADER & LANGUAGE SWITCHER */}
             <div className="px-5 py-4 border-b border-white/10 bg-[#0c1222] flex items-center justify-between shrink-0">
@@ -405,7 +437,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-base font-bold text-white tracking-tight">
+                    <h2 id={drawerTitleId} className="text-base font-bold text-white tracking-tight">
                       {t.statusCenter.title}
                     </h2>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-mono font-bold">
@@ -613,8 +645,16 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                           className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition shadow-sm"
                         >
                           <div
+                            role="button"
+                            tabIndex={0}
                             className="flex items-center justify-between cursor-pointer"
                             onClick={() => setExpandedLineId(isExpanded ? null : line.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setExpandedLineId(isExpanded ? null : line.id);
+                              }
+                            }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
                               <span
@@ -808,7 +848,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                                       : "bg-cyan-400"
                                   }`}
                                 />
-                                <span className="text-[9px] font-mono font-bold text-slate-300">
+                                <span className="text-[10px] font-mono font-bold text-slate-300">
                                   {cell.events.length}
                                 </span>
                               </div>
@@ -825,11 +865,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
                     <span>
                       {selectedHistoryDate === "ALL"
-                        ? `Catatan Riwayat (${monthLabel}):`
-                        : `Catatan Tanggal ${selectedHistoryDate}:`}
+                        ? `${t.statusCenter.tabHistory} (${monthLabel}):`
+                        : `${selectedHistoryDate}:`}
                     </span>
                     <span className="text-cyan-400 font-bold">
-                      {filteredHistory.length} Catatan
+                      {filteredHistory.length}
                     </span>
                   </div>
 
@@ -931,7 +971,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   </div>
                   <div className="flex items-baseline gap-4 pt-1">
                     <div>
-                      <div className="text-3xl font-black font-mono text-white">
+                      <div className="text-3xl font-black font-mono text-white tabular-nums">
                         {aggregatedUptime.avgUptime}%
                       </div>
                       <span className="text-[10px] text-slate-400 font-mono">
@@ -939,7 +979,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       </span>
                     </div>
                     <div className="border-l border-white/10 pl-4">
-                      <div className="text-3xl font-black font-mono text-cyan-300">
+                      <div className="text-3xl font-black font-mono text-cyan-300 tabular-nums">
                         {aggregatedUptime.avgMttr} {t.common.minutes}
                       </div>
                       <span className="text-[10px] text-slate-400 font-mono">
@@ -956,7 +996,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       <BarChart3 className="w-4 h-4 text-cyan-400" />
                       {t.statusCenter.monthlyTrendTitle}
                     </span>
-                    <span className="text-[10px] text-emerald-400">Target &gt;98%</span>
+                      <span className="text-[10px] text-emerald-400">{t.statusCenter.targetAbove98}</span>
                   </div>
 
                   {/* Bar Chart Visual */}
@@ -968,9 +1008,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       return (
                         <div
                           key={m.monthKey}
+                          role="button"
+                          tabIndex={0}
                           onClick={() =>
                             setSelectedTrendMonth(isHovered ? null : m.monthKey)
                           }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedTrendMonth(isHovered ? null : m.monthKey);
+                            }
+                          }}
                           className="flex flex-col items-center gap-1 cursor-pointer group h-full justify-end"
                         >
                           <div
@@ -983,7 +1031,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                                 : "bg-amber-500/80 group-hover:bg-amber-400"
                             }`}
                           />
-                          <span className="text-[8px] font-mono text-slate-400 truncate max-w-full">
+                          <span className="text-[10px] font-mono text-slate-400 truncate max-w-full">
                             {m.monthLabel.split(" ")[0]}
                           </span>
                         </div>
@@ -996,7 +1044,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                     <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
                       <span className="text-white font-bold">{selectedTrendMonth}:</span>
                       <span className="text-emerald-400">
-                        Uptime:{" "}
+                        {t.statusCenter.uptimeLabel}:{" "}
                         {
                           monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
                             ?.avgUptime
@@ -1004,7 +1052,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         %
                       </span>
                       <span className="text-cyan-300">
-                        OTP:{" "}
+                        {t.statusCenter.onTimeShort}:{" "}
                         {
                           monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
                             ?.avgOtp
@@ -1038,17 +1086,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                           <div className="flex items-center gap-2">
                             <strong className="text-white font-bold">{metric.systemName}</strong>
                             <span className="text-[10px] text-slate-400 font-mono">
-                              ({metric.totalTrips30Days.toLocaleString()} Trip/Bulan)
+                              ({metric.totalTrips30Days.toLocaleString()} {t.statusCenter.tripsPerMonth})
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2 font-mono">
                             <span className="text-emerald-400 font-bold text-xs">
-                              {displayedUptime}% Uptime
+                              {displayedUptime}% {t.statusCenter.uptimeLabel}
                             </span>
                             <span className="text-slate-600">&bull;</span>
                             <span className="text-cyan-300 font-bold text-xs">
-                              {metric.onTimePerformancePercent}% OTP
+                              {metric.onTimePerformancePercent}% {t.statusCenter.onTimeShort}
                             </span>
                           </div>
                         </div>
@@ -1056,12 +1104,12 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         {/* 7-Day Mini Status Tiles & History Expand Button */}
                         <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] font-mono text-slate-400">
                           <div className="flex items-center gap-1.5">
-                            <span>Status 7 Hari:</span>
+                            <span>{t.statusCenter.sevenDayStatus}:</span>
                             <div className="flex items-center gap-1">
                               {metric.statusHistory7Days.map((status, sIdx) => (
                                 <div
                                   key={sIdx}
-                                  title={`H-${7 - sIdx}: ${status}`}
+                                  title={`${t.statusCenter.dayOffset}${7 - sIdx}: ${status}`}
                                   className={`w-3 h-3 rounded ${
                                     status === "NORMAL"
                                       ? "bg-emerald-500"
@@ -1093,10 +1141,10 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         {isExpanded && (
                           <div className="mt-2 pt-2 border-t border-slate-800 space-y-1.5 animate-in fade-in duration-150">
                             <div className="grid grid-cols-4 text-[10px] font-mono text-slate-400 font-bold pb-1 border-b border-white/5">
-                              <span>Bulan</span>
-                              <span>Uptime</span>
-                              <span>OTP</span>
-                              <span className="text-right">Total Trip</span>
+                              <span>{t.statusCenter.month}</span>
+                              <span>{t.statusCenter.uptimeLabel}</span>
+                              <span>{t.statusCenter.onTimeShort}</span>
+                              <span className="text-right">{t.statusCenter.totalTrips}</span>
                             </div>
                             {metric.monthlyHistory.map((mRec) => (
                               <div
@@ -1121,10 +1169,10 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             {/* 6. FOOTER BAR */}
             <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
               <span className="flex items-center gap-2">
-                Pusat Maklumat Kendali &bull; OCC Dukuh Atas
+                {t.statusCenter.title}
                 {fetchFailed && (
                   <span className="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px]">
-                    Stale
+                    {t.common.stale}
                   </span>
                 )}
               </span>
