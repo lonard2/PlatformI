@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
@@ -40,6 +40,7 @@ import { useTranslation } from "@/lib/i18n";
 export default function Home() {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
+  const allStops = useTransitStore((state) => state.allStops);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
@@ -57,14 +58,23 @@ export default function Home() {
   const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
   const [journeyOrigin, setJourneyOrigin] = useState<string>("");
   const [journeyDest, setJourneyDest] = useState<string>("");
-  const [journeyNotice, setJourneyNotice] = useState<boolean>(false);
+  const [journeyQuery, setJourneyQuery] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (journeyNotice) {
-      const timer = setTimeout(() => setJourneyNotice(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [journeyNotice]);
+  // Flagship act: hand the planned journey to the AI advisor as a live query
+  const handleFindRoute = () => {
+    const origin = journeyOrigin.trim();
+    const dest = journeyDest.trim();
+    if (!origin || !dest) return;
+    setJourneyQuery(`${origin} → ${dest}`);
+    setIsJourneyExpanded(false);
+    setIsAIModalOpen(true);
+  };
+
+  // Stop universe for the journey autocomplete (deduplicated, A-Z)
+  const stopNames = useMemo(
+    () => Array.from(new Set(allStops.map((s) => s.name))).sort(),
+    [allStops]
+  );
 
   const handleOpenCheckIn = (vehicleId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
@@ -74,7 +84,7 @@ export default function Home() {
   return (
     <main className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden pb-14 lg:pb-0">
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
-      <header className="hidden sm:flex h-13 sm:h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
+      <header className="hidden sm:flex h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
         {/* Left Brand */}
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-cyan-500/15 flex items-center justify-center border border-cyan-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
@@ -107,6 +117,7 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "crowdsource" ? null : "crowdsource")
             }
+            aria-pressed={activeDrawer === "crowdsource"}
             className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "crowdsource"
                 ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
@@ -121,6 +132,7 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "tickets" ? null : "tickets")
             }
+            aria-pressed={activeDrawer === "tickets"}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "tickets"
                 ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
@@ -152,7 +164,7 @@ export default function Home() {
         <DynamicMap />
 
         {/* Floating Journey Pill (above map, right side) */}
-        <div className="absolute top-3 left-3 sm:left-auto sm:right-3 z-40">
+        <div className="absolute top-3 left-3 z-40">
           <AnimatePresence mode="wait">
             {isJourneyExpanded ? (
               <motion.div
@@ -171,12 +183,17 @@ export default function Home() {
                   <button
                     onClick={() => setIsJourneyExpanded(false)}
                     aria-label={t.common.close}
-                    className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
+                    className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
+                <datalist id="stop-names">
+                  {stopNames.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
                 <div className="space-y-1.5">
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-emerald-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -185,6 +202,8 @@ export default function Home() {
                     </label>
                     <input
                       id="journey-origin"
+                      name="journey-origin"
+                      list="stop-names"
                       type="text"
                       placeholder={t.common.origin}
                       value={journeyOrigin}
@@ -199,6 +218,8 @@ export default function Home() {
                     </label>
                     <input
                       id="journey-destination"
+                      name="journey-destination"
+                      list="stop-names"
                       type="text"
                       placeholder={t.common.destination}
                       value={journeyDest}
@@ -210,13 +231,10 @@ export default function Home() {
 
                 <button
                   disabled={!journeyOrigin.trim() || !journeyDest.trim()}
-                  onClick={() => {
-                    setIsJourneyExpanded(false);
-                    setJourneyNotice(true);
-                  }}
-                  className="w-full py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  onClick={handleFindRoute}
+                  className="w-full py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
-                  <Search className="w-3.5 h-3.5 text-slate-950" />
+                  <Search className="w-3.5 h-3.5" />
                   <span>{t.common.findRoute}</span>
                 </button>
               </motion.div>
@@ -228,7 +246,7 @@ export default function Home() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={() => setIsJourneyExpanded(true)}
-                className="glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 btn-tactile transition-all cursor-pointer"
+                className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 btn-tactile transition-all cursor-pointer"
               >
                 <Search className="w-4 h-4 text-cyan-400" />
                 <span className="text-xs font-medium text-slate-300 hidden sm:inline">
@@ -241,19 +259,6 @@ export default function Home() {
             )}
           </AnimatePresence>
 
-          {/* Brief Journey Coming Soon Notice */}
-          <AnimatePresence>
-            {journeyNotice && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="absolute top-full mt-2 left-0 sm:left-auto sm:right-0 glass-panel rounded-lg px-3 py-1.5 text-xs text-slate-300 whitespace-nowrap shadow-xl"
-              >
-                {t.common.comingSoon}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* Floating Crowdsource Feed Drawer */}
@@ -311,7 +316,7 @@ export default function Home() {
 
       </div>
 
-      {/* 4. MODALS & DRAWERS */}
+      {/* 5. MODALS & DRAWERS */}
       {/* Check-In Modal */}
       <CheckInModal
         isOpen={isCheckInOpen}
@@ -322,8 +327,10 @@ export default function Home() {
       {/* Multi-Model AI Transit Advisor Modal */}
       <AITransitAssistantModal
         isOpen={isAIModalOpen || activeDrawer === "ai"}
+        initialQuery={journeyQuery ?? undefined}
         onClose={() => {
           setIsAIModalOpen(false);
+          setJourneyQuery(null);
           if (activeDrawer === "ai") setActiveDrawer(null);
         }}
       />
@@ -348,13 +355,13 @@ export default function Home() {
 
 
 
-      {/* 5. BOTTOM TELEMETRY STRIP */}
+      {/* 6. BOTTOM TELEMETRY STRIP */}
       <TelemetryFooter
         allLinesCount={allLines.length}
         simulationSpeed={simulationSpeed}
       />
 
-      {/* 6. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
+      {/* 7. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
         onOpenAI={() => setIsAIModalOpen(true)}
         onOpenStatus={() => setIsStatusDrawerOpen(true)}

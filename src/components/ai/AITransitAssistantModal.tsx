@@ -36,10 +36,12 @@ import {
 } from "@/lib/services/aiTransitService";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 export interface AITransitAssistantModalProps {
   onClose: () => void;
   isOpen: boolean;
+  initialQuery?: string;
 }
 
 interface ExtendedChatMessage extends AIChatMessage {
@@ -50,9 +52,22 @@ interface ExtendedChatMessage extends AIChatMessage {
   timestamp?: string;
 }
 
+function getWelcomeMessage(t: TranslationDictionary): string {
+  return t.aiAdvisor.welcomeMessage;
+}
+
+function getOfflineMessage(t: TranslationDictionary): string {
+  return t.aiAdvisor.offlineMessage;
+}
+
+function getResetMessage(t: TranslationDictionary): string {
+  return t.aiAdvisor.resetMessage;
+}
+
 export const AITransitAssistantModal: React.FC<AITransitAssistantModalProps> = ({
   isOpen,
   onClose,
+  initialQuery,
 }) => {
   const { t } = useTranslation();
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_AI_MODEL_ID);
@@ -64,28 +79,27 @@ export const AITransitAssistantModal: React.FC<AITransitAssistantModalProps> = (
   // Store actions to trigger cartography interactions
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
+  const setViewport = useTransitStore((state) => state.setViewport);
   const allStops = useTransitStore((state) => state.allStops);
   const allLines = useTransitStore((state) => state.allLines);
 
-  const [messages, setMessages] = useState<ExtendedChatMessage[]>([
-    {
-      id: "msg-welcome",
-      role: "assistant",
-      content: `### Welcome to PlatformI AI Transit Advisor!
+  const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
 
-I am your multimodal transit copilot for the **Jakarta & Bodetabek** metropolitan transit network.
-
-You can ask me anything about:
-- **Optimal Multimodal Routes** (MRT, LRT, KRL, Whoosh, TransJakarta, MikroTrans)
-- **JakLingko Rp 10,000 Integrated 3-Hour Tariff Cap** calculations
-- **Intermodal Skybridge Transfers** (Dukuh Atas TOD, CSW-ASEAN 5-level hub, Manggarai)
-- **Aviation & Maritime Links** (Soekarno-Hatta CGK, Halim HLP, Kepulauan Seribu speedboats)
-
-*Select an AI reasoning model below or tap one of the suggested prompts to begin!*`,
-      modelUsed: DEFAULT_AI_MODEL_ID,
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  // Seed the localized welcome message once (component-time so t is available).
+  useEffect(() => {
+    setMessages((prev) => {
+      if (prev.length > 0) return prev;
+      return [
+        {
+          id: "msg-welcome",
+          role: "assistant",
+          content: getWelcomeMessage(t),
+          modelUsed: DEFAULT_AI_MODEL_ID,
+          timestamp: new Date().toISOString(),
+        },
+      ];
+    });
+  }, [t]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -190,10 +204,7 @@ You can ask me anything about:
       const fallbackMsg: ExtendedChatMessage = {
         id: `asst-err-${Date.now()}`,
         role: "assistant",
-        content: `### Network Advisory Notice
-I was unable to establish a secure real-time link to the external AI provider. 
-
-However, you can still inspect live transit lines and schedules via the cartography map controls or browse active disruption bulletins in the Service Status drawer.`,
+        content: getOfflineMessage(t),
         modelUsed: selectedModel,
         timestamp: new Date().toISOString(),
       };
@@ -208,13 +219,28 @@ However, you can still inspect live transit lines and schedules via the cartogra
       {
         id: "msg-welcome-reset",
         role: "assistant",
-        content: `### Chat History Reset
-AI Transit Advisor is ready for your next transit inquiry. What destination or fare policy would you like to explore?`,
+        content: getResetMessage(t),
         modelUsed: selectedModel,
         timestamp: new Date().toISOString(),
       },
     ]);
   };
+
+  // Auto-send a pre-filled journey query when presented from the journey pill.
+  // The ref guard prevents duplicate sends; it resets on close so planning the
+  // same journey again re-sends intentionally.
+  const sentInitialQueryRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isOpen && initialQuery) {
+      if (sentInitialQueryRef.current !== initialQuery) {
+        sentInitialQueryRef.current = initialQuery;
+        handleSendMessage(initialQuery);
+      }
+    } else if (!isOpen) {
+      sentInitialQueryRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialQuery]);
 
   const handleCopyContent = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -223,11 +249,23 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
   };
 
   const handleSelectStopOnMap = (stopId: string) => {
+    const stop = allStops.find((s) => s.id === stopId);
+    if (stop) {
+      setViewport([stop.latitude, stop.longitude], 15);
+    }
     selectStop(stopId);
     onClose();
   };
 
   const handleSelectLineOnMap = (lineId: string) => {
+    const line = allLines.find((l) => l.id === lineId);
+    if (line?.polylineCoordinates && line.polylineCoordinates.length > 0) {
+      const mid =
+        line.polylineCoordinates[
+          Math.floor(line.polylineCoordinates.length / 2)
+        ];
+      setViewport([mid.latitude, mid.longitude], 12);
+    }
     selectLine(lineId);
     onClose();
   };
@@ -269,7 +307,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                   {t.aiAdvisor.title}
                 </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono font-medium">
-                  Multi-Model
+                  {t.aiAdvisor.multiModelBadge}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
@@ -316,7 +354,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
               {isModelDropdownOpen && (
                 <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-[#121829] border border-white/15 rounded-xl shadow-2xl py-1.5 z-50 backdrop-blur-md">
                   <div className="px-3 py-1 text-[10px] uppercase font-bold text-slate-400 border-b border-white/10 tracking-wider">
-                    Designated OpenRouter Models
+                    {t.aiAdvisor.openrouterModels}
                   </div>
                   {SUPPORTED_AI_MODELS.map((model) => (
                     <button
@@ -348,7 +386,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
 
           <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 font-mono">
             <Info className="w-3 h-3 text-cyan-400" />
-            <span>Grounded with live Jakarta transit dataset</span>
+            <span>{t.aiAdvisor.groundedNote}</span>
           </div>
         </div>
 
@@ -356,7 +394,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
         <div className="px-4 sm:px-6 py-2 bg-slate-950/50 border-b border-white/5 overflow-x-auto no-scrollbar flex items-center gap-2 shrink-0">
           <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider shrink-0 flex items-center gap-1">
             <HelpCircle className="w-3 h-3 text-slate-400" />
-            Quick:
+            {t.aiAdvisor.quickPrefix}
           </span>
           {PROMPT_SUGGESTIONS.map((sug) => (
             <button
@@ -429,7 +467,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                       <div className="flex flex-wrap items-center gap-1.5">
                         {msg.suggestedStops && msg.suggestedStops.length > 0 && (
                           <div className="flex flex-wrap items-center gap-1">
-                            <span className="text-[10px] text-slate-400 font-mono">Hubs:</span>
+                            <span className="text-[10px] text-slate-400 font-mono">{t.aiAdvisor.hubsPrefix}</span>
                             {msg.suggestedStops.map((stopId) => {
                               const stop = allStops.find((s) => s.id === stopId);
                               if (!stop) return null;
@@ -449,7 +487,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
 
                         {msg.suggestedLines && msg.suggestedLines.length > 0 && (
                           <div className="flex flex-wrap items-center gap-1">
-                            <span className="text-[10px] text-slate-400 font-mono">Lines:</span>
+                            <span className="text-[10px] text-slate-400 font-mono">{t.aiAdvisor.linesPrefix}</span>
                             {msg.suggestedLines.map((lineId) => {
                               const line = allLines.find((l) => l.id === lineId);
                               if (!line) return null;
@@ -476,12 +514,12 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
                         {copiedId === msg.id ? (
                           <>
                             <Check className="w-3 h-3 text-emerald-400" />
-                            <span className="text-emerald-400">Copied</span>
+                            <span className="text-emerald-400">{t.aiAdvisor.copied}</span>
                           </>
                         ) : (
                           <>
                             <Copy className="w-3 h-3" />
-                            <span>Copy</span>
+                            <span>{t.aiAdvisor.copy}</span>
                           </>
                         )}
                       </button>
@@ -500,7 +538,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
               </div>
               <div className="bg-slate-900/90 border border-white/10 rounded-2xl rounded-tl-none p-3.5 flex items-center gap-2 text-xs text-cyan-300">
                 <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-                <span>Computing multimodal transit routes & JakLingko tariff...</span>
+                <span>{t.aiAdvisor.loading}</span>
               </div>
             </div>
           )}
@@ -542,8 +580,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
             </button>
           </form>
           <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Powered by OpenRouter Multimodal AI Router</span>
-            <span>PlatformI Jabodetabek Engine</span>
+            <span>{t.aiAdvisor.poweredBy}</span>
+            <span>{t.aiAdvisor.engineName}</span>
           </div>
         </div>
       </motion.div>
