@@ -151,7 +151,7 @@ The spacing rhythm is tight and operational. Controls cluster in small groups, r
 
 ## Elevation & Depth
 
-PlatformI uses layered glass. Depth comes from translucent blue-slate surfaces, backdrop blur, subtle borders, tonal contrast, and restrained black shadows. The map remains visually open beneath the interface; controls, alerts, wallets, and inspectors float above it as separate operational layers.
+PlatformI uses layered glass. Depth comes from translucent blue-slate surfaces, backdrop blur, subtle borders, tonal contrast, and restrained black shadows. The map remains visually open beneath the interface; controls, alerts, wallets, and inspectors float above it as separate operational layers. Chrome surfaces that must stay legible directly over live cartography (system bar, mobile navigation, trays, menus) use the dedicated `--glass-chrome` token (rgba(8, 12, 22, 0.98)) — near-opaque by intent, distinct from the standard 0.75 glass.
 
 ### Shadow Vocabulary
 

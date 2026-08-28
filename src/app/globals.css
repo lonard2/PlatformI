@@ -15,6 +15,10 @@
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
+  --accent-blue: #2563eb;
+  /* Opaque chrome surfaces (system bar, mobile nav, trays, menus) over the map */
+  --glass-chrome: rgba(8, 12, 22, 0.98);
+  --glass-chrome-90: rgba(8, 12, 22, 0.9);
 }
 
 .light {
@@ -28,6 +32,7 @@
   --accent-emerald: #059669;
   --accent-amber: #d97706;
   --accent-rose: #e11d48;
+  --accent-blue: #1d4ed8;
 }
 
 body {
@@ -279,3 +284,11 @@ body {
   }
 }
 
+
+/* Hidden Scrollbar Utility (horizontal chrome scrollers) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
