@@ -39,17 +39,18 @@ import {
   Compass,
   Eye,
   EyeOff,
-  Filter,
   Layers,
   Sparkles,
   Camera,
   Crown,
   Globe,
+  Settings,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 export interface SystemCorridorDetail {
   code: string;
@@ -91,6 +92,52 @@ export interface TransitSystemGroup {
   accentColor: string;
   items: TransitSystemItem[];
 }
+
+// Sector pill names (localized UI vocabulary; the data constants keep the
+// authentic Indonesian titles).
+function getSectorShortTitle(category: TransitCategory, t: TranslationDictionary): string {
+  switch (category) {
+    case "RAIL":
+      return t.navigation.sectorRail;
+    case "BUS":
+      return t.navigation.sectorBus;
+    case "AVIATION":
+      return t.navigation.sectorAir;
+    case "MARITIME":
+      return t.navigation.sectorSea;
+  }
+}
+
+// Short status labels: shown inline next to the dot for non-NORMAL sectors,
+// so the dot language is taught on touch devices, not hover-only.
+function getShortStatusLabel(status: ServiceOperatingStatus, t: TranslationDictionary): string {
+  switch (status) {
+    case "LIMITED":
+      return t.navigation.serviceLimited;
+    case "SUSPENDED":
+      return t.navigation.serviceSuspended;
+    case "OFF_HOURS":
+      return t.navigation.serviceOffHours;
+    default:
+      return t.navigation.serviceLimited;
+  }
+}
+
+// Status color semantics per DESIGN.md: emerald = healthy, amber = limited,
+// rose = suspended (critical), slate = off-hours (not a disruption).
+const STATUS_COLORS: Record<ServiceOperatingStatus, { color: string; glow: string }> = {
+  NORMAL: { color: "#10b981", glow: "0 0 6px #10b981" },
+  LIMITED: { color: "#f59e0b", glow: "0 0 6px #f59e0b" },
+  SUSPENDED: { color: "#f43f5e", glow: "0 0 6px #f43f5e" },
+  OFF_HOURS: { color: "#64748b", glow: "none" },
+};
+
+const TRAY_STATUS_STYLES: Record<ServiceOperatingStatus, { bg: string; border: string; text: string }> = {
+  NORMAL: { bg: "#064e3b", border: "#10b981", text: "#6ee7b7" },
+  LIMITED: { bg: "#78350f", border: "#f59e0b", text: "#fcd34d" },
+  SUSPENDED: { bg: "#4c0519", border: "#f43f5e", text: "#fda4af" },
+  OFF_HOURS: { bg: "#334155", border: "#64748b", text: "#cbd5e1" },
+};
 
 export const SYSTEM_GROUPS: TransitSystemGroup[] = [
   // 1. LAND - REL (RAIL)
@@ -730,6 +777,8 @@ export function TransportationSystemBar() {
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);
+  const allLines = useTransitStore((state) => state.allLines);
+  const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
 
   // States
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<"ALL" | TransitCategory>("ALL");
@@ -753,11 +802,15 @@ export function TransportationSystemBar() {
         !barWrapperRef.current.contains(e.target as Node)
       ) {
         setActiveItemId(null);
+        setShowLangMenu(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
   }, []);
 
   const handleScrollLeft = () => {
@@ -778,6 +831,18 @@ export function TransportationSystemBar() {
       ...prev,
       [category]: !prev[category],
     }));
+  };
+
+  // Merged semantics: a category tab filters the bar AND toggles that sector's
+  // map visibility in one control, so identical labels can never mean two
+  // different things 40px apart. "ALL" resets the filter and restores the map.
+  const handleCategoryTab = (cat: "ALL" | TransitCategory) => {
+    setActiveCategoryFilter(cat);
+    if (cat === "ALL") {
+      selectAllModes();
+    } else {
+      toggleCategory(cat);
+    }
   };
 
   const handleItemToggle = (item: TransitSystemItem, e: React.MouseEvent) => {
@@ -827,6 +892,21 @@ export function TransportationSystemBar() {
     } else if (detail.lineId) {
       selectLine(detail.lineId);
       setActiveItemId(null);
+    } else if (activeItem) {
+      // No-op guard: fall through to the parent system's own map target so
+      // every corridor card produces a visible map response.
+      if (activeItem.targetStopId) {
+        if (activeItem.targetCoordinates) {
+          setViewport(activeItem.targetCoordinates, 14);
+        }
+        selectStop(activeItem.targetStopId);
+      } else if (activeItem.mode) {
+        const parentLine = allLines.find((l) => l.mode === activeItem.mode);
+        if (parentLine) {
+          selectLine(parentLine.id);
+        }
+      }
+      setActiveItemId(null);
     }
   };
 
@@ -854,18 +934,15 @@ export function TransportationSystemBar() {
   return (
     <div
       ref={barWrapperRef}
-      className="w-full bg-[#080c16]/98 backdrop-blur-2xl border-b border-white/10 z-30 shrink-0 select-none shadow-xl relative transition-all duration-300"
+      className="w-full bg-[var(--glass-chrome)] backdrop-blur-2xl border-b border-white/10 z-30 shrink-0 select-none shadow-xl relative transition-all duration-300"
     >
       {/* 1. TOP QUICK CATEGORY SECTOR TABS WITH ANIMATED HIGHLIGHT */}
       <div className="flex items-center justify-between px-3 sm:px-6 pt-1.5 pb-1 border-b border-white/5 text-[11px] font-mono">
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider hidden xs:inline flex items-center gap-1">
-            <Filter className="w-3 h-3 text-cyan-400" /> {t.common.filter}:
-          </span>
-
           <button
-            onClick={() => setActiveCategoryFilter("ALL")}
-            className={`relative px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold ${
+            onClick={() => handleCategoryTab("ALL")}
+            aria-pressed={SYSTEM_GROUPS.every((g) => isCategoryActive(g.category))}
+            className={`relative px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               activeCategoryFilter === "ALL"
                 ? "bg-cyan-950/90 border border-cyan-400/60 text-cyan-300 shadow-sm"
                 : "text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/90 border border-slate-800/80 hover:border-slate-700 shadow-sm"
@@ -881,8 +958,9 @@ export function TransportationSystemBar() {
             return (
               <button
                 key={g.category}
-                onClick={() => setActiveCategoryFilter(g.category)}
-                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold ${
+                onClick={() => handleCategoryTab(g.category)}
+                aria-pressed={isCatActiveOnMap}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
                   isFilterActive
                     ? "bg-slate-800 border border-cyan-500/50 text-white shadow-sm ring-1 ring-cyan-500/30"
                     : "text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/90 border border-slate-800/80 hover:border-slate-700 shadow-sm"
@@ -894,27 +972,29 @@ export function TransportationSystemBar() {
                     backgroundColor: isCatActiveOnMap ? g.accentColor : "#475569",
                   }}
                 />
-                <span>{g.shortTitle}</span>
+                <span>{getSectorShortTitle(g.category, t)}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Quick Global All / Clear Actions & Language Selector */}
+        {/* Quick Global Settings / Reset / Language Selector */}
         <div className="flex items-center gap-2 text-[10px]">
+          <button
+            onClick={() => setActiveDrawer("settings")}
+            aria-label={t.navigation.settings}
+            title={t.navigation.settings}
+            className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white transition`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
           <div className="hidden sm:flex items-center gap-1">
             <button
-              onClick={selectAllModes}
-              className="text-slate-400 hover:text-cyan-300 transition"
-            >
-              {t.navigation.allModes}
-            </button>
-            <span className="text-slate-600">&bull;</span>
-            <button
               onClick={clearAllModes}
-              className="text-slate-400 hover:text-rose-400 transition"
+              aria-label={t.navigation.resetMap}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 text-slate-400 hover:text-rose-400 transition"
             >
-              {t.common.filter}
+              {t.navigation.resetMap}
             </button>
           </div>
 
@@ -922,7 +1002,15 @@ export function TransportationSystemBar() {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu((v) => !v)}
-              className="px-2 py-0.5 rounded-lg border border-slate-800 bg-slate-900/90 text-[10px] text-slate-300 hover:text-white transition flex items-center gap-1 font-mono font-bold"
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && showLangMenu) {
+                  e.stopPropagation();
+                  setShowLangMenu(false);
+                }
+              }}
+              aria-expanded={showLangMenu}
+              aria-haspopup="menu"
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2 py-0.5 rounded-lg border border-slate-800 bg-slate-900/90 text-[10px] text-slate-300 hover:text-white transition flex items-center gap-1 font-mono font-bold"
               title={t.common.selectLanguage}
             >
               <Globe className="w-3 h-3 text-cyan-400" />
@@ -937,7 +1025,7 @@ export function TransportationSystemBar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.12 }}
-                  className="absolute right-0 top-full mt-1 z-50 w-36 bg-[#0c1222] border border-slate-700 rounded-xl shadow-2xl p-1 space-y-0.5"
+                  className="absolute right-0 top-full mt-1 z-50 w-36 bg-[var(--glass-chrome)] border border-slate-700 rounded-xl shadow-2xl p-1 space-y-0.5"
                 >
                   {supportedLanguages.map((lang) => (
                     <button
@@ -946,7 +1034,7 @@ export function TransportationSystemBar() {
                         setLanguage(lang.code);
                         setShowLangMenu(false);
                       }}
-                      className={`w-full px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center justify-between transition ${
+                      className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 w-full px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center justify-between transition ${
                         language === lang.code
                           ? "bg-cyan-950 text-cyan-300 border border-cyan-500/40"
                           : "text-slate-300 hover:bg-slate-800"
@@ -972,7 +1060,7 @@ export function TransportationSystemBar() {
           onClick={handleScrollLeft}
           title={t.common.scrollLeft}
           aria-label={t.common.scrollLeft}
-          className="hidden md:flex absolute left-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-r from-[#080c16] via-[#080c16]/90 to-transparent text-slate-300 hover:text-white transition"
+          className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 hidden md:flex absolute left-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-r from-[var(--glass-chrome)] via-[var(--glass-chrome-90)] to-transparent text-slate-300 hover:text-white transition"
         >
           <ChevronLeft className="w-5 h-5 drop-shadow" />
         </button>
@@ -1002,8 +1090,10 @@ export function TransportationSystemBar() {
                   <div className="flex items-center rounded-xl bg-slate-950/70 border border-white/10 p-0.5 shrink-0 transition-all">
                     <button
                       onClick={() => toggleCategory(group.category)}
-                      title={`Klik untuk Aktifkan / Nonaktifkan Semua ${group.title} di Peta`}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
+                      title={t.navigation.toggleSectorMap}
+                      aria-label={t.navigation.toggleSectorMap}
+                      aria-pressed={isCatActive}
+                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
                         isCatActive
                           ? "bg-slate-900/90 text-white shadow-md hover:bg-slate-800"
                           : "text-slate-400 hover:text-slate-200 bg-slate-950/80 hover:bg-slate-900 border border-transparent hover:border-white/10 opacity-70 hover:opacity-100"
@@ -1015,7 +1105,7 @@ export function TransportationSystemBar() {
                     >
                       <GroupIcon className="w-4 h-4" style={{ color: isCatActive ? group.accentColor : "#64748b" }} />
                       <span className="text-[11px] uppercase tracking-wider font-mono">
-                        {group.shortTitle}
+                        {getSectorShortTitle(group.category, t)}
                       </span>
                       {isCatActive ? (
                         <Eye className="w-3 h-3 text-cyan-400" />
@@ -1027,8 +1117,10 @@ export function TransportationSystemBar() {
                     {/* Minimize / Collapse Group Items Toggle */}
                     <button
                       onClick={(e) => toggleCategoryCollapse(group.category, e)}
-                      title={isCollapsed ? "Tampilkan item sektor ini" : "Sembunyikan item sektor ini"}
-                      className="p-1 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-md transition"
+                      title={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
+                      aria-label={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
+                      aria-expanded={!isCollapsed}
+                      className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-md transition"
                     >
                       <ChevronDown
                         className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -1040,7 +1132,7 @@ export function TransportationSystemBar() {
 
                   {/* Sub-group System Items */}
                   {!isCollapsed && (
-                    <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
+                    <div className="flex items-center gap-1.5">
                       {group.items.map((item) => {
                         const ItemIcon = item.icon;
                         const isModeSelected = item.mode
@@ -1057,7 +1149,7 @@ export function TransportationSystemBar() {
                             onMouseEnter={(e) => handleItemMouseEnter(item, e)}
                             onMouseLeave={handleItemMouseLeave}
                             title={`${item.name} - ${item.statusReason}`}
-                            className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-200 shrink-0 ${
+                            className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-200 shrink-0 ${
                               isSelected
                                 ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30 scale-105"
                                 : item.type === "building_hub"
@@ -1098,27 +1190,28 @@ export function TransportationSystemBar() {
 
                               {/* Live Operational Status Dot */}
                               <span
-                                className="w-2 h-2 rounded-full shrink-0 animate-pulse"
-                                style={{
-                                  backgroundColor:
-                                    item.status === "NORMAL"
-                                      ? "#10b981"
-                                      : item.status === "LIMITED"
-                                      ? "#f59e0b"
-                                      : "#64748b",
-                                  boxShadow:
-                                    item.status === "NORMAL"
-                                      ? "0 0 6px #10b981"
-                                      : item.status === "LIMITED"
-                                      ? "0 0 6px #f59e0b"
-                                      : "none",
-                                }}
+                                role="img"
+                                aria-label={item.statusReason}
                                 title={`Status: ${item.statusReason}`}
+                                className={`w-2 h-2 rounded-full shrink-0 ${item.status === "NORMAL" || item.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
+                                style={{
+                                  backgroundColor: STATUS_COLORS[item.status].color,
+                                  boxShadow: STATUS_COLORS[item.status].glow,
+                                }}
                               />
+                              {item.status !== "NORMAL" && (
+                                <span
+                                  aria-hidden="true"
+                                  className="text-[10px] font-mono font-bold shrink-0 whitespace-nowrap"
+                                  style={{ color: STATUS_COLORS[item.status].color }}
+                                >
+                                  {getShortStatusLabel(item.status, t)}
+                                </span>
+                              )}
 
                               {item.type === "building_hub" ? (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
-                                  HUB
+                                  {t.navigation.hubBadge}
                                 </span>
                               ) : (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-semibold">
@@ -1148,7 +1241,7 @@ export function TransportationSystemBar() {
           onClick={handleScrollRight}
           title={t.common.scrollRight}
           aria-label={t.common.scrollRight}
-          className="hidden md:flex absolute right-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-l from-[#080c16] via-[#080c16]/90 to-transparent text-slate-300 hover:text-white transition"
+          className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 hidden md:flex absolute right-0 z-20 h-full w-8 items-center justify-center bg-gradient-to-l from-[var(--glass-chrome)] via-[var(--glass-chrome-90)] to-transparent text-slate-300 hover:text-white transition"
         >
           <ChevronRight className="w-5 h-5 drop-shadow" />
         </button>
@@ -1168,7 +1261,7 @@ export function TransportationSystemBar() {
               top: `${hoverCardPos.top}px`,
               width: "320px",
             }}
-            className="z-50 p-3 bg-[#0a0f1d]/98 backdrop-blur-2xl border border-cyan-500/40 rounded-2xl shadow-2xl shadow-black/90 pointer-events-none text-slate-100 space-y-2 select-none"
+            className="z-50 p-3 bg-[var(--glass-chrome)] backdrop-blur-2xl border border-cyan-500/40 rounded-2xl shadow-2xl shadow-black/90 pointer-events-none text-slate-100 space-y-2 select-none"
           >
             <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
               <div
@@ -1196,8 +1289,14 @@ export function TransportationSystemBar() {
               </div>
               <div>
                  <span className="text-slate-400 text-[10px]">{t.navigation.serviceStatus}:</span>
-                <div className="text-emerald-400 font-bold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="font-bold flex items-center gap-1" style={{ color: STATUS_COLORS[hoveredItem.status].color }}>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${hoveredItem.status === "NORMAL" || hoveredItem.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
+                    style={{
+                      backgroundColor: STATUS_COLORS[hoveredItem.status].color,
+                      boxShadow: STATUS_COLORS[hoveredItem.status].glow,
+                    }}
+                  />
                   <span className="truncate">{hoveredItem.statusReason}</span>
                 </div>
               </div>
@@ -1219,9 +1318,9 @@ export function TransportationSystemBar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="w-full border-t border-cyan-500/30 bg-[#060a14]/98 backdrop-blur-2xl shadow-2xl overflow-hidden p-4 sm:p-5 text-slate-100"
+            className="w-full border-t border-cyan-500/30 bg-[var(--glass-chrome)] backdrop-blur-2xl shadow-2xl overflow-hidden p-4 sm:p-5 text-slate-100"
           >
-            <div className="max-w-6xl mx-auto space-y-4">
+            <div className="max-w-6xl mx-auto space-y-4 max-h-[45vh] overflow-y-auto pr-1">
               {/* Tray Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                 <div className="flex items-center gap-3">
@@ -1248,24 +1347,9 @@ export function TransportationSystemBar() {
                       <span
                         className="text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1"
                         style={{
-                          backgroundColor:
-                            activeItem.status === "NORMAL"
-                              ? "#064e3b"
-                              : activeItem.status === "LIMITED"
-                              ? "#78350f"
-                              : "#334155",
-                          borderColor:
-                            activeItem.status === "NORMAL"
-                              ? "#10b981"
-                              : activeItem.status === "LIMITED"
-                              ? "#f59e0b"
-                              : "#64748b",
-                          color:
-                            activeItem.status === "NORMAL"
-                              ? "#6ee7b7"
-                              : activeItem.status === "LIMITED"
-                              ? "#fcd34d"
-                              : "#cbd5e1",
+                          backgroundColor: TRAY_STATUS_STYLES[activeItem.status].bg,
+                          borderColor: TRAY_STATUS_STYLES[activeItem.status].border,
+                          color: TRAY_STATUS_STYLES[activeItem.status].text,
                         }}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
@@ -1286,7 +1370,7 @@ export function TransportationSystemBar() {
                   {activeItem.mode && (
                     <button
                       onClick={() => activeItem.mode && toggleMode(activeItem.mode)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold border transition flex items-center gap-1.5 ${
+                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-3 py-1.5 rounded-xl text-xs font-mono font-bold border transition flex items-center gap-1.5 ${
                         selectedModes.includes(activeItem.mode)
                           ? "bg-emerald-950/80 border-emerald-500/50 text-emerald-300 shadow-md shadow-emerald-950/40"
                           : "bg-slate-900 border-slate-700 text-slate-400 hover:text-white"
@@ -1312,7 +1396,7 @@ export function TransportationSystemBar() {
                         }
                         setActiveItemId(null);
                       }}
-                      className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50 flex items-center gap-1.5 transition"
+                      className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50 flex items-center gap-1.5 transition"
                     >
                       <Building2 className="w-3.5 h-3.5" />
                       <span>{t.navigation.openHubBoard}</span>
@@ -1321,7 +1405,7 @@ export function TransportationSystemBar() {
 
                   <button
                     onClick={() => setActiveItemId(null)}
-                    className="p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
+                    className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
                     title={t.common.close}
                     aria-label={t.common.close}
                   >
@@ -1354,7 +1438,7 @@ export function TransportationSystemBar() {
                         placeholder={t.navigation.searchRoutesAndHubs}
                         value={corridorSearchQuery}
                         onChange={(e) => setCorridorSearchQuery(e.target.value)}
-                        className="w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-8 pr-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                        className="touch-target w-full bg-slate-950/80 border border-slate-800 rounded-lg pl-8 pr-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                       />
                     </div>
                   )}
@@ -1376,7 +1460,7 @@ export function TransportationSystemBar() {
                       <button
                         key={idx}
                         onClick={() => handleCorridorSelect(corridor)}
-                        className="p-3 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 hover:border-cyan-500/60 transition-all flex items-start justify-between gap-3 group text-left shadow-sm"
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/60 transition-all flex items-start justify-between gap-3 group text-left shadow-sm"
                       >
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex items-center gap-2">

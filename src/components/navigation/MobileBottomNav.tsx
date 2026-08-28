@@ -51,7 +51,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
   return (
     <nav
       aria-label={t.navigation.mainNavigation}
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080c16]/98 backdrop-blur-2xl border-t border-white/15 px-2 py-1.5 flex items-center justify-around shadow-2xl shadow-black safe-area-pb"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--glass-chrome)] backdrop-blur-2xl border-t border-white/15 px-2 py-1.5 flex items-center justify-around shadow-2xl shadow-black safe-area-pb"
     >
       {/* 1. PETA (MAP) */}
       <button
@@ -91,7 +91,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
       {/* 4. TIKET (TICKETS / QR) */}
       <button
         onClick={handleWalletClick}
-        aria-label={t.ticketing.tapAtGate}
+        aria-pressed={isWalletActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isWalletActive
             ? "text-cyan-400 font-bold"
@@ -105,6 +105,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
       {/* 5. KOMUNITAS (CROWDSOURCE) */}
       <button
         onClick={handleCrowdsourceClick}
+        aria-pressed={isCrowdsourceActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isCrowdsourceActive
             ? "text-cyan-400 font-bold"

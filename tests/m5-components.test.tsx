@@ -212,8 +212,8 @@ describe("Milestone 5: React UI Components Integration", () => {
       expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket/i)).toBeInTheDocument();
       expect(screen.getByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas/i)).toBeInTheDocument();
 
-      // Click center QR button
-      const qrBtn = screen.getByRole("button", { name: /Position QR Code on Gate Scanner|dynamic QR|kode QR|QR|Tiket|Pass/i });
+      // Click tickets button (accessible name now matches the visible label)
+      const qrBtn = screen.getByRole("button", { name: /Position QR Code on Gate Scanner|dynamic QR|kode QR|QR|Tiket|Tickets|Pass/i });
       fireEvent.click(qrBtn);
       expect(useTransitStore.getState().activeDrawer).toBe("tickets");
 
