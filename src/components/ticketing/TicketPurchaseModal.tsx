@@ -155,7 +155,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
 
   const handlePurchase = async () => {
     if (!originStopId || !destinationStopId) {
-      setErrorMessage("Please select origin and destination stations.");
+      setErrorMessage(t.ticketing.errorSelectStations);
       return;
     }
 
@@ -187,7 +187,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
       });
 
       if (!res.ok) {
-        throw new Error("Failed to process payment and generate pass.");
+        throw new Error(t.ticketing.errorPaymentFailed);
       }
 
       const data = await res.json();
@@ -257,7 +257,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
               <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                 {t.ticketing.purchaseTicket}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/30 text-emerald-400 font-mono">
-                  JakLingko Ready
+                  {t.ticketing.jaklingkoReady}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
@@ -295,7 +295,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 <div className="flex justify-between">
                   <span className="text-slate-400">{t.ticketing.routeLabel}</span>
                   <span className="text-slate-200 font-medium">
-                    {originStop?.name || "Origin"} &rarr; {destinationStop?.name || "Destination"}
+                    {originStop?.name || t.ticketing.origin} &rarr; {destinationStop?.name || t.ticketing.destination}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -305,7 +305,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Status:</span>
+                  <span className="text-slate-400">{t.ticketing.statusPrefix}</span>
                   <span className="text-emerald-400 font-semibold">{t.ticketing.activeReadyTap}</span>
                 </div>
               </div>
@@ -336,7 +336,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                     {t.ticketing.selectLine}
                   </span>
                   <span className="text-[10px] text-slate-400">
-                    {allLines.length} networks available
+                    {allLines.length} {t.ticketing.networksAvailable}
                   </span>
                 </label>
 
@@ -403,7 +403,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                     <span className="font-bold text-white">{activeLine?.name}</span>
                   </div>
                   <span className="text-[11px] text-cyan-400">
-                    {stationCount} Stations &bull; ~{distanceKm} km
+                    {stationCount} {t.ticketing.stationsSummary} &bull; ~{distanceKm} km
                   </span>
                 </div>
 
@@ -412,14 +412,14 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   <div className="p-2 rounded-lg bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-between text-xs text-emerald-300">
                     <div className="flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      <span>JakLingko 3-Hr Cap Applied</span>
+                      <span>{t.ticketing.capApplied}</span>
                     </div>
-                    <span className="font-bold">Save {formatRupiah(fareResult.discountRp)}</span>
+                    <span className="font-bold">{t.ticketing.savePrefix} {formatRupiah(fareResult.discountRp)}</span>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between text-xs pt-1">
-                  <span className="text-slate-400 font-sans">Total Fare Amount:</span>
+                  <span className="text-slate-400 font-sans">{t.ticketing.totalFareAmount}</span>
                   <span className="text-base font-bold text-emerald-400">
                     {formatRupiah(fareResult.totalFareRp)}
                   </span>
@@ -430,7 +430,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
-                  Select Payment Method
+                  {t.ticketing.selectPayment}
                 </label>
 
                 <div className="grid grid-cols-3 gap-2">
@@ -444,7 +444,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                     }`}
                   >
                     <Wallet className="w-4 h-4 text-emerald-400" />
-                    <span className="text-[11px] font-bold text-slate-200">JakLingko Card</span>
+                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payJaklingko}</span>
                   </button>
 
                   <button
@@ -457,7 +457,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                     }`}
                   >
                     <QrCode className="w-4 h-4 text-cyan-400" />
-                    <span className="text-[11px] font-bold text-slate-200">QRIS Instant</span>
+                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payQris}</span>
                   </button>
 
                   <button
@@ -470,7 +470,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                     }`}
                   >
                     <CreditCard className="w-4 h-4 text-blue-400" />
-                    <span className="text-[11px] font-bold text-slate-200">e-Wallet / VA</span>
+                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payEwallet}</span>
                   </button>
                 </div>
               </div>

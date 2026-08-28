@@ -26,6 +26,7 @@ import {
   generateQRMatrixGrid,
   RollingQRTokenResult,
 } from "@/lib/services/qrSecurityService";
+import { useTranslation } from "@/lib/i18n";
 
 interface DynamicQRCodeProps {
   ticketId: string;
@@ -44,6 +45,7 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
   showPayloadHash = true,
   className = "",
 }) => {
+  const { t } = useTranslation();
   const [tokenData, setTokenData] = useState<RollingQRTokenResult>(() =>
     generateRollingQRToken(ticketId, userId, Date.now())
   );
@@ -182,17 +184,17 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
           <button
             onClick={handleCopy}
             className="flex items-center gap-1 text-slate-300 hover:text-white transition px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700"
-            title="Copy Secure Token"
+            title={t.aiAdvisor.copy}
           >
             {copied ? (
               <>
                 <Check className="w-3 h-3 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
+                <span className="text-emerald-400">{t.aiAdvisor.copied}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3 h-3" />
-                <span>Copy</span>
+                <span>{t.aiAdvisor.copy}</span>
               </>
             )}
           </button>

@@ -8,8 +8,11 @@
 
 import React from "react";
 import { Radar, Compass, Activity } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 export function SkeletonMap() {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full h-full min-h-[500px] flex flex-col items-center justify-center bg-[#090d16] relative overflow-hidden select-none">
       {/* Background Radar Grid Graphic */}
@@ -33,13 +36,13 @@ export function SkeletonMap() {
       <div className="mt-8 z-10 text-center space-y-2 max-w-sm px-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
           <Activity className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-          <span>Synchronizing Regional Cartography</span>
+          <span>{t.common.syncCartography}</span>
         </div>
         <h3 className="text-sm font-semibold text-slate-200 tracking-wide">
-          Initializing Multimodal Cartography Engine
+          {t.common.initEngine}
         </h3>
         <p className="text-xs text-slate-400">
-          Loading Jabodetabek transit vector polylines, smart hub beacons, and real-time fleet telemetry...
+          {t.common.loadingMapCopy}
         </p>
       </div>
 

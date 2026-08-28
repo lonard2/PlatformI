@@ -156,14 +156,14 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           action: "OPEN",
           message:
             scanType === "TAP_IN"
-              ? "Turnstile Gate OPEN &bull; Tap-In Verified at Concourse"
-              : "Turnstile Gate OPEN &bull; Tap-Out Verified &bull; Journey Completed",
+              ? t.ticketing.gateTapIn
+              : t.ticketing.gateTapOut,
         });
       } else {
         setGateFeedback({
           success: false,
           action: "DENY",
-          message: data.message || "Turnstile Access Denied: Token validation failed.",
+          message: data.message || t.ticketing.gateDenied,
         });
       }
     } catch {
@@ -177,8 +177,8 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         action: "OPEN",
         message:
           scanType === "TAP_IN"
-            ? "Turnstile Gate OPEN &bull; Tap-In Verified (Simulated)"
-            : "Turnstile Gate OPEN &bull; Tap-Out Verified (Simulated)",
+            ? t.ticketing.gateTapInSim
+            : t.ticketing.gateTapOutSim,
       });
     } finally {
       setIsValidatingGate(false);
@@ -271,12 +271,12 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           activePasses.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400 space-y-3">
               <TicketIcon className="w-8 h-8 mx-auto text-slate-600" />
-              <p>No active transit passes in your wallet.</p>
+              <p>{t.ticketing.walletEmpty}</p>
               <button
                 onClick={() => setIsPurchaseModalOpen(true)}
                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition"
               >
-                Purchase Digital Pass
+                {t.ticketing.purchasePass}
               </button>
             </div>
           ) : (
@@ -307,12 +307,12 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   <div className="flex items-center justify-between text-xs border-b border-slate-800 pb-3">
                     <div>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        Ticket #{activeTicket.ticketNumber}
+                        {t.ticketing.ticketPrefix}{activeTicket.ticketNumber}
                       </div>
                       <div className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5">
-                        <span>{originStop?.name || "Origin Station"}</span>
+                        <span>{originStop?.name || t.ticketing.origin}</span>
                         <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{destinationStop?.name || "Destination Station"}</span>
+                        <span>{destinationStop?.name || t.ticketing.destination}</span>
                       </div>
                     </div>
 
@@ -323,7 +323,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                           : "bg-emerald-950/70 border-emerald-500/40 text-emerald-300"
                       }`}
                     >
-                      {activeTicket.status === "IN_JOURNEY" ? "In Journey" : "Ready to Tap-In"}
+                      {activeTicket.status === "IN_JOURNEY" ? t.ticketing.statusInJourney : t.ticketing.statusReadyToTap}
                     </span>
                   </div>
 
@@ -339,9 +339,9 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   {/* Gate Scanner Simulator Panel */}
                   <div className="pt-2 border-t border-slate-800 space-y-2">
                     <div className="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
-                      <span>Simulate Gate Turnstile Scanner</span>
+                      <span>{t.ticketing.simulateGate}</span>
                       <span className="text-[9px] text-slate-500 font-mono">
-                        Station: {originStop?.code || "CSW"}
+                        {t.ticketing.stationPrefix} {originStop?.code || "CSW"}
                       </span>
                     </div>
 
@@ -373,7 +373,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         ) : (
                           <>
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>Simulate Tap-In</span>
+                            <span>{t.ticketing.simulateTapIn}</span>
                           </>
                         )}
                       </button>
@@ -388,7 +388,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         ) : (
                           <>
                             <Check className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>Simulate Tap-Out</span>
+                            <span>{t.ticketing.simulateTapOut}</span>
                           </>
                         )}
                       </button>
@@ -404,30 +404,30 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
             {pastTrips.length === 0 ? (
               <div className="py-12 text-center text-xs text-slate-400">
                 <History className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                <p>No completed trips recorded yet.</p>
+                <p>{t.ticketing.noTrips}</p>
               </div>
             ) : (
-              pastTrips.map((t) => (
+              pastTrips.map((trip) => (
                 <div
-                  key={t.id}
+                  key={trip.id}
                   className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-xs space-y-1.5"
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-mono text-slate-400 text-[10px]">
-                      {t.ticketNumber}
+                      {trip.ticketNumber}
                     </span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300">
-                      {t.status}
+                      {trip.status}
                     </span>
                   </div>
                   <div className="font-bold text-white">
-                    {allStops.find((s) => s.id === t.originStopId)?.name || "Origin"} &rarr;{" "}
-                    {allStops.find((s) => s.id === t.destinationStopId)?.name || "Destination"}
+                    {allStops.find((s) => s.id === trip.originStopId)?.name || t.ticketing.origin} &rarr;{" "}
+                    {allStops.find((s) => s.id === trip.destinationStopId)?.name || t.ticketing.destination}
                   </div>
                   <div className="flex justify-between items-center pt-1 border-t border-slate-800/60 text-[11px]">
-                    <span className="text-slate-400">Paid:</span>
+                    <span className="text-slate-400">{t.ticketing.paidPrefix}</span>
                     <span className="font-mono font-bold text-emerald-400">
-                      {formatRupiah(t.totalFareRp)}
+                      {formatRupiah(trip.totalFareRp)}
                     </span>
                   </div>
                 </div>

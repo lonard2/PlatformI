@@ -39,7 +39,7 @@ describe("Milestone 4: UI Components Integration", () => {
       expect(screen.getAllByText(/Check-In/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Level 1: Low Density/i)).toBeInTheDocument();
       expect(screen.getByText(/Level 4: Crush Load/i)).toBeInTheDocument();
-      expect(screen.getByText("OPTIMAL")).toBeInTheDocument();
+      expect(screen.getByText("Optimal")).toBeInTheDocument();
 
       // Tap Level 3
       const level3Btn = screen.getByText(/Level 3: High Density/i);

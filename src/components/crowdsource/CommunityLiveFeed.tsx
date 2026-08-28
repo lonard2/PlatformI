@@ -76,35 +76,35 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
 
   const getRelativeTime = (timestampMs: number): string => {
     const diffSeconds = Math.floor((Date.now() - timestampMs) / 1000);
-    if (diffSeconds < 60) return "just now";
+    if (diffSeconds < 60) return t.crowdsource.justNow;
     const diffMinutes = Math.floor(diffSeconds / 60);
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffMinutes < 60) return `${diffMinutes}${t.crowdsource.feedMinAgo}`;
     const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${Math.floor(diffHours / 24)}d ago`;
+    if (diffHours < 24) return `${diffHours}${t.crowdsource.feedHourAgo}`;
+    return `${Math.floor(diffHours / 24)}${t.crowdsource.feedDayAgo}`;
   };
 
   const getDensityBadge = (level: string) => {
     if (level === "LEVEL_1_MANY_SEATS" || level === "1") {
       return {
-        label: "L1: Low / Seated",
+        label: t.crowdsource.feedL1,
         className: "bg-emerald-950/70 border-emerald-500/40 text-emerald-300",
       };
     }
     if (level === "LEVEL_2_FEW_SEATS" || level === "2") {
       return {
-        label: "L2: Moderate",
+        label: t.crowdsource.feedL2,
         className: "bg-amber-950/70 border-amber-500/40 text-amber-300",
       };
     }
     if (level === "LEVEL_3_STANDING_ONLY" || level === "3") {
       return {
-        label: "L3: Standing Only",
+        label: t.crowdsource.feedL3,
         className: "bg-orange-950/70 border-orange-500/40 text-orange-300",
       };
     }
     return {
-      label: "L4: Crush Load",
+      label: t.crowdsource.feedL4,
       className: "bg-rose-950/70 border-rose-500/40 text-rose-300",
     };
   };
@@ -113,24 +113,24 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
     const upper = ac.toUpperCase();
     if (upper === "COLD") {
       return {
-        label: "AC Cold",
+        label: t.crowdsource.feedAcCold,
         className: "bg-cyan-950/70 border-cyan-500/40 text-cyan-300",
       };
     }
     if (upper === "OPTIMAL") {
       return {
-        label: "AC Optimal",
+        label: t.crowdsource.feedAcOptimal,
         className: "bg-emerald-950/70 border-emerald-500/40 text-emerald-300",
       };
     }
     if (upper === "WARM") {
       return {
-        label: "AC Warm",
+        label: t.crowdsource.feedAcWarm,
         className: "bg-amber-950/70 border-amber-500/40 text-amber-300",
       };
     }
     return {
-      label: "AC Hot",
+      label: t.crowdsource.feedAcHot,
       className: "bg-rose-950/70 border-rose-500/40 text-rose-300",
     };
   };
@@ -202,12 +202,12 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
         {feed.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-400 space-y-2">
             <Radio className="w-8 h-8 mx-auto text-slate-600 animate-pulse" />
-            <p>No commuter reports found for selected line filter.</p>
+            <p>{t.crowdsource.feedEmpty}</p>
             <button
               onClick={() => onOpenCheckIn()}
               className="text-xs text-cyan-400 underline font-medium"
             >
-              Be the first to submit a check-in
+              {t.crowdsource.beFirst}
             </button>
           </div>
         ) : (
@@ -276,10 +276,10 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
       <div className="px-4 py-2 border-t border-white/5 bg-slate-900/60 text-[10px] text-slate-400 flex items-center justify-between shrink-0 font-mono">
         <span className="flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-cyan-400" />
-          10-min exponential decay weighting
+          {t.crowdsource.decayNote}
         </span>
         <span>
-          Updated: {lastRefreshedAt.toLocaleTimeString("id-ID", { hour12: false })}
+          {t.crowdsource.updatedPrefix} {lastRefreshedAt.toLocaleTimeString("id-ID", { hour12: false })}
         </span>
       </div>
     </div>

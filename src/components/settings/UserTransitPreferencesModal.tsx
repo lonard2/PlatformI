@@ -75,26 +75,26 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
   const routingOptions: { id: RoutingPriority; label: string; desc: string; icon: React.ReactNode }[] = [
     {
       id: "SPEED",
-      label: "Fastest Travel Time",
-      desc: "Prioritize grade-separated rail (MRT, LRT, Whoosh) and express trunk corridors",
+      label: t.preferences.fastestRoute,
+      desc: t.preferences.fastestRouteDesc,
       icon: <Zap className="w-4 h-4 text-amber-400" />,
     },
     {
       id: "FARE",
-      label: "Lowest Fare & JakLingko Cap",
-      desc: "Maximize JakLingko 3-hour Rp 10,000 integrated tariff and free MikroTrans legs",
+      label: t.preferences.cheapestFare,
+      desc: t.preferences.cheapestFareDesc,
       icon: <DollarSign className="w-4 h-4 text-emerald-400" />,
     },
     {
       id: "TRANSFERS",
-      label: "Direct & Minimal Transfers",
-      desc: "Prefer single-seat direct trunk routes (e.g. TransJakarta Corridors 1-14)",
+      label: t.preferences.leastTransfers,
+      desc: t.preferences.leastTransfersDesc,
       icon: <Train className="w-4 h-4 text-cyan-400" />,
     },
     {
       id: "ACCESSIBILITY",
-      label: "Barrier-Free & Accessible",
-      desc: "Require step-free elevators, tactile paving, wheelchair ramps, and skybridges",
+      label: t.preferences.wheelchairAccessible,
+      desc: t.preferences.wheelchairAccessibleDesc,
       icon: <Accessibility className="w-4 h-4 text-purple-400" />,
     },
   ];

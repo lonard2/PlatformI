@@ -33,6 +33,7 @@ import {
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { CrowdDensityLevel, ACComfortRating } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 interface CheckInModalProps {
   isOpen: boolean;
@@ -43,8 +44,6 @@ interface CheckInModalProps {
 const DENSITY_OPTIONS: {
   level: CrowdDensityLevel;
   numeric: number;
-  label: string;
-  sublabel: string;
   badgeClass: string;
   borderClass: string;
   bgSelectedClass: string;
@@ -52,8 +51,6 @@ const DENSITY_OPTIONS: {
   {
     level: "LEVEL_1_MANY_SEATS",
     numeric: 1,
-    label: "Level 1: Low Density",
-    sublabel: "Many empty seats available",
     badgeClass: "bg-emerald-950/70 border-emerald-500/40 text-emerald-300",
     borderClass: "border-emerald-500/50 hover:border-emerald-400",
     bgSelectedClass: "bg-emerald-950/80 border-emerald-400 shadow-emerald-950/40",
@@ -61,8 +58,6 @@ const DENSITY_OPTIONS: {
   {
     level: "LEVEL_2_FEW_SEATS",
     numeric: 2,
-    label: "Level 2: Moderate",
-    sublabel: "Few seats left, standing begins",
     badgeClass: "bg-amber-950/70 border-amber-500/40 text-amber-300",
     borderClass: "border-amber-500/50 hover:border-amber-400",
     bgSelectedClass: "bg-amber-950/80 border-amber-400 shadow-amber-950/40",
@@ -70,8 +65,6 @@ const DENSITY_OPTIONS: {
   {
     level: "LEVEL_3_STANDING_ONLY",
     numeric: 3,
-    label: "Level 3: High Density",
-    sublabel: "Standing room only, crowded aisle",
     badgeClass: "bg-orange-950/70 border-orange-500/40 text-orange-300",
     borderClass: "border-orange-500/50 hover:border-orange-400",
     bgSelectedClass: "bg-orange-950/80 border-orange-400 shadow-orange-950/40",
@@ -79,8 +72,6 @@ const DENSITY_OPTIONS: {
   {
     level: "LEVEL_4_FULL_CRUSH",
     numeric: 4,
-    label: "Level 4: Crush Load",
-    sublabel: "Max capacity, doorway congestion",
     badgeClass: "bg-rose-950/70 border-rose-500/40 text-rose-300",
     borderClass: "border-rose-500/50 hover:border-rose-400",
     bgSelectedClass: "bg-rose-950/80 border-rose-400 shadow-rose-950/40",
@@ -89,35 +80,55 @@ const DENSITY_OPTIONS: {
 
 const AC_OPTIONS: {
   rating: ACComfortRating;
-  label: string;
-  sublabel: string;
   badgeClass: string;
 }[] = [
   {
     rating: "COLD",
-    label: "Cold (Sejuk Dingin)",
-    sublabel: "< 22 deg C strong cooling",
     badgeClass: "bg-cyan-950/60 border-cyan-500/30 text-cyan-300",
   },
   {
     rating: "OPTIMAL",
-    label: "Optimal (Nyaman)",
-    sublabel: "23 - 25 deg C fresh airflow",
     badgeClass: "bg-emerald-950/60 border-emerald-500/30 text-emerald-300",
   },
   {
     rating: "WARM",
-    label: "Warm (Kurang Dingin)",
-    sublabel: "26 - 28 deg C warm airflow",
     badgeClass: "bg-amber-950/60 border-amber-500/30 text-amber-300",
   },
   {
     rating: "HOT",
-    label: "Hot (AC Gangguan)",
-    sublabel: "> 28 deg C stuffy/stale air",
     badgeClass: "bg-rose-950/60 border-rose-500/30 text-rose-300",
   },
 ];
+
+function getDensityLabels(level: CrowdDensityLevel, t: TranslationDictionary): { label: string; sublabel: string } {
+  switch (level) {
+    case "LEVEL_1_MANY_SEATS":
+      return { label: t.crowdsource.densityL1Label, sublabel: t.crowdsource.densityL1Hint };
+    case "LEVEL_2_FEW_SEATS":
+      return { label: t.crowdsource.densityL2Label, sublabel: t.crowdsource.densityL2Hint };
+    case "LEVEL_3_STANDING_ONLY":
+      return { label: t.crowdsource.densityL3Label, sublabel: t.crowdsource.densityL3Hint };
+    case "LEVEL_4_FULL_CRUSH":
+      return { label: t.crowdsource.densityL4Label, sublabel: t.crowdsource.densityL4Hint };
+    default:
+      return { label: t.common.normal, sublabel: "" };
+  }
+}
+
+function getACLabels(rating: ACComfortRating, t: TranslationDictionary): { label: string; sublabel: string } {
+  switch (rating) {
+    case "COLD":
+      return { label: t.crowdsource.acColdLabel, sublabel: t.crowdsource.acColdHint };
+    case "OPTIMAL":
+      return { label: t.crowdsource.acOptimalLabel, sublabel: t.crowdsource.acOptimalHint };
+    case "WARM":
+      return { label: t.crowdsource.acWarmLabel, sublabel: t.crowdsource.acWarmHint };
+    case "HOT":
+      return { label: t.crowdsource.acHotLabel, sublabel: t.crowdsource.acHotHint };
+    default:
+      return { label: t.common.normal, sublabel: "" };
+  }
+}
 
 export const CheckInModal: React.FC<CheckInModalProps> = ({
   isOpen,
@@ -186,12 +197,12 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
 
   const handleSubmit = async () => {
     if (!targetVehicleId) {
-      setErrorMessage("Please select an active transit vehicle to check-in.");
+      setErrorMessage(t.crowdsource.errorSelectVehicle);
       return;
     }
 
     if (cooldownSeconds > 0) {
-      setErrorMessage(`Please wait ${cooldownSeconds}s before submitting another report.`);
+      setErrorMessage(t.crowdsource.cooldownActive);
       return;
     }
 
@@ -223,7 +234,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to submit check-in");
+        throw new Error(errorData.error || t.crowdsource.errorSubmitFailed);
       }
 
       setIsSubmitted(true);
@@ -270,7 +281,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               <h2 id={modalTitleId} className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                 {t.crowdsource.checkInTitle}
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-300 font-mono">
-                  Crowdsource Live
+                  {t.crowdsource.badgeLive}
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
@@ -298,10 +309,10 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               </div>
               <div>
                 <h3 className="text-sm font-bold text-emerald-300">
-                  Report Broadcasted Successfully
+                  {t.crowdsource.successTitle}
                 </h3>
                 <p className="text-xs text-slate-300 mt-1">
-                  Your crowd and AC telemetry has updated the live vehicle scoreboard. Thank you for contributing to Greater Jakarta transit transparency.
+                  {t.crowdsource.successCopy}
                 </p>
               </div>
               <div className="pt-2 flex justify-center gap-3">
@@ -309,13 +320,13 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                   onClick={() => setIsSubmitted(false)}
                   className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium hover:bg-slate-700 transition"
                 >
-                  Submit Another Report
+                  {t.crowdsource.submitAnother}
                 </button>
                 <button
                   onClick={onClose}
                   className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition shadow-md shadow-emerald-600/30"
                 >
-                  Done
+                  {t.crowdsource.done}
                 </button>
               </div>
             </div>
@@ -334,11 +345,11 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Radio className="w-3.5 h-3.5 text-cyan-400" />
-                    Target Transit Vehicle
+                    {t.crowdsource.targetVehicle}
                   </span>
                   {currentVehicle && (
                     <span className="text-[11px] font-mono text-cyan-400">
-                      Code: {currentVehicle.vehicleCode}
+                      {t.crowdsource.codePrefix} {currentVehicle.vehicleCode}
                     </span>
                   )}
                 </label>
@@ -361,14 +372,15 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-emerald-400" />
-                    Crowd Density Level
+                    {t.crowdsource.densityLevelLabel}
                   </span>
-                  <span className="text-[10px] text-slate-400">Tap to select level</span>
+                  <span className="text-[10px] text-slate-400">{t.crowdsource.tapToSelect}</span>
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {DENSITY_OPTIONS.map((opt) => {
                     const isSelected = selectedDensity === opt.level;
+                    const labels = getDensityLabels(opt.level, t);
                     return (
                       <button
                         key={opt.level}
@@ -382,16 +394,16 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-slate-100">
-                            {opt.label}
+                            {labels.label}
                           </span>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium border ${opt.badgeClass}`}
                           >
-                            Level {opt.numeric}
+                            {`${t.crowdsource.levelPrefix} ${opt.numeric}`}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-400 mt-1">
-                          {opt.sublabel}
+                          {labels.sublabel}
                         </p>
                       </button>
                     );
@@ -404,14 +416,15 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Wind className="w-3.5 h-3.5 text-cyan-400" />
-                    AC Comfort Rating
+                    {t.vehicleInspector.acComfort}
                   </span>
-                  <span className="text-[10px] text-slate-400">Cabin temperature status</span>
+                  <span className="text-[10px] text-slate-400">{t.crowdsource.cabinHint}</span>
                 </label>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {AC_OPTIONS.map((ac) => {
                     const isSelected = selectedAC === ac.rating;
+                    const labels = getACLabels(ac.rating, t);
                     return (
                       <button
                         key={ac.rating}
@@ -424,10 +437,10 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                         }`}
                       >
                         <span className="text-xs font-bold text-slate-200 truncate">
-                          {ac.rating}
+                          {labels.label}
                         </span>
                         <span className="text-[10px] text-slate-400 truncate mt-1">
-                          {ac.label.split(" ")[0]}
+                          {labels.sublabel}
                         </span>
                       </button>
                     );
@@ -440,16 +453,16 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                 <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    Passenger Note (Optional)
+                    {t.crowdsource.noteLabel}
                   </span>
-                  <span className="text-[10px] text-slate-500">Max 120 chars</span>
+                  <span className="text-[10px] text-slate-500">{t.crowdsource.noteMax}</span>
                 </label>
                 <input
                   type="text"
                   maxLength={120}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="e.g. Plenty of seats in rear car, wheelchair area clear"
+                  placeholder={t.crowdsource.notePlaceholder}
                   className="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
                 />
               </div>
@@ -458,7 +471,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400">
                 <Shield className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>
-                  Anti-spam rate limiting applies: 1 report per 60 seconds per vehicle.
+                  {t.crowdsource.antiSpamNotice}
                 </span>
               </div>
             </>
@@ -489,7 +502,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               ) : cooldownSeconds > 0 ? (
                 <>
                   <Clock className="w-3.5 h-3.5" />
-                  Cooldown ({cooldownSeconds}s)
+                  {`${t.crowdsource.cooldownPrefix} (${cooldownSeconds}s)`}
                 </>
               ) : (
                 <>

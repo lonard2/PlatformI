@@ -53,17 +53,17 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
   const tileOptions: { id: TileLayerId; label: string; desc: string }[] = [
-    { id: "dark", label: "Dark Matter", desc: "High-contrast dark cartography for night & cockpit view" },
-    { id: "light", label: "Positron Light", desc: "Crisp clean daylight theme for bright environments" },
-    { id: "satellite", label: "Satellite Imagery", desc: "Esri World Imagery showing real infrastructure" },
-    { id: "streets", label: "OpenStreetMap", desc: "Standard street grid with detailed landmarks" },
+    { id: "dark", label: t.settings.darkMatter, desc: t.settings.tileDarkDesc },
+    { id: "light", label: t.settings.positronLight, desc: t.settings.tileLightDesc },
+    { id: "satellite", label: t.settings.tileSatelliteLabel, desc: t.settings.tileSatelliteDesc },
+    { id: "streets", label: t.settings.tileStreetsLabel, desc: t.settings.tileStreetsDesc },
   ];
 
   const speedOptions: { speed: SimulationSpeed; label: string; desc: string }[] = [
-    { speed: 0, label: "Paused (0x)", desc: "Freeze vehicle vector movement for static inspection" },
-    { speed: 1, label: "Real-Time (1x)", desc: "Authentic real-world speeds and scheduled headways" },
-    { speed: 2, label: "Fast (2x)", desc: "2x Accelerated commute visualization" },
-    { speed: 5, label: "High-Speed (5x)", desc: "5x Rapid network overview & route tracing" },
+    { speed: 0, label: t.settings.pausedEngine, desc: t.settings.speedPausedDesc },
+    { speed: 1, label: t.settings.realtimeSpeed, desc: t.settings.speedRealtimeDesc },
+    { speed: 2, label: t.settings.fastSpeed2x, desc: t.settings.speedFastDesc },
+    { speed: 5, label: t.settings.hyperSpeed5x, desc: t.settings.speedHyperDesc },
   ];
 
   const modalRef = useRef<HTMLDivElement>(null);
@@ -174,7 +174,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 <Moon className="w-4 h-4 text-cyan-400 shrink-0" />
                 <div>
                   <div className="font-semibold text-white">Dark Cockpit</div>
-                  <div className="text-[10px] text-slate-400">Night & low-light optimized</div>
+                  <div className="text-[10px] text-slate-400">{t.settings.nightOptimized}</div>
                 </div>
               </button>
 
