@@ -86,7 +86,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       const rosaliaVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "AKAP_INTERCITY_BUS")!;
       render(<VehicleSeatingDiagram vehicle={rosaliaVehicle} />);
 
-      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
       expect(screen.getByText(/ARAH DEPAN/i)).toBeInTheDocument();
 
       // Click seat 1A to inspect
@@ -102,7 +102,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       const whooshVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "WHOOSH_HSR")!;
       render(<VehicleSeatingDiagram vehicle={whooshVehicle} />);
 
-      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();
@@ -124,7 +124,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       const hiaceVehicle = TRANSIT_VEHICLES.find((v) => v.mode === "EXECUTIVE_SHUTTLE")!;
       render(<VehicleSeatingDiagram vehicle={hiaceVehicle} />);
 
-      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();
@@ -140,7 +140,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       };
       render(<VehicleSeatingDiagram vehicle={boatVehicle} />);
 
-      expect(screen.getByText(/Total Kursi:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
     });
   });
 
@@ -229,7 +229,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       expect(screen.getByText(/Universal Accessibility Standards/i)).toBeInTheDocument();
       expect(screen.getByText(/Tactile Paving:/i)).toBeInTheDocument();
-      expect(screen.getByText(/Prayer Room \(Musholla\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Prayer Room \(Musholla\)|Musholla \/ Ruang Ibadah/i)).toBeInTheDocument();
     });
 
     it("renders skybridge guide tab for CSW ASEAN interchange", () => {

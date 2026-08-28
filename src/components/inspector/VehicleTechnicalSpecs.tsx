@@ -28,6 +28,7 @@ import {
 import { Vehicle, TechnicalSpec, TransitMode } from "@/types/transit";
 import { VEHICLE_TECHNICAL_SPECS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 interface VehicleTechnicalSpecsProps {
   vehicle: Vehicle;
@@ -280,7 +281,7 @@ function getModeDefaultSpec(
 /**
  * Renders SVG Technical Dimension Blueprint Schematics based on vehicle type
  */
-function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
+function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec, t: TranslationDictionary) {
   const isRail = vehicle.category === "RAIL";
   const isHSR = vehicle.mode === "WHOOSH_HSR";
   const isBus = vehicle.category === "BUS";
@@ -294,9 +295,9 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
         <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300">
           <span className="flex items-center gap-1 font-bold">
             <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-            Diagram Dimensi Teknis: KCIC400AF Whoosh EMU
+            {t.vehicleInspector.dimDiagramWhoosh}
           </span>
-          <span className="text-[10px] text-slate-400">Skala Rekayasa 1:200</span>
+          <span className="text-[10px] text-slate-400">{t.vehicleInspector.scaleEngineering}</span>
         </div>
 
         <svg viewBox="0 0 440 100" className="w-full h-auto text-cyan-400">
@@ -346,14 +347,14 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
           <line x1="20" y1="88" x2="20" y2="96" stroke="#06b6d4" strokeWidth="1" />
           <line x1="420" y1="88" x2="420" y2="96" stroke="#06b6d4" strokeWidth="1" />
           <text x="220" y="96" fill="#67e8f9" fontSize="8" fontFamily="monospace" textAnchor="middle">
-            Panjang Rangkaian 8-Car: 209.000 mm (209,0 m)
+            {`${t.vehicleInspector.svgWhooshLengthPrefix} 209.000 mm (209,0 m)`}
           </text>
         </svg>
 
         <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800">
-          <div>Panjang: <strong className="text-white">209.0 m</strong></div>
-          <div>Lebar: <strong className="text-white">3.36 m</strong></div>
-          <div>Tinggi Atap: <strong className="text-white">4.05 m</strong></div>
+          <div>{t.vehicleInspector.dimLength} <strong className="text-white">209.0 m</strong></div>
+          <div>{t.vehicleInspector.dimWidth} <strong className="text-white">3.36 m</strong></div>
+          <div>{t.vehicleInspector.dimRoofHeight} <strong className="text-white">4.05 m</strong></div>
         </div>
       </div>
     );
@@ -366,9 +367,9 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
         <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300">
           <span className="flex items-center gap-1 font-bold">
             <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-            Diagram Dimensi Teknis: Kereta Rel Listrik (EMU)
+            {t.vehicleInspector.dimDiagramEmu}
           </span>
-          <span className="text-[10px] text-slate-400">Skala 1:150</span>
+          <span className="text-[10px] text-slate-400">{t.vehicleInspector.scale150}</span>
         </div>
 
         <svg viewBox="0 0 440 95" className="w-full h-auto text-cyan-400">
@@ -412,14 +413,14 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
           {/* Dimension Callout */}
           <line x1="25" y1="88" x2="415" y2="88" stroke="#06b6d4" strokeWidth="1" />
           <text x="220" y="93" fill="#67e8f9" fontSize="8" fontFamily="monospace" textAnchor="middle">
-            Panjang Kereta: {spec.lengthMeters} m • Lebar: 2.95 m • Tinggi: 3.80 m
+            {`${t.vehicleInspector.dimTrainLength} ${spec.lengthMeters} m • ${t.vehicleInspector.dimWidth} 2.95 m • ${t.vehicleInspector.dimHeight} 3.80 m`}
           </text>
         </svg>
 
         <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800">
-          <div>Panjang: <strong className="text-white">{spec.lengthMeters} m</strong></div>
-          <div>Lebar Gandar: <strong className="text-white">1.067 mm</strong></div>
-          <div>Kecepatan Maks: <strong className="text-emerald-400">{spec.maxSpeedKmh} km/h</strong></div>
+          <div>{t.vehicleInspector.dimLength} <strong className="text-white">{spec.lengthMeters} m</strong></div>
+          <div>{t.vehicleInspector.axleWidth} <strong className="text-white">1.067 mm</strong></div>
+          <div>{t.vehicleInspector.maxSpeed} <strong className="text-emerald-400">{spec.maxSpeedKmh} km/h</strong></div>
         </div>
       </div>
     );
@@ -432,9 +433,9 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
         <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300">
           <span className="flex items-center gap-1 font-bold">
             <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-            Diagram Dimensi: Minibus HiAce Premio VIP
+            {t.vehicleInspector.dimDiagramHiace}
           </span>
-          <span className="text-[10px] text-slate-400">Skala 1:75</span>
+          <span className="text-[10px] text-slate-400">{t.vehicleInspector.scale75}</span>
         </div>
 
         <svg viewBox="0 0 360 90" className="w-full h-auto text-cyan-400">
@@ -469,14 +470,14 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
           {/* Dimension Line */}
           <line x1="40" y1="84" x2="325" y2="84" stroke="#06b6d4" strokeWidth="1" />
           <text x="182" y="87" fill="#67e8f9" fontSize="8" fontFamily="monospace" textAnchor="middle">
-            Panjang: 5.915 mm • Lebar: 1.950 mm • Wheelbase: 3.860 mm
+            {`${t.vehicleInspector.dimLength} 5.915 mm • ${t.vehicleInspector.dimWidth} 1.950 mm • ${t.vehicleInspector.wheelbasePrefix} 3.860 mm`}
           </text>
         </svg>
 
         <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800">
-          <div>Panjang: <strong className="text-white">5.91 m</strong></div>
-          <div>Tinggi: <strong className="text-white">2.28 m</strong></div>
-          <div>Kapasitas: <strong className="text-cyan-400">8 Kursi VIP</strong></div>
+          <div>{t.vehicleInspector.dimLength} <strong className="text-white">5.91 m</strong></div>
+          <div>{t.vehicleInspector.dimHeight} <strong className="text-white">2.28 m</strong></div>
+          <div>{t.vehicleInspector.capacityShort} <strong className="text-cyan-400">8 Kursi VIP</strong></div>
         </div>
       </div>
     );
@@ -488,9 +489,9 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
       <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300">
         <span className="flex items-center gap-1 font-bold">
           <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-          Diagram Dimensi: Karoseri Bus Modern ({spec.coachbuilder.split("(")[0]})
+          {`${t.vehicleInspector.dimDiagramBus} (${spec.coachbuilder.split("(")[0]})`}
         </span>
-        <span className="text-[10px] text-slate-400">Skala 1:100</span>
+        <span className="text-[10px] text-slate-400">{t.vehicleInspector.scale100}</span>
       </div>
 
       <svg viewBox="0 0 380 90" className="w-full h-auto text-cyan-400">
@@ -531,14 +532,14 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec) {
         {/* Dimension Callout */}
         <line x1="25" y1="84" x2="360" y2="84" stroke="#06b6d4" strokeWidth="1" />
         <text x="192" y="87" fill="#67e8f9" fontSize="8" fontFamily="monospace" textAnchor="middle">
-          Panjang: {spec.lengthMeters} m • Lebar: 2.50 m • Tinggi: 3.80 m
+          {`${t.vehicleInspector.dimLength} ${spec.lengthMeters} m • ${t.vehicleInspector.dimWidth} 2.50 m • ${t.vehicleInspector.dimHeight} 3.80 m`}
         </text>
       </svg>
 
       <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800">
-        <div>Panjang: <strong className="text-white">{spec.lengthMeters} m</strong></div>
-        <div>Lebar Body: <strong className="text-white">2.50 m</strong></div>
-        <div>Kapasitas: <strong className="text-emerald-400">{spec.passengerCapacity} Pax</strong></div>
+        <div>{t.vehicleInspector.dimLength} <strong className="text-white">{spec.lengthMeters} m</strong></div>
+        <div>{t.vehicleInspector.bodyWidth} <strong className="text-white">2.50 m</strong></div>
+        <div>{t.vehicleInspector.capacityShort} <strong className="text-emerald-400">{spec.passengerCapacity} Pax</strong></div>
       </div>
     </div>
   );
@@ -551,7 +552,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
   return (
     <div className="space-y-4 text-slate-200">
       {/* 1. TECHNICAL DIMENSION BLUEPRINT SCHEMATIC */}
-      {renderVehicleDimensionDiagram(vehicle, spec)}
+      {renderVehicleDimensionDiagram(vehicle, spec, t)}
 
       {/* 2. SPECIFICATION MATRIX GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -563,7 +564,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
           </div>
           <div className="text-xs text-white font-bold">{spec.coachbuilder}</div>
           <div className="text-[11px] text-slate-400 font-mono">
-            Model: <strong className="text-slate-200">{spec.chassisModel}</strong>
+            {t.vehicleInspector.modelPrefix} <strong className="text-slate-200">{spec.chassisModel}</strong>
           </div>
         </div>
 
@@ -577,7 +578,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
             {spec.powertrain}
           </div>
           <div className="text-[11px] text-slate-400 font-mono">
-            Output: <strong className="text-emerald-400">{spec.engineOutput}</strong>
+            {t.vehicleInspector.outputPrefix} <strong className="text-emerald-400">{spec.engineOutput}</strong>
           </div>
         </div>
 
@@ -585,13 +586,13 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
         <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-amber-400">
             <Zap className="w-3.5 h-3.5" />
-            <span>Transmisi & Torsi Mesin</span>
+            <span>{t.vehicleInspector.transSection}</span>
           </div>
           <div className="text-xs text-slate-200 font-medium">
             {spec.transmission}
           </div>
           <div className="text-[11px] text-slate-400 font-mono">
-            Torsi: <strong className="text-slate-200">{spec.torque}</strong>
+            {t.vehicleInspector.torquePrefix} <strong className="text-slate-200">{spec.torque}</strong>
           </div>
         </div>
 
@@ -634,7 +635,7 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
               <Radio className="w-3.5 h-3.5 text-cyan-400" />
               {t.vehicleInspector.operationalDetails}
             </span>
-            <span className="text-[10px] text-slate-400">Telemetri Otentik</span>
+            <span className="text-[10px] text-slate-400">{t.vehicleInspector.authenticTelemetry}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -656,8 +657,8 @@ export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
 
             {vehicle.totalTrainsets && (
               <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Total Armada Rangkaian di Jalur:</span>
-                <strong className="text-emerald-400 font-bold">{vehicle.totalTrainsets} Trainset</strong>
+                <span className="text-[10px] text-slate-400 block">{t.vehicleInspector.totalTrainsetsOnLine}</span>
+                <strong className="text-emerald-400 font-bold">{vehicle.totalTrainsets} {t.vehicleInspector.trainsetUnit}</strong>
               </div>
             )}
 

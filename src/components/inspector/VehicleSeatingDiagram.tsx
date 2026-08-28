@@ -232,20 +232,20 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
       {/* 1. CAPACITY HIGHLIGHT CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-          <span className="text-[10px] font-mono text-slate-400 block uppercase">Total Kapasitas:</span>
-          <strong className="text-base font-bold text-white font-mono">{totalCap} Pax</strong>
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">{t.vehicleInspector.totalCapacity}</span>
+          <strong className="text-base font-bold text-white font-mono">{totalCap} {t.vehicleInspector.paxUnit}</strong>
         </div>
         <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-          <span className="text-[10px] font-mono text-slate-400 block uppercase">Tempat Duduk:</span>
-          <strong className="text-base font-bold text-emerald-400 font-mono">{seatedCap} Kursi</strong>
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">{t.vehicleInspector.seatsLabel}</span>
+          <strong className="text-base font-bold text-emerald-400 font-mono">{seatedCap} {t.vehicleInspector.seatsUnit}</strong>
         </div>
         <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-          <span className="text-[10px] font-mono text-slate-400 block uppercase">Ruang Berdiri:</span>
-          <strong className="text-base font-bold text-cyan-400 font-mono">{standingCap} Pax</strong>
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">{t.vehicleInspector.standingLabel}</span>
+          <strong className="text-base font-bold text-cyan-400 font-mono">{standingCap} {t.vehicleInspector.paxUnit}</strong>
         </div>
         <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-          <span className="text-[10px] font-mono text-slate-400 block uppercase">Ramah Disabilitas:</span>
-          <strong className="text-base font-bold text-purple-300 font-mono">{wheelchairBays} Bay Kursi Roda</strong>
+          <span className="text-[10px] font-mono text-slate-400 block uppercase">{t.vehicleInspector.wheelchairFriendly}</span>
+          <strong className="text-base font-bold text-purple-300 font-mono">{wheelchairBays} {t.vehicleInspector.wheelchairBayUnit}</strong>
         </div>
       </div>
 
@@ -254,9 +254,9 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
         <div className="flex items-center justify-between text-xs font-mono text-slate-300">
           <span className="flex items-center gap-1.5 font-bold text-cyan-300">
             <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-            Diagram Tata Letak Kabin & Fasilitas Berdiri
+            {t.vehicleInspector.diagramTitle}
           </span>
-          <span className="text-[10px] text-emerald-400">● Sirkulasi Standar</span>
+          <span className="text-[10px] text-emerald-400">● {t.vehicleInspector.legendStandard}</span>
         </div>
 
         <svg viewBox="0 0 400 120" className="w-full h-auto text-slate-300">
@@ -266,7 +266,7 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
           {/* Driver Cab / Windscreen Area (Left) */}
           <path d="M 10 20 L 40 20 L 40 100 L 10 100 Z" fill="#0f172a" stroke="#475569" strokeWidth="1" />
           <text x="25" y="65" fill="#64748b" fontSize="8" fontFamily="monospace" textAnchor="middle" transform="rotate(-90, 25, 65)">
-            KABIN
+            {t.vehicleInspector.svgCabin}
           </text>
 
           {/* Passenger Entry Doors (Top & Bottom Markers) */}
@@ -275,7 +275,7 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
               {/* Door Cutout */}
               <rect x={x} y="8" width="32" height="6" fill="#0284c7" rx="1" />
               <text x={x + 16} y="6" fill="#38bdf8" fontSize="6" fontFamily="sans-serif" textAnchor="middle">
-                PINTU {idx + 1}
+                {`${t.vehicleInspector.svgDoor} ${idx + 1}`}
               </text>
             </g>
           ))}
@@ -283,13 +283,13 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
           {/* Priority Seating Zone (Elderly / Pregnant / Disability) */}
           <rect x="50" y="20" width="40" height="24" rx="3" fill="#581c87" stroke="#a855f7" strokeWidth="1" />
           <text x="70" y="35" fill="#e9d5ff" fontSize="7" fontWeight="bold" textAnchor="middle">
-            PRIORITAS
+            {t.vehicleInspector.svgPriority}
           </text>
 
           {/* Wheelchair Bay */}
           <rect x="50" y="76" width="40" height="26" rx="3" fill="#1e1b4b" stroke="#818cf8" strokeWidth="1" strokeDasharray="3,2" />
           <text x="70" y="92" fill="#c7d2fe" fontSize="7" textAnchor="middle">
-            KURSI RODA
+            {t.vehicleInspector.svgWheelchair}
           </text>
 
           {/* Longitudinal Seating Benches (Top & Bottom Rows) */}
@@ -303,7 +303,7 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
           {/* Central Standing Area with Grab Straps */}
           <rect x="100" y="44" width="280" height="32" rx="4" fill="#0f172a" stroke="#0ea5e9" strokeWidth="0.8" strokeDasharray="4,3" />
           <text x="240" y="62" fill="#38bdf8" fontSize="8" fontFamily="monospace" textAnchor="middle">
-            AREA BERDIRI DENGAN HANDRAIL & STRAP GANTUNG
+            {t.vehicleInspector.svgStandingArea}
           </text>
 
           {/* Grab Poles Indicator Dots */}
@@ -316,19 +316,19 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
         <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-slate-800 text-[10px] font-mono">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded bg-purple-900 border border-purple-500" />
-            <span className="text-purple-300">Kursi Prioritas ({prioritySeatsCount})</span>
+            <span className="text-purple-300">{t.vehicleInspector.legendPriority} ({prioritySeatsCount})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded bg-indigo-950 border border-indigo-500" />
-            <span className="text-indigo-300">Area Kursi Roda ({wheelchairBays})</span>
+            <span className="text-indigo-300">{t.vehicleInspector.legendWheelchair} ({wheelchairBays})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded bg-slate-800 border border-slate-600" />
-            <span className="text-slate-300">Kursi Reguler ({seatedCap - prioritySeatsCount})</span>
+            <span className="text-slate-300">{t.vehicleInspector.legendRegular} ({seatedCap - prioritySeatsCount})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="text-amber-300">Tiang Handrail Stainless</span>
+            <span className="text-amber-300">{t.vehicleInspector.legendHandrail}</span>
           </div>
         </div>
       </div>
@@ -337,24 +337,24 @@ function UrbanStandingCabinView({ vehicle }: { vehicle: Vehicle }) {
       <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
         <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
           <Wind className="w-4 h-4 text-cyan-400" />
-          <span>Fasilitas Kenyamanan & Standar Pelayanan Minimal (SPM)</span>
+          <span>{t.vehicleInspector.spmTitle}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-slate-200">AC Dingin Otomatis (22-24°C)</span>
+            <span className="text-slate-200">{t.vehicleInspector.spmAc}</span>
           </div>
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-slate-200">Lantai Antislip & Jalur Guiding Block</span>
+            <span className="text-slate-200">{t.vehicleInspector.spmFloor}</span>
           </div>
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-slate-200">Pemberitahuan Suara & Layar Halte Selanjutnya</span>
+            <span className="text-slate-200">{t.vehicleInspector.spmAnnouncement}</span>
           </div>
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-slate-200">CCTV Pengawas & Tombol Darurat</span>
+            <span className="text-slate-200">{t.vehicleInspector.spmCctv}</span>
           </div>
         </div>
       </div>
@@ -420,12 +420,12 @@ export function VehicleSeatingDiagram({
       <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-xs font-mono">
           <div>
-            <span className="text-slate-400 block text-[10px]">Total {t.vehicleInspector.seat}:</span>
-            <strong className="text-white">{totalSeatsCount} Kursi</strong>
+            <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.totalPrefix} {t.vehicleInspector.seatsLabel}</span>
+            <strong className="text-white">{totalSeatsCount} {t.vehicleInspector.seatsUnit}</strong>
           </div>
           <div>
             <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.available}:</span>
-            <strong className="text-emerald-400">{Math.max(0, availableSeatsCount)} Kosong</strong>
+            <strong className="text-emerald-400">{Math.max(0, availableSeatsCount)} {t.vehicleInspector.seatsFreeSuffix}</strong>
           </div>
           <div>
             <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.occupied}:</span>
@@ -443,19 +443,19 @@ export function VehicleSeatingDiagram({
                   ? "bg-cyan-600 text-white font-semibold"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-            >
-              Dek Bawah (Sleeper)
-            </button>
-            <button
-              onClick={() => setActiveDeck("UPPER")}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                activeDeck === "UPPER"
-                  ? "bg-cyan-600 text-white font-semibold"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              Dek Atas (Super Exec)
-            </button>
+              >
+                {t.vehicleInspector.deckLower}
+              </button>
+              <button
+                onClick={() => setActiveDeck("UPPER")}
+                className={`px-2.5 py-1 rounded-md transition-colors ${
+                  activeDeck === "UPPER"
+                    ? "bg-cyan-600 text-white font-semibold"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {t.vehicleInspector.deckUpper}
+              </button>
           </div>
         )}
       </div>
@@ -502,7 +502,7 @@ export function VehicleSeatingDiagram({
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex flex-col items-center justify-center transition-all ${bgClass} ${
                   isInspectSelected ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950" : ""
                 }`}
-                title={`Kursi ${seat.id} - ${seat.type}`}
+                title={`${t.vehicleInspector.seat} ${seat.id} - ${seat.type}`}
               >
                 <span className="text-[10px] font-mono font-bold leading-none">{seat.id}</span>
               </button>

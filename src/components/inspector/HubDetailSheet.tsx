@@ -51,6 +51,7 @@ import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
 
@@ -199,7 +200,7 @@ function getStandardizedModeMeta(mode: TransitMode, lineCode?: string, lineId?: 
 /**
  * Generates dynamic departure board items for any station in the network
  */
-function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[] {
+function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDictionary): DepartureBoardItem[] {
   const departures: DepartureBoardItem[] = [];
   const connectedLines = lines.filter(
     (l) => l.id === stop.lineId || stop.connectedLineIds.includes(l.id)
@@ -242,12 +243,12 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
       const platformNumber = ((lineIdx * 2 + offsetIdx) % 6) + 1;
       const platformStr =
         line.category === "AVIATION"
-          ? `Gate ${platformNumber + 10}`
+          ? `${t.hubInspector.platformGate} ${platformNumber + 10}`
           : line.category === "MARITIME"
-          ? `Dermaga ${platformNumber}`
+          ? `${t.common.pier} ${platformNumber}`
           : line.category === "BUS"
-          ? `Bay ${platformNumber}`
-          : `Peron ${platformNumber}`;
+          ? `${t.hubInspector.platformBay} ${platformNumber}`
+          : `${t.common.peron} ${platformNumber}`;
 
       const crowdLevels: CrowdDensityLevel[] = [
         "LEVEL_1_MANY_SEATS",
@@ -256,7 +257,7 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
       ];
 
       // Dynamic Trainset & Run Number calculation based on mode
-      let runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
+      let runNumber = `${t.common.runShort} ${line.code}-0${offsetIdx + 1}`;
       let trainsetNumber: string | undefined = undefined;
       let totalTrainsets: number | undefined = undefined;
       let carFormation: string | undefined = undefined;
@@ -338,7 +339,7 @@ function generateDepartureBoard(stop: Stop, lines: Line[]): DepartureBoardItem[]
           operatorName = "DayTrans / CitiTrans Executive Travel";
         } else {
           // Standard TransJakarta BRT & Feeder
-          runNumber = `Run ${line.code}-0${offsetIdx + 1}`;
+          runNumber = `${t.common.runShort} ${line.code}-0${offsetIdx + 1}`;
           fleetNumber = `TJ-${700 + lineIdx * 10 + offsetIdx * 4}`;
           licensePlate = `B ${7000 + lineIdx * 20 + offsetIdx * 4} TJK`;
           depotHome = "Pool TransJakarta Cawang / Pinang Ranti";
@@ -432,8 +433,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
   const departureBoard = useMemo(() => {
     if (!stop) return [];
-    return generateDepartureBoard(stop, allLines);
-  }, [stop, allLines]);
+    return generateDepartureBoard(stop, allLines, t);
+  }, [stop, allLines, t]);
 
   if (!stop) return null;
 
@@ -536,7 +537,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 </span>
                 {stop.isInterchange && (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-950/80 border border-purple-500/40 text-purple-300">
-                    Simpul Transit Terpadu
+                    {t.hubInspector.interchangeBadge}
                   </span>
                 )}
                 {skybridgeHubId && (
@@ -566,7 +567,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
             <button
               onClick={handleClose}
-              aria-label="Tutup detail stasiun"
+              aria-label={t.common.close}
               className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
             >
               <X className="w-4 h-4" />
@@ -576,7 +577,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           {/* Connected Lines Badges with Standardized Colors */}
           <div className="px-4 py-2 bg-slate-950/70 border-b border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
             <span className="text-[10px] font-mono uppercase text-slate-400 tracking-wider shrink-0 mr-1">
-              Layanan:
+              {t.hubInspector.servicesLabel}
             </span>
             {connectedLines.map((line) => {
               const meta = getStandardizedModeMeta(line.mode, line.code, line.id, allLines);
@@ -662,7 +663,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
-                      placeholder="Cari rute, tujuan, peron..."
+                      placeholder={t.navigation.searchRoutesAndHubs}
                       value={departureSearch}
                       onChange={(e) => setDepartureSearch(e.target.value)}
                       className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -672,10 +673,10 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                   {/* Filter chips */}
                   <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px] font-mono">
                     {[
-                      { id: "ALL", label: "Semua" },
-                      { id: "RAIL", label: "Rel & Kereta" },
-                      { id: "BUS", label: "Bus & Feeder" },
-                      { id: "INTERCITY", label: "Antarkota" },
+                      { id: "ALL", label: t.common.all },
+                      { id: "RAIL", label: t.hubInspector.filterRail },
+                      { id: "BUS", label: t.hubInspector.filterBus },
+                      { id: "INTERCITY", label: t.hubInspector.filterIntercity },
                     ].map((f) => (
                       <button
                         key={f.id}
@@ -695,17 +696,17 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1 pt-1">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Papan Informasi Keberangkatan Langsung</span>
+                    <span>{t.hubInspector.boardTitle}</span>
                   </span>
                   <span className="text-[10px] text-emerald-400 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Live GPS Telemetry</span>
+                    <span>{t.hubInspector.liveTelemetry}</span>
                   </span>
                 </div>
 
                 {filteredDepartures.length === 0 ? (
                   <div className="p-4 text-center text-xs text-slate-400 bg-slate-900/50 rounded-xl border border-slate-800 font-mono">
-                    Tidak ada jadwal yang sesuai dengan filter pencarian.
+                    {t.hubInspector.boardEmpty}
                   </div>
                 ) : (
                   filteredDepartures.map((item, idx) => {
@@ -714,20 +715,20 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     const isExpanded = expandedTripId === item.tripId;
 
                     let statusBadge = {
-                      label: "Tepat Waktu",
+                      label: t.common.onTime,
                       color: "bg-emerald-950/80 border-emerald-500/40 text-emerald-400",
                       icon: CheckCircle2,
                     };
 
                     if (item.status === "BOARDING") {
                       statusBadge = {
-                        label: "Boarding",
+                        label: t.common.boarding,
                         color: "bg-amber-950/80 border-amber-500/40 text-amber-400 animate-pulse",
                         icon: DoorOpen,
                       };
                     } else if (item.status === "DELAYED") {
                       statusBadge = {
-                        label: "Terlambat",
+                        label: t.common.delayed,
                         color: "bg-rose-950/80 border-rose-500/40 text-rose-400",
                         icon: AlertTriangle,
                       };
@@ -787,7 +788,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                               <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
                                 <span className="text-slate-300 font-semibold">{item.platform}</span>
                                 <span>&bull;</span>
-                                <span>Est: <strong className="text-cyan-300">{item.estimatedTime} WIB</strong></span>
+                                <span>{t.hubInspector.estPrefix} <strong className="text-cyan-300">{item.estimatedTime} WIB</strong></span>
                                 {item.trainsetNumber && (
                                   <>
                                     <span>&bull;</span>
@@ -827,8 +828,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                   <div>
                                     <span className="text-[10px] text-slate-400 block">
                                       {item.mode.includes("MRT") || item.mode.includes("LRT") || item.mode.includes("KRL") || item.mode.includes("WHOOSH") || item.mode.includes("INTERCITY")
-                                        ? "Nomor Perjalanan (KA):"
-                                        : "Nomor Dinas (Rit):"}
+                                        ? t.hubInspector.runNumberRailLabel
+                                        : t.hubInspector.runNumberServiceLabel}
                                     </span>
                                     <span className="text-cyan-300 font-bold">{item.runNumber}</span>
                                   </div>
@@ -836,42 +837,42 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
                                 {item.trainsetNumber && (
                                   <div>
-                                    <span className="text-[10px] text-slate-400 block">Nomor Rangkaian:</span>
+                                    <span className="text-[10px] text-slate-400 block">{t.common.trainset}:</span>
                                     <span className="text-white font-bold">{item.trainsetNumber}</span>
                                   </div>
                                 )}
 
                                 {item.totalTrainsets && (
                                   <div>
-                                    <span className="text-[10px] text-slate-400 block">Total Armada Jalur:</span>
-                                    <span className="text-emerald-400 font-bold">{item.totalTrainsets} Trainset</span>
+                                    <span className="text-[10px] text-slate-400 block">{t.hubInspector.totalFleetOnLine}</span>
+                                    <span className="text-emerald-400 font-bold">{item.totalTrainsets} {t.hubInspector.trainsetUnit}</span>
                                   </div>
                                 )}
 
                                 {item.carFormation && (
                                   <div>
-                                    <span className="text-[10px] text-slate-400 block">Formasi Gerbong (SF):</span>
+                                    <span className="text-[10px] text-slate-400 block">{t.hubInspector.formationCarPrefix}</span>
                                     <span className="text-slate-200 font-bold truncate block">{item.carFormation}</span>
                                   </div>
                                 )}
 
                                 {item.fleetNumber && (
                                   <div>
-                                    <span className="text-[10px] text-slate-400 block">Nomor Bodi / Lambung:</span>
+                                    <span className="text-[10px] text-slate-400 block">{t.hubInspector.hullNumber}</span>
                                     <span className="text-white font-bold">{item.fleetNumber}</span>
                                   </div>
                                 )}
 
                                 {item.licensePlate && (
                                   <div>
-                                    <span className="text-[10px] text-slate-400 block">Plat Polisi:</span>
+                                    <span className="text-[10px] text-slate-400 block">{t.common.licensePlate}:</span>
                                     <span className="text-amber-300 font-bold">{item.licensePlate}</span>
                                   </div>
                                 )}
 
                                 {item.depotHome && (
                                   <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex items-center justify-between">
-                                    <span className="text-[10px] text-slate-400">Depo / Pool Operasi:</span>
+                                    <span className="text-[10px] text-slate-400">{t.hubInspector.depotPoolLabel}</span>
                                     <span className="text-slate-300 font-bold">{item.depotHome}</span>
                                   </div>
                                 )}
@@ -879,16 +880,16 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
                               <div className="grid grid-cols-2 gap-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
                                 <div>
-                                  <span className="text-[10px] text-slate-400 block">Status Operasional:</span>
+                                  <span className="text-[10px] text-slate-400 block">{t.hubInspector.operationalStatusLabel}</span>
                                   <span className="text-slate-200 font-bold truncate">
-                                    {matchedVehicle ? matchedVehicle.name : `${meta.name} Active Unit`}
+                                    {matchedVehicle ? matchedVehicle.name : `${meta.name} ${t.hubInspector.totalActiveUnit}`}
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-[10px] text-slate-400 block">Kepadatan Penumpang:</span>
+                                  <span className="text-[10px] text-slate-400 block">{t.vehicleInspector.passengerDensity}</span>
                                   <div className="text-emerald-400 font-bold flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                                    <span>{matchedVehicle ? matchedVehicle.crowdLevel.replace(/LEVEL_\d_/, "") : "Tersedia Tempat Duduk"}</span>
+                                    <span>{matchedVehicle ? matchedVehicle.crowdLevel.replace(/LEVEL_\d_/, "") : t.hubInspector.seatsAvailableFallback}</span>
                                   </div>
                                 </div>
                               </div>
@@ -899,7 +900,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                   className="flex-1 py-1.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5 transition"
                                 >
                                   <Navigation className="w-3.5 h-3.5" />
-                                  <span>Lacak di Peta</span>
+                                  <span>{t.common.viewOnMap}</span>
                                 </button>
 
                                 {matchedVehicle && (
@@ -910,7 +911,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                     className="py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5" />
-                                    <span>Spesifikasi Armada</span>
+                                    <span>{t.hubInspector.specsButton}</span>
                                   </button>
                                 )}
                               </div>
@@ -997,7 +998,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
                     <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                      <span className="text-slate-300">Lift Penumpang:</span>
+                      <span className="text-slate-300">{t.hubInspector.facilityLift}</span>
                       {stop.accessibleElevator ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
                           <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.available}
@@ -1008,7 +1009,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                      <span className="text-slate-300">Tactile Paving:</span>
+                      <span className="text-slate-300">{t.hubInspector.facilityTactile}</span>
                       {stop.tactilePaving ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
                           <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.blindStandard}
@@ -1019,20 +1020,20 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                      <span className="text-slate-300">Ramp Kursi Roda:</span>
+                      <span className="text-slate-300">{t.hubInspector.facilityRamp}</span>
                       {stop.wheelchairRamp ? (
                         <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
                           <CheckCircle2 className="w-3.5 h-3.5" /> {t.hubInspector.safeGentleSlope}
                         </span>
                       ) : (
-                        <span className="text-slate-500 text-[11px]">Tidak Ada</span>
+                        <span className="text-slate-500 text-[11px]">{t.hubInspector.facilityNone}</span>
                       )}
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                      <span className="text-slate-300">Tipe Peron:</span>
+                      <span className="text-slate-300">{t.hubInspector.platformType}</span>
                       <span className="text-cyan-300 font-bold text-[11px]">
-                        {stop.platformType || "Standar"}
+                        {stop.platformType || t.hubInspector.platformStandard}
                       </span>
                     </div>
                   </div>
@@ -1047,8 +1048,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                   <div className="flex flex-wrap gap-2">
                     {stop.facilities.map((facilityKey, fIdx) => {
                       let formatted = facilityKey.replace(/_/g, " ");
-                      if (facilityKey === "PRAYER_ROOM") formatted = "Prayer Room (Musholla)";
-                      if (facilityKey === "TACTILE_PAVING") formatted = "Tactile Paving (Ubin Pemandu)";
+                      if (facilityKey === "PRAYER_ROOM") formatted = t.hubInspector.prayerRoom;
+                      if (facilityKey === "TACTILE_PAVING") formatted = t.hubInspector.tactilePaving;
 
                       return (
                         <span

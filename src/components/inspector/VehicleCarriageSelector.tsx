@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { Vehicle, VehicleCarriageTelemetry } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 interface VehicleCarriageSelectorProps {
   vehicle: Vehicle;
@@ -45,7 +46,7 @@ interface VehicleCarriageSelectorProps {
 /**
  * Ensures genuine carriage/deck telemetry is available for all modes (Train, Bus, Ship, Plane)
  */
-function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
+function getVehicleCarriages(vehicle: Vehicle, t: TranslationDictionary): VehicleCarriageTelemetry[] {
   if (vehicle.carriages && vehicle.carriages.length > 0) {
     return vehicle.carriages;
   }
@@ -73,7 +74,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: `${vehicle.fleetNumber || "BUS"}-DEK-1`,
         carType: "SLEEPER_SUITE",
-        carTypeName: "Lantai 1 (Dek Bawah - Sleeper Class & Pilot)",
+        carTypeName: t.vehicleInspector.deck1Name,
         occupancyPercent: 55,
         passengerCount: 11,
         maxCapacity: 20,
@@ -91,7 +92,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: `${vehicle.fleetNumber || "BUS"}-DEK-2`,
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Lantai 2 (Dek Atas - Panoramic Executive Captain Chair)",
+        carTypeName: t.vehicleInspector.deck2Name,
         occupancyPercent: 82,
         passengerCount: 28,
         maxCapacity: 34,
@@ -114,7 +115,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: `${vehicle.fleetNumber || "TJ"}-CAR-A`,
         carType: "CAB_CAR",
-        carTypeName: "Kereta Depan A (Kabin Masinis/Pengemudi & Prioritas)",
+        carTypeName: t.vehicleInspector.articFrontName,
         occupancyPercent: 68,
         passengerCount: 54,
         maxCapacity: 80,
@@ -132,7 +133,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: `${vehicle.fleetNumber || "TJ"}-CAR-B`,
         carType: "TRAILER_CAR",
-        carTypeName: "Kereta Belakang B (Kompartemen Penumpang & Pintu Peron)",
+        carTypeName: t.vehicleInspector.articRearName,
         occupancyPercent: 74,
         passengerCount: 59,
         maxCapacity: 80,
@@ -155,7 +156,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: `${vehicle.fleetNumber || "JAK"}-Z1`,
         carType: "CAB_CAR",
-        carTypeName: "Zona Depan (Kabin Pengemudi & Penumpang Depan)",
+        carTypeName: t.vehicleInspector.mikroFrontName,
         occupancyPercent: 50,
         passengerCount: 2,
         maxCapacity: 4,
@@ -173,7 +174,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: `${vehicle.fleetNumber || "JAK"}-Z2`,
         carType: "ECONOMY_DECK",
-        carTypeName: "Zona Belakang (Kursi Hadap & Pintu Geser Otomatis)",
+        carTypeName: t.vehicleInspector.mikroRearName,
         occupancyPercent: 85,
         passengerCount: 6,
         maxCapacity: 7,
@@ -196,7 +197,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: `${vehicle.fleetNumber || "SHUTTLE"}-Z1`,
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Zona Depan (Pilot & Baris 1 VIP Captain Chair)",
+        carTypeName: t.vehicleInspector.shuttleFrontName,
         occupancyPercent: 60,
         passengerCount: 3,
         maxCapacity: 5,
@@ -214,7 +215,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: `${vehicle.fleetNumber || "SHUTTLE"}-Z2`,
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Zona Belakang (Baris 2-3 Recliner Suites & USB Port)",
+        carTypeName: t.vehicleInspector.shuttleRearName,
         occupancyPercent: 75,
         passengerCount: 3,
         maxCapacity: 4,
@@ -237,7 +238,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: "SB-WHEELHOUSE",
         carType: "CAB_CAR",
-        carTypeName: "Geladak Depan & Anjungan Kemudi (Wheelhouse)",
+        carTypeName: t.vehicleInspector.sbWheelhouseName,
         occupancyPercent: 40,
         passengerCount: 4,
         maxCapacity: 10,
@@ -255,7 +256,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: "SB-CABIN-AC",
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Geladak Utama (Kabin Penumpang Berpendingin AC)",
+        carTypeName: t.vehicleInspector.sbMainName,
         occupancyPercent: 70,
         passengerCount: 28,
         maxCapacity: 40,
@@ -273,7 +274,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 3,
         carCode: "SB-AFT-DECK",
         carType: "ECONOMY_DECK",
-        carTypeName: "Geladak Belakang (Area Bagasi & Mesin Yamaha 3x250HP)",
+        carTypeName: t.vehicleInspector.sbAftName,
         occupancyPercent: 20,
         passengerCount: 2,
         maxCapacity: 10,
@@ -296,7 +297,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: "DEK-1-2",
         carType: "POWER_GENERATOR",
-        carTypeName: "Dek 1-2 (Palka Kargo & Ruang Mesin Diesel Kelautan)",
+        carTypeName: t.vehicleInspector.pelniHoldName,
         occupancyPercent: 45,
         passengerCount: 15,
         maxCapacity: 35,
@@ -314,7 +315,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: "DEK-3-4",
         carType: "ECONOMY_DECK",
-        carTypeName: "Dek 3-4 (Kabin Penumpang Kelas Ekonomi & Kantin)",
+        carTypeName: t.vehicleInspector.pelniEconomyName,
         occupancyPercent: 80,
         passengerCount: 640,
         maxCapacity: 800,
@@ -332,7 +333,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 3,
         carCode: "DEK-5-6",
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Dek 5-6 (Kabin Kelas Eksekutif, Restoran & Musholla)",
+        carTypeName: t.vehicleInspector.pelniExecutiveName,
         occupancyPercent: 65,
         passengerCount: 260,
         maxCapacity: 400,
@@ -350,7 +351,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 4,
         carCode: "DEK-7",
         carType: "CAB_CAR",
-        carTypeName: "Dek 7 (Anjungan Navigasi & Geladak Sekoci Penyelamat)",
+        carTypeName: t.vehicleInspector.pelniBridgeName,
         occupancyPercent: 30,
         passengerCount: 15,
         maxCapacity: 50,
@@ -373,7 +374,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 1,
         carCode: "ZONA-A",
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Zona A (Business Class Lie-Flat Suites & Galley Depan)",
+        carTypeName: t.vehicleInspector.zoneAName,
         occupancyPercent: 60,
         passengerCount: 12,
         maxCapacity: 20,
@@ -391,7 +392,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 2,
         carCode: "ZONA-B",
         carType: "EXECUTIVE_DECK",
-        carTypeName: "Zona B (Premium Economy Class & Area Pintu Darurat)",
+        carTypeName: t.vehicleInspector.zoneBName,
         occupancyPercent: 85,
         passengerCount: 34,
         maxCapacity: 40,
@@ -409,7 +410,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
         carIndex: 3,
         carCode: "ZONA-C",
         carType: "ECONOMY_DECK",
-        carTypeName: "Zona C (Economy Class & Galley Belakang)",
+        carTypeName: t.vehicleInspector.zoneCName,
         occupancyPercent: 90,
         passengerCount: 135,
         maxCapacity: 150,
@@ -432,7 +433,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
       carIndex: 1,
       carCode: `${vehicle.fleetNumber || "BUS"}-ZONA-1`,
       carType: "CAB_CAR",
-      carTypeName: "Zona 1 (Kabin Depan, Masinis & Kursi Prioritas Difabel)",
+        carTypeName: t.vehicleInspector.busZone1Name,
       occupancyPercent: 50,
       passengerCount: 10,
       maxCapacity: 20,
@@ -450,7 +451,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
       carIndex: 2,
       carCode: `${vehicle.fleetNumber || "BUS"}-ZONA-2`,
       carType: "ECONOMY_DECK",
-      carTypeName: "Zona 2 (Area Tengah, Pintu Peron BRT & Ruang Berdiri)",
+        carTypeName: t.vehicleInspector.busZone2Name,
       occupancyPercent: 75,
       passengerCount: 22,
       maxCapacity: 30,
@@ -468,7 +469,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
       carIndex: 3,
       carCode: `${vehicle.fleetNumber || "BUS"}-ZONA-3`,
       carType: "MOTOR_CAR",
-      carTypeName: "Zona 3 (Kabin Belakang & Kompartemen Mesin Euro 4/5)",
+        carTypeName: t.vehicleInspector.busZone3Name,
       occupancyPercent: 80,
       passengerCount: 16,
       maxCapacity: 20,
@@ -487,7 +488,7 @@ function getVehicleCarriages(vehicle: Vehicle): VehicleCarriageTelemetry[] {
 
 export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProps) {
   const { t } = useTranslation();
-  const carriages = getVehicleCarriages(vehicle);
+  const carriages = getVehicleCarriages(vehicle, t);
   const [selectedCarIndex, setSelectedCarIndex] = useState<number>(1);
   const [isFitMode, setIsFitMode] = useState<boolean>(false);
   const scrollCanvasRef = useRef<HTMLDivElement | null>(null);
@@ -568,14 +569,14 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           )}
           <h3 className="text-xs font-bold text-white tracking-tight uppercase font-mono">
             {isTrain
-              ? `Diagram Formasi Rangkaian (${carriages.length} SF)`
+              ? `${t.vehicleInspector.diagramTrain} (${carriages.length} SF)`
               : isDoubleDecker
-              ? `Diagram Tingkat Dek Karoseri (${carriages.length} Lantai)`
+              ? `${t.vehicleInspector.diagramDecks} (${carriages.length} ${t.vehicleInspector.unitFloor})`
               : isBus
-              ? `Diagram Kompartemen Kabin Bus (${carriages.length} Zona)`
+              ? `${t.vehicleInspector.diagramBusZones} (${carriages.length} ${t.vehicleInspector.unitZone})`
               : isShip
-              ? `Diagram Geladak Kapal (${carriages.length} Dek)`
-              : `Diagram Kabin Pesawat (${carriages.length} Zona)`}
+              ? `${t.vehicleInspector.shipDeckTitle} (${carriages.length} ${t.vehicleInspector.unitDeck})`
+              : `${t.vehicleInspector.diagramBusZones} (${carriages.length} ${t.vehicleInspector.unitZone})`}
           </h3>
         </div>
         <div className="flex items-center gap-2">
@@ -583,16 +584,16 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           {isTrain && totalCars > 6 && (
             <button
               onClick={() => setIsFitMode(!isFitMode)}
-              title={isFitMode ? "Beralih ke Skala Nyata (Scroll)" : "Beralih ke Tampilan Penuh (Fit)"}
+              title={isFitMode ? t.vehicleInspector.scaleToggleReal : t.vehicleInspector.scaleToggleFit}
               className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-300 hover:text-cyan-300 font-mono transition flex items-center gap-1"
             >
               <ZoomIn className="w-3 h-3" />
-              <span>{isFitMode ? "Skala 1:1" : "Fit Layar"}</span>
+              <span>{isFitMode ? t.vehicleInspector.scale1to1 : t.vehicleInspector.fitScreen}</span>
             </button>
           )}
           <span className="text-[10px] text-cyan-400 font-mono hidden sm:flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-cyan-300" />
-            Sentuh zona/gerbong
+            {t.vehicleInspector.touchHint}
           </span>
         </div>
       </div>
@@ -603,15 +604,15 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <span className="flex items-center gap-1 font-bold truncate max-w-[280px] sm:max-w-md">
             <Maximize2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             {isTrain
-              ? `Skema Rangkaian: ${vehicle.name} (${carriages.length} SF)`
+              ? `${t.vehicleInspector.schemaTrain} ${vehicle.name} (${carriages.length} SF)`
               : isBus
-              ? `Skema Karoseri: ${vehicle.coachbuilder || vehicle.name}`
+              ? `${t.vehicleInspector.schemaBody} ${vehicle.coachbuilder || vehicle.name}`
               : isShip
-              ? `Skema Lambung Kapal: ${vehicle.name}`
-              : `Skema Fuselage: ${vehicle.name}`}
+              ? `${t.vehicleInspector.schemaHull} ${vehicle.name}`
+              : `${t.vehicleInspector.schemaFuselage} ${vehicle.name}`}
           </span>
           <span className="text-[10px] text-slate-400 shrink-0">
-            Aktif: <strong className="text-cyan-300">{getPrefixLabel(selectedCar.carIndex)} ({selectedCar.carCode})</strong>
+            {t.vehicleInspector.activePrefix} <strong className="text-cyan-300">{getPrefixLabel(selectedCar.carIndex)} ({selectedCar.carCode})</strong>
           </span>
         </div>
 
@@ -621,14 +622,14 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
             <button
               onClick={handleScrollLeft}
               className="absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-white shadow-lg transition opacity-80 hover:opacity-100"
-              title="Geser ke kiri"
+              title={t.common.scrollLeft}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleScrollRight}
               className="absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-white shadow-lg transition opacity-80 hover:opacity-100"
-              title="Geser ke kanan"
+              title={t.common.scrollRight}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -934,7 +935,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
               >
                 {/* Pantograph / Motor indicator */}
                 {car.pantographActive && (
-                  <div className="absolute -top-1.5 right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-black animate-pulse" title="Pantograf Aktif" />
+                  <div className="absolute -top-1.5 right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-black animate-pulse" title={t.vehicleInspector.pantographActive} />
                 )}
 
                 {/* Car Index Badge */}
@@ -969,7 +970,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[10px] font-bold">
-                {isTrain ? `Kereta ${selectedCar.carIndex}` : isDoubleDecker ? `Lantai ${selectedCar.carIndex}` : isShip ? `Geladak ${selectedCar.carIndex}` : `Zona ${selectedCar.carIndex}`}
+                {isTrain ? `${t.vehicleInspector.unitTrain} ${selectedCar.carIndex}` : isDoubleDecker ? `${t.vehicleInspector.unitFloor} ${selectedCar.carIndex}` : isShip ? `${t.vehicleInspector.unitDeck} ${selectedCar.carIndex}` : `${t.vehicleInspector.unitZone} ${selectedCar.carIndex}`}
               </span>
               <strong className="text-white text-xs">{selectedCar.carCode}</strong>
             </div>
@@ -992,7 +993,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
               {t.vehicleInspector.capacity}
             </span>
             <strong className="text-white font-bold">
-              {selectedCar.passengerCount} / {selectedCar.maxCapacity} org
+              {selectedCar.passengerCount} / {selectedCar.maxCapacity} {t.vehicleInspector.orgUnit}
             </strong>
           </div>
 
@@ -1011,14 +1012,14 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <Zap className="w-3 h-3 text-amber-400" />
-              Status Powertrain / Daya
+              {t.vehicleInspector.powertrainStatus}
             </span>
             <strong className={`font-bold ${selectedCar.pantographActive ? "text-amber-300" : "text-slate-300"}`}>
               {selectedCar.pantographActive
-                ? "Pantograf 1.5kV ON"
+                ? t.vehicleInspector.pantographOn
                 : selectedCar.tractionMotorActive
-                ? "Propulsi Aktif"
-                : "Auxiliary Subsystem"}
+                ? t.vehicleInspector.propulsionActive
+                : t.vehicleInspector.auxiliarySystem}
             </strong>
           </div>
 
@@ -1026,10 +1027,10 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-cyan-400" />
-              Kursi Prioritas
+              {t.vehicleInspector.prioritySeats}
             </span>
             <strong className="text-cyan-300 font-bold">
-              {selectedCar.prioritySeatsCount} Kursi {selectedCar.wheelchairAccessible ? "+ Difabel" : ""}
+              {selectedCar.prioritySeatsCount} {t.vehicleInspector.seatsUnit} {selectedCar.wheelchairAccessible ? t.vehicleInspector.plusAccessible : ""}
             </strong>
           </div>
 
@@ -1037,10 +1038,10 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              CCTV Pengawasan
+              {t.vehicleInspector.cctvLabel}
             </span>
             <strong className="text-emerald-400 font-bold">
-              {selectedCar.cctvActive ? "Kamera Aktif 1080p" : "Standby"}
+              {selectedCar.cctvActive ? t.vehicleInspector.cameraActive : t.vehicleInspector.cameraStandby}
             </strong>
           </div>
 
@@ -1048,14 +1049,14 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800">
             <span className="text-[10px] text-slate-400 block flex items-center gap-1">
               <Lock className="w-3 h-3 text-slate-400" />
-              Pintu Otomatis
+              {t.vehicleInspector.autoDoors}
             </span>
             <strong className="text-slate-200 font-bold">
               {selectedCar.doorsStatus === "CLOSED_LOCKED"
-                ? "Terkunci Aman"
+                ? t.vehicleInspector.doorLocked
                 : selectedCar.doorsStatus === "OPEN"
-                ? "Terbuka"
-                : "Tahan Interlock"}
+                ? t.vehicleInspector.doorOpen
+                : t.vehicleInspector.doorInterlock}
             </strong>
           </div>
         </div>
