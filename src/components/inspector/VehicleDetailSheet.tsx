@@ -9,31 +9,32 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   X,
   Gauge,
   Compass,
   Users,
   Wind,
-  Clock,
   Radio,
-  Layers,
   Wrench,
   Armchair,
   Camera,
   Activity,
   MapPin,
-  ChevronRight,
-  Sparkles,
-  ShieldCheck,
-  AlertCircle,
 } from "lucide-react";
-import { Vehicle, TransitMode, CrowdDensityLevel, ACComfortRating } from "@/types/transit";
+import {
+  Vehicle,
+  CrowdDensityLevel,
+  ACComfortRating,
+  VehicleOperationalStatus,
+  FareStructureType,
+} from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
 import { VehiclePhotoGallery } from "./VehiclePhotoGallery";
@@ -42,11 +43,12 @@ import { VehicleCarriageSelector } from "./VehicleCarriageSelector";
 interface VehicleDetailSheetProps {
   vehicleId: string | null;
   onClose?: () => void;
+  onOpenCheckIn?: (vehicleId?: string) => void;
 }
 
 type TabType = "overview" | "specs" | "seating";
 
-function getHeadingDirection(degrees: number, t: any): string {
+function getHeadingDirection(degrees: number, t: TranslationDictionary): string {
   const normalized = (degrees % 360 + 360) % 360;
   const directions = [
     t.common.cardinalNorth,
@@ -62,7 +64,7 @@ function getHeadingDirection(degrees: number, t: any): string {
   return directions[index];
 }
 
-function getCrowdBadge(level: CrowdDensityLevel, t: any) {
+function getCrowdBadge(level: CrowdDensityLevel, t: TranslationDictionary) {
   switch (level) {
     case "LEVEL_1_MANY_SEATS":
       return {
@@ -92,7 +94,7 @@ function getCrowdBadge(level: CrowdDensityLevel, t: any) {
   }
 }
 
-function getACComfortBadge(ac: ACComfortRating, t: any) {
+function getACComfortBadge(ac: ACComfortRating, t: TranslationDictionary) {
   switch (ac) {
     case "COLD":
       return { label: t.crowdsource.acCold, color: "text-cyan-300" };
@@ -107,21 +109,193 @@ function getACComfortBadge(ac: ACComfortRating, t: any) {
   }
 }
 
+function getOperationalStatusChip(status: VehicleOperationalStatus, t: TranslationDictionary) {
+  switch (status) {
+    case "IN_SERVICE":
+      return {
+        label: t.vehicleInspector.statusInService,
+        chip: "bg-emerald-950/80 border-emerald-500/40 text-emerald-300",
+        dot: "bg-emerald-400",
+      };
+    case "APPROACHING_STOP":
+      return {
+        label: t.vehicleInspector.statusApproaching,
+        chip: "bg-cyan-950/80 border-cyan-500/40 text-cyan-300",
+        dot: "bg-cyan-400",
+      };
+    case "BOARDING":
+      return {
+        label: t.common.boarding,
+        chip: "bg-amber-950/80 border-amber-500/40 text-amber-300",
+        dot: "bg-amber-400",
+      };
+    case "CONGESTION_HOLD":
+      return {
+        label: t.vehicleInspector.statusCongestionHold,
+        chip: "bg-rose-950/80 border-rose-500/40 text-rose-300",
+        dot: "bg-rose-400",
+      };
+    case "OUT_OF_SERVICE":
+      return {
+        label: t.vehicleInspector.statusOutOfService,
+        chip: "bg-slate-900 border-slate-700 text-slate-300",
+        dot: "bg-slate-500",
+      };
+    default:
+      return {
+        label: t.common.normal,
+        chip: "bg-slate-900 border-slate-700 text-slate-300",
+        dot: "bg-slate-500",
+      };
+  }
+}
+
+function getFareStructureLabel(fareType: FareStructureType, t: TranslationDictionary): string {
+  switch (fareType) {
+    case "FLAT":
+      return t.vehicleInspector.fareFlat;
+    case "PROGRESSIVE_DISTANCE":
+      return t.vehicleInspector.fareProgressiveDistance;
+    case "PROGRESSIVE_STATION":
+      return t.vehicleInspector.fareProgressiveStation;
+    case "FREE_TAP":
+      return t.vehicleInspector.fareFreeTap;
+    case "DYNAMIC_TIERED":
+      return t.vehicleInspector.fareDynamicTiered;
+    default:
+      return fareType;
+  }
+}
+
 export function VehicleDetailSheet({
   vehicleId,
   onClose,
+  onOpenCheckIn,
 }: VehicleDetailSheetProps) {
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
-  const allLines = useTransitStore((state) => state.allLines);
-  const allStops = useTransitStore((state) => state.allStops);
   const clearSelection = useTransitStore((state) => state.clearSelection);
-  const { t } = useTranslation();
-
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const vehicle = simulatedVehicles.find((v) => v.id === vehicleId);
 
-  if (!vehicle) return null;
+  const handleClose = useCallback(() => {
+    if (onClose) {
+      onClose();
+    } else {
+      clearSelection();
+    }
+  }, [onClose, clearSelection]);
+
+  const handleCloseRef = useRef(handleClose);
+  handleCloseRef.current = handleClose;
+
+  // Escape-to-close while the sheet is presented
+  useEffect(() => {
+    if (!vehicle) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleCloseRef.current();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [vehicle]);
+
+  // Focus bookkeeping: remember the trigger, restore it on dismiss/unmount
+  useEffect(() => {
+    if (vehicle) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+    }
+    return () => {
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus();
+        previousFocusRef.current = null;
+      }
+    };
+  }, [vehicle]);
+
+  return (
+    <AnimatePresence>
+      {vehicle && (
+        <VehicleDetailSheetContent
+          key="vehicle-sheet-content"
+          vehicle={vehicle}
+          handleClose={handleClose}
+          onOpenCheckIn={onOpenCheckIn}
+        />
+      )}
+    </AnimatePresence>
+  );
+}
+
+interface VehicleDetailSheetContentProps {
+  vehicle: Vehicle;
+  handleClose: () => void;
+  onOpenCheckIn?: (vehicleId?: string) => void;
+}
+
+function VehicleDetailSheetContent({
+  vehicle,
+  handleClose,
+  onOpenCheckIn,
+}: VehicleDetailSheetContentProps) {
+  const allLines = useTransitStore((state) => state.allLines);
+  const allStops = useTransitStore((state) => state.allStops);
+  const setViewport = useTransitStore((state) => state.setViewport);
+  const { t } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [isDockedViewport, setIsDockedViewport] = useState<boolean>(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const sheetTitleId = "vehicle-sheet-title";
+
+  // Track whether the sheet is presented as a docked desktop panel (no drag dismissal)
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDockedViewport(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Minimal focus trap: wrap Tab cycling inside the sheet
+  const handleTrapKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "Tab") return;
+    const focusables = sheetRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusables || focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  // Arrow-key navigation for the tablist
+  const TAB_ORDER: TabType[] = ["overview", "specs", "seating"];
+  const handleTablistKeyDown = (e: React.KeyboardEvent) => {
+    const idx = TAB_ORDER.indexOf(activeTab);
+    let next = -1;
+    if (e.key === "ArrowRight") next = (idx + 1) % TAB_ORDER.length;
+    if (e.key === "ArrowLeft") next = (idx + TAB_ORDER.length - 1) % TAB_ORDER.length;
+    if (next >= 0) {
+      e.preventDefault();
+      setActiveTab(TAB_ORDER[next]);
+      document.getElementById(`vehicle-tab-${TAB_ORDER[next]}`)?.focus();
+    }
+  };
+
+  const handleTrackOnMap = () => {
+    setViewport([vehicle.currentLatitude, vehicle.currentLongitude], 16);
+    handleClose();
+  };
 
   const modeConfig = TRANSIT_MODE_CONFIG[vehicle.mode] || {
     name: vehicle.mode,
@@ -134,24 +308,17 @@ export function VehicleDetailSheet({
   const crowdBadge = getCrowdBadge(vehicle.crowdLevel, t);
   const acBadge = getACComfortBadge(vehicle.acComfort, t);
   const headingCompass = getHeadingDirection(vehicle.headingDegrees, t);
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    } else {
-      clearSelection();
-    }
-  };
+  const statusChip = getOperationalStatusChip(vehicle.status, t);
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 pointer-events-none z-40 flex flex-col justify-end lg:justify-start lg:items-end p-0 lg:p-4">
+    <div className="fixed inset-0 pointer-events-none z-40 flex flex-col justify-end lg:justify-start lg:items-end p-0 pb-14 lg:p-4">
         {/* Mobile Backdrop Tap Area */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
+          aria-hidden="true"
           className="fixed inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto lg:hidden"
         />
 
@@ -160,8 +327,12 @@ export function VehicleDetailSheet({
           initial={{ y: "100%", opacity: 0.5 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 220 }}
-          drag="y"
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { type: "spring", damping: 25, stiffness: 220 }
+          }
+          drag={prefersReducedMotion || isDockedViewport ? false : "y"}
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0, bottom: 0.5 }}
           onDragEnd={(_, info) => {
@@ -169,7 +340,13 @@ export function VehicleDetailSheet({
               handleClose();
             }
           }}
-          className="pointer-events-auto w-full lg:w-[480px] max-h-[85vh] lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/95 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={sheetTitleId}
+          tabIndex={-1}
+          onKeyDown={handleTrapKeyDown}
+          onAnimationComplete={() => sheetRef.current?.focus()}
+          className="pointer-events-auto w-full lg:w-[520px] h-[46vh] sm:h-[52vh] lg:h-auto lg:max-h-[calc(100vh-5rem)] flex flex-col bg-[#090d16]/98 backdrop-blur-2xl border border-white/15 rounded-t-3xl lg:rounded-2xl shadow-2xl shadow-black/80 overflow-hidden text-slate-100 outline-none"
         >
           {/* Mobile Drag Handle */}
           <div className="w-full flex items-center justify-center pt-2.5 pb-1 lg:hidden">
@@ -193,10 +370,21 @@ export function VehicleDetailSheet({
                 <span className="text-xs text-slate-300 font-medium">
                   {modeConfig.name}
                 </span>
+                <span
+                  className={`ml-auto flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-mono font-bold shrink-0 ${statusChip.chip}`}
+                >
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span
+                      className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${statusChip.dot}`}
+                    />
+                    <span className={`relative inline-flex h-2 w-2 rounded-full ${statusChip.dot}`} />
+                  </span>
+                  {statusChip.label}
+                </span>
               </div>
 
               {/* Vehicle Title */}
-              <h2 className="text-base font-bold text-white tracking-tight leading-tight">
+              <h2 id={sheetTitleId} className="text-base font-bold text-white tracking-tight leading-tight">
                 {vehicle.name}
               </h2>
 
@@ -205,7 +393,7 @@ export function VehicleDetailSheet({
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
                   <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                   <span className="truncate">{t.vehicleInspector.nextStop}: <strong className="text-slate-200">{nextStop.name}</strong></span>
-                  <span className="text-cyan-400 font-bold shrink-0">
+                  <span className="text-cyan-400 font-bold shrink-0 tabular-nums">
                     ({vehicle.nextStopEtaSeconds} {t.common.seconds})
                   </span>
                 </div>
@@ -215,32 +403,47 @@ export function VehicleDetailSheet({
             {/* Close Button */}
             <button
               onClick={handleClose}
-              aria-label="Tutup detail kendaraan"
-              className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
+              aria-label={t.common.close}
+              className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* 2. TAB NAVIGATION BAR */}
-          <div className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
+          <div
+            role="tablist"
+            aria-label={t.vehicleInspector.telemetryTitle}
+            onKeyDown={handleTablistKeyDown}
+            className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar"
+          >
             <button
+              role="tab"
+              id="vehicle-tab-overview"
+              aria-selected={activeTab === "overview"}
+              aria-controls="vehicle-panel-overview"
+              tabIndex={activeTab === "overview" ? 0 : -1}
               onClick={() => setActiveTab("overview")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "overview"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
+                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
-              <span>{t.common.details} & {t.vehicleInspector.tabPhotos}</span>
+              <span>{t.vehicleInspector.tabOverview}</span>
             </button>
 
             <button
+              role="tab"
+              id="vehicle-tab-specs"
+              aria-selected={activeTab === "specs"}
+              aria-controls="vehicle-panel-specs"
+              tabIndex={activeTab === "specs" ? 0 : -1}
               onClick={() => setActiveTab("specs")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "specs"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
+                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -249,10 +452,15 @@ export function VehicleDetailSheet({
             </button>
 
             <button
+              role="tab"
+              id="vehicle-tab-seating"
+              aria-selected={activeTab === "seating"}
+              aria-controls="vehicle-panel-seating"
+              tabIndex={activeTab === "seating" ? 0 : -1}
               onClick={() => setActiveTab("seating")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "seating"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30"
+                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                   : "border-transparent text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -262,7 +470,13 @@ export function VehicleDetailSheet({
           </div>
 
           {/* 3. SCROLLABLE TAB CONTENT BODY */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          <div
+            role="tabpanel"
+            id={`vehicle-panel-${activeTab}`}
+            aria-labelledby={`vehicle-tab-${activeTab}`}
+            tabIndex={-1}
+            className="flex-1 min-h-0 p-4 overflow-y-auto space-y-4"
+          >
             {activeTab === "overview" && (
               <div className="space-y-4">
                 {/* Live Speed & Heading Gauges */}
@@ -274,12 +488,9 @@ export function VehicleDetailSheet({
                         <Gauge className="w-3.5 h-3.5 text-emerald-400" />
                         {t.vehicleInspector.speed}
                       </span>
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase">
-                        {vehicle.status.replace(/_/g, " ")}
-                      </span>
                     </div>
                     <div className="pt-2 flex items-baseline gap-1">
-                      <span className="text-2xl font-black font-mono text-white">
+                      <span className="text-2xl font-black font-mono text-white tabular-nums">
                         {vehicle.speedKmh.toFixed(1)}
                       </span>
                       <span className="text-xs text-slate-400 font-mono">{t.common.speedUnit}</span>
@@ -325,7 +536,7 @@ export function VehicleDetailSheet({
                     <Wind className="w-5 h-5 text-cyan-400 shrink-0" />
                     <div>
                       <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-                        Suhu & Pendingin AC
+                        {t.vehicleInspector.acComfort}
                       </span>
                       <strong className={`text-xs font-bold ${acBadge.color}`}>
                         {acBadge.label}
@@ -353,20 +564,36 @@ export function VehicleDetailSheet({
                     </div>
 
                     <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between pt-1 border-t border-slate-800/80">
-                      <span>Tarif: {line.fareType.replace(/_/g, " ")}</span>
-                      <span>Antara Kedatangan: ~{line.headwayMinutes} mnt</span>
+                      <span>{t.vehicleInspector.fareLabel}: {getFareStructureLabel(line.fareType, t)}</span>
+                      <span>{t.vehicleInspector.headwayLabel}: ~{line.headwayMinutes} {t.common.minutes}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Dedicated Run Details & Trainset Fleet Telemetry Card */}
+                {/* Integrated Vehicle Photo Gallery in Overview Tab */}
+                <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                      {t.vehicleInspector.photoGalleryTitle}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">{t.vehicleInspector.spotterCredit}</span>
+                  </div>
+                  <VehiclePhotoGallery vehicle={vehicle} />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "specs" && (
+              <div className="space-y-4">
+                {/* Vehicle Run Details & Trainset Fleet Telemetry */}
                 <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2.5 text-xs font-mono">
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
                       <Radio className="w-3.5 h-3.5 text-cyan-400" />
                       {vehicle.category === "RAIL"
-                        ? "Informasi Dinas & Rangkaian KA"
-                        : "Informasi Dinas & Armada Operasional"}
+                        ? t.vehicleInspector.operationalDetails
+                        : t.vehicleInspector.fleetRunInfo}
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
                       {vehicle.operatorName || modeConfig.name}
@@ -402,10 +629,10 @@ export function VehicleDetailSheet({
                     {vehicle.totalTrainsets && (
                       <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
                         <span className="text-[10px] text-slate-400 block">
-                          Total Armada di Jalur:
+                          {t.vehicleInspector.totalFleetOnLine}:
                         </span>
                         <strong className="text-emerald-400 text-xs font-bold">
-                          {vehicle.totalTrainsets} Trainset
+                          {vehicle.totalTrainsets} {t.common.trainset}
                         </strong>
                       </div>
                     )}
@@ -450,7 +677,7 @@ export function VehicleDetailSheet({
                     {vehicle.depotHome && (
                       <div className="col-span-2 p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
                         <span className="text-[10px] text-slate-400">
-                          {vehicle.category === "RAIL" ? `${t.common.depot}:` : "Pool / Pangkalan Operasi:"}
+                          {vehicle.category === "RAIL" ? `${t.common.depot}:` : `${t.vehicleInspector.poolBase}:`}
                         </span>
                         <strong className="text-slate-200 text-xs font-bold">
                           {vehicle.depotHome}
@@ -460,7 +687,7 @@ export function VehicleDetailSheet({
                   </div>
                 </div>
 
-                {/* Quick Coachbuilder Summary */}
+                {/* Coachbuilder Summary */}
                 <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400 font-mono text-[11px]">{t.vehicleInspector.coachbuilder}:</span>
@@ -474,21 +701,9 @@ export function VehicleDetailSheet({
                   </div>
                 </div>
 
-                {/* Integrated Vehicle Photo Gallery in Overview Tab */}
-                <div className="pt-2 border-t border-slate-800/80 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                      {t.vehicleInspector.photoGalleryTitle}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{t.vehicleInspector.spotterCredit}</span>
-                  </div>
-                  <VehiclePhotoGallery vehicle={vehicle} />
-                </div>
+                <VehicleTechnicalSpecs vehicle={vehicle} />
               </div>
             )}
-
-            {activeTab === "specs" && <VehicleTechnicalSpecs vehicle={vehicle} />}
 
             {activeTab === "seating" && (
               <div className="space-y-4">
@@ -499,8 +714,29 @@ export function VehicleDetailSheet({
               </div>
             )}
           </div>
+
+          {/* 4. ACTION BAR: PRIMARY TRACK + SECONDARY CHECK-IN */}
+          <div className="px-4 py-3 border-t border-slate-800/80 flex items-center gap-2 shrink-0 safe-area-pb bg-slate-950/60">
+            <button
+              onClick={handleTrackOnMap}
+              className="flex-1 min-h-[44px] px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-md shadow-cyan-950/50 flex items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>{t.common.viewOnMap}</span>
+            </button>
+
+            {onOpenCheckIn && (
+              <button
+                onClick={() => onOpenCheckIn(vehicle.id)}
+                aria-label={t.common.oneTapCheckIn}
+                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+              >
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span className="whitespace-nowrap">{t.common.oneTapCheckIn}</span>
+              </button>
+            )}
+          </div>
         </motion.aside>
       </div>
-    </AnimatePresence>
   );
 }

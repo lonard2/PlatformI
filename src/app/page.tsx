@@ -293,6 +293,7 @@ export default function Home() {
               key={selectedVehicleId || "vehicle-drawer"}
               vehicleId={selectedVehicleId}
               onClose={clearSelection}
+              onOpenCheckIn={handleOpenCheckIn}
             />
           )}
         </AnimatePresence>

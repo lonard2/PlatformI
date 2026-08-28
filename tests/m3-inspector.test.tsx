@@ -178,26 +178,26 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       expect(screen.getByText(/Arah|Heading|Kompas/i)).toBeInTheDocument();
       expect(screen.getByText(/Kepadatan|Tingkat/i)).toBeInTheDocument();
 
-      // Verify trainset, run number, formation, and depot details
-      expect(screen.getByText(/Informasi Dinas & Rangkaian KA/i)).toBeInTheDocument();
+      // Switch to Tech Specs tab (run/trainset details were demoted here from Overview)
+      const specsTab = screen.getByRole("tab", { name: /Spesifikasi/i });
+      fireEvent.click(specsTab);
+
+      // Verify trainset, run number, formation, and depot details in Specs tab
+      expect(screen.getAllByText(/Informasi Dinas & Rangkaian KA/i)[0]).toBeInTheDocument();
       expect(screen.getAllByText(/M-101/i)[0]).toBeInTheDocument();
       expect(screen.getAllByText(/TS-01/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/16 Trainset/i)).toBeInTheDocument();
-      expect(screen.getByText(/6 Kereta \(4M2T\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Depo MRT Lebak Bulus/i)).toBeInTheDocument();
-
-      // Switch to Tech Specs tab
-      const specsTab = screen.getByRole("button", { name: /Spesifikasi/i });
-      fireEvent.click(specsTab);
-      expect(screen.getByText(/Karoseri & Struktur Body/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/16 Trainset|16 Rangkaian/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/6 Kereta \(4M2T\)/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Depo MRT Lebak Bulus/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Karoseri & Struktur Body/i).length).toBeGreaterThan(0);
 
       // Switch to Seating tab
-      const seatingTab = screen.getByRole("button", { name: /Gerbong|Kabin|Dek/i });
+      const seatingTab = screen.getByRole("tab", { name: /Gerbong|Kabin|Dek/i });
       fireEvent.click(seatingTab);
       expect(screen.getByText(/Diagram Tata Letak Kabin/i)).toBeInTheDocument();
 
       // Click close button
-      const closeBtn = screen.getByLabelText(/Tutup detail kendaraan/i);
+      const closeBtn = screen.getByLabelText(/Tutup|Close/i);
       fireEvent.click(closeBtn);
       expect(onCloseMock).toHaveBeenCalledTimes(1);
     });
