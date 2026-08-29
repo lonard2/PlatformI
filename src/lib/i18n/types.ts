@@ -444,6 +444,18 @@ export interface TranslationDictionary {
     fri: string;
     sat: string;
     sun: string;
+    sevAll: string;
+    sevCritical: string;
+    sevWarning: string;
+    sevInfo: string;
+    sevNormal: string;
+    noData: string;
+    bandNote: string;
+    scope30Days: string;
+    headwayPrefix: string;
+    todayShort: string;
+    noLinesMatch: string;
+    incidentCountLabel: string;
     targetAbove98: string;
     uptimeLabel: string;
     onTimeShort: string;
