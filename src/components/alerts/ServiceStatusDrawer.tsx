@@ -11,7 +11,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Activity,
   AlertTriangle,
@@ -20,25 +20,16 @@ import {
   Info,
   Search,
   X,
-  Layers,
-  Train,
-  Bus,
-  Plane,
-  Anchor,
-  Clock,
-  ArrowRight,
-  Filter,
+      Clock,
+    ArrowRight,
   RefreshCw,
   Calendar as CalendarIcon,
   TrendingUp,
   BarChart3,
-  Check,
-  ShieldCheck,
-  Zap,
+    Check,
   ChevronLeft,
   ChevronRight,
-  Globe,
-  SlidersHorizontal,
+    Globe,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -65,7 +56,7 @@ export interface ServiceStatusDrawerProps {
 }
 
 type MainTab = "LIVE" | "HISTORY" | "UPTIME";
-type SeverityFilter = "ALL" | "CRITICAL" | "WARNING" | "NORMAL";
+type SeverityFilter = "ALL" | "CRITICAL" | "WARNING" | "INFO" | "NORMAL";
 type UptimeTimeframe = "30_DAYS" | "90_DAYS" | "180_DAYS" | "365_DAYS";
 
 const MONTH_NAMES_ID = [
@@ -125,14 +116,40 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   const [expandedUptimeMode, setExpandedUptimeMode] = useState<TransitMode | null>(null);
   const [selectedTrendMonth, setSelectedTrendMonth] = useState<string | null>(null);
   const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Derive the dataset's latest incident date once — the "Today" jump must
+  // never point at a hardcoded date that silently goes stale.
+  const latestIncident = useMemo(() => {
+    if (HISTORICAL_INCIDENTS.length === 0) return null;
+    return HISTORICAL_INCIDENTS.reduce((max, h) => (h.date > max ? h.date : max),
+      HISTORICAL_INCIDENTS[0].date
+    );
+  }, []);
+  const latestIncidentParts = latestIncident
+    ? latestIncident.split("-").map((part) => parseInt(part, 10))
+    : null;
+  const latestIncidentLabel = latestIncidentParts
+    ? `${latestIncidentParts[2]} ${
+        (language === "id" ? MONTH_NAMES_ID : MONTH_NAMES_EN)[
+          latestIncidentParts[1] - 1
+        ].slice(0, 3)
+      }`
+    : "";
 
   const allLines = useTransitStore((state) => state.allLines);
   const selectLine = useTransitStore((state) => state.selectLine);
+  const isFetchingRef = useRef(false);
+  const fetchAbortRef = useRef<AbortController | null>(null);
 
   const fetchAlerts = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+    fetchAbortRef.current = new AbortController();
+    const signal = fetchAbortRef.current.signal;
     setIsRefreshing(true);
     try {
-      const res = await fetch("/api/alerts");
+      const res = await fetch("/api/alerts", { signal });
       if (res.ok) {
         const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
         if (data.success && Array.isArray(data.data)) {
@@ -144,9 +161,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       } else {
         setFetchFailed(true);
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setFetchFailed(true);
     } finally {
+      isFetchingRef.current = false;
       setIsRefreshing(false);
       setLastUpdated(
         new Date().toLocaleTimeString(language === "id" ? "id-ID" : "en-US", {
@@ -162,7 +181,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchAlerts();
+    } else if (fetchAbortRef.current) {
+      // Closing the drawer cancels any in-flight refresh
+      fetchAbortRef.current.abort();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Network Statistics
@@ -203,15 +226,54 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       const lineAlerts = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
       const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
       const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
+      const hasInfo = lineAlerts.some((a) => a.severity === "INFO");
       const isNormal = lineAlerts.length === 0;
 
       if (severityFilter === "CRITICAL" && !hasCritical) return false;
       if (severityFilter === "WARNING" && !hasWarning && !hasCritical) return false;
+      if (severityFilter === "INFO" && !hasInfo && !hasWarning && !hasCritical) return false;
       if (severityFilter === "NORMAL" && !isNormal) return false;
 
       return true;
-    });
+    })
+    .map((line) => {
+      const la = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+      const rank = la.some((a) => a.severity === "CRITICAL")
+        ? 0
+        : la.some((a) => a.severity === "WARNING")
+        ? 1
+        : la.some((a) => a.severity === "INFO")
+        ? 2
+        : 3;
+      return { line, rank };
+    })
+    .sort((a, b) => a.rank - b.rank || a.line.name.localeCompare(b.line.name))
+    .map((entry) => entry.line);
   }, [allLines, alerts, activeCategory, searchQuery, severityFilter]);
+
+  // Severity chip counts: count LINES under the current category + search
+  // (same unit as the filtered list), not raw alerts.
+  const severityCounts = useMemo(() => {
+    const counts = { ALL: 0, CRITICAL: 0, WARNING: 0, INFO: 0, NORMAL: 0 };
+    allLines.forEach((line) => {
+      if (activeCategory !== "ALL" && line.category !== activeCategory) return;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        if (
+          !line.code.toLowerCase().includes(q) &&
+          !line.name.toLowerCase().includes(q)
+        )
+          return;
+      }
+      const la = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+      counts.ALL += 1;
+      if (la.some((a) => a.severity === "CRITICAL")) counts.CRITICAL += 1;
+      if (la.some((a) => a.severity === "WARNING")) counts.WARNING += 1;
+      if (la.some((a) => a.severity === "INFO")) counts.INFO += 1;
+      if (la.length === 0) counts.NORMAL += 1;
+    });
+    return counts;
+  }, [allLines, alerts, activeCategory, searchQuery]);
 
   // Calendar calculations
   const monthKeyPrefix = useMemo(() => {
@@ -299,6 +361,15 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
   // Aggregate Uptime KPI based on selected timeframe
   const aggregatedUptime = useMemo(() => {
+    const windowMonths =
+      uptimeTimeframe === "30_DAYS"
+        ? 1
+        : uptimeTimeframe === "90_DAYS"
+        ? 3
+        : uptimeTimeframe === "180_DAYS"
+        ? 6
+        : 12;
+
     let totalUptimeSum = 0;
     let totalOtpSum = 0;
     let totalDisruptionMin = 0;
@@ -311,7 +382,20 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       else if (uptimeTimeframe === "365_DAYS") percent = m.uptimePercent365Days;
 
       totalUptimeSum += percent;
-      totalOtpSum += m.onTimePerformancePercent;
+
+      // OTP: averaged over the selected window from monthly history (the
+      // scalar onTimePerformancePercent is a 30-day figure).
+      if (windowMonths === 1) {
+        totalOtpSum += m.onTimePerformancePercent;
+      } else if (m.monthlyHistory.length > 0) {
+        const window = m.monthlyHistory.slice(-windowMonths);
+        totalOtpSum +=
+          window.reduce((sum, r) => sum + r.onTimePerformancePercent, 0) / window.length;
+      } else {
+        totalOtpSum += m.onTimePerformancePercent;
+      }
+
+      // Source data exists only for the 30-day window (scoped in the UI).
       totalDisruptionMin += m.disruptionMinutes30Days;
       totalMttrSum += m.mttrMinutes;
     });
@@ -360,16 +444,13 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
         }
       });
 
-      const avg = count > 0 ? (monthSum / count).toFixed(2) : "98.00";
-      const avgOtp = count > 0 ? (monthOtp / count).toFixed(2) : "97.50";
-
       return {
-        monthKey: mKey,
-        monthLabel: label,
-        avgUptime: parseFloat(avg),
-        avgOtp: parseFloat(avgOtp),
-        totalTrips: monthTrips,
-      };
+         monthKey: mKey,
+         monthLabel: label,
+         avgUptime: count > 0 ? parseFloat((monthSum / count).toFixed(2)) : null,
+         avgOtp: count > 0 ? parseFloat((monthOtp / count).toFixed(2)) : null,
+         totalTrips: monthTrips,
+       };
     });
   }, []);
 
@@ -391,13 +472,49 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
   const handleDrawerKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      if (e.key === "Escape" && showLanguageMenu) {
+        setShowLanguageMenu(false);
+        return;
+      }
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
       }
     },
-    [onClose]
+    [onClose, showLanguageMenu]
   );
+
+  // Minimal focus trap: wrap Tab cycling inside the drawer
+  const handleTrapKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "Tab") return;
+    const focusables = drawerRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusables || focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  // Arrow-key navigation for the tablist
+  const TAB_ORDER: MainTab[] = ["LIVE", "HISTORY", "UPTIME"];
+  const handleTablistKeyDown = (e: React.KeyboardEvent) => {
+    const idx = TAB_ORDER.indexOf(activeMainTab);
+    let next = -1;
+    if (e.key === "ArrowRight") next = (idx + 1) % TAB_ORDER.length;
+    if (e.key === "ArrowLeft") next = (idx + TAB_ORDER.length - 1) % TAB_ORDER.length;
+    if (next >= 0) {
+      e.preventDefault();
+      setActiveMainTab(TAB_ORDER[next]);
+      document.getElementById(`status-tab-${TAB_ORDER[next]}`)?.focus();
+    }
+  };
 
   const handleSelectLine = (lineId: string) => {
     selectLine(lineId);
@@ -424,10 +541,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", damping: 28, stiffness: 280 }
+            }
             className="w-full sm:w-[640px] md:w-[680px] h-full bg-[#090d18] border-l border-white/15 flex flex-col shadow-2xl overflow-hidden text-slate-100 outline-none"
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={handleDrawerKeyDown}
+            onKeyDown={(e) => {
+              handleDrawerKeyDown(e);
+              handleTrapKeyDown(e);
+            }}
           >
             {/* 1. MAIN HEADER & LANGUAGE SWITCHER */}
             <div className="px-5 py-4 border-b border-white/10 bg-[#0c1222] flex items-center justify-between shrink-0">
@@ -455,8 +579,10 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 <div className="relative">
                 <button
                   onClick={() => setShowLanguageMenu((v) => !v)}
+                  aria-expanded={showLanguageMenu}
+                  aria-haspopup="menu"
                   aria-label={t.common.selectLanguage}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5"
+                  className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5`}
                 >
                     <Globe className="w-3.5 h-3.5 text-cyan-400" />
                     <span className="font-mono font-bold uppercase">{language}</span>
@@ -499,7 +625,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   onClick={fetchAlerts}
                   aria-label={t.common.refresh}
                   disabled={isRefreshing}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
+                  className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50`}
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-cyan-400" : ""}`} />
                 </button>
@@ -507,16 +633,26 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 <button
                   onClick={onClose}
                   aria-label={t.common.close}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
-                >
-                  <X className="w-4 h-4" />
+                  className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition`}
+                 >
+                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
             {/* 2. THREE PRIMARY TABS */}
-            <div className="px-5 pt-2 bg-slate-900/60 border-b border-white/10 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
+            <div
+              role="tablist"
+              aria-label={t.statusCenter.title}
+              onKeyDown={handleTablistKeyDown}
+              className="px-5 pt-2 bg-slate-900/60 border-b border-white/10 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar"
+            >
               <button
+                role="tab"
+                id="status-tab-LIVE"
+                aria-selected={activeMainTab === "LIVE"}
+                aria-controls="status-panel-LIVE"
+                tabIndex={activeMainTab === "LIVE" ? 0 : -1}
                 onClick={() => setActiveMainTab("LIVE")}
                 className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
                   activeMainTab === "LIVE"
@@ -526,12 +662,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
               >
                 <Activity className="w-3.5 h-3.5" />
                 <span>{t.statusCenter.tabLive}</span>
-                <span className="px-1.5 py-0.2 rounded bg-slate-900 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-slate-900 text-[10px]">
                   {allLines.length}
                 </span>
               </button>
 
               <button
+                role="tab"
+                id="status-tab-HISTORY"
+                aria-selected={activeMainTab === "HISTORY"}
+                aria-controls="status-panel-HISTORY"
+                tabIndex={activeMainTab === "HISTORY" ? 0 : -1}
                 onClick={() => setActiveMainTab("HISTORY")}
                 className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
                   activeMainTab === "HISTORY"
@@ -541,12 +682,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
               >
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>{t.statusCenter.tabHistory}</span>
-                <span className="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px]">
                   {HISTORICAL_INCIDENTS.length}
                 </span>
               </button>
 
               <button
+                role="tab"
+                id="status-tab-UPTIME"
+                aria-selected={activeMainTab === "UPTIME"}
+                aria-controls="status-panel-UPTIME"
+                tabIndex={activeMainTab === "UPTIME" ? 0 : -1}
                 onClick={() => setActiveMainTab("UPTIME")}
                 className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
                   activeMainTab === "UPTIME"
@@ -556,7 +702,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
               >
                 <BarChart3 className="w-3.5 h-3.5" />
                 <span>{t.statusCenter.tabUptime}</span>
-                <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px]">
                   {aggregatedUptime.avgUptime}%
                 </span>
               </button>
@@ -564,7 +710,28 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
             {/* 3. TAB 1: LIVE NETWORK STATUS */}
             {activeMainTab === "LIVE" && (
-              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-3.5">
+              <div
+                role="tabpanel"
+                id="status-panel-LIVE"
+                aria-labelledby="status-tab-LIVE"
+                tabIndex={-1}
+                className="flex-1 flex flex-col overflow-hidden p-4 space-y-3.5"
+              >
+                {fetchFailed && (
+                  <div className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[11px] font-mono shrink-0">
+                    <span className="flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      {t.common.stale}
+                    </span>
+                    <button
+                      onClick={fetchAlerts}
+                      className="underline underline-offset-2 hover:text-amber-200 transition"
+                    >
+                      {t.common.refresh}
+                    </button>
+                  </div>
+                )}
+
                 {/* Search & Category Filter */}
                 <div className="space-y-2">
                   <div className="relative">
@@ -584,7 +751,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
+                        className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
                           activeCategory === cat
                             ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
                             : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -604,17 +771,60 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   </div>
                 </div>
 
+                {/* Severity Filter Chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                  {(["ALL", "CRITICAL", "WARNING", "INFO", "NORMAL"] as const).map((sev) => {
+                    const isActive = severityFilter === sev;
+                    const count =
+                      sev === "ALL"
+                        ? severityCounts.ALL
+                        : sev === "CRITICAL"
+                        ? severityCounts.CRITICAL
+                        : sev === "WARNING"
+                        ? severityCounts.WARNING
+                        : sev === "INFO"
+                        ? severityCounts.INFO
+                        : severityCounts.NORMAL;
+                    const sevLabel =
+                      sev === "ALL"
+                        ? t.statusCenter.sevAll
+                        : sev === "CRITICAL"
+                        ? t.statusCenter.sevCritical
+                        : sev === "WARNING"
+                        ? t.statusCenter.sevWarning
+                        : sev === "INFO"
+                        ? t.statusCenter.sevInfo
+                        : t.statusCenter.sevNormal;
+                    return (
+                      <button
+                        key={sev}
+                        onClick={() => setSeverityFilter(sev)}
+                        aria-pressed={isActive}
+                        className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition border flex items-center gap-1 ${
+                          isActive
+                            ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
+                            : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {sevLabel}
+                    <span className="px-1 py-0.5 rounded bg-slate-900 text-[10px] font-mono">{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* Line Status List */}
                 <div className="flex-1 overflow-y-auto space-y-2 pr-1">
                   {filteredLines.length === 0 ? (
                     <div className="p-8 text-center text-xs text-slate-500 font-mono">
-                      {t.hubInspector.noDeparturesFound}
+                      {t.statusCenter.noLinesMatch}
                     </div>
                   ) : (
                     filteredLines.map((line) => {
                       const lineAlerts = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
                       const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
                       const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
+                      const hasInfo = lineAlerts.some((a) => a.severity === "INFO");
                       const isExpanded = expandedLineId === line.id;
 
                       let statusBadge = {
@@ -635,6 +845,12 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                           color: "bg-amber-950/80 border-amber-500/40 text-amber-400",
                           icon: AlertTriangle,
                         };
+                      } else if (hasInfo) {
+                        statusBadge = {
+                          label: t.statusCenter.sevInfo,
+                          color: "bg-cyan-950/80 border-cyan-500/40 text-cyan-400",
+                          icon: Info,
+                        };
                       }
 
                       const StatusIcon = statusBadge.icon;
@@ -646,9 +862,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         >
                           <div
                             role="button"
-                            tabIndex={0}
-                            className="flex items-center justify-between cursor-pointer"
-                            onClick={() => setExpandedLineId(isExpanded ? null : line.id)}
+                             tabIndex={0}
+                             aria-expanded={isExpanded}
+                             aria-controls={`line-panel-${line.id}`}
+                             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-between cursor-pointer rounded-lg"
+                             onClick={() => setExpandedLineId(isExpanded ? null : line.id)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
@@ -670,7 +888,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                               <div className="min-w-0">
                                 <h4 className="text-xs font-bold text-white truncate">{line.name}</h4>
                                 <span className="text-[10px] text-slate-400 font-mono">
-                                  Headway: {line.headwayMinutes} {t.common.minutes} &bull; {line.firstDeparture} - {line.lastDeparture}
+                                  {t.statusCenter.headwayPrefix} {line.headwayMinutes} {t.common.minutes} &bull; {line.firstDeparture} - {line.lastDeparture}
                                 </span>
                               </div>
                             </div>
@@ -692,7 +910,10 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
                           {/* Expanded Alerts Details */}
                           {isExpanded && (
-                            <div className="mt-3 pt-3 border-t border-white/10 space-y-2 animate-in fade-in duration-150">
+                             <div
+                               id={`line-panel-${line.id}`}
+                               className="mt-3 pt-3 border-t border-white/10 space-y-2"
+                             >
                               {lineAlerts.length === 0 ? (
                                 <div className="text-xs text-slate-400 font-mono flex items-center justify-between">
                                   <span>{t.statusCenter.operationalNormalTitle}</span>
@@ -711,7 +932,9 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                                     className={`p-3 rounded-lg border text-xs space-y-1.5 ${
                                       alert.severity === "CRITICAL"
                                         ? "bg-rose-950/40 border-rose-500/40 text-rose-200"
-                                        : "bg-amber-950/40 border-amber-500/40 text-amber-200"
+                                        : alert.severity === "INFO"
+                                          ? "bg-cyan-950/40 border-cyan-500/40 text-cyan-200"
+                                          : "bg-amber-950/40 border-amber-500/40 text-amber-200"
                                     }`}
                                   >
                                     <div className="font-bold flex items-center justify-between">
@@ -748,7 +971,13 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
             {/* 4. TAB 2: INTERACTIVE MULTI-MONTH CALENDAR & INCIDENT HISTORY */}
             {activeMainTab === "HISTORY" && (
-              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+              <div
+                role="tabpanel"
+                id="status-panel-HISTORY"
+                aria-labelledby="status-tab-HISTORY"
+                tabIndex={-1}
+                className="flex-1 flex flex-col overflow-hidden p-4 space-y-4"
+              >
                 {/* CALENDAR NAVIGATION & MONTH SELECTOR */}
                 <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-md">
                   <div className="flex items-center justify-between">
@@ -759,17 +988,19 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={handlePrevMonth}
-                        title={t.statusCenter.prevMonth}
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                      >
+                         onClick={handlePrevMonth}
+                         title={t.statusCenter.prevMonth}
+                         aria-label={t.statusCenter.prevMonth}
+                         className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition`}
+                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={handleNextMonth}
-                        title={t.statusCenter.nextMonth}
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                      >
+                         onClick={handleNextMonth}
+                         title={t.statusCenter.nextMonth}
+                         aria-label={t.statusCenter.nextMonth}
+                         className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition`}
+                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -779,7 +1010,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                     <button
                       onClick={() => setSelectedHistoryDate("ALL")}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${
+                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${
                         selectedHistoryDate === "ALL"
                           ? "bg-cyan-950 border-cyan-500 text-cyan-300 shadow-sm"
                           : "bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -789,13 +1020,16 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                     </button>
                     <button
                       onClick={() => {
-                        setCalendarYear(2026);
-                        setCalendarMonth(7); // August
-                        setSelectedHistoryDate("2026-08-22");
+                        if (latestIncident) {
+                          const parts = latestIncident.split("-").map(Number);
+                          setCalendarYear(parts[0]);
+                          setCalendarMonth(parts[1] - 1);
+                          setSelectedHistoryDate(latestIncident);
+                        }
                       }}
                       className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200"
                     >
-                      {t.statusCenter.today} (22 Agu)
+                      {t.statusCenter.today} ({latestIncidentLabel})
                     </button>
                   </div>
 
@@ -828,12 +1062,17 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                           <button
                             key={cIdx}
                             onClick={() => setSelectedHistoryDate(cell.dateStr)}
+                            aria-label={`${monthLabel} ${cell.dayNum}${
+                              cell.events.length > 0
+                                ? ` — ${cell.events.length} ${t.statusCenter.incidentCountLabel}`
+                                : ""
+                            }`}
                             className={`h-10 rounded-lg p-1 flex flex-col items-center justify-between border transition-all ${
                               isSelected
                                 ? "bg-cyan-950 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400 shadow-md shadow-cyan-950/50"
                                 : cell.events.length > 0
-                                ? "bg-slate-850 border-slate-700 hover:border-cyan-500/50 text-white"
-                                : "bg-slate-950/60 border-slate-850 text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                                ? "bg-slate-800 border-slate-700 hover:border-cyan-500/50 text-white"
+                                : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-900"
                             }`}
                           >
                             <span className="text-[11px] font-mono font-bold">{cell.dayNum}</span>
@@ -858,6 +1097,35 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       })}
                     </div>
                   </div>
+                </div>
+
+                {/* Incident Severity Filter Chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                  {(["ALL", "CRITICAL", "WARNING", "INFO"] as const).map((sev) => {
+                    const isActive = selectedHistorySeverity === sev;
+                    const sevLabel =
+                      sev === "ALL"
+                        ? t.statusCenter.sevAll
+                        : sev === "CRITICAL"
+                        ? t.statusCenter.sevCritical
+                        : sev === "WARNING"
+                        ? t.statusCenter.sevWarning
+                        : t.statusCenter.sevInfo;
+                    return (
+                      <button
+                        key={sev}
+                        onClick={() => setSelectedHistorySeverity(sev)}
+                        aria-pressed={isActive}
+                        className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition border ${
+                          isActive
+                            ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
+                            : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {sevLabel}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* INCIDENT TIMELINE LIST */}
@@ -933,7 +1201,13 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
             {/* 5. TAB 3: MULTI-WINDOW HISTORICAL UPTIME & RELIABILITY KPI */}
             {activeMainTab === "UPTIME" && (
-              <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+              <div
+                role="tabpanel"
+                id="status-panel-UPTIME"
+                aria-labelledby="status-tab-UPTIME"
+                tabIndex={-1}
+                className="flex-1 flex flex-col overflow-hidden p-4 space-y-4"
+              >
                 {/* TIMEFRAME SELECTOR BUTTONS */}
                 <div className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shrink-0">
                   {(
@@ -969,24 +1243,32 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       {t.statusCenter.targetSlaPrima}
                     </span>
                   </div>
-                  <div className="flex items-baseline gap-4 pt-1">
-                    <div>
-                      <div className="text-3xl font-black font-mono text-white tabular-nums">
-                        {aggregatedUptime.avgUptime}%
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {t.statusCenter.onTimePerformance}
-                      </span>
-                    </div>
-                    <div className="border-l border-white/10 pl-4">
-                      <div className="text-3xl font-black font-mono text-cyan-300 tabular-nums">
-                        {aggregatedUptime.avgMttr} {t.common.minutes}
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {t.statusCenter.meanTimeToRecovery}
-                      </span>
-                    </div>
-                  </div>
+                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 pt-1">
+                     <div>
+                       <div className="text-3xl font-black font-mono text-white tabular-nums">
+                         {aggregatedUptime.avgUptime}%
+                       </div>
+                       <span className="text-[10px] text-slate-400 font-mono">
+                         {t.statusCenter.uptimeLabel}
+                       </span>
+                     </div>
+                     <div className="border-l border-white/10 pl-4">
+                       <div className="text-3xl font-black font-mono text-cyan-300 tabular-nums">
+                         {aggregatedUptime.avgOtp}%
+                       </div>
+                       <span className="text-[10px] text-slate-400 font-mono">
+                         {t.statusCenter.onTimePerformance}
+                       </span>
+                     </div>
+                     <div className="border-l border-white/10 pl-4">
+                       <div className="text-2xl font-black font-mono text-slate-200 tabular-nums">
+                         {aggregatedUptime.avgMttr} {t.common.minutes}
+                       </div>
+                       <span className="text-[10px] text-slate-400 font-mono">
+                         {t.statusCenter.meanTimeToRecovery} ({t.statusCenter.scope30Days})
+                       </span>
+                     </div>
+                   </div>
                 </div>
 
                 {/* 12-MONTH PROGRESSION TREND BAR CHART */}
@@ -1002,65 +1284,82 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   {/* Bar Chart Visual */}
                   <div className="grid grid-cols-12 gap-1 items-end h-20 pt-2 border-b border-white/5">
                     {monthlyTrendAggregates.map((m) => {
-                      const heightPercent = Math.max(20, (m.avgUptime - 94) * 16);
-                      const isHovered = selectedTrendMonth === m.monthKey;
+                       const isTapped = selectedTrendMonth === m.monthKey;
+                       const heightPercent =
+                         m.avgUptime !== null
+                           ? Math.max(0, (m.avgUptime - 94) * 16)
+                           : 3;
 
-                      return (
-                        <div
-                          key={m.monthKey}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() =>
-                            setSelectedTrendMonth(isHovered ? null : m.monthKey)
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              setSelectedTrendMonth(isHovered ? null : m.monthKey);
-                            }
-                          }}
-                          className="flex flex-col items-center gap-1 cursor-pointer group h-full justify-end"
-                        >
-                          <div
-                            style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-t transition-all ${
-                              isHovered
-                                ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
-                                : m.avgUptime >= 98
-                                ? "bg-emerald-500/80 group-hover:bg-emerald-400"
-                                : "bg-amber-500/80 group-hover:bg-amber-400"
-                            }`}
-                          />
-                          <span className="text-[10px] font-mono text-slate-400 truncate max-w-full">
-                            {m.monthLabel.split(" ")[0]}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                       return (
+                         <div
+                           key={m.monthKey}
+                           role="button"
+                           tabIndex={0}
+                           aria-pressed={isTapped}
+                           aria-label={`${m.monthLabel}: ${
+                             m.avgUptime !== null
+                               ? `${t.statusCenter.uptimeLabel} ${m.avgUptime}%`
+                               : t.statusCenter.noData
+                           }`}
+                           onClick={() =>
+                             setSelectedTrendMonth(isTapped ? null : m.monthKey)
+                           }
+                           onKeyDown={(e) => {
+                             if (e.key === "Enter" || e.key === " ") {
+                               e.preventDefault();
+                               setSelectedTrendMonth(isTapped ? null : m.monthKey);
+                             }
+                           }}
+                           className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center gap-1 cursor-pointer group h-full justify-end rounded-sm`}
+                         >
+                           <div
+                             style={{ height: `${heightPercent}%` }}
+                             className={`w-full rounded-t transition-all ${
+                               m.avgUptime === null
+                                 ? "bg-slate-600"
+                                 : isTapped
+                                 ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
+                                 : m.avgUptime >= 98
+                                 ? "bg-emerald-500/80 group-hover:bg-emerald-400"
+                                 : "bg-amber-500/80 group-hover:bg-amber-400"
+                             }`}
+                           />
+                           <span className="text-[10px] font-mono text-slate-400 truncate max-w-full">
+                             {m.monthLabel.split(" ")[0].slice(0, 3)}
+                           </span>
+                         </div>
+                       );
+                     })}
+                   </div>
+                   <div className="text-right text-[10px] font-mono text-slate-500">
+                     {t.statusCenter.bandNote}
+                   </div>
 
                   {/* Selected Month Tooltip */}
-                  {selectedTrendMonth && (
-                    <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
-                      <span className="text-white font-bold">{selectedTrendMonth}:</span>
-                      <span className="text-emerald-400">
-                        {t.statusCenter.uptimeLabel}:{" "}
-                        {
-                          monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
-                            ?.avgUptime
-                        }
-                        %
-                      </span>
-                      <span className="text-cyan-300">
-                        {t.statusCenter.onTimeShort}:{" "}
-                        {
-                          monthlyTrendAggregates.find((m) => m.monthKey === selectedTrendMonth)
-                            ?.avgOtp
-                        }
-                        %
-                      </span>
-                    </div>
-                  )}
+                   {selectedTrendMonth &&
+                     (() => {
+                       const selected = monthlyTrendAggregates.find(
+                         (m) => m.monthKey === selectedTrendMonth
+                       );
+                       if (!selected) return null;
+                       return (
+                         <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
+                           <span className="text-white font-bold">{selected.monthLabel}:</span>
+                           {selected.avgUptime !== null ? (
+                             <>
+                               <span className="text-emerald-400">
+                                 {t.statusCenter.uptimeLabel}: {selected.avgUptime}%
+                               </span>
+                               <span className="text-cyan-300">
+                                 {t.statusCenter.onTimeShort}: {selected.avgOtp}%
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-slate-400">{t.statusCenter.noData}</span>
+                           )}
+                         </div>
+                       );
+                     })()}
                 </div>
 
                 {/* DETAILED MODE-BY-MODE UPTIME LIST WITH 12-MONTH EXPANSION */}
@@ -1109,7 +1408,20 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                               {metric.statusHistory7Days.map((status, sIdx) => (
                                 <div
                                   key={sIdx}
-                                  title={`${t.statusCenter.dayOffset}${7 - sIdx}: ${status}`}
+                                  aria-label={`${t.statusCenter.dayOffset}${7 - sIdx}: ${
+                                    status === "NORMAL"
+                                      ? t.statusCenter.sevNormal
+                                      : status === "LIMITED"
+                                      ? t.navigation.serviceLimited
+                                      : t.navigation.serviceSuspended
+                                  }`}
+                                  title={`${t.statusCenter.dayOffset}${7 - sIdx}: ${
+                                    status === "NORMAL"
+                                      ? t.statusCenter.sevNormal
+                                      : status === "LIMITED"
+                                      ? t.navigation.serviceLimited
+                                      : t.navigation.serviceSuspended
+                                  }`}
                                   className={`w-3 h-3 rounded ${
                                     status === "NORMAL"
                                       ? "bg-emerald-500"
@@ -1123,11 +1435,13 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                           </div>
 
                           <button
-                            onClick={() =>
-                              setExpandedUptimeMode(isExpanded ? null : metric.mode)
-                            }
-                            className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1"
-                          >
+                             onClick={() =>
+                               setExpandedUptimeMode(isExpanded ? null : metric.mode)
+                             }
+                             aria-expanded={isExpanded}
+                             aria-controls={`uptime-panel-${metric.mode}`}
+                             className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1`}
+                           >
                             <span>{t.statusCenter.monthHistorySubpanel}</span>
                             {isExpanded ? (
                               <ChevronUp className="w-3.5 h-3.5" />
@@ -1139,7 +1453,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
 
                         {/* Expandable 12-Month Table */}
                         {isExpanded && (
-                          <div className="mt-2 pt-2 border-t border-slate-800 space-y-1.5 animate-in fade-in duration-150">
+                          <div className="mt-2 pt-2 border-t border-slate-800 space-y-1.5">
                             <div className="grid grid-cols-4 text-[10px] font-mono text-slate-400 font-bold pb-1 border-b border-white/5">
                               <span>{t.statusCenter.month}</span>
                               <span>{t.statusCenter.uptimeLabel}</span>
@@ -1169,8 +1483,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             {/* 6. FOOTER BAR */}
             <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
               <span className="flex items-center gap-2">
-                {t.statusCenter.title}
-                {fetchFailed && (
+ {fetchFailed && (
                   <span className="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px]">
                     {t.common.stale}
                   </span>
