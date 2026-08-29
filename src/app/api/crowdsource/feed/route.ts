@@ -16,6 +16,7 @@ import { TRANSIT_VEHICLES, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
 
 export interface FormattedFeedItem {
   id: string;
+  userId: string;
   vehicleId: string;
   vehicleCode: string;
   vehicleName: string;
@@ -74,6 +75,7 @@ export async function GET(request: NextRequest) {
 
       feedItems.push({
         id: report.id,
+        userId: report.userId,
         vehicleId: report.vehicleId,
         vehicleCode: v?.vehicleCode || report.vehicleId,
         vehicleName: v?.name || "Transit Fleet Vehicle",
@@ -106,6 +108,7 @@ export async function GET(request: NextRequest) {
 
         feedItems.push({
           id: `SEED-REPORT-${v.id}-${index}`,
+          userId: "seed",
           vehicleId: v.id,
           vehicleCode: v.vehicleCode,
           vehicleName: v.name,

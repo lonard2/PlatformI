@@ -12,7 +12,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Users,
   Wind,
@@ -21,11 +21,10 @@ import {
   Plus,
   Radio,
   Clock,
-  MessageSquare,
-  Train,
-  Bus,
-  Sparkles,
-} from "lucide-react";
+    MessageSquare,
+    Sparkles,
+  } from "lucide-react";
+import { SESSION_ID } from "@/lib/session";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { FormattedFeedItem } from "@/app/api/crowdsource/feed/route";
 import { useTranslation } from "@/lib/i18n";
@@ -48,21 +47,25 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
   const [selectedLineFilter, setSelectedLineFilter] = useState<string>("ALL");
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
 
+    const fetchAbortRef = useRef<AbortController | null>(null);
   const fetchFeed = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const url =
-        selectedLineFilter === "ALL"
-          ? "/api/crowdsource/feed?limit=25"
-          : `/api/crowdsource/feed?limit=25&lineId=${encodeURIComponent(selectedLineFilter)}`;
-      const res = await fetch(url);
+     fetchAbortRef.current?.abort();
+     fetchAbortRef.current = new AbortController();
+     setIsLoading(true);
+     try {
+       const url =
+         selectedLineFilter === "ALL"
+           ? "/api/crowdsource/feed?limit=25"
+           : `/api/crowdsource/feed?limit=25&lineId=${encodeURIComponent(selectedLineFilter)}`;
+       const res = await fetch(url, { signal: fetchAbortRef.current.signal });
       if (res.ok) {
         const data = await res.json();
         setFeed(data.feed || []);
       }
-    } catch {
-      // Keep existing feed on fetch error
-    } finally {
+         } catch (err) {
+       if (err instanceof DOMException && err.name === "AbortError") return;
+       // Keep existing feed on fetch error
+     } finally {
       setIsLoading(false);
       setLastRefreshedAt(new Date());
     }
@@ -160,15 +163,16 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
           <button
             onClick={() => fetchFeed()}
             disabled={isLoading}
-            className="p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50"
-            title={t.common.refresh}
+                       className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 p-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-900 text-slate-400 hover:text-white transition disabled:opacity-50`}
+             aria-label={t.common.refresh}
+             title={t.common.refresh}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-cyan-400" : ""}`} />
           </button>
 
           <button
             onClick={() => onOpenCheckIn()}
-            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 text-xs font-bold shadow-sm flex items-center gap-1.5 btn-tactile transition"
+                       className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 btn-tactile transition`}
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t.crowdsource.checkInTitle}</span>
@@ -183,10 +187,12 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
           <span>{t.common.filter}:</span>
         </div>
 
-        <select
-          value={selectedLineFilter}
-          onChange={(e) => setSelectedLineFilter(e.target.value)}
-          className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 max-w-[200px] truncate"
+                 <select
+           id="feed-line-filter"
+           aria-label={t.common.filter}
+           value={selectedLineFilter}
+           onChange={(e) => setSelectedLineFilter(e.target.value)}
+           className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 max-w-[200px] truncate"
         >
           <option value="ALL">{t.navigation.allModes}</option>
           {allLines.map((line) => (
@@ -198,7 +204,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
       </div>
 
       {/* Feed List */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar">
+            <div aria-live="polite" className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar">
         {feed.length === 0 ? (
           <div className="py-12 text-center text-xs text-slate-400 space-y-2">
             <Radio className="w-8 h-8 mx-auto text-slate-600 animate-pulse" />
@@ -216,10 +222,18 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
             const ac = getACBadge(item.acComfort);
 
             return (
-              <div
+                            <div
                 key={item.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => selectVehicle(item.vehicleId)}
-                className="p-3 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800/80 hover:border-cyan-500/40 transition cursor-pointer space-y-2 shadow-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectVehicle(item.vehicleId);
+                  }
+                }}
+                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 p-3 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800/80 hover:border-cyan-500/40 transition cursor-pointer space-y-2 shadow-sm"
               >
                 {/* Top Row: Vehicle & Time */}
                 <div className="flex items-center justify-between">
@@ -236,10 +250,15 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono shrink-0">
-                    <Clock className="w-3 h-3 text-slate-500" />
-                    <span>{getRelativeTime(item.timestampMs)}</span>
-                  </div>
+                                   <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono shrink-0">
+                     {item.userId === SESSION_ID && (
+                       <span className="px-1.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold">
+                         You
+                       </span>
+                     )}
+                     <Clock className="w-3 h-3 text-slate-500" />
+                     <span>{getRelativeTime(item.timestampMs)}</span>
+                   </div>
                 </div>
 
                 {/* Middle Badges: Density & AC */}
