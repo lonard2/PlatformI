@@ -15,6 +15,7 @@ import { db } from "@/lib/db";
 import { CrowdDensityLevel, ACComfortRating } from "@/types/transit";
 
 const CROWDSOURCE_HALF_LIFE_SECONDS = 600; // 10 minutes
+const RATE_LIMIT_SECONDS = 60;
 
 function calculateDecayWeight(timestampMs: number, currentTimestampMs: number): number {
   const deltaSeconds = Math.max(0, (currentTimestampMs - timestampMs) / 1000);
@@ -57,6 +58,31 @@ export async function POST(request: NextRequest) {
         : numericToDensityLevel(parseDensityToNumeric(crowdLevel));
 
     const acComfortStr: ACComfortRating = (acComfort as string).toUpperCase() as ACComfortRating;
+
+    // 0. Server-side rate limit: 1 report per 60s per vehicle+user (the
+    // client cooldown is a UX affordance; this is the enforcement)
+    if (userId) {
+      try {
+        const last = await db.crowdsourceCheckIn.findFirst({
+          where: { vehicleId, userId },
+          orderBy: { timestamp: "desc" },
+        });
+        if (last) {
+          const elapsed = (Date.now() - last.timestamp.getTime()) / 1000;
+          if (elapsed < RATE_LIMIT_SECONDS) {
+            return NextResponse.json(
+              {
+                error: "Rate limit: 1 report per 60 seconds per vehicle",
+                retryAfter: Math.ceil(RATE_LIMIT_SECONDS - elapsed),
+              },
+              { status: 429 }
+            );
+          }
+        }
+      } catch {
+        // DB unavailable — skip limit rather than block all reporting
+      }
+    }
 
     // 1. Create check-in entry in SQLite (with try/catch fallback if vehicle relation does not exist in SQLite)
     let savedCheckIn;
