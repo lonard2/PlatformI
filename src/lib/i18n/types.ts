@@ -612,8 +612,7 @@ export interface TranslationDictionary {
     youChip: string;
     feedStaleNotice: string;
     selectVehiclePlaceholder: string;
-  };
-  aiAdvisor: {
+  };  aiAdvisor: {
     title: string;
     subtitle: string;
     inputPlaceholder: string;
@@ -782,5 +781,25 @@ export interface TranslationDictionary {
     tokenExpiry: string;
     rawPayload: string;
     testTurnstileValidator: string;
+    addVehicle: string;
+    vehicleName: string;
+    refresh: string;
+    affectedStops: string;
+    resolutionWindow: string;
+    noScansYet: string;
+    scanTimestamp: string;
+    eventStreamTitle: string;
+    previewTitle: string;
+    fleetSubtitle: string;
+    alertsSubtitle: string;
+    scannerSubtitle: string;
+    rejectionReason: string;
+    fleetAssignedLine: string;
+    windowExpired: string;
+    escalateConfirmBody: string;
+    confirmEscalation: string;
+    demoteAlert: string;
+    resolved: string;
+    telemetryStale: string;
   };
 }
