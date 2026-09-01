@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
@@ -51,6 +51,8 @@ export default function Home() {
   // Modal states
   const [isCheckInOpen, setIsCheckInOpen] = useState<boolean>(false);
   const [checkInTargetVehicleId, setCheckInTargetVehicleId] = useState<string | null>(null);
+  const [checkInTargetLineId, setCheckInTargetLineId] = useState<string | null>(null);
+  const [feedRefreshSignal, setFeedRefreshSignal] = useState<number>(0);
   const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
   const [isStatusDrawerOpen, setIsStatusDrawerOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
@@ -76,8 +78,9 @@ export default function Home() {
     [allStops]
   );
 
-  const handleOpenCheckIn = (vehicleId?: string) => {
+  const handleOpenCheckIn = (vehicleId?: string, lineId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
+    setCheckInTargetLineId(lineId || null);
     setIsCheckInOpen(true);
   };
 
@@ -271,7 +274,7 @@ export default function Home() {
               transition={{ type: "spring", damping: 25, stiffness: 280 }}
               className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-96 max-w-[calc(100vw-24px)]"
             >
-              <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} />
+              <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -322,6 +325,8 @@ export default function Home() {
         isOpen={isCheckInOpen}
         onClose={() => setIsCheckInOpen(false)}
         initialVehicleId={checkInTargetVehicleId}
+        initialLineId={checkInTargetLineId}
+        onDone={() => setFeedRefreshSignal((s) => s + 1)}
       />
 
       {/* Multi-Model AI Transit Advisor Modal */}

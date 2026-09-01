@@ -27,17 +27,20 @@ import {
   Sparkles,
   Shield,
   Loader2,
+  Search,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { CrowdDensityLevel, ACComfortRating } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
-import { SESSION_ID, getCooldownRemaining, setLastSubmitNow } from "@/lib/session";
+import { SESSION_ID, getCooldownRemaining, setLastSubmitNow, setCooldownRemaining } from "@/lib/session";
 
 interface CheckInModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialVehicleId?: string | null;
+  initialLineId?: string | null;
+  onDone?: () => void;
 }
 
 const DENSITY_OPTIONS: {
@@ -133,14 +136,17 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   isOpen,
   onClose,
   initialVehicleId,
+  initialLineId,
+  onDone,
 }) => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const prefersReducedMotion = useReducedMotion();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
   const updateSingleVehicle = useTransitStore((state) => state.updateSingleVehicle);
 
   const [targetVehicleId, setTargetVehicleId] = useState<string>("");
+  const [vehicleSearch, setVehicleSearch] = useState<string>("");
   const [selectedDensity, setSelectedDensity] = useState<CrowdDensityLevel>("LEVEL_2_FEW_SEATS");
   const [selectedAC, setSelectedAC] = useState<ACComfortRating>("OPTIMAL");
   const [note, setNote] = useState<string>("");
@@ -148,7 +154,17 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [cooldownSeconds, setCooldownSeconds] = useState<number>(() => getCooldownRemaining());
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+  const [isDockedViewport, setIsDockedViewport] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDockedViewport(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
     const prevVehicleRef = useRef<typeof simulatedVehicles[0] | null>(null);
   const submitAbortRef = useRef<AbortController | null>(null);
@@ -194,11 +210,14 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
     }
   };
 
-  // Sync target vehicle when modal opens
+  // Sync target vehicle when modal opens. Never silently fall back to the
+  // first fleet vehicle: without inspector/map context the commuter must
+  // pick deliberately (wrong-vehicle reports are worse than no report).
   useEffect(() => {
     if (isOpen) {
-      const activeId = initialVehicleId || selectedVehicleId || simulatedVehicles[0]?.id || "";
-            setTargetVehicleId(activeId);
+      const activeId = initialVehicleId || (initialLineId ? "" : selectedVehicleId) || "";
+      setTargetVehicleId(activeId);
+      setVehicleSearch("");
       setIsSubmitted(false);
       setErrorMessage(null);
       setNote("");
@@ -208,27 +227,40 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
         setSelectedDensity(target.crowdLevel);
         setSelectedAC(target.acComfort);
       }
-      setCooldownSeconds(getCooldownRemaining());
     }
-  }, [isOpen, initialVehicleId, selectedVehicleId, simulatedVehicles]);
+  }, [isOpen, initialVehicleId, initialLineId, selectedVehicleId, simulatedVehicles]);
 
-    // Abort in-flight submit on unmount
-   useEffect(() => {
+  // Per-vehicle cooldown: recompute immediately on target change, then tick
+  useEffect(() => {
+    setCooldownSeconds(getCooldownRemaining(targetVehicleId));
+    const interval = setInterval(() => {
+      setCooldownSeconds(getCooldownRemaining(targetVehicleId));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetVehicleId]);
+
+  // Abort in-flight submit on unmount
+  useEffect(() => {
     return () => {
       submitAbortRef.current?.abort();
     };
   }, []);
 
-  // Cooldown timer ticker
-   useEffect(() => {
-    if (cooldownSeconds <= 0) return;
-    const interval = setInterval(() => {
-      setCooldownSeconds((prev) => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [cooldownSeconds]);
-
   const currentVehicle = simulatedVehicles.find((v) => v.id === targetVehicleId);
+
+  // Fleet list scoped by feed line filter (when opened from the feed) and
+  // by the commuter's search text
+  const candidateVehicles = React.useMemo(() => {
+    const query = vehicleSearch.trim().toLowerCase();
+    return simulatedVehicles.filter((v) => {
+      if (initialLineId && v.lineId !== initialLineId) return false;
+      if (!query) return true;
+      return (
+        v.vehicleCode.toLowerCase().includes(query) ||
+        v.name.toLowerCase().includes(query)
+      );
+    });
+  }, [simulatedVehicles, initialLineId, vehicleSearch]);
 
   const handleSubmit = async () => {
     if (!targetVehicleId) {
@@ -276,12 +308,18 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
+        if (res.status === 429 && typeof errorData.retryAfter === "number") {
+          // Server-enforced rate limit: sync client cooldown with it
+          setCooldownRemaining(targetVehicleId, errorData.retryAfter);
+          setCooldownSeconds(errorData.retryAfter);
+          throw new Error(t.crowdsource.cooldownActive);
+        }
         throw new Error(errorData.error || t.crowdsource.errorSubmitFailed);
       }
 
-      setLastSubmitNow();
+      setLastSubmitNow(targetVehicleId);
       setIsSubmitted(true);
-      setCooldownSeconds(getCooldownRemaining());
+      setCooldownSeconds(getCooldownRemaining(targetVehicleId));
     } catch (err) {
       // Rollback the optimistic update on failure
       if (prevVehicleRef.current) {
@@ -303,7 +341,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
-           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
+           className="fixed inset-0 z-50 flex items-end lg:items-center justify-center p-0 pb-[env(safe-area-inset-bottom)] lg:p-4 bg-black/75 backdrop-blur-md"
            onClick={onClose}
         >
           <motion.div
@@ -312,21 +350,48 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             aria-modal="true"
             aria-labelledby={modalTitleId}
             tabIndex={-1}
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={
+              isDockedViewport
+                ? { opacity: 0, scale: 0.95, y: 12 }
+                : { y: "100%", opacity: 0.5 }
+            }
+            animate={
+              isDockedViewport
+                ? { opacity: 1, scale: 1, y: 0 }
+                : { y: 0, opacity: 1 }
+            }
+            exit={
+              isDockedViewport
+                ? { opacity: 0, scale: 0.95, y: 12 }
+                : { y: "100%", opacity: 0 }
+            }
                         transition={
               prefersReducedMotion
                 ? { duration: 0 }
-                : { type: "spring", damping: 25, stiffness: 300 }
+                : isDockedViewport
+                  ? { type: "spring", damping: 25, stiffness: 300 }
+                  : { type: "spring", damping: 25, stiffness: 220 }
             }
-            className="relative w-full max-w-xl max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden outline-none"
+            drag={!prefersReducedMotion && !isDockedViewport ? "y" : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 140 || info.velocity.y > 400) {
+                onClose();
+              }
+            }}
+            className="relative w-full max-w-xl max-h-[86vh] lg:max-h-[90vh] flex flex-col bg-slate-950/95 border border-white/15 rounded-t-2xl lg:rounded-2xl shadow-2xl shadow-cyan-950/40 text-slate-100 overflow-hidden outline-none"
             onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => {
               handleKeyDown(e);
               handleTrapKeyDown(e);
             }}
           >
+            {/* Mobile Drag Handle */}
+            <div className="w-full flex items-center justify-center pt-2.5 pb-1 lg:hidden shrink-0">
+              <div className="w-12 h-1.5 rounded-full bg-slate-700/80 cursor-grab" aria-hidden="true" />
+            </div>
+
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/80 shrink-0">
           <div className="flex items-center gap-2.5">
@@ -373,21 +438,32 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               </div>
               <div className="pt-2 flex justify-center gap-3">
                 <button
+                  type="button"
                   onClick={() => setIsSubmitted(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium hover:bg-slate-700 transition"
+                  className="touch-target px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium hover:bg-slate-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
                 >
                   {t.crowdsource.submitAnother}
                 </button>
                 <button
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition shadow-md shadow-emerald-600/30"
+                  onClick={() => {
+                    onDone?.();
+                    onClose();
+                  }}
+                  className="touch-target px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition shadow-md shadow-emerald-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                 >
                   {t.crowdsource.done}
                 </button>
               </div>
             </div>
           ) : (
-            <>
+            <form
+              id="checkin-form"
+              className="space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleSubmit();
+              }}
+            >
               {/* Error Message */}
                             {errorMessage && (
                 <div role="alert" className="p-3 rounded-lg bg-rose-950/60 border border-rose-500/40 flex items-center gap-2.5 text-xs text-rose-300">
@@ -410,15 +486,30 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                   )}
                 </label>
 
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={vehicleSearch}
+                    onChange={(e) => setVehicleSearch(e.target.value)}
+                    placeholder={t.common.search}
+                    aria-label={t.crowdsource.targetVehicle}
+                    className={`touch-target w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition`}
+                  />
+                </div>
+
                                  <select
                    id="checkin-vehicle"
                    value={targetVehicleId}
                   onChange={(e) => setTargetVehicleId(e.target.value)}
-                                     className={`touch-target w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition`}
+                                     className={`touch-target w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition`}
                 >
-                  {simulatedVehicles.map((v) => (
+                  <option value="" disabled>
+                    {t.crowdsource.selectVehiclePlaceholder}
+                  </option>
+                  {candidateVehicles.map((v) => (
                     <option key={v.id} value={v.id} className="bg-slate-900 text-slate-200">
-                      [{v.vehicleCode}] {v.name} ({v.mode})
+                      [{v.vehicleCode}] {v.name}
                     </option>
                   ))}
                 </select>
@@ -544,7 +635,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                   {t.crowdsource.antiSpamNotice}
                 </span>
               </div>
-            </>
+            </form>
           )}
         </div>
 
@@ -560,7 +651,8 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
             </button>
 
             <button
-              onClick={handleSubmit}
+              type="submit"
+              form="checkin-form"
               disabled={isSubmitting || cooldownSeconds > 0}
                              className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-md flex items-center gap-2 btn-tactile disabled:opacity-50 disabled:cursor-not-allowed transition`}
             >
