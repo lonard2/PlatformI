@@ -583,8 +583,11 @@ export const ko: TranslationDictionary = {
     feedAcHot: "냉방 더움",
     feedEmpty: "선택한 노선 필터에 해당하는 승객 보고가 없습니다.",
     beFirst: "첫 번째 체크인을 남겨보세요",
-    decayNote: "10분 지수 감쇠 가중치",
+    decayNote: "오래된 신고는 약 10분 후 옅어집니다",
     updatedPrefix: "업데이트:",
+    youChip: "나",
+    feedStaleNotice: "연결 문제 - 마지막 보고 표시 중",
+    selectVehiclePlaceholder: "차량 선택",
   },
   aiAdvisor: {
     title: "PlatformI AI 스마트 경로 안내",

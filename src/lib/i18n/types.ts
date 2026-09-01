@@ -609,6 +609,9 @@ export interface TranslationDictionary {
     beFirst: string;
     decayNote: string;
     updatedPrefix: string;
+    youChip: string;
+    feedStaleNotice: string;
+    selectVehiclePlaceholder: string;
   };
   aiAdvisor: {
     title: string;

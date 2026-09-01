@@ -583,8 +583,11 @@ export const en: TranslationDictionary = {
     feedAcHot: "AC Hot",
     feedEmpty: "No commuter reports found for the selected line filter.",
     beFirst: "Be the first to submit a check-in",
-    decayNote: "10-min exponential decay weighting",
+    decayNote: "Older reports fade after about 10 min",
     updatedPrefix: "Updated:",
+    youChip: "You",
+    feedStaleNotice: "Connection issue - showing last known reports",
+    selectVehiclePlaceholder: "Select vehicle",
   },
   aiAdvisor: {
     title: "PlatformI AI Route Advisor",

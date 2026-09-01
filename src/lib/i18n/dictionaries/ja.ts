@@ -583,8 +583,11 @@ export const ja: TranslationDictionary = {
     feedAcHot: "空調: 暑い",
     feedEmpty: "選択した路線の投稿はまだありません。",
     beFirst: "最初のチェックインを投稿しましょう",
-    decayNote: "10分の指数減衰重み付け",
+    decayNote: "古いレポートは約10分で薄まります",
     updatedPrefix: "更新:",
+    youChip: "あなた",
+    feedStaleNotice: "接続エラー - 最後のレポートを表示中",
+    selectVehiclePlaceholder: "車両を選択",
   },
   aiAdvisor: {
     title: "PlatformI AI乗換・経路アドバイザー",

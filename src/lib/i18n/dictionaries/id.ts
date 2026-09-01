@@ -583,8 +583,11 @@ export const id: TranslationDictionary = {
     feedAcHot: "AC Panas",
     feedEmpty: "Tidak ada laporan penumpang untuk filter jalur yang dipilih.",
     beFirst: "Jadilah yang pertama melakukan check-in",
-    decayNote: "Pembobotan peluruhan eksponensial 10 menit",
+    decayNote: "Laporan lama memudar setelah sekitar 10 menit",
     updatedPrefix: "Diperbarui:",
+    youChip: "Anda",
+    feedStaleNotice: "Masalah koneksi - menampilkan laporan terakhir",
+    selectVehiclePlaceholder: "Pilih kendaraan",
   },
   aiAdvisor: {
     title: "Asisten Rute AI PlatformI",

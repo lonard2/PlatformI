@@ -583,8 +583,11 @@ export const ar: TranslationDictionary = {
     feedAcHot: "التكييف حار",
     feedEmpty: "لا توجد تقارير ركاب لعامل تصفية الخط المحدد.",
     beFirst: "كن أول من يسجل الوصول",
-    decayNote: "ترجيح التوهين الأسي لمدة 10 دقائق",
+    decayNote: "تتلاشى التقارير القديمة بعد 10 دقائق تقريبًا",
     updatedPrefix: "محدّث:",
+    youChip: "أنت",
+    feedStaleNotice: "مشكلة في الاتصال - عرض أحدث التقارير",
+    selectVehiclePlaceholder: "اختر المركبة",
   },
   aiAdvisor: {
     title: "مستشار الرحلات والمسارات الذكي (PlatformI AI)",

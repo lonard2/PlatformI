@@ -583,8 +583,11 @@ export const zh: TranslationDictionary = {
     feedAcHot: "空调热",
     feedEmpty: "所选线路筛选条件下暂无乘客报告。",
     beFirst: "抢先提交第一条签到",
-    decayNote: "10分钟指数衰减加权",
+    decayNote: "较早的报告约10分钟后淡出",
     updatedPrefix: "更新于:",
+    youChip: "你",
+    feedStaleNotice: "连接问题 - 显示最后收到的报告",
+    selectVehiclePlaceholder: "选择车辆",
   },
   aiAdvisor: {
     title: "PlatformI AI智能出行与换乘顾问",
