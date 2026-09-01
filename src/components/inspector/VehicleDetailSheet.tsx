@@ -35,6 +35,7 @@ import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
 import { VehiclePhotoGallery } from "./VehiclePhotoGallery";
@@ -174,7 +175,6 @@ export function VehicleDetailSheet({
 }: VehicleDetailSheetProps) {
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const clearSelection = useTransitStore((state) => state.clearSelection);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const vehicle = simulatedVehicles.find((v) => v.id === vehicleId);
 
@@ -186,33 +186,11 @@ export function VehicleDetailSheet({
     }
   }, [onClose, clearSelection]);
 
-  const handleCloseRef = useRef(handleClose);
-  handleCloseRef.current = handleClose;
-
-  // Escape-to-close while the sheet is presented
-  useEffect(() => {
-    if (!vehicle) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleCloseRef.current();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [vehicle]);
-
-  // Focus bookkeeping: remember the trigger, restore it on dismiss/unmount
-  useEffect(() => {
-    if (vehicle) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-    }
-    return () => {
-      if (previousFocusRef.current) {
-        previousFocusRef.current.focus();
-        previousFocusRef.current = null;
-      }
-    };
-  }, [vehicle]);
+  useDialogFocusTrap({
+    isOpen: Boolean(vehicle),
+    onClose: handleClose,
+    autoFocus: false,
+  });
 
   return (
     <AnimatePresence>
