@@ -14,34 +14,22 @@ import {
   Truck,
   Plus,
   Search,
-  Filter,
   Train,
   Bus,
   Plane,
   Anchor,
-  Edit2,
-  Check,
   X,
-  Layers,
   Gauge,
-  Users,
-  Wind,
-  Shield,
-  Activity,
-  Sliders,
-  Sparkles,
 } from "lucide-react";
 import {
   Vehicle,
   VehicleOperationalStatus,
   TransitCategory,
-  TransitMode,
   CrowdDensityLevel,
-  ACComfortRating,
 } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
 export default function FleetManagementPage() {
   const { t } = useTranslation();
@@ -54,6 +42,29 @@ export default function FleetManagementPage() {
   const [activeCategory, setActiveCategory] = useState<TransitCategory | "ALL">("ALL");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+
+  const closeTelemetryModal = () => setSelectedVehicle(null);
+  const closeAddModal = () => setIsAddModalOpen(false);
+
+  const { containerRef: telemetryModalRef, handleTrapKeyDown: handleTelemetryTrapKey } =
+    useDialogFocusTrap<HTMLDivElement>({
+      isOpen: selectedVehicle !== null,
+      onClose: closeTelemetryModal,
+    });
+
+  const { containerRef: addModalRef, handleTrapKeyDown: handleAddTrapKey } =
+    useDialogFocusTrap<HTMLDivElement>({
+      isOpen: isAddModalOpen,
+      onClose: closeAddModal,
+    });
+
+  const openTelemetryModal = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+  };
+
+  const openAddModal = () => {
+    setIsAddModalOpen(true);
+  };
 
   // New vehicle form state
   const [newLineId, setNewLineId] = useState<string>(allLines[0]?.id || "line-mrt-ns");
@@ -171,16 +182,17 @@ export default function FleetManagementPage() {
             {t.admin.fleetControl}
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            {t.admin.heroSubtitle}
+            {t.admin.fleetSubtitle}
           </p>
         </div>
 
         <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-950/50 flex items-center gap-1.5 transition self-start sm:self-auto transform active:scale-95"
+          type="button"
+          onClick={openAddModal}
+          className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-lg flex items-center gap-1.5 transition self-start sm:self-auto btn-tactile"
         >
           <Plus className="w-4 h-4" />
-          <span>{t.admin.dispatchNewAlert ? `${t.common.details}` : "Add"}</span>
+          <span>{t.admin.addVehicle}</span>
         </button>
       </div>
 
@@ -245,13 +257,13 @@ export default function FleetManagementPage() {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
-                <th className="py-3.5 px-4">{t.admin.vehicleCode}</th>
-                <th className="py-3.5 px-4">{t.admin.affectedLine}</th>
-                <th className="py-3.5 px-4">{t.admin.modelAndCoach}</th>
-                <th className="py-3.5 px-4">{t.admin.currentSpeedAndHeading}</th>
-                <th className="py-3.5 px-4">{t.admin.currentStatus}</th>
-                <th className="py-3.5 px-4">{t.admin.capacityAndDensity}</th>
-                <th className="py-3.5 px-4 text-right">{t.admin.actions}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.vehicleCode}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.fleetAssignedLine}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.modelAndCoach}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.currentSpeedAndHeading}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.currentStatus}</th>
+                <th scope="col" className="py-3.5 px-4">{t.admin.capacityAndDensity}</th>
+                <th scope="col" className="py-3.5 px-4 text-right">{t.admin.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-sans">
@@ -261,8 +273,7 @@ export default function FleetManagementPage() {
                 return (
                   <tr
                     key={vehicle.id}
-                    className="hover:bg-white/[0.03] transition cursor-pointer"
-                    onClick={() => setSelectedVehicle(vehicle)}
+                    className="hover:bg-white/[0.03] transition"
                   >
                     {/* Code & Name */}
                     <td className="py-3.5 px-4">
@@ -314,34 +325,36 @@ export default function FleetManagementPage() {
                       </div>
                     </td>
 
-                    {/* Speed */}
+                    {/* Speed & Heading */}
                     <td className="py-3.5 px-4 font-mono text-[11px]">
-                      <div className="flex items-center gap-1 text-slate-200">
-                        <Gauge className="w-3 h-3 text-cyan-400" />
-                        <span>{Math.round(vehicle.speedKmh)} km/h</span>
+                      <div className="flex items-center gap-1.5 text-slate-200">
+                        <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+                        <span className="font-bold">{Math.round(vehicle.speedKmh)} km/h</span>
                       </div>
                       <div className="text-[10px] text-slate-500">
-                        ETA: {vehicle.nextStopEtaSeconds}s
+                        {Math.round(vehicle.headingDegrees)}&deg; heading
                       </div>
                     </td>
 
-                    {/* Status Dropdown / Badge */}
+                    {/* Operational Status (Quick Toggle) */}
                     <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                      <label htmlFor={`status-select-${vehicle.id}`} className="sr-only">
+                        {t.admin.currentStatus} for {vehicle.vehicleCode}
+                      </label>
                       <select
+                        id={`status-select-${vehicle.id}`}
                         value={vehicle.status}
+                        aria-label={`Operating status for ${vehicle.vehicleCode}`}
                         onChange={(e) =>
-                          handleUpdateStatus(
-                            vehicle,
-                            e.target.value as VehicleOperationalStatus
-                          )
+                          handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus)
                         }
-                        className={`text-[10px] font-mono font-semibold px-2 py-1 rounded-lg border focus:outline-none transition cursor-pointer ${
+                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
                           vehicle.status === "IN_SERVICE"
                             ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
                             : vehicle.status === "BOARDING"
-                            ? "bg-amber-950/80 border-amber-500/40 text-amber-300"
+                            ? "bg-cyan-950/80 border-cyan-500/40 text-cyan-300"
                             : vehicle.status === "CONGESTION_HOLD"
-                            ? "bg-rose-950/80 border-rose-500/40 text-rose-300"
+                            ? "bg-amber-950/80 border-amber-500/40 text-amber-300"
                             : "bg-slate-900 border-slate-700 text-slate-400"
                         }`}
                       >
@@ -352,17 +365,27 @@ export default function FleetManagementPage() {
                       </select>
                     </td>
 
-                    {/* Crowd Level */}
+                    {/* Capacity & Crowd Density */}
                     <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                      <label htmlFor={`crowd-select-${vehicle.id}`} className="sr-only">
+                        {t.admin.capacityAndDensity} for {vehicle.vehicleCode}
+                      </label>
                       <select
+                        id={`crowd-select-${vehicle.id}`}
                         value={vehicle.crowdLevel}
+                        aria-label={`Crowd density for ${vehicle.vehicleCode}`}
                         onChange={(e) =>
-                          handleUpdateCrowd(
-                            vehicle,
-                            e.target.value as CrowdDensityLevel
-                          )
+                          handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel)
                         }
-                        className="text-[10px] font-mono px-2 py-1 rounded-lg bg-slate-950 border border-white/10 text-slate-300 focus:outline-none cursor-pointer"
+                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
+                          vehicle.crowdLevel === "LEVEL_1_MANY_SEATS"
+                            ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                            : vehicle.crowdLevel === "LEVEL_2_FEW_SEATS"
+                            ? "bg-amber-950/80 border-amber-500/40 text-amber-300"
+                            : vehicle.crowdLevel === "LEVEL_3_STANDING_ONLY"
+                            ? "bg-orange-950/80 border-orange-500/40 text-orange-300"
+                            : "bg-rose-950/80 border-rose-500/40 text-rose-300"
+                        }`}
                       >
                         <option value="LEVEL_1_MANY_SEATS">{t.crowdsource.densitySeatsAvailable}</option>
                         <option value="LEVEL_2_FEW_SEATS">{t.crowdsource.densityFewSeats}</option>
@@ -374,11 +397,10 @@ export default function FleetManagementPage() {
                     {/* Action */}
                     <td className="py-3.5 px-4 text-right">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedVehicle(vehicle);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-cyan-950 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-[11px] font-medium transition"
+                        type="button"
+                        aria-label={`View telemetry for ${vehicle.vehicleCode}`}
+                        onClick={() => openTelemetryModal(vehicle)}
+                        className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
                       >
                         {t.admin.viewTelemetry}
                       </button>
@@ -393,8 +415,21 @@ export default function FleetManagementPage() {
 
       {/* 4. DETAIL INSPECTOR DRAWER / MODAL */}
       {selectedVehicle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0c1220] border border-white/15 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in zoom-in-95 duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="telemetry-dialog-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeTelemetryModal();
+          }}
+          onKeyDown={handleTelemetryTrapKey}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            ref={telemetryModalRef}
+            tabIndex={-1}
+            className="glass-panel bg-slate-900/95 border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in zoom-in-95 duration-200 outline-none"
+          >
             {/* Header */}
             <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -402,7 +437,7 @@ export default function FleetManagementPage() {
                   {getCategoryIcon(selectedVehicle.category)}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white font-mono">
+                  <h3 id="telemetry-dialog-title" className="text-base font-bold text-white font-mono">
                     {selectedVehicle.vehicleCode} &bull; {selectedVehicle.name}
                   </h3>
                   <p className="text-xs text-slate-400 font-mono">
@@ -412,8 +447,10 @@ export default function FleetManagementPage() {
               </div>
 
               <button
-                onClick={() => setSelectedVehicle(null)}
-                className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
+                type="button"
+                onClick={closeTelemetryModal}
+                aria-label="Close telemetry dialog"
+                className="p-2 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -460,8 +497,9 @@ export default function FleetManagementPage() {
                     (st) => (
                       <button
                         key={st}
+                        type="button"
                         onClick={() => handleUpdateStatus(selectedVehicle, st)}
-                        className={`p-2.5 rounded-xl border text-xs font-mono transition ${
+                        className={`p-3 rounded-xl border text-xs font-mono transition min-h-[44px] ${
                           selectedVehicle.status === st
                             ? "bg-cyan-950 border-cyan-500/60 text-cyan-300 font-bold shadow-md"
                             : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -484,8 +522,9 @@ export default function FleetManagementPage() {
             {/* Footer */}
             <div className="p-4 bg-slate-950 border-t border-white/10 flex justify-end">
               <button
-                onClick={() => setSelectedVehicle(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-200 font-semibold transition"
+                type="button"
+                onClick={closeTelemetryModal}
+                className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-200 font-semibold transition btn-tactile min-h-[36px]"
               >
                 {t.common.close}
               </button>
@@ -496,8 +535,21 @@ export default function FleetManagementPage() {
 
       {/* 5. ADD SIMULATED VEHICLE MODAL */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#0c1220] border border-white/15 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in zoom-in-95 duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-vehicle-dialog-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeAddModal();
+          }}
+          onKeyDown={handleAddTrapKey}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            ref={addModalRef}
+            tabIndex={-1}
+            className="glass-panel bg-slate-900/95 border border-white/10 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in zoom-in-95 duration-200 outline-none"
+          >
             {/* Header */}
             <div className="px-5 py-4 border-b border-white/10 bg-slate-900/90 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -505,14 +557,16 @@ export default function FleetManagementPage() {
                   <Truck className="w-4 h-4 text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">{t.admin.activeVehicles}</h3>
-                  <p className="text-xs text-slate-400">{t.admin.heroSubtitle}</p>
+                  <h3 id="add-vehicle-dialog-title" className="text-base font-bold text-white">{t.admin.addVehicle}</h3>
+                  <p className="text-xs text-slate-400">{t.admin.fleetSubtitle}</p>
                 </div>
               </div>
 
               <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition"
+                type="button"
+                onClick={closeAddModal}
+                aria-label="Close add vehicle dialog"
+                className="p-2 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -522,11 +576,12 @@ export default function FleetManagementPage() {
             <form onSubmit={handleAddVehicle} className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
               {/* Assigned Line */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">{t.admin.affectedLine}</label>
+                <label htmlFor="add-vehicle-line" className="text-xs font-semibold text-slate-300">{t.admin.fleetAssignedLine}</label>
                 <select
+                  id="add-vehicle-line"
                   value={newLineId}
                   onChange={(e) => setNewLineId(e.target.value)}
-                  className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80"
+                  className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
                 >
                   {allLines.map((l) => (
                     <option key={l.id} value={l.id}>
@@ -539,25 +594,27 @@ export default function FleetManagementPage() {
               {/* Code & Name */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">{t.admin.vehicleCode}</label>
+                  <label htmlFor="add-vehicle-code" className="text-xs font-semibold text-slate-300">{t.admin.vehicleCode}</label>
                   <input
+                    id="add-vehicle-code"
                     type="text"
                     value={newVehicleCode}
                     onChange={(e) => setNewVehicleCode(e.target.value)}
                     placeholder="e.g. TJ-999 / MRT-09"
                     required
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono uppercase focus:outline-none focus:border-cyan-500/80"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono uppercase focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">{t.common.details}</label>
+                  <label htmlFor="add-vehicle-name" className="text-xs font-semibold text-slate-300">{t.admin.vehicleName}</label>
                   <input
+                    id="add-vehicle-name"
                     type="text"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="e.g. TransJakarta Cityline 3"
                     required
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
                   />
                 </div>
               </div>
@@ -565,11 +622,12 @@ export default function FleetManagementPage() {
               {/* Coachbuilder & Chassis */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">{t.vehicleInspector.coachbuilder}</label>
+                  <label htmlFor="add-vehicle-coachbuilder" className="text-xs font-semibold text-slate-300">{t.vehicleInspector.coachbuilder}</label>
                   <select
+                    id="add-vehicle-coachbuilder"
                     value={newCoachbuilder}
                     onChange={(e) => setNewCoachbuilder(e.target.value)}
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
                   >
                     <option value="Laksana Karoseri">Laksana Cityline 3</option>
                     <option value="Adiputro Karoseri">Adiputro Jetbus 5 SDD</option>
@@ -580,11 +638,12 @@ export default function FleetManagementPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300">{t.vehicleInspector.chassis}</label>
+                  <label htmlFor="add-vehicle-chassis" className="text-xs font-semibold text-slate-300">{t.vehicleInspector.chassis}</label>
                   <select
+                    id="add-vehicle-chassis"
                     value={newChassis}
                     onChange={(e) => setNewChassis(e.target.value)}
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
                   >
                     <option value="Scania K250UB 4x2 Low-Entry">Scania K250UB 4x2</option>
                     <option value="Mercedes-Benz OH 1626 Air Suspension">Mercedes-Benz OH 1626</option>
@@ -598,10 +657,11 @@ export default function FleetManagementPage() {
 
               {/* Initial Speed */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">
+                <label htmlFor="add-vehicle-speed" className="text-xs font-semibold text-slate-300">
                   {t.vehicleInspector.speed}: <span className="font-mono text-cyan-400">{newSpeed} km/h</span>
                 </label>
                 <input
+                  id="add-vehicle-speed"
                   type="range"
                   min="20"
                   max="120"
@@ -617,13 +677,13 @@ export default function FleetManagementPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white transition"
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white transition btn-tactile min-h-[40px]"
                 >
                   {t.common.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-xs font-bold text-white shadow-lg shadow-cyan-950/50 transition"
+                  className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-cyan-950 shadow-md transition btn-tactile min-h-[40px]"
                 >
                   {t.common.save}
                 </button>

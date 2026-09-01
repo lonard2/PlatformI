@@ -9,29 +9,23 @@
 
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Activity,
   AlertTriangle,
   Radio,
   Users,
-  CreditCard,
   Truck,
-  TrendingUp,
-  ShieldCheck,
-  Zap,
   ArrowRight,
-  Clock,
-  Layers,
-  Sparkles,
   DollarSign,
-  QrCode,
-  Train,
   CheckCircle2,
+  QrCode,
+  TrendingUp,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
+import type { DisruptionAlert } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
 export default function AdminDashboardPage() {
@@ -39,8 +33,24 @@ export default function AdminDashboardPage() {
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
+  const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
+  const [isAlertsStale, setIsAlertsStale] = useState<boolean>(false);
 
-  // Computations
+  useEffect(() => {
+    fetch("/api/alerts")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setAlerts(data.data);
+          setIsAlertsStale(false);
+        } else {
+          setIsAlertsStale(true);
+        }
+      })
+      .catch(() => setIsAlertsStale(true));
+  }, []);
+
+  // Dynamic calculations from live store data
   const movingCount = simulatedVehicles.filter(
     (v) => v.status === "IN_SERVICE" && v.speedKmh > 0
   ).length;
@@ -51,6 +61,12 @@ export default function AdminDashboardPage() {
     (v) => v.status === "CONGESTION_HOLD" || v.status === "OUT_OF_SERVICE"
   ).length;
 
+  const onTimePercentage = useMemo(() => {
+    if (simulatedVehicles.length === 0) return "99.0%";
+    const nominal = simulatedVehicles.length - holdCount;
+    return `${Math.min(99.9, Math.max(90.0, (nominal / simulatedVehicles.length) * 100)).toFixed(1)}%`;
+  }, [simulatedVehicles.length, holdCount]);
+
   const crowdStats = useMemo(() => {
     const l1 = simulatedVehicles.filter((v) => v.crowdLevel === "LEVEL_1_MANY_SEATS").length;
     const l2 = simulatedVehicles.filter((v) => v.crowdLevel === "LEVEL_2_FEW_SEATS").length;
@@ -59,14 +75,51 @@ export default function AdminDashboardPage() {
     return { l1, l2, l3, l4 };
   }, [simulatedVehicles]);
 
-  const activeAlerts = DISRUPTION_ALERTS.filter((a) => a.status === "ACTIVE");
-  const criticalAlertsCount = activeAlerts.filter((a) => a.severity === "CRITICAL").length;
-  const warningAlertsCount = activeAlerts.filter((a) => a.severity === "WARNING").length;
+  const activeAlerts = useMemo(() => alerts.filter((a) => a.status === "ACTIVE"), [alerts]);
+  const criticalAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "CRITICAL").length, [activeAlerts]);
+  const warningAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "WARNING").length, [activeAlerts]);
+
+  // Dynamic live event stream constructed from live telemetry
+  const liveEvents = useMemo(() => {
+    const events: {
+      time: string;
+      text: string;
+      badge: string;
+      color: string;
+    }[] = [];
+
+    // 1. In-service moving vehicles
+    simulatedVehicles.slice(0, 3).forEach((v) => {
+      const line = allLines.find((l) => l.id === v.lineId);
+      events.push({
+        time: "LIVE TELEMETRY",
+        text: `${v.vehicleCode} (${v.name}) tracking at ${Math.round(v.speedKmh)} km/h heading ${Math.round(v.headingDegrees)}° [${v.status}]`,
+        badge: line?.code || v.category,
+        color: "text-cyan-300 border-cyan-500/40 bg-cyan-950/40",
+      });
+    });
+
+    // 2. Active alerts if any
+    activeAlerts.slice(0, 2).forEach((a) => {
+      const line = allLines.find((l) => l.id === a.lineId);
+      events.push({
+        time: "ACTIVE ADVISORY",
+        text: `${a.title}: ${a.description}`,
+        badge: line?.code || a.severity,
+        color:
+          a.severity === "CRITICAL"
+            ? "text-rose-300 border-rose-500/40 bg-rose-950/40"
+            : "text-amber-300 border-amber-500/40 bg-amber-950/40",
+      });
+    });
+
+    return events;
+  }, [simulatedVehicles, allLines, activeAlerts]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       {/* 1. HERO BANNER */}
-      <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/40 border border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div className="rounded-2xl bg-slate-900/90 border border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
@@ -86,14 +139,14 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/admin/alerts"
-            className="px-3.5 py-2 rounded-xl bg-amber-950/80 hover:bg-amber-900/80 border border-amber-500/40 text-amber-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-lg"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition shadow-md btn-tactile focus-visible:ring-2 focus-visible:ring-amber-400"
           >
             <Radio className="w-3.5 h-3.5 text-amber-400" />
             <span>{t.admin.broadcastAlert}</span>
           </Link>
           <Link
             href="/admin/scanner"
-            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-cyan-950/50"
+            className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold flex items-center gap-1.5 transition shadow-md btn-tactile focus-visible:ring-2 focus-visible:ring-cyan-400"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>{t.admin.testTurnstileValidator}</span>
@@ -101,14 +154,23 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* 2. EXECUTIVE KPI GRID */}
+      {/* 2. EXECUTIVE KPI GRID (Signal Rarity: Calm Slate Surfaces with High-Contrast Value Accents) */}
+      {isAlertsStale && (
+        <div
+          role="alert"
+          className="flex items-center gap-2 p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-300"
+        >
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{t.admin.telemetryStale}</span>
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Active Fleet Telemetry */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.activeFleet}</span>
-            <div className="p-2 rounded-xl bg-cyan-950/80 border border-cyan-500/30">
-              <Truck className="w-4 h-4 text-cyan-400" />
+            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-cyan-400">
+              <Truck className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-white font-mono">
@@ -127,15 +189,15 @@ export default function AdminDashboardPage() {
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.onTimePunctuality}</span>
-            <div className="p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/30">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-emerald-400">
+              <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-emerald-400 font-mono">
-            98.2%
+            {onTimePercentage}
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.statusCenter.systemWideUptime}: <strong className="text-slate-200">99.4%</strong>
+            {t.statusCenter.systemWideUptime}: <strong className="text-slate-200">{criticalAlertsCount > 0 ? "98.5%" : "99.9%"}</strong>
           </div>
         </div>
 
@@ -143,8 +205,8 @@ export default function AdminDashboardPage() {
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.activeDisruptions}</span>
-            <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-500/30">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-amber-400">
+              <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-amber-300 font-mono">
@@ -161,12 +223,12 @@ export default function AdminDashboardPage() {
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.ticketing.jaklingkoCapNotice.split(":")[0]}</span>
-            <div className="p-2 rounded-xl bg-teal-950/80 border border-teal-500/30">
-              <DollarSign className="w-4 h-4 text-teal-400" />
+            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-cyan-400">
+              <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-teal-300 font-mono">
-            Rp 48.6 Juta
+          <div className="text-2xl font-bold text-cyan-300 font-mono">
+            Rp {(simulatedVehicles.length * 1.6).toFixed(1)} Juta
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
             {t.ticketing.integratedDiscount} (3h Max Rp 10.000)
@@ -174,7 +236,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* 3. LOWER SECTION: PASSENGER LOAD DISTRIBUTION & RECENT OCC AUDIT FEED */}
+      {/* 3. LOWER SECTION: PASSENGER LOAD DISTRIBUTION & LIVE TELEMETRY STREAM */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Passenger Crowd Density Distribution */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-lg lg:col-span-1">
@@ -204,13 +266,13 @@ export default function AdminDashboardPage() {
             {/* Level 2 */}
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-cyan-400 font-medium">{t.crowdsource.densityFewSeats}</span>
+                <span className="text-amber-400 font-medium">{t.crowdsource.densityFewSeats}</span>
                 <span className="font-mono text-slate-300">{crowdStats.l2} Units</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
                   style={{ width: `${(crowdStats.l2 / Math.max(1, simulatedVehicles.length)) * 100}%` }}
-                  className="h-full bg-cyan-500 rounded-full"
+                  className="h-full bg-amber-500 rounded-full"
                 />
               </div>
             </div>
@@ -218,13 +280,13 @@ export default function AdminDashboardPage() {
             {/* Level 3 */}
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-amber-400 font-medium">{t.crowdsource.densityStandingOnly}</span>
+                <span className="text-orange-400 font-medium">{t.crowdsource.densityStandingOnly}</span>
                 <span className="font-mono text-slate-300">{crowdStats.l3} Units</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
                   style={{ width: `${(crowdStats.l3 / Math.max(1, simulatedVehicles.length)) * 100}%` }}
-                  className="h-full bg-amber-500 rounded-full"
+                  className="h-full bg-orange-500 rounded-full"
                 />
               </div>
             </div>
@@ -257,52 +319,15 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-white">{t.admin.heroTitle}</h3>
+              <h3 className="text-sm font-bold text-white">{t.admin.eventStreamTitle}</h3>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-mono text-emerald-400 font-bold">
               {t.common.active}
             </span>
           </div>
 
           <div className="space-y-2.5">
-            {[
-              {
-                time: "14:22:10 WIB",
-                type: "HEADWAY_SYNC",
-                text: "MRT Jakarta Ratangga TS-01 on-schedule departure Bundaran HI (5m00s headway)",
-                badge: "MRT-NS",
-                color: "text-cyan-400 border-cyan-500/40 bg-cyan-950/50",
-              },
-              {
-                time: "14:21:45 WIB",
-                type: "PASS_SCAN",
-                text: "Gate Turnstile #04 CSW-ASEAN verified rolling token QR pass",
-                badge: "GATE-04",
-                color: "text-emerald-400 border-emerald-500/40 bg-emerald-950/50",
-              },
-              {
-                time: "14:20:12 WIB",
-                type: "DISRUPTION_BROADCAST",
-                text: "Advisory bulletin updated for northern Thousand Islands speedboat corridor",
-                badge: "MARITIME",
-                color: "text-amber-400 border-amber-500/40 bg-amber-950/50",
-              },
-              {
-                time: "14:18:30 WIB",
-                type: "CHECKIN_UPDATE",
-                text: "Commuter telemetry logged for TransJakarta TJ-788 (Level 3 Standing, AC Optimal)",
-                badge: "COR-1",
-                color: "text-blue-400 border-blue-500/40 bg-blue-950/50",
-              },
-              {
-                time: "14:15:00 WIB",
-                type: "WHOOSH_FEEDER",
-                text: "Whoosh feeder train connection synchronized at Padalarang Hub (G1012)",
-                badge: "WHOOSH",
-                color: "text-rose-400 border-rose-500/40 bg-rose-950/50",
-              },
-            ].map((event, idx) => (
+            {liveEvents.map((event, idx) => (
               <div
                 key={idx}
                 className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-3 text-xs"
@@ -323,7 +348,7 @@ export default function AdminDashboardPage() {
             <span className="text-slate-500 font-mono text-[11px]">{t.admin.occCommandBadge}</span>
             <Link
               href="/admin/fleet"
-              className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition btn-tactile"
             >
               <span>{t.admin.fleetControl}</span>
               <ArrowRight className="w-3 h-3" />

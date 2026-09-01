@@ -10,24 +10,15 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   QrCode,
   ShieldCheck,
-  ShieldAlert,
   CheckCircle2,
   XCircle,
-  Clock,
-  RotateCcw,
   Zap,
-  DollarSign,
-  User,
-  Ticket as TicketIcon,
   Activity,
-  Layers,
-  ArrowRight,
   Sparkles,
-  Volume2,
 } from "lucide-react";
 import {
   generateRollingQRToken,
@@ -59,6 +50,13 @@ export default function AdminScannerPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [usedNonces, setUsedNonces] = useState<Set<string>>(new Set());
   const [auditLog, setAuditLog] = useState<ScanAuditEntry[]>([]);
+  const gateResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (gateResetTimerRef.current) clearTimeout(gateResetTimerRef.current);
+    };
+  }, []);
 
   // Simulation test parameters
   const [mockTicketId, setMockTicketId] = useState<string>("TKT-JKT-8821");
@@ -168,7 +166,8 @@ export default function AdminScannerPage() {
     setAuditLog((prev) => [auditEntry, ...prev]);
 
     // Reset gate animation after 3.5 seconds
-    setTimeout(() => {
+    if (gateResetTimerRef.current) clearTimeout(gateResetTimerRef.current);
+    gateResetTimerRef.current = setTimeout(() => {
       setGateStatus("IDLE");
     }, 3500);
   };
@@ -188,16 +187,19 @@ export default function AdminScannerPage() {
             {t.admin.qrScannerSimulator}
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
-            {t.admin.heroSubtitle}
+            {t.admin.scannerSubtitle}
           </p>
         </div>
 
         {/* Selected Gate Dropdown */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <label htmlFor="gate-select" className="sr-only">Select Gate</label>
           <select
+            id="gate-select"
             value={selectedGate}
+            aria-label="Select gate for simulator"
             onChange={(e) => setSelectedGate(e.target.value)}
-            className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80"
+            className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
           >
             {gateOptions.map((g) => (
               <option key={g} value={g}>
@@ -227,74 +229,76 @@ export default function AdminScannerPage() {
               <button
                 type="button"
                 onClick={() => handleGeneratePreset("VALID")}
-                className="p-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold text-left transition"
+                className="p-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
                 <div>{t.admin.accessGranted.split(" - ")[0]}</div>
-                <div className="text-[9px] text-slate-400 font-mono">Current 30s window</div>
+                <div className="text-[10px] text-slate-400 font-mono">Current 30s window</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGeneratePreset("EXPIRED")}
-                className="p-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 text-xs font-semibold text-left transition"
+                className="p-2.5 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
                 <div>{t.ticketing.ticketExpired}</div>
-                <div className="text-[9px] text-slate-400 font-mono">&gt;60s clock skew</div>
+                <div className="text-[10px] text-slate-400 font-mono">&gt;60s clock skew</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGeneratePreset("TAMPERED")}
-                className="p-2 rounded-xl bg-rose-950/60 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 text-xs font-semibold text-left transition"
+                className="p-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
                 <div>{t.admin.accessDenied.split(" - ")[0]}</div>
-                <div className="text-[9px] text-slate-400 font-mono">Corrupt HMAC digest</div>
+                <div className="text-[10px] text-slate-400 font-mono">Corrupt HMAC digest</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGeneratePreset("REPLAY")}
-                className="p-2 rounded-xl bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/40 text-purple-300 text-xs font-semibold text-left transition"
+                className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
                 <div>Replay Protection</div>
-                <div className="text-[9px] text-slate-400 font-mono">Re-scan same nonce</div>
+                <div className="text-[10px] text-slate-400 font-mono">Re-scan same nonce</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGeneratePreset("OVER_3_HOURS")}
-                className="p-2 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-500/40 text-indigo-300 text-xs font-semibold text-left transition col-span-2 sm:col-span-2"
+                className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold text-left transition col-span-2 sm:col-span-2 btn-tactile min-h-[44px]"
               >
-                <div>{t.admin.jaklingkoCapStatus}</div>
-                <div className="text-[9px] text-slate-400 font-mono">Tap-in offset 195m (&gt;180m limit)</div>
+                <div>{t.admin.windowExpired}</div>
+                <div className="text-[10px] text-slate-400 font-mono">Tap-in offset 195m (&gt;180m limit)</div>
               </button>
             </div>
           </div>
 
           {/* Scanned Payload Input */}
           <div className="space-y-1.5 pt-2">
-            <label className="text-xs font-semibold text-slate-300">{t.admin.rawPayload}</label>
+            <label htmlFor="scanned-payload-input" className="text-xs font-semibold text-slate-300">{t.admin.rawPayload}</label>
             <input
+              id="scanned-payload-input"
               type="text"
               value={scannedPayload}
               onChange={(e) => setScannedPayload(e.target.value)}
               placeholder="PLATFORMI:TKT-ID:USER-ID:TIMESTEP:HMAC_HASH"
-              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500/80"
+              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
             />
           </div>
 
           {/* Journey Simulation Parameters */}
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div className="space-y-1">
-              <label className="text-[11px] text-slate-400">{t.admin.tapInValidation}:</label>
+              <label htmlFor="tapin-offset-input" className="text-[11px] text-slate-400">{t.admin.tapInValidation}:</label>
               <div className="flex items-center gap-2">
                 <input
+                  id="tapin-offset-input"
                   type="number"
                   min="0"
                   max="300"
                   value={firstTapInOffsetMinutes}
                   onChange={(e) => setFirstTapInOffsetMinutes(parseInt(e.target.value, 10) || 0)}
-                  className="w-20 bg-slate-950 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                  className="w-24 bg-slate-950 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono min-h-[36px]"
                 />
                 <span className="text-[11px] text-slate-400">{t.common.minutes}</span>
               </div>
@@ -306,7 +310,7 @@ export default function AdminScannerPage() {
                 {firstTapInOffsetMinutes <= 180 ? (
                   <span className="text-emerald-400">{t.common.active} ({180 - firstTapInOffsetMinutes}m)</span>
                 ) : (
-                  <span className="text-rose-400">{t.ticketing.ticketExpired} ({firstTapInOffsetMinutes - 180}m &gt; 3h)</span>
+                  <span className="text-rose-400">{t.admin.windowExpired}</span>
                 )}
               </div>
             </div>
@@ -316,7 +320,7 @@ export default function AdminScannerPage() {
           <button
             onClick={handleExecuteScan}
             disabled={!scannedPayload.trim()}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-xl shadow-cyan-950/60 flex items-center justify-center gap-2 transition transform active:scale-95 disabled:opacity-40"
+            className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-xl flex items-center justify-center gap-2 transition disabled:opacity-40 btn-tactile min-h-[44px]"
           >
             <Zap className="w-4 h-4" />
             <span>{t.admin.validateTicket}</span>
@@ -334,8 +338,14 @@ export default function AdminScannerPage() {
               <span className="text-[10px] font-mono text-slate-400">{selectedGate}</span>
             </div>
 
-            {/* Turnstile Visual Feedback Screen */}
-            <div className="mt-6 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-950/90 border border-white/10 min-h-[220px] text-center relative overflow-hidden">
+            {/* Turnstile Visual Feedback Screen with Live Region */}
+            <div
+              role="region"
+              aria-live="assertive"
+              aria-atomic="true"
+              aria-label="Turnstile Gate Feedback"
+              className="mt-6 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-950/90 border border-white/10 min-h-[220px] text-center relative overflow-hidden"
+            >
               {gateStatus === "IDLE" && (
                 <div className="space-y-3">
                   <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
@@ -352,7 +362,7 @@ export default function AdminScannerPage() {
 
               {gateStatus === "GRANTED" && (
                 <div className="space-y-3 animate-in zoom-in-95 duration-200">
-                  <div className="w-16 h-16 rounded-full bg-emerald-950/80 border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-400 shadow-xl shadow-emerald-500/20 animate-pulse">
+                  <div className="w-16 h-16 rounded-full bg-emerald-950/80 border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-400 shadow-xl shadow-emerald-500/20 animate-pulse motion-reduce:animate-none">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <div>
@@ -372,7 +382,7 @@ export default function AdminScannerPage() {
 
               {gateStatus === "DENIED" && (
                 <div className="space-y-3 animate-in zoom-in-95 duration-200">
-                  <div className="w-16 h-16 rounded-full bg-rose-950/80 border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-400 shadow-xl shadow-rose-500/20 animate-bounce">
+                  <div className="w-16 h-16 rounded-full bg-rose-950/80 border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-400 shadow-xl shadow-rose-500/20 animate-pulse motion-reduce:animate-none">
                     <XCircle className="w-8 h-8" />
                   </div>
                   <div>
@@ -380,7 +390,7 @@ export default function AdminScannerPage() {
                       {t.admin.accessDenied}
                     </h4>
                     <p className="text-xs text-rose-200 font-mono mt-1">
-                      {t.admin.actions}: <strong className="underline">{errorMessage || "SECURITY_VERIFICATION_FAILED"}</strong>
+                      {t.admin.rejectionReason}: <strong className="underline">{errorMessage || "SECURITY_VERIFICATION_FAILED"}</strong>
                     </p>
                     <div className="mt-2 text-[10px] text-slate-400 font-mono">
                       {t.ticketing.gateInstruction}
@@ -414,20 +424,20 @@ export default function AdminScannerPage() {
           <table className="w-full text-left text-xs border-collapse font-sans">
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono">
-                <th className="py-3 px-3">{t.vehicleInspector.eta}</th>
-                <th className="py-3 px-3">{t.admin.gateScanner}</th>
-                <th className="py-3 px-3">{t.admin.ticketId}</th>
-                <th className="py-3 px-3">{t.admin.userId}</th>
-                <th className="py-3 px-3">{t.admin.qrValidationResult}</th>
-                <th className="py-3 px-3">{t.admin.jaklingkoCapStatus}</th>
-                <th className="py-3 px-3 text-right">{t.admin.fareDeducted}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.scanTimestamp}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.gateScanner}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.ticketId}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.userId}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.qrValidationResult}</th>
+                <th scope="col" className="py-3 px-3">{t.admin.jaklingkoCapStatus}</th>
+                <th scope="col" className="py-3 px-3 text-right">{t.admin.fareDeducted}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {auditLog.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-slate-500 font-mono text-xs">
-                    {t.hubInspector.noDeparturesFound}
+                    {t.admin.noScansYet}
                   </td>
                 </tr>
               ) : (
@@ -454,7 +464,7 @@ export default function AdminScannerPage() {
                       {log.isJakLingkoCapped ? (
                         <span className="text-emerald-400">&lt; 180m</span>
                       ) : (
-                        <span className="text-slate-500">{t.ticketing.ticketExpired}</span>
+                        <span className="text-slate-500">{t.admin.windowExpired}</span>
                       )}
                     </td>
                     <td className="py-3 px-3 text-right font-bold text-slate-200">
