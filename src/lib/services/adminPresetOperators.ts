@@ -1,21 +1,29 @@
 import type { OperatorProfile } from "./adminAuthService";
 
 /**
- * Client-safe operator presets WITHOUT passkeys.
+ * Client-safe operator presets for the demo OCC console.
  *
- * ponytail: profiles are duplicated as literals on purpose — importing
- * adminAuthService here would drag REGISTERED_OPERATORS (plaintext
- * passkeys) into the client bundle. The server catalog in
- * adminAuthService.ts is the source of truth; update both when roles change.
+ * Includes demoPasskey BY DESIGN: this is a simulation product and the
+ * login page displays demo credentials under the "Demo Credentials"
+ * grid so first-time operators are not dead-ended by an empty passkey
+ * field. ponytail: literals are duplicated deliberately instead of
+ * importing adminAuthService — that import chain previously shipped the
+ * whole REGISTERED_OPERATORS catalog; the test suite documents both the
+ * demoPasskey contract and the import-chain severance. Pre-fill of the
+ * passkey field stays forbidden (one human keystroke is still required
+ * to authenticate).
  */
 
-export const PUBLIC_OPERATOR_PRESETS: OperatorProfile[] = [
+export type OperatorPreset = OperatorProfile & { demoPasskey: string };
+
+export const PUBLIC_OPERATOR_PRESETS: OperatorPreset[] = [
   {
     id: "OCC-DKA-01",
     name: "Raden Budi Santoso",
     role: "CHIEF_DISPATCHER",
     stationHub: "Dukuh Atas Integrated OCC Hub",
     badgeNumber: "OCC-2026-8801",
+    demoPasskey: "transitopps2026",
   },
   {
     id: "OCC-MRT-02",
@@ -23,6 +31,7 @@ export const PUBLIC_OPERATOR_PRESETS: OperatorProfile[] = [
     role: "LINE_CONTROLLER",
     stationHub: "Lebak Bulus Depot OCC",
     badgeNumber: "MRT-OCC-0412",
+    demoPasskey: "mrtjakarta2026",
   },
   {
     id: "OCC-ADMIN",
@@ -30,5 +39,6 @@ export const PUBLIC_OPERATOR_PRESETS: OperatorProfile[] = [
     role: "SECURITY_AUDITOR",
     stationHub: "Central Transit Operations Command",
     badgeNumber: "SYS-ADMIN-0001",
+    demoPasskey: "admin123",
   },
 ];

@@ -27,9 +27,11 @@ import {
   Loader2,
   Terminal,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 import { PUBLIC_OPERATOR_PRESETS } from "@/lib/services/adminPresetOperators";
 
 function AdminLoginForm() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
@@ -52,7 +54,7 @@ function AdminLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!operatorId.trim() || !passkey.trim()) {
-      setErrorMessage("Please enter both Operator Badge ID and Security Passkey.");
+      setErrorMessage(t.admin.loginErrorRequired);
       return;
     }
 
@@ -74,13 +76,13 @@ function AdminLoginForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setErrorMessage(data.error || "Authentication failed. Invalid operator credentials.");
+        setErrorMessage(data.error || t.admin.loginErrorInvalid);
         setIsLoading(false);
         return;
       }
 
       setSuccessMessage(
-        `Welcome, ${data.operator?.name || "Operator"}. Redirecting to OCC Cockpit...`
+        `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing}`
       );
 
       // Brief pause to display success state before transition
@@ -90,7 +92,7 @@ function AdminLoginForm() {
         router.refresh();
       }, 500);
     } catch {
-      setErrorMessage("Network error connecting to OCC authentication gateway.");
+      setErrorMessage(t.admin.loginErrorNetwork);
       setIsLoading(false);
     }
   };
@@ -111,11 +113,11 @@ function AdminLoginForm() {
         <div className="flex items-center justify-center gap-2">
           <h1 className="text-xl font-bold text-white tracking-tight">PlatformI OCC</h1>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold">
-            RESTRICTED
+            {t.admin.loginRestricted}
           </span>
         </div>
         <p className="text-xs text-slate-400">
-          Operations Control Center &bull; Dukuh Atas Regional Hub
+          {t.admin.loginOpsHub}
         </p>
       </div>
 
@@ -124,7 +126,7 @@ function AdminLoginForm() {
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
             <Lock className="w-4 h-4 text-cyan-400" />
-            <span>Dispatcher Authorization</span>
+            <span>{t.admin.loginDispatcherAuth}</span>
           </div>
           <span className="text-[10px] font-mono text-slate-400">v1.0.0-PROD</span>
         </div>
@@ -159,9 +161,9 @@ function AdminLoginForm() {
             <label htmlFor="operator-badge-id" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-                Operator Badge ID
+                {t.admin.loginBadgeId}
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">e.g. OCC-DKA-01</span>
+              <span className="text-[10px] text-slate-500 font-mono">{t.admin.loginBadgeExample}</span>
             </label>
             <input
               id="operator-badge-id"
@@ -182,9 +184,9 @@ function AdminLoginForm() {
             <label htmlFor="operator-passkey" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-                Security Passkey
+                {t.admin.loginPasskey}
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">8h Shift Token</span>
+              <span className="text-[10px] text-slate-500 font-mono">{t.admin.loginShiftToken}</span>
             </label>
             <input
               id="operator-passkey"
@@ -209,11 +211,11 @@ function AdminLoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authorizing OCC Shift...</span>
+                <span>{t.admin.loginAuthorizing}</span>
               </>
             ) : (
               <>
-                <span>Access OCC Dashboard</span>
+                <span>{t.admin.loginAccessDashboard}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -225,11 +227,11 @@ function AdminLoginForm() {
           <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
             <span className="flex items-center gap-1">
               <Terminal className="w-3 h-3 text-cyan-400" />
-              Authorized Shift Presets:
+              {t.admin.loginDemoCredentials}
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-1.5 text-[10px] font-mono">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px] font-mono">
             {PUBLIC_OPERATOR_PRESETS.map((preset) => (
               <button
                 key={preset.id}
@@ -243,7 +245,14 @@ function AdminLoginForm() {
               >
                 <div className="font-bold truncate">{preset.id}</div>
                 <div className="text-[10px] text-slate-400 truncate">
-                  {preset.role.split("_")[0]}
+                  {preset.id === "OCC-DKA-01"
+                    ? t.admin.roleChief
+                    : preset.id === "OCC-MRT-02"
+                    ? t.admin.roleLine
+                    : t.admin.roleSecurity}
+                </div>
+                <div className="text-[10px] text-slate-500 font-mono truncate">
+                  {preset.demoPasskey}
                 </div>
               </button>
             ))}
@@ -258,7 +267,7 @@ function AdminLoginForm() {
           className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-300 transition"
         >
           <Compass className="w-3.5 h-3.5" />
-          <span>Return to Passenger Transit Cockpit</span>
+          <span>{t.admin.loginReturnCockpit}</span>
         </Link>
       </div>
     </div>
@@ -266,13 +275,14 @@ function AdminLoginForm() {
 }
 
 export default function AdminLoginPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen w-screen bg-[#070b14] flex items-center justify-center p-4 selection:bg-cyan-500/30">
       <Suspense
         fallback={
           <div className="p-8 text-center text-xs text-slate-400 font-mono flex items-center justify-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-            <span>Loading OCC Authentication Terminal...</span>
+            <span>{t.admin.loginLoading}</span>
           </div>
         }
       >

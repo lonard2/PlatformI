@@ -134,10 +134,16 @@ describe("Admin Route-Level Authentication & Middleware Guard", () => {
       }
     });
 
-    it("ensures PUBLIC_OPERATOR_PRESETS contain zero passkeys", () => {
+    it("ensures presets document demo passkeys and keep the import chain severed", () => {
       expect(PUBLIC_OPERATOR_PRESETS.length).toBeGreaterThan(0);
-      PUBLIC_OPERATOR_PRESETS.forEach((preset: OperatorProfile) => {
+      PUBLIC_OPERATOR_PRESETS.forEach((preset: OperatorProfile & { demoPasskey?: string }) => {
+        // demoPasskey is displayed on the login page by design (demo surface);
+        // the auth-record `passkey` field itself must never ship on the preset
         expect((preset as unknown as { passkey?: string }).passkey).toBeUndefined();
+        expect(preset.demoPasskey).toBeTruthy();
+        // Drift guard: a one-sided edit to either catalog would recreate the
+        // original dead end with a lying hint
+        expect(REGISTERED_OPERATORS[preset.id]?.passkey).toBe(preset.demoPasskey);
         expect(preset.id).toBeDefined();
         expect(preset.badgeNumber).toBeDefined();
       });
