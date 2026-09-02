@@ -32,7 +32,6 @@ export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
-  const allStops = useTransitStore((state) => state.allStops);
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
   const [isAlertsStale, setIsAlertsStale] = useState<boolean>(false);
 
@@ -62,10 +61,39 @@ export default function AdminDashboardPage() {
   ).length;
 
   const onTimePercentage = useMemo(() => {
-    if (simulatedVehicles.length === 0) return "99.0%";
+    if (simulatedVehicles.length === 0) return "\u2014";
     const nominal = simulatedVehicles.length - holdCount;
-    return `${Math.min(99.9, Math.max(90.0, (nominal / simulatedVehicles.length) * 100)).toFixed(1)}%`;
+    return `${((nominal / simulatedVehicles.length) * 100).toFixed(1)}%`;
   }, [simulatedVehicles.length, holdCount]);
+
+  // Real derivation: share of the fleet actually running (not OUT_OF_SERVICE)
+  const uptimePercentage = useMemo(() => {
+    if (simulatedVehicles.length === 0) return "\u2014";
+    const inService = simulatedVehicles.filter((v) => v.status !== "OUT_OF_SERVICE").length;
+    return `${((inService / simulatedVehicles.length) * 100).toFixed(1)}%`;
+  }, [simulatedVehicles]);
+
+  // Real derivation: share of fleet reporting OPTIMAL cabin cooling
+  const acOptimalPercentage = useMemo(() => {
+    if (simulatedVehicles.length === 0) return "\u2014";
+    const optimal = simulatedVehicles.filter((v) => v.acComfort === "OPTIMAL").length;
+    return `${Math.round((optimal / simulatedVehicles.length) * 100)}%`;
+  }, [simulatedVehicles]);
+
+  // Real derivation: est. fare-gate volume = live passenger load (summed
+  // across carriages) x the BRT flat fare constant (3500, per fareCalculator's
+  // road-mode base)
+  const fareVolumeRp = useMemo(
+    () =>
+      simulatedVehicles.reduce(
+        (sum, v) =>
+          sum +
+          (v.carriages?.reduce((load, c) => load + c.passengerCount, 0) ?? 0) *
+            3500,
+        0
+      ),
+    [simulatedVehicles]
+  );
 
   const crowdStats = useMemo(() => {
     const l1 = simulatedVehicles.filter((v) => v.crowdLevel === "LEVEL_1_MANY_SEATS").length;
@@ -92,8 +120,8 @@ export default function AdminDashboardPage() {
     simulatedVehicles.slice(0, 3).forEach((v) => {
       const line = allLines.find((l) => l.id === v.lineId);
       events.push({
-        time: "LIVE TELEMETRY",
-        text: `${v.vehicleCode} (${v.name}) tracking at ${Math.round(v.speedKmh)} km/h heading ${Math.round(v.headingDegrees)}° [${v.status}]`,
+        time: t.admin.telemetryLiveBadge,
+        text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${v.status}]`,
         badge: line?.code || v.category,
         color: "text-cyan-300 border-cyan-500/40 bg-cyan-950/40",
       });
@@ -103,7 +131,7 @@ export default function AdminDashboardPage() {
     activeAlerts.slice(0, 2).forEach((a) => {
       const line = allLines.find((l) => l.id === a.lineId);
       events.push({
-        time: "ACTIVE ADVISORY",
+        time: t.admin.advisoryBadge,
         text: `${a.title}: ${a.description}`,
         badge: line?.code || a.severity,
         color:
@@ -197,7 +225,7 @@ export default function AdminDashboardPage() {
             {onTimePercentage}
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.statusCenter.systemWideUptime}: <strong className="text-slate-200">{criticalAlertsCount > 0 ? "98.5%" : "99.9%"}</strong>
+            {t.statusCenter.systemWideUptime}: <strong className="text-slate-200">{uptimePercentage}</strong>
           </div>
         </div>
 
@@ -222,16 +250,16 @@ export default function AdminDashboardPage() {
         {/* KPI 4: JakLingko Tariff Absorption */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.ticketing.jaklingkoCapNotice.split(":")[0]}</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.fareGateVolume}</span>
             <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-cyan-400">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-bold text-cyan-300 font-mono">
-            Rp {(simulatedVehicles.length * 1.6).toFixed(1)} Juta
+            Rp {(fareVolumeRp / 1_000_000).toFixed(1)} Juta
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.ticketing.integratedDiscount} (3h Max Rp 10.000)
+            {t.ticketing.integratedDiscount} ({t.admin.capNote})
           </div>
         </div>
       </div>
@@ -253,7 +281,7 @@ export default function AdminDashboardPage() {
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-emerald-400 font-medium">{t.crowdsource.densitySeatsAvailable}</span>
-                <span className="font-mono text-slate-300">{crowdStats.l1} Units</span>
+                <span className="font-mono text-slate-300">{crowdStats.l1} {t.admin.unitLabel}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
@@ -267,7 +295,7 @@ export default function AdminDashboardPage() {
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-amber-400 font-medium">{t.crowdsource.densityFewSeats}</span>
-                <span className="font-mono text-slate-300">{crowdStats.l2} Units</span>
+                <span className="font-mono text-slate-300">{crowdStats.l2} {t.admin.unitLabel}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
@@ -281,7 +309,7 @@ export default function AdminDashboardPage() {
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-orange-400 font-medium">{t.crowdsource.densityStandingOnly}</span>
-                <span className="font-mono text-slate-300">{crowdStats.l3} Units</span>
+                <span className="font-mono text-slate-300">{crowdStats.l3} {t.admin.unitLabel}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
@@ -295,7 +323,7 @@ export default function AdminDashboardPage() {
             <div>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-rose-400 font-medium">{t.crowdsource.densityFullCrowded}</span>
-                <span className="font-mono text-slate-300">{crowdStats.l4} Units</span>
+                <span className="font-mono text-slate-300">{crowdStats.l4} {t.admin.unitLabel}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
@@ -309,7 +337,7 @@ export default function AdminDashboardPage() {
           <div className="p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs text-slate-400 space-y-1">
             <div className="font-semibold text-slate-300">{t.vehicleInspector.acRatingTitle}:</div>
             <div className="text-[11px]">
-              91% {t.crowdsource.acComfortable}
+              {acOptimalPercentage} {t.crowdsource.acComfortable}
             </div>
           </div>
         </div>

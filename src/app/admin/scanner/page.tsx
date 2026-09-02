@@ -25,7 +25,6 @@ import {
   validateRollingQRToken,
   GateValidationResult,
   DEFAULT_QR_SECRET,
-  TIME_STEP_MS,
 } from "@/lib/services/qrSecurityService";
 import { useTranslation } from "@/lib/i18n";
 
@@ -193,11 +192,11 @@ export default function AdminScannerPage() {
 
         {/* Selected Gate Dropdown */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <label htmlFor="gate-select" className="sr-only">Select Gate</label>
+          <label htmlFor="gate-select" className="sr-only">{t.admin.selectGate}</label>
           <select
             id="gate-select"
             value={selectedGate}
-            aria-label="Select gate for simulator"
+            aria-label={t.admin.selectGateAria}
             onChange={(e) => setSelectedGate(e.target.value)}
             className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
           >
@@ -231,8 +230,8 @@ export default function AdminScannerPage() {
                 onClick={() => handleGeneratePreset("VALID")}
                 className="p-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
-                <div>{t.admin.accessGranted.split(" - ")[0]}</div>
-                <div className="text-[10px] text-slate-400 font-mono">Current 30s window</div>
+                <div>{t.admin.scanGranted}</div>
+                <div className="text-[10px] text-slate-400 font-mono">{t.admin.presetWindow}</div>
               </button>
 
               <button
@@ -241,7 +240,7 @@ export default function AdminScannerPage() {
                 className="p-2.5 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
                 <div>{t.ticketing.ticketExpired}</div>
-                <div className="text-[10px] text-slate-400 font-mono">&gt;60s clock skew</div>
+                <div className="text-[10px] text-slate-400 font-mono">{t.admin.presetClockSkew}</div>
               </button>
 
               <button
@@ -249,8 +248,8 @@ export default function AdminScannerPage() {
                 onClick={() => handleGeneratePreset("TAMPERED")}
                 className="p-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/60 border border-rose-500/40 text-rose-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
-                <div>{t.admin.accessDenied.split(" - ")[0]}</div>
-                <div className="text-[10px] text-slate-400 font-mono">Corrupt HMAC digest</div>
+                <div>{t.admin.scanDenied}</div>
+                <div className="text-[10px] text-slate-400 font-mono">{t.admin.presetTampered}</div>
               </button>
 
               <button
@@ -258,8 +257,8 @@ export default function AdminScannerPage() {
                 onClick={() => handleGeneratePreset("REPLAY")}
                 className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 text-xs font-semibold text-left transition btn-tactile min-h-[44px]"
               >
-                <div>Replay Protection</div>
-                <div className="text-[10px] text-slate-400 font-mono">Re-scan same nonce</div>
+                <div>{t.admin.presetReplay}</div>
+                <div className="text-[10px] text-slate-400 font-mono">{t.admin.presetRescan}</div>
               </button>
 
               <button
@@ -268,7 +267,7 @@ export default function AdminScannerPage() {
                 className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold text-left transition col-span-2 sm:col-span-2 btn-tactile min-h-[44px]"
               >
                 <div>{t.admin.windowExpired}</div>
-                <div className="text-[10px] text-slate-400 font-mono">Tap-in offset 195m (&gt;180m limit)</div>
+                <div className="text-[10px] text-slate-400 font-mono">{t.admin.presetOffset}</div>
               </button>
             </div>
           </div>
@@ -297,7 +296,7 @@ export default function AdminScannerPage() {
                   min="0"
                   max="300"
                   value={firstTapInOffsetMinutes}
-                  onChange={(e) => setFirstTapInOffsetMinutes(parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) => setFirstTapInOffsetMinutes(Math.max(0, Math.min(300, parseInt(e.target.value, 10) || 0)))}
                   className="w-24 bg-slate-950 border border-white/15 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono min-h-[36px]"
                 />
                 <span className="text-[11px] text-slate-400">{t.common.minutes}</span>
@@ -343,7 +342,7 @@ export default function AdminScannerPage() {
               role="region"
               aria-live="assertive"
               aria-atomic="true"
-              aria-label="Turnstile Gate Feedback"
+              aria-label={t.admin.gateFeedback}
               className="mt-6 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-950/90 border border-white/10 min-h-[220px] text-center relative overflow-hidden"
             >
               {gateStatus === "IDLE" && (
@@ -452,11 +451,11 @@ export default function AdminScannerPage() {
                     <td className="py-3 px-3">
                       {log.isValid ? (
                         <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold text-[10px]">
-                          {t.admin.accessGranted.split(" - ")[0]}
+                          {t.admin.scanGranted}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-500/40 text-rose-300 font-bold text-[10px]">
-                          {t.admin.accessDenied.split(" - ")[0]} ({log.errorReason})
+                          {t.admin.scanDenied} ({log.errorReason})
                         </span>
                       )}
                     </td>

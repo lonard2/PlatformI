@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -24,10 +24,19 @@ import {
   LogOut,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
+import { useTransitStore } from "@/lib/stores/useTransitStore";
 import type { OperatorProfile } from "@/lib/services/adminAuthService";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
+
+  // Real derivation shared with the dashboard: share of fleet not OUT_OF_SERVICE
+  const telemetryUptime = useMemo(() => {
+    if (simulatedVehicles.length === 0) return "\u2014";
+    const inService = simulatedVehicles.filter((v) => v.status !== "OUT_OF_SERVICE").length;
+    return `${((inService / simulatedVehicles.length) * 100).toFixed(1)}%`;
+  }, [simulatedVehicles]);
   const router = useRouter();
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
   const [operator, setOperator] = useState<OperatorProfile | null>(null);
@@ -156,7 +165,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {operator?.name || t.admin.occCommandBadge}
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono truncate">
-                  {operator?.badgeNumber || "OCC-DKA-01"}
+                  {operator?.badgeNumber || t.admin.sessionUnverified}
                 </div>
               </div>
             </div>
@@ -164,8 +173,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <button
               type="button"
               onClick={handleLogout}
-              title="Terminate Shift (Logout)"
-              aria-label="Terminate Shift and Logout"
+              title={t.admin.logoutTitle}
+              aria-label={t.admin.logoutFull}
               className="p-1.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-400 hover:text-rose-300 hover:border-rose-500/40 transition btn-tactile"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -197,8 +206,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="hidden md:flex items-center gap-2 text-xs font-mono text-slate-400">
               <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse motion-reduce:animate-none" />
               <span>
-                Jabodetabek Transit Telemetry:{" "}
-                <strong className="text-emerald-400">ONLINE (100%)</strong>
+                {t.admin.telemetryLabel}{" "}
+                <strong className="text-emerald-400">{telemetryUptime}</strong>
               </span>
             </div>
           </div>
@@ -206,7 +215,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Top Header Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Mobile Nav Tabs */}
-            <nav aria-label="Mobile OCC Navigation" className="flex md:hidden items-center gap-1">
+            <nav aria-label={t.admin.mobileNav} className="flex md:hidden items-center gap-1">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -227,7 +236,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-              aria-label="Admin language switcher"
+              aria-label={t.admin.languageSwitcher}
               className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 font-medium min-h-[36px]"
             >
               {supportedLanguages.map((lang) => (
@@ -240,8 +249,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <button
               type="button"
               onClick={handleLogout}
-              title="Terminate Shift and Logout"
-              aria-label="Terminate Shift and Logout"
+              title={t.admin.logoutFull}
+              aria-label={t.admin.logoutFull}
               className="flex md:hidden items-center justify-center min-w-[40px] min-h-[40px] p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 focus-visible:ring-2 focus-visible:ring-rose-400 transition"
             >
               <LogOut className="w-4 h-4" />

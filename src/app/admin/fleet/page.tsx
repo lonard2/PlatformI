@@ -9,7 +9,8 @@
 
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Truck,
   Plus,
@@ -32,14 +33,41 @@ import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
 export default function FleetManagementPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <FleetManagementContent />
+    </Suspense>
+  );
+}
+
+function FleetManagementContent() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const updateSingleVehicle = useTransitStore((state) => state.updateSingleVehicle);
   const updateSimulatedVehicles = useTransitStore((state) => state.updateSimulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
 
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeCategory, setActiveCategory] = useState<TransitCategory | "ALL">("ALL");
+  // Filter state is URL-synced: refresh and shared links restore the view
+  const [searchQuery, setSearchQuery] = useState<string>(() => searchParams.get("q") ?? "");
+  const [activeCategory, setActiveCategory] = useState<TransitCategory | "ALL">(
+    () => (searchParams.get("category") as TransitCategory | null) ?? "ALL"
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (activeCategory !== "ALL") params.set("category", activeCategory);
+    const qs = params.toString();
+    router.replace(qs ? `/admin/fleet?${qs}` : "/admin/fleet", { scroll: false });
+  }, [searchQuery, activeCategory, router]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
@@ -205,6 +233,7 @@ export default function FleetManagementPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label={t.admin.searchFleetPlaceholder}
             placeholder={t.admin.searchFleetPlaceholder}
             className="w-full bg-slate-950 border border-white/15 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 transition"
           />
@@ -213,6 +242,8 @@ export default function FleetManagementPage() {
         {/* Category Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full md:w-auto">
           <button
+            type="button"
+            aria-pressed={activeCategory === "ALL"}
             onClick={() => setActiveCategory("ALL")}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition shrink-0 ${
               activeCategory === "ALL"
@@ -236,6 +267,8 @@ export default function FleetManagementPage() {
             return (
               <button
                 key={cat}
+                type="button"
+                aria-pressed={activeCategory === cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition shrink-0 ${
                   activeCategory === cat
@@ -337,9 +370,9 @@ export default function FleetManagementPage() {
                     </td>
 
                     {/* Operational Status (Quick Toggle) */}
-                    <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-3.5 px-4">
                       <label htmlFor={`status-select-${vehicle.id}`} className="sr-only">
-                        {t.admin.currentStatus} for {vehicle.vehicleCode}
+                        {t.admin.currentStatus} — {vehicle.vehicleCode}
                       </label>
                       <select
                         id={`status-select-${vehicle.id}`}
@@ -366,9 +399,9 @@ export default function FleetManagementPage() {
                     </td>
 
                     {/* Capacity & Crowd Density */}
-                    <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-3.5 px-4">
                       <label htmlFor={`crowd-select-${vehicle.id}`} className="sr-only">
-                        {t.admin.capacityAndDensity} for {vehicle.vehicleCode}
+                        {t.admin.capacityAndDensity} — {vehicle.vehicleCode}
                       </label>
                       <select
                         id={`crowd-select-${vehicle.id}`}
@@ -398,7 +431,7 @@ export default function FleetManagementPage() {
                     <td className="py-3.5 px-4 text-right">
                       <button
                         type="button"
-                        aria-label={`View telemetry for ${vehicle.vehicleCode}`}
+                        aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}
                         onClick={() => openTelemetryModal(vehicle)}
                         className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
                       >
@@ -408,6 +441,13 @@ export default function FleetManagementPage() {
                   </tr>
                 );
               })}
+              {filteredVehicles.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-xs text-slate-400">
+                    {t.admin.fleetNoMatch}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -449,7 +489,7 @@ export default function FleetManagementPage() {
               <button
                 type="button"
                 onClick={closeTelemetryModal}
-                aria-label="Close telemetry dialog"
+                aria-label={t.admin.closeTelemetryDialog}
                 className="p-2 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
@@ -498,6 +538,7 @@ export default function FleetManagementPage() {
                       <button
                         key={st}
                         type="button"
+                        aria-pressed={selectedVehicle.status === st}
                         onClick={() => handleUpdateStatus(selectedVehicle, st)}
                         className={`p-3 rounded-xl border text-xs font-mono transition min-h-[44px] ${
                           selectedVehicle.status === st
@@ -565,7 +606,7 @@ export default function FleetManagementPage() {
               <button
                 type="button"
                 onClick={closeAddModal}
-                aria-label="Close add vehicle dialog"
+                aria-label={t.admin.closeAddVehicleDialog}
                 className="p-2 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 hover:text-white transition min-w-[36px] min-h-[36px] flex items-center justify-center"
               >
                 <X className="w-4 h-4" />
