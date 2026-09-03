@@ -14,6 +14,7 @@ import { useTransitStore, TileLayerId } from "@/lib/stores/useTransitStore";
 import { useTransitSimulation } from "@/lib/hooks/useTransitSimulation";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
 import { RoutePolylineLayer } from "./RoutePolylineLayer";
+import { JourneyLayer } from "./JourneyLayer";
 import { HubMarkerLayer } from "./HubMarkerLayer";
 import { VehicleMarkerLayer } from "./VehicleMarkerLayer";
 import { MapControls } from "./MapControls";
@@ -109,6 +110,7 @@ export function TransitMap() {
       {mapReady && (
         <>
           <RoutePolylineLayer map={mapReady} />
+          <JourneyLayer map={mapReady} />
           <HubMarkerLayer map={mapReady} />
           <VehicleMarkerLayer map={mapReady} />
           <MapControls map={mapReady} />

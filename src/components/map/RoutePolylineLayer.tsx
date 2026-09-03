@@ -40,6 +40,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
       : null
   );
   const hoveredEntity = useTransitStore((state) => state.hoveredEntity);
+  const plannedJourney = useTransitStore((state) => state.plannedJourney);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
 
@@ -91,6 +92,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
 
       const modeConfig = TRANSIT_MODE_CONFIG[line.mode];
       const isSelected = isLineExplicitlySelected || isVehicleOnThisLineSelected;
+      const isCandidateLine = plannedJourney?.candidateLines.some((l) => l.id === line.id);
+      const isDimmed = !!plannedJourney && !isCandidateLine && !isSelected && !isHovered;
 
       // Dash pattern for aviation and maritime
       let dashArray: string | undefined = undefined;
@@ -115,8 +118,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
       // Main route polyline
       const polyline = L.polyline(coords, {
         color: line.colorHex,
-        weight: isSelected ? 6 : isHovered ? 5 : 3.5,
-        opacity: isSelected ? 1.0 : isHovered ? 0.95 : 0.75,
+        weight: isSelected ? 6 : isHovered ? 5 : isDimmed ? 2 : 3.5,
+        opacity: isSelected ? 1.0 : isHovered ? 0.95 : isDimmed ? 0.2 : 0.75,
         lineCap: "round",
         lineJoin: "round",
         dashArray,
@@ -177,6 +180,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
     selectedVehicleId,
     activeVehicleLineId,
     hoveredEntity,
+    plannedJourney,
     selectLine,
     setHoveredEntity,
   ]);

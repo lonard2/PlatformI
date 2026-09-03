@@ -96,6 +96,26 @@ export interface TransitStoreState {
   // 11. Alerts
   pinnedAlertId: string | null;
   setPinnedAlertId: (id: string | null) => void;
+
+  // 12. Planned Journey Binding
+  plannedJourney: PlannedJourney | null;
+  setPlannedJourney: (journey: PlannedJourney | null) => void;
+  clearPlannedJourney: () => void;
+}
+
+export interface PlannedJourney {
+  originStop: Stop;
+  destinationStop: Stop;
+  directLines: Line[];
+  transferOption?: {
+    firstLine: Line;
+    secondLine: Line;
+    transferStop: Stop;
+  };
+  candidateLines: Line[];
+  distanceKm: number;
+  estimatedFareRp: number;
+  estimatedDurationMinutes: number;
 }
 
 const ALL_MODES = Object.keys(TRANSIT_MODE_CONFIG) as TransitMode[];
@@ -224,4 +244,9 @@ export const useTransitStore = create<TransitStoreState>((set, get) => ({
   // 11. Alerts
   pinnedAlertId: "alert-001",
   setPinnedAlertId: (id) => set({ pinnedAlertId: id }),
+
+  // 12. Planned Journey
+  plannedJourney: null,
+  setPlannedJourney: (journey) => set({ plannedJourney: journey }),
+  clearPlannedJourney: () => set({ plannedJourney: null }),
 }));
