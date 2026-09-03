@@ -103,7 +103,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="flex h-screen w-screen bg-[#070b14] text-slate-100 overflow-hidden font-sans select-none">
+    <div className="flex h-dvh w-screen bg-[#070b14] text-slate-100 overflow-hidden font-sans select-none">
       {/* 1. SIDEBAR NAVIGATION */}
       <aside className="w-64 border-r border-white/10 bg-[#0a0f1d] flex flex-col justify-between shrink-0 hidden md:flex">
         <div>
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-sm font-bold text-white tracking-tight">PlatformI</h1>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
+                <span className="text-[10px] px-1.5 py-1 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
                   OCC
                 </span>
               </div>

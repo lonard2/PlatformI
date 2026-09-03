@@ -62,12 +62,29 @@ function FleetManagementContent() {
   );
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
-    if (activeCategory !== "ALL") params.set("category", activeCategory);
-    const qs = params.toString();
-    router.replace(qs ? `/admin/fleet?${qs}` : "/admin/fleet", { scroll: false });
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set("q", searchQuery);
+      if (activeCategory !== "ALL") params.set("category", activeCategory);
+      const qs = params.toString();
+      // Equality guard: skip the RSC navigation when the URL already matches
+      if (window.location.search.replace(/^\?/, "") === qs) return;
+      router.replace(qs ? `/admin/fleet?${qs}` : "/admin/fleet", { scroll: false });
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [searchQuery, activeCategory, router]);
+
+  // Back/forward restores the filtered view: follow the URL when it changes
+  // underneath us (popstate), skipping values identical to current state so
+  // the debounced write never bounces back into the fields
+  useEffect(() => {
+    const q = searchParams.get("q") ?? "";
+    const category = (searchParams.get("category") as TransitCategory | null) ?? "ALL";
+    if (q !== searchQuery) setSearchQuery(q);
+    if (category !== activeCategory) setActiveCategory(category);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
@@ -235,7 +252,7 @@ function FleetManagementContent() {
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label={t.admin.searchFleetPlaceholder}
             placeholder={t.admin.searchFleetPlaceholder}
-            className="w-full bg-slate-950 border border-white/15 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 transition"
+            className="w-full bg-slate-950 border border-white/15 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 transition"
           />
         </div>
 
@@ -365,7 +382,7 @@ function FleetManagementContent() {
                         <span className="font-bold">{Math.round(vehicle.speedKmh)} km/h</span>
                       </div>
                       <div className="text-[10px] text-slate-500">
-                        {Math.round(vehicle.headingDegrees)}&deg; heading
+                        {Math.round(vehicle.headingDegrees)}&deg; {t.admin.telemetryHeading}
                       </div>
                     </td>
 
@@ -377,7 +394,7 @@ function FleetManagementContent() {
                       <select
                         id={`status-select-${vehicle.id}`}
                         value={vehicle.status}
-                        aria-label={`Operating status for ${vehicle.vehicleCode}`}
+                        aria-label={`${t.admin.ariaStatusFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
                           handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus)
                         }
@@ -406,7 +423,7 @@ function FleetManagementContent() {
                       <select
                         id={`crowd-select-${vehicle.id}`}
                         value={vehicle.crowdLevel}
-                        aria-label={`Crowd density for ${vehicle.vehicleCode}`}
+                        aria-label={`${t.admin.ariaCrowdFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
                           handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel)
                         }
@@ -622,7 +639,7 @@ function FleetManagementContent() {
                   id="add-vehicle-line"
                   value={newLineId}
                   onChange={(e) => setNewLineId(e.target.value)}
-                  className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                  className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 min-h-[44px]"
                 >
                   {allLines.map((l) => (
                     <option key={l.id} value={l.id}>
@@ -643,7 +660,7 @@ function FleetManagementContent() {
                     onChange={(e) => setNewVehicleCode(e.target.value)}
                     placeholder="e.g. TJ-999 / MRT-09"
                     required
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono uppercase focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono uppercase min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -655,7 +672,7 @@ function FleetManagementContent() {
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="e.g. TransJakarta Cityline 3"
                     required
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   />
                 </div>
               </div>
@@ -668,7 +685,7 @@ function FleetManagementContent() {
                     id="add-vehicle-coachbuilder"
                     value={newCoachbuilder}
                     onChange={(e) => setNewCoachbuilder(e.target.value)}
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   >
                     <option value="Laksana Karoseri">Laksana Cityline 3</option>
                     <option value="Adiputro Karoseri">Adiputro Jetbus 5 SDD</option>
@@ -684,7 +701,7 @@ function FleetManagementContent() {
                     id="add-vehicle-chassis"
                     value={newChassis}
                     onChange={(e) => setNewChassis(e.target.value)}
-                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                    className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   >
                     <option value="Scania K250UB 4x2 Low-Entry">Scania K250UB 4x2</option>
                     <option value="Mercedes-Benz OH 1626 Air Suspension">Mercedes-Benz OH 1626</option>

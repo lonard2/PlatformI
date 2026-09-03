@@ -292,3 +292,15 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Unified Accessible Focus-Visible Ring (replaces brittle per-element border-only focus) */
+:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-cyan) !important;
+  outline-offset: 2px !important;
+}

@@ -29,7 +29,7 @@ import type { DisruptionAlert } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
 export default function AdminDashboardPage() {
-  const { t } = useTranslation();
+  const { t, currentLanguageMeta } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
@@ -103,35 +103,76 @@ export default function AdminDashboardPage() {
     return { l1, l2, l3, l4 };
   }, [simulatedVehicles]);
 
+  const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
+  const [simulationTime, setSimulationTime] = useState<number>(() => Date.now());
+
+  // Simulation clock ticker respecting simulationSpeed multiplier
+  useEffect(() => {
+    if (simulationSpeed === 0) return;
+    const interval = setInterval(() => {
+      setSimulationTime((prev) => prev + 1000 * simulationSpeed);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [simulationSpeed]);
+
   const activeAlerts = useMemo(() => alerts.filter((a) => a.status === "ACTIVE"), [alerts]);
   const criticalAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "CRITICAL").length, [activeAlerts]);
   const warningAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "WARNING").length, [activeAlerts]);
 
-  // Dynamic live event stream constructed from live telemetry
+  // Dynamic live event stream constructed from live telemetry and active alerts, sorted by recency
   const liveEvents = useMemo(() => {
     const events: {
+      id: string;
+      timestamp: number;
       time: string;
       text: string;
       badge: string;
       color: string;
     }[] = [];
 
-    // 1. In-service moving vehicles
-    simulatedVehicles.slice(0, 3).forEach((v) => {
+    // 1. In-service moving vehicles reporting telemetry
+    const inServiceVehicles = simulatedVehicles.filter((v) => v.status === "IN_SERVICE");
+    const sampleVehicles = (inServiceVehicles.length > 0 ? inServiceVehicles : simulatedVehicles).slice(0, 4);
+
+    sampleVehicles.forEach((v, index) => {
       const line = allLines.find((l) => l.id === v.lineId);
+      const pingOffsetMs = index * 8000 + ((Math.round(v.speedKmh) * 17) % 5000);
+      const timestamp = simulationTime - pingOffsetMs;
+      const time = new Date(timestamp).toLocaleTimeString(currentLanguageMeta.locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Jakarta",
+      });
+
       events.push({
-        time: t.admin.telemetryLiveBadge,
+        id: `telem-${v.id}`,
+        timestamp,
+        time,
         text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${v.status}]`,
         badge: line?.code || v.category,
         color: "text-cyan-300 border-cyan-500/40 bg-cyan-950/40",
       });
     });
 
-    // 2. Active alerts if any
-    activeAlerts.slice(0, 2).forEach((a) => {
+    // 2. Active advisory disruptions
+    activeAlerts.slice(0, 3).forEach((a) => {
       const line = allLines.find((l) => l.id === a.lineId);
+      const parsed = a.startTime ? new Date(a.startTime).getTime() : NaN;
+      const timestamp = !isNaN(parsed) ? parsed : simulationTime - 30000;
+      const time = new Date(timestamp).toLocaleTimeString(currentLanguageMeta.locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Jakarta",
+      });
+
       events.push({
-        time: t.admin.advisoryBadge,
+        id: `alert-${a.id}`,
+        timestamp,
+        time,
         text: `${a.title}: ${a.description}`,
         badge: line?.code || a.severity,
         color:
@@ -141,8 +182,11 @@ export default function AdminDashboardPage() {
       });
     });
 
+    // Sort by recency (most recent event first)
+    events.sort((a, b) => b.timestamp - a.timestamp);
+
     return events;
-  }, [simulatedVehicles, allLines, activeAlerts]);
+  }, [simulatedVehicles, allLines, activeAlerts, simulationTime, currentLanguageMeta.locale, t]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -256,7 +300,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-cyan-300 font-mono">
-            Rp {(fareVolumeRp / 1_000_000).toFixed(1)} Juta
+            Rp {new Intl.NumberFormat(currentLanguageMeta.locale, { notation: "compact", maximumFractionDigits: 1 }).format(fareVolumeRp)}
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
             {t.ticketing.integratedDiscount} ({t.admin.capNote})
@@ -349,19 +393,30 @@ export default function AdminDashboardPage() {
               <Activity className="w-4 h-4 text-emerald-400" />
               <h3 className="text-sm font-bold text-white">{t.admin.eventStreamTitle}</h3>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400 font-bold">
-              {t.common.active}
-            </span>
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-mono text-slate-400">
+                {new Date(simulationTime).toLocaleTimeString(currentLanguageMeta.locale, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                  timeZone: "Asia/Jakarta",
+                })} WIB
+              </span>
+              <span className={`text-[10px] font-mono font-bold ${simulationSpeed === 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                {simulationSpeed === 0 ? t.admin.pausedLabel : t.common.active}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-2.5">
-            {liveEvents.map((event, idx) => (
+            {liveEvents.map((event) => (
               <div
-                key={idx}
+                key={event.id}
                 className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-3 text-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-[10px] font-mono text-slate-500 shrink-0">{event.time}</span>
+                  <span className="text-[10px] font-mono text-slate-400 shrink-0">{event.time}</span>
                   <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 ${event.color}`}>
                     {event.badge}
                   </span>

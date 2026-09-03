@@ -27,7 +27,7 @@ import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
 
 export default function AdminAlertsPage() {
-  const { t } = useTranslation();
+  const { t, currentLanguageMeta } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
 
@@ -62,6 +62,12 @@ export default function AdminAlertsPage() {
 
   const closeEscalateConfirm = () => setEscalateConfirmId(null);
 
+  const severityLabel: Record<DisruptionSeverity, string> = {
+    CRITICAL: t.admin.sevCritical,
+    WARNING: t.admin.sevWarning,
+    INFO: t.admin.sevInfo,
+  };
+
   // Success feedback parity: every mutation confirms like broadcast does
   const notify = (message: string) => {
     setBroadcastToast(message);
@@ -88,7 +94,18 @@ export default function AdminAlertsPage() {
     }
   }, [escalateConfirmId]);
 
-  const executeDelete = async (id: string) => {
+  const executeDelete = async (id: string, options?: { keepalive?: boolean }) => {
+    // Natural-expiry focus fallback: if the undo button or row held focus,
+    // restore focus to the feed container so focus doesn't reset to document.body
+    const undoBtn = undoButtonRefs.current.get(id);
+    const hadFocus =
+      typeof document !== "undefined" &&
+      undoBtn &&
+      (document.activeElement === undoBtn || undoBtn.contains(document.activeElement));
+    if (hadFocus) {
+      feedContainerRef.current?.focus();
+    }
+
     const alertToDelete = pendingDeletesRef.current[id];
     setPendingDeletes((prev) => {
       const next = { ...prev };
@@ -104,7 +121,10 @@ export default function AdminAlertsPage() {
     if (!alertToDelete) return;
 
     try {
-      const res = await fetch(`/api/alerts?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/alerts?id=${id}`, {
+        method: "DELETE",
+        keepalive: options?.keepalive ?? true,
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         // Restore the row: the server still has it, so the UI must too
@@ -150,12 +170,33 @@ export default function AdminAlertsPage() {
   }, [deleteExpiries, undoPaused]);
 
   useEffect(() => {
+    // pagehide flush for hard-reload / tab-close mid-grace with keepalive: true.
+    // event.persisted: bfcache restore would resurrect server-deleted rows when
+    // the expired timers fire against 404s — skip the flush for cache restores.
+    // Removing ids from the ref here prevents the unmount cleanup from
+    // double-firing the same DELETE.
+    const handlePageHide = (event: PageTransitionEvent) => {
+      if (event.persisted) return;
+      const ids = Object.keys(pendingDeletesRef.current);
+      // Drop the ids first so the unmount cleanup cannot double-fire
+      pendingDeletesRef.current = {};
+      for (const id of ids) {
+        fetch(`/api/alerts?id=${id}`, {
+          method: "DELETE",
+          keepalive: true,
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+
     return () => {
+      window.removeEventListener("pagehide", handlePageHide);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       // Grace pending at unmount: flush the real deletions so navigation
       // never silently drops a confirmed delete (row would resurrect)
       for (const id of Object.keys(pendingDeletesRef.current)) {
-        void executeDeleteRef.current(id);
+        void executeDeleteRef.current(id, { keepalive: true });
       }
     };
   }, []);
@@ -493,7 +534,7 @@ export default function AdminAlertsPage() {
                   setTargetLineId(e.target.value);
                   setAffectedStops([]);
                 }}
-                className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 min-h-[44px]"
               >
                 {allLines.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -523,7 +564,7 @@ export default function AdminAlertsPage() {
                         : "bg-slate-950/60 border-slate-800 text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    {sev}
+                    {severityLabel[sev]}
                   </button>
                 ))}
               </div>
@@ -541,7 +582,7 @@ export default function AdminAlertsPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={t.admin.alertTitle}
                 required
-                className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 placeholder-slate-500 min-h-[44px]"
               />
             </div>
 
@@ -557,7 +598,7 @@ export default function AdminAlertsPage() {
                 placeholder={t.admin.impactDescription}
                 rows={3}
                 required
-                className="w-full bg-slate-950 border border-white/15 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 resize-none leading-relaxed"
+                className="w-full bg-slate-950 border border-white/15 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 resize-none leading-relaxed"
               />
             </div>
 
@@ -604,7 +645,7 @@ export default function AdminAlertsPage() {
                   step="5"
                   value={estMinutes}
                   onChange={(e) => setEstMinutes(e.target.value)}
-                  className="w-28 bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+                  className="w-28 bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
                 />
                 <span className="text-slate-400 text-xs">{t.common.minutes}</span>
               </div>
@@ -667,7 +708,7 @@ export default function AdminAlertsPage() {
                         : "bg-cyan-900 text-cyan-300 border-cyan-500/40"
                     }`}
                   >
-                    {severity === "CRITICAL" ? t.admin.criticalAlerts : severity === "WARNING" ? t.admin.warningAlerts : "INFO"}
+                    {severityLabel[severity]}
                   </span>
                   <span
                     style={{
@@ -842,7 +883,9 @@ export default function AdminAlertsPage() {
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-400 font-mono pt-1">
-                    <span>{new Date(alert.startTime).toLocaleTimeString()}</span>
+                    <span>{new Date(alert.startTime).toLocaleTimeString(currentLanguageMeta.locale, {
+                      timeZone: "Asia/Jakarta",
+                    })}</span>
                     {alert.affectedStops.length > 0 && (
                       <span>{t.admin.affectedStops}: {alert.affectedStops.join(", ")}</span>
                     )}

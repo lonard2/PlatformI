@@ -41,7 +41,7 @@ interface ScanAuditEntry {
 }
 
 export default function AdminScannerPage() {
-  const { t } = useTranslation();
+  const { t, currentLanguageMeta } = useTranslation();
   const [selectedGate, setSelectedGate] = useState<string>("CSW-ASEAN Hub Gate #04");
   const [scannedPayload, setScannedPayload] = useState<string>("");
   const [lastValidationResult, setLastValidationResult] = useState<GateValidationResult | null>(null);
@@ -147,7 +147,7 @@ export default function AdminScannerPage() {
     // Add audit log entry
     const auditEntry: ScanAuditEntry = {
       id: `SCAN-${Date.now().toString(36)}`,
-      timestamp: new Date().toLocaleTimeString("id-ID", {
+      timestamp: new Date().toLocaleTimeString(currentLanguageMeta.locale, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -198,7 +198,7 @@ export default function AdminScannerPage() {
             value={selectedGate}
             aria-label={t.admin.selectGateAria}
             onChange={(e) => setSelectedGate(e.target.value)}
-            className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+            className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
           >
             {gateOptions.map((g) => (
               <option key={g} value={g}>
@@ -281,7 +281,7 @@ export default function AdminScannerPage() {
               value={scannedPayload}
               onChange={(e) => setScannedPayload(e.target.value)}
               placeholder="PLATFORMI:TKT-ID:USER-ID:TIMESTEP:HMAC_HASH"
-              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500/80 min-h-[44px]"
+              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-cyan-300 font-mono min-h-[44px]"
             />
           </div>
 
@@ -467,7 +467,7 @@ export default function AdminScannerPage() {
                       )}
                     </td>
                     <td className="py-3 px-3 text-right font-bold text-slate-200">
-                      Rp {log.fareDeductedRp.toLocaleString("id-ID")}
+                      Rp {log.fareDeductedRp.toLocaleString(currentLanguageMeta.locale)}
                     </td>
                   </tr>
                 ))

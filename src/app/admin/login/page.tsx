@@ -175,7 +175,7 @@ function AdminLoginForm() {
               onChange={(e) => setOperatorId(e.target.value)}
               placeholder="OCC-DKA-01"
               disabled={isLoading}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
             />
           </div>
 
@@ -198,7 +198,7 @@ function AdminLoginForm() {
               onChange={(e) => setPasskey(e.target.value)}
               placeholder="••••••••••••"
               disabled={isLoading}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
             />
           </div>
 
