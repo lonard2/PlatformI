@@ -221,6 +221,11 @@ describe("Milestone 5: React UI Components Integration", () => {
       const statusBtn = screen.getByText(/Status Langsung|Live Status|Layanan/i);
       fireEvent.click(statusBtn);
       expect(onOpenStatusMock).toHaveBeenCalled();
+
+      // Click AI Advisor compact slot
+      const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
+      fireEvent.click(aiBtn);
+      expect(onOpenAIMock).toHaveBeenCalled();
     });
   });
 });

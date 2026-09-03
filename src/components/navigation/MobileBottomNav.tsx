@@ -13,6 +13,7 @@ import {
   MapPin,
   Activity,
   Navigation,
+  Sparkles,
   QrCode,
   Users,
 } from "lucide-react";
@@ -114,6 +115,18 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
       >
         <Users className="w-5 h-5" />
         <span className="text-[11px] tracking-tight">{t.navigation.crowdsource}</span>
+      </button>
+
+      {/* 6. AI ADVISOR (COMPACT ICON-LED SLOT) */}
+      <button
+        onClick={onOpenAI}
+        aria-label={t.navigation.aiAdvisor}
+        title={t.navigation.aiAdvisor}
+        className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-center min-w-[44px] min-h-[48px] px-1 py-1 rounded-xl transition-all active:scale-95 shrink-0"
+      >
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-b from-cyan-500/20 to-blue-600/25 border border-cyan-400/40 hover:border-cyan-300 text-cyan-300 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.25)] transition-all">
+          <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
+        </div>
       </button>
     </nav>
   );

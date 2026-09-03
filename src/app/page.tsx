@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Train,
@@ -22,9 +22,13 @@ import {
   Search,
   MapPin,
   Navigation,
+  ArrowUpDown,
+  ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { resolvePlannedJourney } from "@/lib/services/journeyPlanner";
 import { CheckInModal } from "@/components/crowdsource/CheckInModal";
 import { CommunityLiveFeed } from "@/components/crowdsource/CommunityLiveFeed";
 import { DigitalPassWallet } from "@/components/ticketing/DigitalPassWallet";
@@ -47,6 +51,9 @@ export default function Home() {
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
   const selectedStopId = useTransitStore((state) => state.selectedStopId);
   const clearSelection = useTransitStore((state) => state.clearSelection);
+  const plannedJourney = useTransitStore((state) => state.plannedJourney);
+  const setPlannedJourney = useTransitStore((state) => state.setPlannedJourney);
+  const clearPlannedJourney = useTransitStore((state) => state.clearPlannedJourney);
 
   // Modal states
   const [isCheckInOpen, setIsCheckInOpen] = useState<boolean>(false);
@@ -62,14 +69,39 @@ export default function Home() {
   const [journeyDest, setJourneyDest] = useState<string>("");
   const [journeyQuery, setJourneyQuery] = useState<string | null>(null);
 
-  // Flagship act: hand the planned journey to the AI advisor as a live query
-  const handleFindRoute = () => {
+  // P0 Journey-to-Map binding: calculate deterministic route the instant both fields hold valid stops
+  useEffect(() => {
+    if (journeyOrigin.trim() && journeyDest.trim()) {
+      const planned = resolvePlannedJourney(journeyOrigin, journeyDest, allStops, allLines);
+      setPlannedJourney(planned);
+    } else {
+      clearPlannedJourney();
+    }
+  }, [journeyOrigin, journeyDest, allStops, allLines, setPlannedJourney, clearPlannedJourney]);
+
+  // AI demoted to refinement: provides fare capping reasoning, transfer walkway guidance, crowd tips
+  const handleRefineWithAI = () => {
     const origin = journeyOrigin.trim();
     const dest = journeyDest.trim();
     if (!origin || !dest) return;
-    setJourneyQuery(`${origin} → ${dest}`);
-    setIsJourneyExpanded(false);
+    const lineSummary = plannedJourney?.directLines.length
+      ? plannedJourney.directLines.map((l) => l.code).join(", ")
+      : plannedJourney?.transferOption
+      ? `${plannedJourney.transferOption.firstLine.code} → ${plannedJourney.transferOption.secondLine.code} via ${plannedJourney.transferOption.transferStop.name}`
+      : "transit lines";
+    setJourneyQuery(`Refine journey from ${origin} to ${dest} via ${lineSummary}. Calculate JakLingko fare cap, transfer guidance, and crowd recommendations.`);
     setIsAIModalOpen(true);
+  };
+
+  const handleSwapStops = () => {
+    setJourneyOrigin(journeyDest);
+    setJourneyDest(journeyOrigin);
+  };
+
+  const handleClearJourney = () => {
+    setJourneyOrigin("");
+    setJourneyDest("");
+    clearPlannedJourney();
   };
 
   // Stop universe for the journey autocomplete (deduplicated, A-Z)
@@ -166,7 +198,7 @@ export default function Home() {
       <div className="flex-1 relative overflow-hidden flex">
         <DynamicMap />
 
-        {/* Floating Journey Pill (above map, right side) */}
+        {/* Floating Journey Pill (above map, left side) */}
         <div className="absolute top-3 left-3 z-40">
           <AnimatePresence mode="wait">
             {isJourneyExpanded ? (
@@ -176,20 +208,32 @@ export default function Home() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="glass-panel rounded-2xl p-3.5 w-72 sm:w-80 shadow-2xl shadow-black/60 space-y-2.5"
+                className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 shadow-2xl shadow-black/60 space-y-3 border border-white/15"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="text-xs font-bold text-white">{t.common.findRoute}</span>
+                    <span className="text-xs font-bold text-white tracking-tight">{t.common.findRoute}</span>
                   </div>
-                  <button
-                    onClick={() => setIsJourneyExpanded(false)}
-                    aria-label={t.common.close}
-                    className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {(journeyOrigin || journeyDest) && (
+                      <button
+                        onClick={handleClearJourney}
+                        aria-label="Clear route"
+                        title="Clear route"
+                        className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-rose-400 transition"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setIsJourneyExpanded(false)}
+                      aria-label={t.common.close}
+                      className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 <datalist id="stop-names">
@@ -197,9 +241,13 @@ export default function Home() {
                     <option key={name} value={name} />
                   ))}
                 </datalist>
-                <div className="space-y-1.5">
+
+                <div className="space-y-1.5 relative">
+                  {/* Origin Field */}
                   <div className="relative">
-                    <MapPin className="w-4 h-4 text-emerald-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center">
+                      <span className="text-[10px] font-mono font-black text-emerald-400">A</span>
+                    </div>
                     <label htmlFor="journey-origin" className="sr-only">
                       {t.common.origin}
                     </label>
@@ -211,11 +259,28 @@ export default function Home() {
                       placeholder={t.common.origin}
                       value={journeyOrigin}
                       onChange={(e) => setJourneyOrigin(e.target.value)}
-                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition"
                     />
                   </div>
+
+                  {/* Swap Button between inputs */}
+                  <div className="flex justify-end pr-2 -my-1 z-10 relative">
+                    <button
+                      type="button"
+                      onClick={handleSwapStops}
+                      aria-label="Swap origin and destination"
+                      title="Swap stops"
+                      className="p-1 rounded-md bg-slate-900 border border-slate-700/80 text-slate-400 hover:text-cyan-400 btn-tactile transition"
+                    >
+                      <ArrowUpDown className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Destination Field */}
                   <div className="relative">
-                    <MapPin className="w-4 h-4 text-rose-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <div className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-rose-500/20 border border-rose-400 flex items-center justify-center">
+                      <span className="text-[10px] font-mono font-black text-rose-400">B</span>
+                    </div>
                     <label htmlFor="journey-destination" className="sr-only">
                       {t.common.destination}
                     </label>
@@ -227,19 +292,96 @@ export default function Home() {
                       placeholder={t.common.destination}
                       value={journeyDest}
                       onChange={(e) => setJourneyDest(e.target.value)}
-                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"
+                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition"
                     />
                   </div>
                 </div>
 
-                <button
-                  disabled={!journeyOrigin.trim() || !journeyDest.trim()}
-                  onClick={handleFindRoute}
-                  className="w-full py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-                >
-                  <Search className="w-3.5 h-3.5" />
-                  <span>{t.common.findRoute}</span>
-                </button>
+                {/* Deterministic Route Answer Bound to Map */}
+                {plannedJourney ? (
+                  <div className="space-y-2 pt-1">
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-cyan-500/30 space-y-2 shadow-inner">
+                      <div className="flex items-center justify-between">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                          plannedJourney.directLines.length > 0
+                            ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                            : "bg-amber-950/60 border-amber-500/40 text-amber-300"
+                        }`}>
+                          {plannedJourney.directLines.length > 0 ? "DIRECT ROUTE" : "1-TRANSFER ROUTE"}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-cyan-300">
+                          Rp {plannedJourney.estimatedFareRp.toLocaleString("id-ID")}
+                        </span>
+                      </div>
+
+                      {/* Candidate Line Badges */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {plannedJourney.directLines.length > 0 ? (
+                          plannedJourney.directLines.map((l) => (
+                            <span
+                              key={l.id}
+                              style={{
+                                backgroundColor: `${l.colorHex}25`,
+                                borderColor: `${l.colorHex}60`,
+                                color: l.colorHex,
+                              }}
+                              className="px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold truncate max-w-[200px]"
+                            >
+                              [{l.code}] {l.name}
+                            </span>
+                          ))
+                        ) : plannedJourney.transferOption ? (
+                          <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                            <span
+                              style={{
+                                backgroundColor: `${plannedJourney.transferOption.firstLine.colorHex}25`,
+                                borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
+                                color: plannedJourney.transferOption.firstLine.colorHex,
+                              }}
+                              className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
+                            >
+                              {plannedJourney.transferOption.firstLine.code}
+                            </span>
+                            <span className="text-slate-500 font-mono">&rarr;</span>
+                            <span
+                              style={{
+                                backgroundColor: `${plannedJourney.transferOption.secondLine.colorHex}25`,
+                                borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
+                                color: plannedJourney.transferOption.secondLine.colorHex,
+                              }}
+                              className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
+                            >
+                              {plannedJourney.transferOption.secondLine.code}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              ({plannedJourney.transferOption.transferStop.name})
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1 border-t border-white/5">
+                        <span>~{plannedJourney.estimatedDurationMinutes} min</span>
+                        <span>{plannedJourney.distanceKm} km</span>
+                        <span className="text-emerald-400 font-semibold">Map Plotted</span>
+                      </div>
+                    </div>
+
+                    {/* Refinement Action: AI Advisor */}
+                    <button
+                      type="button"
+                      onClick={handleRefineWithAI}
+                      className="w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-2 rounded-xl bg-slate-950/40 border border-white/5 text-[11px] text-slate-400 text-center">
+                    Select valid stations to preview route pins and candidate lines on the map.
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.button
@@ -249,19 +391,37 @@ export default function Home() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={() => setIsJourneyExpanded(true)}
-                className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 hover:border-cyan-500/40 btn-tactile transition-all cursor-pointer"
+                className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 btn-tactile transition-all cursor-pointer ${
+                  plannedJourney ? "border-cyan-500/50 bg-slate-900/90" : "hover:border-cyan-500/40"
+                }`}
               >
-                <Search className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-medium text-slate-300 hidden sm:inline">
-                  {journeyOrigin && journeyDest
-                    ? `${journeyOrigin} → ${journeyDest}`
-                    : t.common.findRoute}
-                </span>
-                <span className="text-xs font-medium text-slate-300 sm:hidden">{t.common.route}</span>
+                {plannedJourney ? (
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+                    <span className="font-semibold text-white truncate max-w-[90px] sm:max-w-[120px]">
+                      {plannedJourney.originStop.name}
+                    </span>
+                    <ArrowRight className="w-3 h-3 text-slate-500 shrink-0" />
+                    <div className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]" />
+                    <span className="font-semibold text-white truncate max-w-[90px] sm:max-w-[120px]">
+                      {plannedJourney.destinationStop.name}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hidden sm:inline">
+                      {plannedJourney.distanceKm} km
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-medium text-slate-300 hidden sm:inline">
+                      {t.common.findRoute}
+                    </span>
+                    <span className="text-xs font-medium text-slate-300 sm:hidden">{t.common.route}</span>
+                  </>
+                )}
               </motion.button>
             )}
           </AnimatePresence>
-
         </div>
 
         {/* Floating Crowdsource Feed Drawer */}
@@ -368,7 +528,13 @@ export default function Home() {
 
       {/* 7. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
-        onOpenAI={() => setIsAIModalOpen(true)}
+        onOpenAI={() => {
+          if (plannedJourney) {
+            handleRefineWithAI();
+          } else {
+            setIsAIModalOpen(true);
+          }
+        }}
         onOpenStatus={() => setIsStatusDrawerOpen(true)}
         onOpenJourney={() => setIsJourneyExpanded(true)}
       />
