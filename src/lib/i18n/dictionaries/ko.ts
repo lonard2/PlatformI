@@ -868,6 +868,12 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     viewTelemetryFor: "텔레메트리 보기:",
     closeTelemetryDialog: "텔레메트리 대화상자 닫기",
     closeAddVehicleDialog: "차량 추가 대화상자 닫기",
+    sevCritical: "심각",
+    sevWarning: "경고",
+    sevInfo: "정보",
+    pausedLabel: "일시중지",
+    ariaStatusFor: "운행 상태:",
+    ariaCrowdFor: "혼잡도:",
   },
 };
 

@@ -877,6 +877,11 @@ export interface TranslationDictionary {
     viewTelemetryFor: string;
     closeTelemetryDialog: string;
     closeAddVehicleDialog: string;
-
+    sevCritical: string;
+    sevWarning: string;
+    sevInfo: string;
+    pausedLabel: string;
+    ariaStatusFor: string;
+    ariaCrowdFor: string;
   };
 }

@@ -868,6 +868,12 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     viewTelemetryFor: "テレメトリを表示:",
     closeTelemetryDialog: "テレメトリダイアログを閉じる",
     closeAddVehicleDialog: "車両追加ダイアログを閉じる",
+    sevCritical: "重大",
+    sevWarning: "警告",
+    sevInfo: "情報",
+    pausedLabel: "一時停止",
+    ariaStatusFor: "運行状況:",
+    ariaCrowdFor: "混雑状況:",
   },
 };
 

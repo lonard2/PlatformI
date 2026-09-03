@@ -868,6 +868,12 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     viewTelemetryFor: "查看遥测：",
     closeTelemetryDialog: "关闭遥测对话框",
     closeAddVehicleDialog: "关闭添加车辆对话框",
+    sevCritical: "严重",
+    sevWarning: "警告",
+    sevInfo: "信息",
+    pausedLabel: "已暂停",
+    ariaStatusFor: "运营状态：",
+    ariaCrowdFor: "拥挤度：",
   },
 };
 

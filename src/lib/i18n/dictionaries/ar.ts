@@ -868,6 +868,12 @@ export const ar: TranslationDictionary = {
     viewTelemetryFor: "عرض قياسات لـ",
     closeTelemetryDialog: "إغلاق حوار القياسات",
     closeAddVehicleDialog: "إغلاق حوار إضافة مركبة",
+    sevCritical: "حرج",
+    sevWarning: "تحذير",
+    sevInfo: "معلومات",
+    pausedLabel: "متوقف مؤقتًا",
+    ariaStatusFor: "الحالة التشغيلية لـ",
+    ariaCrowdFor: "كثافة الركاب لـ",
   },
 };
 

@@ -868,6 +868,12 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     viewTelemetryFor: "View telemetry for",
     closeTelemetryDialog: "Close telemetry dialog",
     closeAddVehicleDialog: "Close add vehicle dialog",
+    sevCritical: "Critical",
+    sevWarning: "Warning",
+    sevInfo: "Info",
+    pausedLabel: "Paused",
+    ariaStatusFor: "Operating status for",
+    ariaCrowdFor: "Crowd density for",
   },
 };
 

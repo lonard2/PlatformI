@@ -868,6 +868,12 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     viewTelemetryFor: "Lihat telemetri untuk",
     closeTelemetryDialog: "Tutup dialog telemetri",
     closeAddVehicleDialog: "Tutup dialog tambah kendaraan",
+    sevCritical: "Kritis",
+    sevWarning: "Peringatan",
+    sevInfo: "Info",
+    pausedLabel: "Dijeda",
+    ariaStatusFor: "Status operasional untuk",
+    ariaCrowdFor: "Kepadatan penumpang untuk",
   },
 };
 
