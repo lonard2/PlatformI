@@ -227,5 +227,27 @@ describe("Milestone 5: React UI Components Integration", () => {
       fireEvent.click(aiBtn);
       expect(onOpenAIMock).toHaveBeenCalled();
     });
+
+    it("handles isAIOpen active state and triggers onCloseAI when returning to Map", () => {
+      const onOpenAIMock = vi.fn();
+      const onCloseAIMock = vi.fn();
+      const onOpenStatusMock = vi.fn();
+
+      render(
+        <MobileBottomNav
+          onOpenAI={onOpenAIMock}
+          onCloseAI={onCloseAIMock}
+          onOpenStatus={onOpenStatusMock}
+          isAIOpen={true}
+        />
+      );
+
+      const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
+      expect(aiBtn).toHaveAttribute("aria-pressed", "true");
+
+      const mapBtn = screen.getByRole("button", { name: /Track on Map|Lacak di Peta|Live Map|Peta/i });
+      fireEvent.click(mapBtn);
+      expect(onCloseAIMock).toHaveBeenCalled();
+    });
   });
 });

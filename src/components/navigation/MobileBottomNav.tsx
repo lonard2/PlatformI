@@ -22,11 +22,19 @@ import { useTranslation } from "@/lib/i18n";
 
 interface MobileBottomNavProps {
   onOpenAI: () => void;
+  onCloseAI?: () => void;
   onOpenStatus: () => void;
   onOpenJourney?: () => void;
+  isAIOpen?: boolean;
 }
 
-export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: MobileBottomNavProps) {
+export function MobileBottomNav({
+  onOpenAI,
+  onCloseAI,
+  onOpenStatus,
+  onOpenJourney,
+  isAIOpen = false,
+}: MobileBottomNavProps) {
   const { t } = useTranslation();
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
@@ -35,17 +43,21 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
   const isWalletActive = activeDrawer === "tickets";
   const isCrowdsourceActive = activeDrawer === "crowdsource";
   const isStatusActive = activeDrawer === "alerts";
+  const isMapActive = !activeDrawer && !isAIOpen;
 
   const handleMapClick = () => {
     setActiveDrawer(null);
     clearSelection();
+    onCloseAI?.();
   };
 
   const handleWalletClick = () => {
+    onCloseAI?.();
     setActiveDrawer(isWalletActive ? null : "tickets");
   };
 
   const handleCrowdsourceClick = () => {
+    onCloseAI?.();
     setActiveDrawer(isCrowdsourceActive ? null : "crowdsource");
   };
 
@@ -58,7 +70,7 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
       <button
         onClick={handleMapClick}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
-          !activeDrawer
+          isMapActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
@@ -122,10 +134,17 @@ export function MobileBottomNav({ onOpenAI, onOpenStatus, onOpenJourney }: Mobil
         onClick={onOpenAI}
         aria-label={t.navigation.aiAdvisor}
         title={t.navigation.aiAdvisor}
+        aria-pressed={isAIOpen}
         className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-center min-w-[44px] min-h-[48px] px-1 py-1 rounded-xl transition-all active:scale-95 shrink-0"
       >
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-b from-cyan-500/20 to-blue-600/25 border border-cyan-400/40 hover:border-cyan-300 text-cyan-300 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.25)] transition-all">
-          <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
+        <div
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all ${
+            isAIOpen
+              ? "bg-cyan-500/30 border border-cyan-300 text-white shadow-[0_0_16px_rgba(6,182,212,0.6)] ring-1 ring-cyan-400/50 scale-105"
+              : "bg-gradient-to-b from-cyan-500/20 to-blue-600/25 border border-cyan-400/40 hover:border-cyan-300 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+          }`}
+        >
+          <Sparkles className={`w-4 h-4 text-cyan-300 ${isAIOpen ? "" : "animate-pulse"}`} />
         </div>
       </button>
     </nav>

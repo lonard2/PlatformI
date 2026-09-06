@@ -529,14 +529,25 @@ export default function Home() {
       {/* 7. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
         onOpenAI={() => {
-          if (plannedJourney) {
+          if (isAIModalOpen || activeDrawer === "ai") {
+            setIsAIModalOpen(false);
+            if (activeDrawer === "ai") setActiveDrawer(null);
+          } else if (plannedJourney) {
             handleRefineWithAI();
           } else {
             setIsAIModalOpen(true);
           }
         }}
-        onOpenStatus={() => setIsStatusDrawerOpen(true)}
+        onCloseAI={() => {
+          setIsAIModalOpen(false);
+          if (activeDrawer === "ai") setActiveDrawer(null);
+        }}
+        onOpenStatus={() => {
+          setIsAIModalOpen(false);
+          setIsStatusDrawerOpen(true);
+        }}
         onOpenJourney={() => setIsJourneyExpanded(true)}
+        isAIOpen={isAIModalOpen || activeDrawer === "ai"}
       />
     </main>
   );
