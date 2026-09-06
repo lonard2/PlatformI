@@ -112,14 +112,28 @@ function getSectorShortTitle(category: TransitCategory, t: TranslationDictionary
 // so the dot language is taught on touch devices, not hover-only.
 function getShortStatusLabel(status: ServiceOperatingStatus, t: TranslationDictionary): string {
   switch (status) {
+    case "NORMAL":
+      return t.navigation.serviceNormal;
     case "LIMITED":
       return t.navigation.serviceLimited;
     case "SUSPENDED":
       return t.navigation.serviceSuspended;
     case "OFF_HOURS":
       return t.navigation.serviceOffHours;
-    default:
-      return t.navigation.serviceLimited;
+  }
+}
+
+// Localized full status phrases keyed off ServiceOperatingStatus across 6 locales.
+function getLocalizedStatusPhrase(status: ServiceOperatingStatus, t: TranslationDictionary): string {
+  switch (status) {
+    case "NORMAL":
+      return t.navigation.serviceNormalPhrase;
+    case "LIMITED":
+      return t.navigation.serviceLimitedPhrase;
+    case "SUSPENDED":
+      return t.navigation.serviceSuspendedPhrase;
+    case "OFF_HOURS":
+      return t.navigation.serviceOffHoursPhrase;
   }
 }
 
@@ -132,11 +146,11 @@ const STATUS_COLORS: Record<ServiceOperatingStatus, { color: string; glow: strin
   OFF_HOURS: { color: "#64748b", glow: "none" },
 };
 
-const TRAY_STATUS_STYLES: Record<ServiceOperatingStatus, { bg: string; border: string; text: string }> = {
-  NORMAL: { bg: "#064e3b", border: "#10b981", text: "#6ee7b7" },
-  LIMITED: { bg: "#78350f", border: "#f59e0b", text: "#fcd34d" },
-  SUSPENDED: { bg: "#4c0519", border: "#f43f5e", text: "#fda4af" },
-  OFF_HOURS: { bg: "#334155", border: "#64748b", text: "#cbd5e1" },
+const TRAY_STATUS_CLASSES: Record<ServiceOperatingStatus, string> = {
+  NORMAL: "bg-emerald-950/80 border-emerald-500/50 text-emerald-300",
+  LIMITED: "bg-amber-950/80 border-amber-500/50 text-amber-300",
+  SUSPENDED: "bg-rose-950/80 border-rose-500/50 text-rose-300",
+  OFF_HOURS: "bg-slate-900/90 border-slate-700 text-slate-300",
 };
 
 export const SYSTEM_GROUPS: TransitSystemGroup[] = [
@@ -1143,12 +1157,15 @@ export function TransportationSystemBar() {
                         return (
                           <motion.button
                             key={item.id}
+                            id={`system-item-${item.id}`}
+                            aria-expanded={isSelected}
+                            aria-controls={`system-tray-${item.id}`}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.96 }}
                             onClick={(e) => handleItemToggle(item, e)}
                             onMouseEnter={(e) => handleItemMouseEnter(item, e)}
                             onMouseLeave={handleItemMouseLeave}
-                            title={`${item.name} - ${item.statusReason}`}
+                            title={`${item.name} - ${getLocalizedStatusPhrase(item.status, t)}`}
                             className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-200 shrink-0 ${
                               isSelected
                                 ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30 scale-105"
@@ -1191,8 +1208,8 @@ export function TransportationSystemBar() {
                               {/* Live Operational Status Dot */}
                               <span
                                 role="img"
-                                aria-label={item.statusReason}
-                                title={`Status: ${item.statusReason}`}
+                                aria-label={getLocalizedStatusPhrase(item.status, t)}
+                                title={`Status: ${getLocalizedStatusPhrase(item.status, t)}`}
                                 className={`w-2 h-2 rounded-full shrink-0 ${item.status === "NORMAL" || item.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
                                 style={{
                                   backgroundColor: STATUS_COLORS[item.status].color,
@@ -1297,7 +1314,7 @@ export function TransportationSystemBar() {
                       boxShadow: STATUS_COLORS[hoveredItem.status].glow,
                     }}
                   />
-                  <span className="truncate">{hoveredItem.statusReason}</span>
+                  <span className="truncate">{getLocalizedStatusPhrase(hoveredItem.status, t)}</span>
                 </div>
               </div>
             </div>
@@ -1314,10 +1331,25 @@ export function TransportationSystemBar() {
       <AnimatePresence>
         {activeItem && (
           <motion.div
+            key={activeItem.id}
+            id={`system-tray-${activeItem.id}`}
+            role="region"
+            aria-labelledby={`system-item-${activeItem.id}`}
+            tabIndex={-1}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.stopPropagation();
+                const triggerId = `system-item-${activeItem.id}`;
+                setActiveItemId(null);
+                setTimeout(() => {
+                  document.getElementById(triggerId)?.focus();
+                }, 50);
+              }
+            }}
             className="w-full border-t border-cyan-500/30 bg-[var(--glass-chrome)] backdrop-blur-2xl shadow-2xl overflow-hidden p-4 sm:p-5 text-slate-100"
           >
             <div className="max-w-6xl mx-auto space-y-4 max-h-[45vh] overflow-y-auto pr-1">
@@ -1345,15 +1377,10 @@ export function TransportationSystemBar() {
                         {activeItem.badgeLabel}
                       </span>
                       <span
-                        className="text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1"
-                        style={{
-                          backgroundColor: TRAY_STATUS_STYLES[activeItem.status].bg,
-                          borderColor: TRAY_STATUS_STYLES[activeItem.status].border,
-                          color: TRAY_STATUS_STYLES[activeItem.status].text,
-                        }}
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${TRAY_STATUS_CLASSES[activeItem.status]}`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {activeItem.statusReason}
+                        {getLocalizedStatusPhrase(activeItem.status, t)}
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
@@ -1404,7 +1431,13 @@ export function TransportationSystemBar() {
                   )}
 
                   <button
-                    onClick={() => setActiveItemId(null)}
+                    onClick={() => {
+                      const triggerId = `system-item-${activeItem.id}`;
+                      setActiveItemId(null);
+                      setTimeout(() => {
+                        document.getElementById(triggerId)?.focus();
+                      }, 50);
+                    }}
                     className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
                     title={t.common.close}
                     aria-label={t.common.close}
@@ -1435,6 +1468,7 @@ export function TransportationSystemBar() {
                       <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
+                        aria-label={t.navigation.searchRoutesAndHubs}
                         placeholder={t.navigation.searchRoutesAndHubs}
                         value={corridorSearchQuery}
                         onChange={(e) => setCorridorSearchQuery(e.target.value)}
@@ -1488,8 +1522,19 @@ export function TransportationSystemBar() {
                                 {corridor.headwayMinutes} {t.common.minutes}
                               </span>
                             </div>
-                            <div className="text-emerald-400 font-semibold truncate">
-                              {corridor.fareText}
+                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                              <span className="text-emerald-400 font-semibold truncate">
+                                {corridor.fareText}
+                              </span>
+                              <span
+                                role="img"
+                                aria-label={getLocalizedStatusPhrase(corridor.status, t)}
+                                title={getLocalizedStatusPhrase(corridor.status, t)}
+                                className={`text-[10px] font-mono px-1.5 py-0.5 rounded border flex items-center gap-1 shrink-0 ${TRAY_STATUS_CLASSES[corridor.status]}`}
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                {getShortStatusLabel(corridor.status, t)}
+                              </span>
                             </div>
                           </div>
                         </div>

@@ -192,6 +192,28 @@ describe("Milestone 5: React UI Components Integration", () => {
         expect(useTransitStore.getState().selectedStopId).toBe("stop-akap-pgb");
       }
     });
+
+    it("manages tray disclosure accessibility (aria-expanded, aria-controls, id, Escape key)", () => {
+      render(<TransportationSystemBar />);
+      const mrtBtn = screen.getByText("MRT Jakarta").closest("button");
+      expect(mrtBtn).toBeInTheDocument();
+      expect(mrtBtn).toHaveAttribute("id", "system-item-sys-mrt");
+      expect(mrtBtn).toHaveAttribute("aria-controls", "system-tray-sys-mrt");
+      expect(mrtBtn).toHaveAttribute("aria-expanded", "false");
+
+      // Click to open tray
+      fireEvent.click(mrtBtn!);
+      expect(mrtBtn).toHaveAttribute("aria-expanded", "true");
+
+      // Tray region is rendered with correct id and aria-labelledby
+      const tray = screen.getByRole("region");
+      expect(tray).toHaveAttribute("id", "system-tray-sys-mrt");
+      expect(tray).toHaveAttribute("aria-labelledby", "system-item-sys-mrt");
+
+      // Press Escape to close tray
+      fireEvent.keyDown(tray, { key: "Escape" });
+      expect(mrtBtn).toHaveAttribute("aria-expanded", "false");
+    });
   });
 
   describe("7. MobileBottomNav Component", () => {
