@@ -42,6 +42,14 @@ describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
         expect(dict.navigation.allModes).toBeTruthy();
         expect(dict.navigation.railModes).toBeTruthy();
         expect(dict.navigation.busModes).toBeTruthy();
+        expect(dict.navigation.serviceNormal).toBeTruthy();
+        expect(dict.navigation.serviceLimited).toBeTruthy();
+        expect(dict.navigation.serviceSuspended).toBeTruthy();
+        expect(dict.navigation.serviceOffHours).toBeTruthy();
+        expect(dict.navigation.serviceNormalPhrase).toBeTruthy();
+        expect(dict.navigation.serviceLimitedPhrase).toBeTruthy();
+        expect(dict.navigation.serviceSuspendedPhrase).toBeTruthy();
+        expect(dict.navigation.serviceOffHoursPhrase).toBeTruthy();
 
         // Status Center & Calendar keys
         expect(dict.statusCenter.title).toBeTruthy();

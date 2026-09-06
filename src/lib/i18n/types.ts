@@ -145,9 +145,14 @@ export interface TranslationDictionary {
     noMatchingRoutes: string;
     toggleSectorMap: string;
     resetMap: string;
+    serviceNormal: string;
     serviceLimited: string;
     serviceSuspended: string;
     serviceOffHours: string;
+    serviceNormalPhrase: string;
+    serviceLimitedPhrase: string;
+    serviceSuspendedPhrase: string;
+    serviceOffHoursPhrase: string;
     hubBadge: string;
     sectorRail: string;
     sectorBus: string;
