@@ -28,6 +28,7 @@ import {
   Vehicle,
   VehicleOperationalStatus,
   TransitCategory,
+  TransitMode,
   CrowdDensityLevel,
 } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -43,6 +44,152 @@ interface PendingFleetUndo {
   previousSpeedKmh?: number;
   label: string;
   expiry: number;
+}
+
+interface ModeSpecOption {
+  value: string;
+  label: string;
+}
+
+function getSpecsForMode(
+  mode: TransitMode | string | undefined,
+  category: TransitCategory | string | undefined
+): { coachbuilders: ModeSpecOption[]; chassises: ModeSpecOption[] } {
+  // 1. Urban & Regional Rail
+  if (
+    category === "RAIL" ||
+    mode === "MRT_JAKARTA" ||
+    mode === "LRT_JABODEBEK_CIBUBUR" ||
+    mode === "LRT_JABODEBEK_BEKASI" ||
+    mode === "LRT_JAKARTA" ||
+    mode === "KRL_BOGOR" ||
+    mode === "KRL_CIKARANG" ||
+    mode === "KRL_RANGKASBITUNG" ||
+    mode === "KRL_TANGERANG" ||
+    mode === "KRL_TANJUNG_PRIOK" ||
+    mode === "WHOOSH_HSR" ||
+    mode === "KAI_BANDARA" ||
+    mode === "KAI_INTERCITY"
+  ) {
+    return {
+      coachbuilders: [
+        { value: "Nippon Sharyo / J-TREC", label: "Nippon Sharyo 1067mm Rolling Stock" },
+        { value: "CRRC Qingdao Sifang", label: "CRRC KCIC400AF High-Speed EMU" },
+        { value: "PT INKA (Persero) Madiun", label: "PT INKA Stainless Steel Trainset" },
+        { value: "Hyundai Rotem / PT INKA", label: "Hyundai Rotem LRV EMU" },
+        { value: "Kawasaki Heavy Industries", label: "Kawasaki Heavy Industries EMU" },
+      ],
+      chassises: [
+        { value: "1500V DC EMU 6-Car Formation", label: "1500V DC EMU 6-Car Formation" },
+        { value: "1500V DC EMU 8-12 Car Trainset", label: "1500V DC Heavy Rail EMU" },
+        { value: "25kV AC 8-Car High-Speed Trainset", label: "25kV AC 8-Car High-Speed Trainset" },
+        { value: "750V DC Third-Rail LRV Trainset", label: "750V DC Third-Rail 2-Car LRV" },
+        { value: "GE CM20EMP / Co-Co Diesel-Electric", label: "GE CM20EMP Diesel-Electric Locomotive" },
+      ],
+    };
+  }
+
+  // 2. Mikrotrans (JakLingko Angkot / Minibus)
+  if (mode === "MIKROTRANS") {
+    return {
+      coachbuilders: [
+        { value: "Karoseri New Armada", label: "New Armada Grand Minibus AC" },
+        { value: "Karoseri Delima Mandiri", label: "Delima Mandiri MikroTrans" },
+        { value: "Karoseri Panca Tunggal", label: "Panca Tunggal Angkot AC" },
+      ],
+      chassises: [
+        { value: "Suzuki New Carry 1.5L", label: "Suzuki New Carry 1.5L" },
+        { value: "Daihatsu Gran Max 1.5L VVT-i", label: "Daihatsu Gran Max 1.5L" },
+        { value: "Wuling Formo 1.2L Standard", label: "Wuling Formo 1.2L" },
+        { value: "DFSK Gelora E Pure Electric", label: "DFSK Gelora E Electric Minivan" },
+      ],
+    };
+  }
+
+  // 3. Executive Shuttle / Travel
+  if (mode === "EXECUTIVE_SHUTTLE") {
+    return {
+      coachbuilders: [
+        { value: "Baze Luxury Bus Interior", label: "Baze Luxury VIP Lounge" },
+        { value: "Karoseri Laksana (Tourista Executive)", label: "Laksana Tourista Executive" },
+        { value: "Somagede / Baze Special Vehicle", label: "Somagede Executive Shuttle" },
+      ],
+      chassises: [
+        { value: "Toyota HiAce Premio 2.8L Turbo Diesel", label: "Toyota HiAce Premio 2.8L" },
+        { value: "Toyota HiAce Commuter 2.5L Diesel", label: "Toyota HiAce Commuter 2.5L" },
+        { value: "Mercedes-Benz Sprinter 315 CDI", label: "Mercedes-Benz Sprinter 315 CDI" },
+        { value: "Isuzu Elf Microbus Long 2.8L", label: "Isuzu Elf NQR Long" },
+      ],
+    };
+  }
+
+  // 4. AKAP Intercity Bus
+  if (mode === "AKAP_INTERCITY_BUS") {
+    return {
+      coachbuilders: [
+        { value: "Karoseri Adiputro (Jetbus 5 Super Double Decker)", label: "Adiputro Jetbus 5 SDD" },
+        { value: "Karoseri Laksana (Legacy SR3 Suites Family Edition)", label: "Laksana Legacy SR3 Suites" },
+        { value: "Karoseri Tentrem (Avante D2 Double Decker)", label: "Tentrem Avante D2" },
+        { value: "Karoseri Morodadi Prima (Grand Vega)", label: "Morodadi Prima Grand Vega" },
+        { value: "Karoseri Nusantara Gemilang (Cityliner DD)", label: "Nusantara Gemilang Aluminium DD" },
+      ],
+      chassises: [
+        { value: "Mercedes-Benz OC 500 RF 2542 6x2 Triple-Axle", label: "Mercedes-Benz OC 500 RF 2542" },
+        { value: "Scania K410IB 6x2*4 Opticruise", label: "Scania K410IB 6x2*4" },
+        { value: "Volvo B11R 430 HP 6x2 I-Shift", label: "Volvo B11R 430 HP" },
+        { value: "Mercedes-Benz OH 1626 Air Suspension", label: "Mercedes-Benz OH 1626" },
+        { value: "Hino RN 285 Air Suspension", label: "Hino RN 285" },
+      ],
+    };
+  }
+
+  // 5. Aviation
+  if (category === "AVIATION" || mode === "AIRPORT_COMMERCIAL") {
+    return {
+      coachbuilders: [
+        { value: "The Boeing Company (Renton, USA)", label: "Boeing Commercial Airplanes" },
+        { value: "Airbus S.A.S. (Toulouse / Hamburg)", label: "Airbus Commercial Aircraft" },
+      ],
+      chassises: [
+        { value: "Boeing 737-800 Next Generation Twin-Jet", label: "Boeing 737-800 NG" },
+        { value: "Airbus A320-200ceo Twin-Jet Narrow-Body", label: "Airbus A320-200" },
+        { value: "Airbus A330-900neo Twin-Aisle Wide-Body", label: "Airbus A330-900neo" },
+      ],
+    };
+  }
+
+  // 6. Maritime
+  if (category === "MARITIME" || mode === "MARITIME_SPEEDBOAT" || mode === "MARITIME_PELNI") {
+    return {
+      coachbuilders: [
+        { value: "PT PAL Marine Craft Aluminium (Surabaya)", label: "PT PAL Marine Craft" },
+        { value: "Meyer Werft Papenburg (Germany)", label: "Meyer Werft" },
+        { value: "Galangan Kapal Marina Ancol (Jakarta)", label: "Marina Ancol Boatyard" },
+      ],
+      chassises: [
+        { value: "Twin Yamaha 300 HP 4-Stroke V6 Outboards", label: "Twin Yamaha 300 HP Outboards" },
+        { value: "Quad Suzuki 300 HP Electronic Fuel Injection", label: "Quad Suzuki 300 HP EFI" },
+        { value: "MAN B&W 6L28/32A Marine Turbo-Diesel", label: "MAN B&W Marine Turbo-Diesel" },
+      ],
+    };
+  }
+
+  // 7. Default: City Buses (TransJakarta BRT / Non-BRT)
+  return {
+    coachbuilders: [
+      { value: "Laksana (Cityline 3 Articulated BRT)", label: "Laksana Cityline 3 BRT" },
+      { value: "Karoseri Tentrem (Velocity W5 Low-Entry)", label: "Tentrem Velocity W5 Low-Entry" },
+      { value: "Karoseri Nusantara Gemilang (Cityliner Low-Entry)", label: "Nusantara Gemilang Maxi" },
+      { value: "Adiputro Karoseri (Cityliner BRT)", label: "Adiputro Cityliner BRT" },
+    ],
+    chassises: [
+      { value: "Scania K310IB 6x2*4 Articulated BRT", label: "Scania K310IB 6x2*4 Articulated" },
+      { value: "Scania K250UB 4x2 Low-Entry Euro 6", label: "Scania K250UB 4x2 Low-Entry" },
+      { value: "Mercedes-Benz OH 1626 NG Air Suspension", label: "Mercedes-Benz OH 1626 NG" },
+      { value: "BYD B12 Pure Electric Low-Entry", label: "BYD B12 Pure Electric" },
+      { value: "Hino RK8 R260 Heavy-Duty BRT", label: "Hino RK8 R260" },
+    ],
+  };
 }
 
 export default function FleetManagementPage() {
@@ -190,9 +337,31 @@ function FleetManagementContent() {
   const [newLineId, setNewLineId] = useState<string>(allLines[0]?.id || "line-mrt-ns");
   const [newVehicleCode, setNewVehicleCode] = useState<string>("");
   const [newName, setNewName] = useState<string>("");
-  const [newCoachbuilder, setNewCoachbuilder] = useState<string>("Laksana Karoseri");
-  const [newChassis, setNewChassis] = useState<string>("Scania K250UB 4x2");
   const [newSpeed, setNewSpeed] = useState<number>(45);
+
+  const selectedLineForAdd = useMemo(() => {
+    return allLines.find((l) => l.id === newLineId) || allLines[0];
+  }, [allLines, newLineId]);
+
+  const modeSpecs = useMemo(() => {
+    return getSpecsForMode(selectedLineForAdd?.mode, selectedLineForAdd?.category);
+  }, [selectedLineForAdd?.mode, selectedLineForAdd?.category]);
+
+  const [newCoachbuilder, setNewCoachbuilder] = useState<string>(
+    () => modeSpecs.coachbuilders[0]?.value || "Laksana Karoseri"
+  );
+  const [newChassis, setNewChassis] = useState<string>(
+    () => modeSpecs.chassises[0]?.value || "Scania K250UB 4x2"
+  );
+
+  useEffect(() => {
+    if (!modeSpecs.coachbuilders.some((c) => c.value === newCoachbuilder)) {
+      setNewCoachbuilder(modeSpecs.coachbuilders[0]?.value || "");
+    }
+    if (!modeSpecs.chassises.some((c) => c.value === newChassis)) {
+      setNewChassis(modeSpecs.chassises[0]?.value || "");
+    }
+  }, [modeSpecs]);
 
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
@@ -1036,12 +1205,11 @@ function FleetManagementContent() {
                     onChange={(e) => setNewCoachbuilder(e.target.value)}
                     className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   >
-                    <option value="Laksana Karoseri">Laksana Cityline 3</option>
-                    <option value="Adiputro Karoseri">Adiputro Jetbus 5 SDD</option>
-                    <option value="Tentrem Karoseri">Tentrem Velocity W5</option>
-                    <option value="Nippon Sharyo / J-TREC">Nippon Sharyo 1067mm</option>
-                    <option value="CRRC Qingdao Sifang">CRRC KCIC400AF High-Speed</option>
-                    <option value="PT INKA / Hyundai Rotem">PT INKA / Hyundai Rotem</option>
+                    {modeSpecs.coachbuilders.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -1052,12 +1220,11 @@ function FleetManagementContent() {
                     onChange={(e) => setNewChassis(e.target.value)}
                     className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   >
-                    <option value="Scania K250UB 4x2 Low-Entry">Scania K250UB 4x2</option>
-                    <option value="Mercedes-Benz OH 1626 Air Suspension">Mercedes-Benz OH 1626</option>
-                    <option value="Mercedes-Benz OC 500 RF 2542 6x2">Mercedes-Benz OC 500 RF</option>
-                    <option value="BYD B12 Pure Electric">BYD B12 Pure Electric</option>
-                    <option value="1500V DC EMU 6-Car Formation">1500V DC EMU 6-Car</option>
-                    <option value="25kV AC 8-Car High-Speed Trainset">25kV AC 8-Car Trainset</option>
+                    {modeSpecs.chassises.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

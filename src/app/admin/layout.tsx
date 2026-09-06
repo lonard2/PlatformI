@@ -100,13 +100,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (e.key === "?" || (e.shiftKey && e.key === "?")) {
         e.preventDefault();
         setIsHelpOpen((prev) => !prev);
-      } else if (e.key === "1") {
+      } else if (e.code === "Digit1" || e.code === "Numpad1" || e.key === "1") {
         router.push("/admin");
-      } else if (e.key === "2") {
+      } else if (e.code === "Digit2" || e.code === "Numpad2" || e.key === "2") {
         router.push("/admin/fleet");
-      } else if (e.key === "3") {
+      } else if (e.code === "Digit3" || e.code === "Numpad3" || e.key === "3") {
         router.push("/admin/alerts");
-      } else if (e.key === "4") {
+      } else if (e.code === "Digit4" || e.code === "Numpad4" || e.key === "4") {
         router.push("/admin/scanner");
       } else if (e.key === "/") {
         e.preventDefault();

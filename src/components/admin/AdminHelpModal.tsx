@@ -113,11 +113,11 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 px-5 pt-3 border-b border-white/10 bg-slate-950/40 shrink-0">
+        <div className="flex items-center gap-1 px-5 pt-3 border-b border-white/10 bg-slate-950/40 shrink-0 overflow-x-auto no-scrollbar scroll-smooth">
           <button
             type="button"
             onClick={() => setActiveTab("SHORTCUTS")}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === "SHORTCUTS"
                 ? "border-cyan-400 text-cyan-300 bg-slate-900/60"
                 : "border-transparent text-slate-400 hover:text-slate-200"
@@ -130,7 +130,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab("TRIAGE")}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === "TRIAGE"
                 ? "border-amber-400 text-amber-300 bg-slate-900/60"
                 : "border-transparent text-slate-400 hover:text-slate-200"
@@ -143,7 +143,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab("OPS")}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === "OPS"
                 ? "border-emerald-400 text-emerald-300 bg-slate-900/60"
                 : "border-transparent text-slate-400 hover:text-slate-200"
@@ -156,7 +156,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab("SHIFTLOG")}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === "SHIFTLOG"
                 ? "border-teal-400 text-teal-300 bg-slate-900/60"
                 : "border-transparent text-slate-400 hover:text-slate-200"
@@ -384,7 +384,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${
+                            className={`text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${
                               entry.actionType === "ALERT_ESCALATE"
                                 ? "bg-rose-950 text-rose-300 border-rose-500/40"
                                 : entry.actionType === "ALERT_RESOLVE"
