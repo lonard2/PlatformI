@@ -600,6 +600,7 @@ export const ar: TranslationDictionary = {
     journeyTransfer: "مسار بمحولة واحدة",
     journeyPlotted: "تم رسم المسار",
     journeyHint: "اختر محطات صالحة لمعاينة دبابيس المسار والخطوط المرشحة على الخريطة.",
+    journeyNoMatch: "لم يتم العثور على محطة مطابقة لـ {field}. تحقق من صحة الاسم أو اختر من القائمة.",
     clearRoute: "مسح المسار",
     swapStops: "تبديل الأصل والوجهة",
     mapZoomIn: "تكبير",

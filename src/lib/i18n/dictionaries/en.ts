@@ -600,6 +600,7 @@ export const en: TranslationDictionary = {
     journeyTransfer: "1-Transfer Route",
     journeyPlotted: "Route Plotted",
     journeyHint: "Select valid stations to preview route pins and candidate lines on the map.",
+    journeyNoMatch: "No matching station found for {field}. Check spelling or pick from the list.",
     clearRoute: "Clear route",
     swapStops: "Swap origin and destination",
     mapZoomIn: "Zoom In",

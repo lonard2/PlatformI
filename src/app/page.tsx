@@ -24,6 +24,7 @@ import {
   ArrowUpDown,
   ArrowRight,
   RotateCcw,
+  AlertTriangle,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -78,6 +79,8 @@ export default function Home() {
   const [journeyDest, setJourneyDest] = useState<string>("");
   const [journeyQuery, setJourneyQuery] = useState<string | null>(null);
   const journeyPanelRef = useRef<HTMLDivElement>(null);
+  const journeyPillRef = useRef<HTMLButtonElement>(null);
+  const shouldRestorePillFocus = useRef<boolean>(false);
 
   // P0 Journey-to-Map binding: resolve the deterministic route on a settled
   // input (300ms) — never per keystroke, so pins and the camera stop thrashing
@@ -92,14 +95,6 @@ export default function Home() {
     }, 300);
     return () => clearTimeout(timer);
   }, [journeyOrigin, journeyDest, allStops, allLines, setPlannedJourney, clearPlannedJourney]);
-
-  // Journey panel focus: move into the panel on expand (house dialog grammar)
-  useEffect(() => {
-    if (isJourneyExpanded) {
-      const timer = setTimeout(() => journeyPanelRef.current?.focus(), 120);
-      return () => clearTimeout(timer);
-    }
-  }, [isJourneyExpanded]);
 
   // Deep link: hydrate from ?from=&to= on arrival, then mirror the journey
   // to the URL shallowly (replaceState, no RSC) so routes are shareable
@@ -156,6 +151,27 @@ export default function Home() {
     () => Array.from(new Set(allStops.map((s) => s.name))).sort(),
     [allStops]
   );
+
+  const originMismatch = useMemo(() => {
+    const trimmed = journeyOrigin.trim();
+    if (!trimmed) return false;
+    return !stopNames.some((name) => name.toLowerCase() === trimmed.toLowerCase());
+  }, [journeyOrigin, stopNames]);
+
+  const destMismatch = useMemo(() => {
+    const trimmed = journeyDest.trim();
+    if (!trimmed) return false;
+    return !stopNames.some((name) => name.toLowerCase() === trimmed.toLowerCase());
+  }, [journeyDest, stopNames]);
+
+  const failingField = useMemo(() => {
+    if (originMismatch && destMismatch) {
+      return `${t.common.origin} & ${t.common.destination}`;
+    }
+    if (originMismatch) return t.common.origin;
+    if (destMismatch) return t.common.destination;
+    return null;
+  }, [originMismatch, destMismatch, t.common.origin, t.common.destination]);
 
   const handleOpenCheckIn = (vehicleId?: string, lineId?: string) => {
     setCheckInTargetVehicleId(vehicleId || null);
@@ -276,15 +292,16 @@ export default function Home() {
                 onKeyDown={(e) => {
                   if (e.key === "Escape") {
                     e.stopPropagation();
+                    shouldRestorePillFocus.current = true;
                     setIsJourneyExpanded(false);
-                    document.getElementById("journey-pill")?.focus();
                   }
                 }}
+                onAnimationComplete={() => journeyPanelRef.current?.focus()}
                 initial={{ opacity: 0, scale: 0.95, y: -8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={springTransition}
-                className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] shadow-2xl shadow-black/60 space-y-3 border border-white/15"
+                className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] shadow-2xl shadow-black/60 space-y-3 border border-white/15 focus-visible:outline-none"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -294,6 +311,7 @@ export default function Home() {
                   <div className="flex items-center gap-1">
                     {(journeyOrigin || journeyDest) && (
                       <button
+                        type="button"
                         onClick={handleClearJourney}
                         aria-label={t.journey.clearRoute}
                         title={t.journey.clearRoute}
@@ -303,9 +321,10 @@ export default function Home() {
                       </button>
                     )}
                     <button
+                      type="button"
                       onClick={() => {
+                        shouldRestorePillFocus.current = true;
                         setIsJourneyExpanded(false);
-                        document.getElementById("journey-pill")?.focus();
                       }}
                       aria-label={t.common.close}
                       className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition"
@@ -338,7 +357,11 @@ export default function Home() {
                       placeholder={t.common.origin}
                       value={journeyOrigin}
                       onChange={(e) => setJourneyOrigin(e.target.value)}
-                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition"
+                      className={`w-full bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
+                        originMismatch
+                          ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
+                          : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
+                      }`}
                     />
                   </div>
 
@@ -371,7 +394,11 @@ export default function Home() {
                       placeholder={t.common.destination}
                       value={journeyDest}
                       onChange={(e) => setJourneyDest(e.target.value)}
-                      className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition"
+                      className={`w-full bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
+                        destMismatch
+                          ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
+                          : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
+                      }`}
                     />
                   </div>
                 </div>
@@ -462,6 +489,11 @@ export default function Home() {
                       <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
                     </button>
                   </div>
+                ) : failingField ? (
+                  <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    <span>{t.journey.journeyNoMatch.replace("{field}", failingField)}</span>
+                  </div>
                 ) : (
                   <div className="p-2 rounded-xl bg-slate-950/40 border border-white/5 text-[11px] text-slate-400 text-center">
                     {t.journey.journeyHint}
@@ -476,6 +508,13 @@ export default function Home() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={springTransition}
                 id="journey-pill"
+                ref={journeyPillRef}
+                onAnimationComplete={() => {
+                  if (shouldRestorePillFocus.current) {
+                    journeyPillRef.current?.focus();
+                    shouldRestorePillFocus.current = false;
+                  }
+                }}
                 onClick={() => setIsJourneyExpanded(true)}
                 className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 btn-tactile transition-all cursor-pointer ${
                   plannedJourney ? "border-cyan-500/50 bg-slate-900/90" : "hover:border-cyan-500/40"
@@ -527,7 +566,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={drawerTransition}
-              className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-96 max-w-[calc(100vw-24px)]"
+              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-96 max-w-[calc(100vw-24px)]"
             >
               <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
             </motion.div>
@@ -551,7 +590,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={drawerTransition}
-              className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-[420px] max-w-[calc(100vw-24px)]"
+              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-[420px] max-w-[calc(100vw-24px)]"
             >
               <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
             </motion.div>

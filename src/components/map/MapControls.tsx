@@ -8,7 +8,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import L from "leaflet";
 import {
   Layers,
@@ -39,6 +39,27 @@ export function MapControls({ map }: MapControlsProps) {
   const resetViewport = useTransitStore((state) => state.resetViewport);
 
   const [tileMenuOpen, setTileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!tileMenuOpen) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setTileMenuOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setTileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [tileMenuOpen]);
 
   const handleZoomIn = () => {
     if (map) map.zoomIn();
@@ -58,13 +79,15 @@ export function MapControls({ map }: MapControlsProps) {
   return (
     <>
       {/* 1. TOP-RIGHT: Basemap Tile Switcher Dropdown */}
-      <div className="absolute top-4 right-4 z-[400]">
+      <div ref={menuRef} className="absolute top-4 right-4 z-[400]">
         <div className="relative">
           <button
             type="button"
             onClick={() => setTileMenuOpen(!tileMenuOpen)}
             aria-label={t.settings.basemapStyle}
-            className="glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40"
+            aria-haspopup="true"
+            aria-expanded={tileMenuOpen}
+            className="glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
             <span className="hidden sm:inline font-mono capitalize">{activeTileLayer}</span>

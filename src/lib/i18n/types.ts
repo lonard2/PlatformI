@@ -624,6 +624,7 @@ export interface TranslationDictionary {
     journeyTransfer: string;
     journeyPlotted: string;
     journeyHint: string;
+    journeyNoMatch: string;
     clearRoute: string;
     swapStops: string;
     mapZoomIn: string;

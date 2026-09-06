@@ -600,6 +600,7 @@ export const id: TranslationDictionary = {
     journeyTransfer: "Rute 1 Transit",
     journeyPlotted: "Rute Dipetakan",
     journeyHint: "Pilih stasiun yang valid untuk melihat pin rute dan kandidat jalur di peta.",
+    journeyNoMatch: "Stasiun tidak ditemukan untuk {field}. Periksa ejaan atau pilih dari daftar.",
     clearRoute: "Hapus rute",
     swapStops: "Tukar asal dan tujuan",
     mapZoomIn: "Perbesar",

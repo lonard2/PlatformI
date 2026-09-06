@@ -600,6 +600,7 @@ export const zh: TranslationDictionary = {
     journeyTransfer: "换乘 1 次路线",
     journeyPlotted: "已绘制到地图",
     journeyHint: "选择有效站点以在地图上预览路线图钉和候选线路。",
+    journeyNoMatch: "未找到与 {field} 匹配的车站。请检查拼写或从列表中选择。",
     clearRoute: "清除路线",
     swapStops: "交换起点和终点",
     mapZoomIn: "放大",

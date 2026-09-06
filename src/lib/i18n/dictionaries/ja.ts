@@ -600,6 +600,7 @@ export const ja: TranslationDictionary = {
     journeyTransfer: "乗換1回ルート",
     journeyPlotted: "地図にプロット済み",
     journeyHint: "有効な駅を選択すると、ルートのピンと候補路線が地図に表示されます。",
+    journeyNoMatch: "{field} に一致する駅が見つかりません。入力内容を確認するか、候補から選択してください。",
     clearRoute: "ルートをクリア",
     swapStops: "出発と到着を入れ替え",
     mapZoomIn: "拡大",

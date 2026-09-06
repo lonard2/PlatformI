@@ -600,6 +600,7 @@ export const ko: TranslationDictionary = {
     journeyTransfer: "환승 1회 노선",
     journeyPlotted: "지도에 표시됨",
     journeyHint: "유효한 역을 선택하면 지도에 경로 핀과 후보 노선이 표시됩니다.",
+    journeyNoMatch: "{field}에 해당하는 역을 찾을 수 없습니다. 철자를 확인하거나 목록에서 선택하세요.",
     clearRoute: "경로 지우기",
     swapStops: "출발지와 도착지 바꾸기",
     mapZoomIn: "확대",
