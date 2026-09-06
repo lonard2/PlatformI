@@ -10,8 +10,8 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   AlertTriangle,
   AlertCircle,
@@ -40,6 +40,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   onOpenStatusDrawer,
 }) => {
   const { t } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -48,10 +49,19 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [fetchFailed, setFetchFailed] = useState<boolean>(false);
 
+  const previousCriticalIdsRef = useRef<Set<string>>(
+    new Set(
+      DISRUPTION_ALERTS.filter((a) => a.severity === "CRITICAL" && a.status === "ACTIVE").map(
+        (a) => a.id
+      )
+    )
+  );
+
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
+  const setActiveAlerts = useTransitStore((state) => state.setActiveAlerts);
 
   const fetchAlerts = async (signal?: AbortSignal) => {
     try {
@@ -60,6 +70,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
         const data = (await res.json()) as { success: boolean; data: DisruptionAlert[] };
         if (data.success && data.data && data.data.length > 0) {
           setAlerts(data.data);
+          setActiveAlerts(data.data);
           setLastFetchTime(new Date());
           setFetchFailed(false);
           return;
@@ -101,6 +112,24 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
       return () => clearTimeout(undoTimer);
     }
   }, [isUndoVisible]);
+
+  // Reset dismissal when new critical alerts arrive
+  useEffect(() => {
+    const currentCriticalAlerts = alerts.filter(
+      (a) => a.severity === "CRITICAL" && a.status === "ACTIVE"
+    );
+    const hasNewCritical = currentCriticalAlerts.some(
+      (a) => !previousCriticalIdsRef.current.has(a.id)
+    );
+
+    if (hasNewCritical && isDismissed) {
+      setIsDismissed(false);
+      setIsUndoVisible(false);
+      setCurrentIndex(0);
+    }
+
+    previousCriticalIdsRef.current = new Set(currentCriticalAlerts.map((a) => a.id));
+  }, [alerts, isDismissed]);
 
   const handleDismiss = () => {
     setIsUndoVisible(true);
@@ -206,7 +235,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          transition={{ type: "spring", damping: 28, stiffness: 300 }}
+          transition={shouldReduceMotion ? { duration: 0.1 } : { type: "spring", damping: 28, stiffness: 300 }}
           className="w-full px-3 sm:px-6 py-0.5 z-20"
         >
           {/* Thin Status Strip */}

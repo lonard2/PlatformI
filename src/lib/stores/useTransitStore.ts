@@ -13,6 +13,7 @@ import {
   Vehicle,
   Stop,
   Line,
+  DisruptionAlert,
 } from "@/types/transit";
 import {
   TRANSIT_MODE_CONFIG,
@@ -20,7 +21,7 @@ import {
   JAKARTA_MAP_CENTER,
   JAKARTA_DEFAULT_ZOOM,
 } from "@/lib/constants/modes";
-import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
+import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS, DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 
 export type TileLayerId = "dark" | "light" | "satellite" | "streets";
 export type DrawerType = "vehicle" | "hub" | "tickets" | "crowdsource" | "alerts" | "ai" | "settings" | null;
@@ -94,6 +95,8 @@ export interface TransitStoreState {
   setSearchQuery: (query: string) => void;
 
   // 11. Alerts
+  activeAlerts: DisruptionAlert[];
+  setActiveAlerts: (alerts: DisruptionAlert[]) => void;
   pinnedAlertId: string | null;
   setPinnedAlertId: (id: string | null) => void;
 
@@ -242,6 +245,8 @@ export const useTransitStore = create<TransitStoreState>((set, get) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
 
   // 11. Alerts
+  activeAlerts: DISRUPTION_ALERTS,
+  setActiveAlerts: (alerts) => set({ activeAlerts: alerts }),
   pinnedAlertId: "alert-001",
   setPinnedAlertId: (id) => set({ pinnedAlertId: id }),
 

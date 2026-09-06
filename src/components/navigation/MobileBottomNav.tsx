@@ -8,7 +8,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   MapPin,
   Activity,
@@ -26,6 +26,7 @@ interface MobileBottomNavProps {
   onOpenStatus: () => void;
   onOpenJourney?: () => void;
   isAIOpen?: boolean;
+  isJourneyOpen?: boolean;
 }
 
 export function MobileBottomNav({
@@ -34,11 +35,21 @@ export function MobileBottomNav({
   onOpenStatus,
   onOpenJourney,
   isAIOpen = false,
+  isJourneyOpen = false,
 }: MobileBottomNavProps) {
   const { t } = useTranslation();
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
   const clearSelection = useTransitStore((state) => state.clearSelection);
+  const activeAlerts = useTransitStore((state) => state.activeAlerts);
+
+  const highestSeverity: "CRITICAL" | "WARNING" | "INFO" | "NORMAL" = useMemo(() => {
+    const active = activeAlerts.filter((a) => a.status === "ACTIVE");
+    if (active.some((a) => a.severity === "CRITICAL")) return "CRITICAL";
+    if (active.some((a) => a.severity === "WARNING")) return "WARNING";
+    if (active.some((a) => a.severity === "INFO")) return "INFO";
+    return "NORMAL";
+  }, [activeAlerts]);
 
   const isWalletActive = activeDrawer === "tickets";
   const isCrowdsourceActive = activeDrawer === "crowdsource";
@@ -69,6 +80,8 @@ export function MobileBottomNav({
       {/* 1. PETA (MAP) */}
       <button
         onClick={handleMapClick}
+        aria-current={isMapActive ? "page" : undefined}
+        aria-pressed={isMapActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isMapActive
             ? "text-cyan-400 font-bold"
@@ -77,33 +90,54 @@ export function MobileBottomNav({
       >
         <MapPin className="w-5 h-5" />
         <span className="text-[11px] tracking-tight">{t.common.viewOnMap}</span>
+        {isMapActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 2. LAYANAN & STATUS (SERVICES) */}
       <button
         onClick={onOpenStatus}
+        aria-haspopup="dialog"
+        aria-expanded={isStatusActive}
+        aria-pressed={isStatusActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isStatusActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
       >
-        <Activity className="w-5 h-5" />
+        <div className="relative">
+          <Activity className="w-5 h-5" />
+          <span
+            className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+              highestSeverity === "CRITICAL"
+                ? "bg-rose-500 animate-pulse ring-2 ring-rose-950"
+                : highestSeverity === "WARNING"
+                ? "bg-amber-400 ring-2 ring-amber-950"
+                : "bg-emerald-400 ring-2 ring-emerald-950"
+            }`}
+          />
+        </div>
         <span className="text-[11px] tracking-tight">{t.statusCenter.tabLive}</span>
+        {isStatusActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 3. RUTE (JOURNEY) */}
       <button
         onClick={onOpenJourney}
+        aria-expanded={isJourneyOpen}
+        aria-pressed={isJourneyOpen}
         className="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
       >
         <Navigation className="w-5 h-5" />
         <span className="text-[11px] tracking-tight">{t.common.route}</span>
+        {isJourneyOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 4. TIKET (TICKETS / QR) */}
       <button
         onClick={handleWalletClick}
+        aria-haspopup="dialog"
+        aria-expanded={isWalletActive}
         aria-pressed={isWalletActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isWalletActive
@@ -113,11 +147,14 @@ export function MobileBottomNav({
       >
         <QrCode className="w-5 h-5" />
         <span className="text-[11px] tracking-tight">{t.navigation.ticketing}</span>
+        {isWalletActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 5. KOMUNITAS (CROWDSOURCE) */}
       <button
         onClick={handleCrowdsourceClick}
+        aria-haspopup="dialog"
+        aria-expanded={isCrowdsourceActive}
         aria-pressed={isCrowdsourceActive}
         className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isCrowdsourceActive
@@ -127,6 +164,7 @@ export function MobileBottomNav({
       >
         <Users className="w-5 h-5" />
         <span className="text-[11px] tracking-tight">{t.navigation.crowdsource}</span>
+        {isCrowdsourceActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 6. AI ADVISOR (COMPACT ICON-LED SLOT) */}
@@ -134,6 +172,8 @@ export function MobileBottomNav({
         onClick={onOpenAI}
         aria-label={t.navigation.aiAdvisor}
         title={t.navigation.aiAdvisor}
+        aria-haspopup="dialog"
+        aria-expanded={isAIOpen}
         aria-pressed={isAIOpen}
         className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-center min-w-[44px] min-h-[48px] px-1 py-1 rounded-xl transition-all active:scale-95 shrink-0"
       >

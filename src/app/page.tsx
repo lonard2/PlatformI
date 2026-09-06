@@ -8,7 +8,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, Transition } from "framer-motion";
 import {
   Train,
   Activity,
@@ -54,15 +54,30 @@ export default function Home() {
   const plannedJourney = useTransitStore((state) => state.plannedJourney);
   const setPlannedJourney = useTransitStore((state) => state.setPlannedJourney);
   const clearPlannedJourney = useTransitStore((state) => state.clearPlannedJourney);
+  const activeAlerts = useTransitStore((state) => state.activeAlerts);
 
-  // Modal states
+  const shouldReduceMotion = useReducedMotion();
+  const springTransition: Transition = shouldReduceMotion
+    ? { duration: 0.15 }
+    : { type: "spring", damping: 25, stiffness: 300 };
+  const drawerTransition: Transition = shouldReduceMotion
+    ? { duration: 0.15 }
+    : { type: "spring", damping: 25, stiffness: 280 };
+
+  const highestSeverity: "CRITICAL" | "WARNING" | "INFO" | "NORMAL" = useMemo(() => {
+    const active = activeAlerts.filter((a) => a.status === "ACTIVE");
+    if (active.some((a) => a.severity === "CRITICAL")) return "CRITICAL";
+    if (active.some((a) => a.severity === "WARNING")) return "WARNING";
+    if (active.some((a) => a.severity === "INFO")) return "INFO";
+    return "NORMAL";
+  }, [activeAlerts]);
+
+  // Modal / drawer trigger state
   const [isCheckInOpen, setIsCheckInOpen] = useState<boolean>(false);
   const [checkInTargetVehicleId, setCheckInTargetVehicleId] = useState<string | null>(null);
   const [checkInTargetLineId, setCheckInTargetLineId] = useState<string | null>(null);
   const [feedRefreshSignal, setFeedRefreshSignal] = useState<number>(0);
-  const [isAIModalOpen, setIsAIModalOpen] = useState<boolean>(false);
-  const [isStatusDrawerOpen, setIsStatusDrawerOpen] = useState<boolean>(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+
   // Journey pill state
   const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
   const [journeyOrigin, setJourneyOrigin] = useState<string>("");
@@ -90,7 +105,7 @@ export default function Home() {
       ? `${plannedJourney.transferOption.firstLine.code} → ${plannedJourney.transferOption.secondLine.code} via ${plannedJourney.transferOption.transferStop.name}`
       : "transit lines";
     setJourneyQuery(`Refine journey from ${origin} to ${dest} via ${lineSummary}. Calculate JakLingko fare cap, transfer guidance, and crowd recommendations.`);
-    setIsAIModalOpen(true);
+    setActiveDrawer("ai");
   };
 
   const handleSwapStops = () => {
@@ -133,15 +148,27 @@ export default function Home() {
         {/* Right Navigation (Desktop) */}
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => setIsStatusDrawerOpen(true)}
+            onClick={() => setActiveDrawer(activeDrawer === "alerts" ? null : "alerts")}
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "alerts"}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile transition"
           >
-            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <Activity
+              className={`w-3.5 h-3.5 ${
+                highestSeverity === "CRITICAL"
+                  ? "text-rose-400 animate-pulse"
+                  : highestSeverity === "WARNING"
+                  ? "text-amber-400"
+                  : "text-emerald-400"
+              }`}
+            />
             <span className="hidden sm:inline">{allLines.length} {t.navigation.activeLines}</span>
           </button>
 
           <button
-            onClick={() => setIsAIModalOpen(true)}
+            onClick={() => setActiveDrawer(activeDrawer === "ai" ? null : "ai")}
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "ai"}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
@@ -152,6 +179,8 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "crowdsource" ? null : "crowdsource")
             }
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "crowdsource"}
             aria-pressed={activeDrawer === "crowdsource"}
             className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "crowdsource"
@@ -167,6 +196,8 @@ export default function Home() {
             onClick={() =>
               setActiveDrawer(activeDrawer === "tickets" ? null : "tickets")
             }
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "tickets"}
             aria-pressed={activeDrawer === "tickets"}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
               activeDrawer === "tickets"
@@ -179,8 +210,10 @@ export default function Home() {
           </button>
 
           <button
-            onClick={() => setIsSettingsModalOpen(true)}
+            onClick={() => setActiveDrawer(activeDrawer === "settings" ? null : "settings")}
             aria-label={t.navigation.settings}
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "settings"}
             className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />
@@ -192,7 +225,7 @@ export default function Home() {
       <TransportationSystemBar />
 
       {/* 3. PRIORITY DISRUPTION NOTICES BANNER (COMPACT) */}
-      <DisruptionAlertBanner onOpenStatusDrawer={() => setIsStatusDrawerOpen(true)} />
+      <DisruptionAlertBanner onOpenStatusDrawer={() => setActiveDrawer("alerts")} />
 
       {/* 4. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
       <div className="flex-1 relative overflow-hidden flex">
@@ -207,7 +240,7 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.95, y: -8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                transition={springTransition}
                 className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 shadow-2xl shadow-black/60 space-y-3 border border-white/15"
               >
                 <div className="flex items-center justify-between">
@@ -389,7 +422,7 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                transition={springTransition}
                 onClick={() => setIsJourneyExpanded(true)}
                 className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 btn-tactile transition-all cursor-pointer ${
                   plannedJourney ? "border-cyan-500/50 bg-slate-900/90" : "hover:border-cyan-500/40"
@@ -431,7 +464,7 @@ export default function Home() {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
-              transition={{ type: "spring", damping: 25, stiffness: 280 }}
+              transition={drawerTransition}
               className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-96 max-w-[calc(100vw-24px)]"
             >
               <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
@@ -446,7 +479,7 @@ export default function Home() {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
-              transition={{ type: "spring", damping: 25, stiffness: 280 }}
+              transition={drawerTransition}
               className="absolute top-3 right-3 bottom-3 z-40 w-full sm:w-[420px] max-w-[calc(100vw-24px)]"
             >
               <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
@@ -491,31 +524,24 @@ export default function Home() {
 
       {/* Multi-Model AI Transit Advisor Modal */}
       <AITransitAssistantModal
-        isOpen={isAIModalOpen || activeDrawer === "ai"}
+        isOpen={activeDrawer === "ai"}
         initialQuery={journeyQuery ?? undefined}
         onClose={() => {
-          setIsAIModalOpen(false);
           setJourneyQuery(null);
-          if (activeDrawer === "ai") setActiveDrawer(null);
+          setActiveDrawer(null);
         }}
       />
 
       {/* Service Status Drawer */}
       <ServiceStatusDrawer
-        isOpen={isStatusDrawerOpen || activeDrawer === "alerts"}
-        onClose={() => {
-          setIsStatusDrawerOpen(false);
-          if (activeDrawer === "alerts") setActiveDrawer(null);
-        }}
+        isOpen={activeDrawer === "alerts"}
+        onClose={() => setActiveDrawer(null)}
       />
 
       {/* App Settings Modal */}
       <AppSettingsModal
-        isOpen={isSettingsModalOpen || activeDrawer === "settings"}
-        onClose={() => {
-          setIsSettingsModalOpen(false);
-          if (activeDrawer === "settings") setActiveDrawer(null);
-        }}
+        isOpen={activeDrawer === "settings"}
+        onClose={() => setActiveDrawer(null)}
       />
 
 
@@ -529,25 +555,23 @@ export default function Home() {
       {/* 7. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
         onOpenAI={() => {
-          if (isAIModalOpen || activeDrawer === "ai") {
-            setIsAIModalOpen(false);
-            if (activeDrawer === "ai") setActiveDrawer(null);
+          if (activeDrawer === "ai") {
+            setActiveDrawer(null);
           } else if (plannedJourney) {
             handleRefineWithAI();
           } else {
-            setIsAIModalOpen(true);
+            setActiveDrawer("ai");
           }
         }}
         onCloseAI={() => {
-          setIsAIModalOpen(false);
           if (activeDrawer === "ai") setActiveDrawer(null);
         }}
         onOpenStatus={() => {
-          setIsAIModalOpen(false);
-          setIsStatusDrawerOpen(true);
+          setActiveDrawer(activeDrawer === "alerts" ? null : "alerts");
         }}
-        onOpenJourney={() => setIsJourneyExpanded(true)}
-        isAIOpen={isAIModalOpen || activeDrawer === "ai"}
+        onOpenJourney={() => setIsJourneyExpanded((prev) => !prev)}
+        isAIOpen={activeDrawer === "ai"}
+        isJourneyOpen={isJourneyExpanded}
       />
     </main>
   );
