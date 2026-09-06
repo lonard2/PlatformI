@@ -35,7 +35,9 @@ function findMatchingStop(input: string, allStops: Stop[]): Stop | null {
   const strippedMatch = allStops.find((s) => stripPrefix(s.name) === normStripped);
   if (strippedMatch) return strippedMatch;
 
-  // 3. Substring inclusion match
+  // 3. Substring inclusion match — commuters type partial names ("Stasiun
+  //    Halim" for "Stasiun Kereta Cepat Halim"). The result card echoes the
+  //    resolved stop names, so a wrong substring match is visible, not silent.
   const subMatch = allStops.find(
     (s) => s.name.toLowerCase().includes(normStripped) || normStripped.includes(stripPrefix(s.name))
   );
