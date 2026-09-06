@@ -22,6 +22,7 @@ import {
   X,
   Gauge,
   RotateCcw,
+  Trash2,
 } from "lucide-react";
 import {
   Vehicle,
@@ -32,12 +33,13 @@ import {
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+import { recordShiftAction } from "@/lib/services/shiftLogService";
 
 interface PendingFleetUndo {
   vehicleId: string;
   vehicleCode: string;
-  field: "status" | "crowdLevel";
-  previous: VehicleOperationalStatus | CrowdDensityLevel;
+  field: "status" | "crowdLevel" | "add";
+  previous?: VehicleOperationalStatus | CrowdDensityLevel;
   previousSpeedKmh?: number;
   label: string;
   expiry: number;
@@ -256,6 +258,12 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
+    recordShiftAction({
+      operatorId: "OCC-DISPATCHER",
+      actionType: "FLEET_STATUS",
+      summary: `${vehicle.vehicleCode}: status changed from ${getStatusLabel(previousStatus)} to ${getStatusLabel(newStatus)}`,
+      badge: vehicle.vehicleCode,
+    });
     setPendingUndos((prev) => {
       const next = new Map(prev);
       next.set(vehicle.id, {
@@ -290,6 +298,12 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
+    recordShiftAction({
+      operatorId: "OCC-DISPATCHER",
+      actionType: "FLEET_CROWD",
+      summary: `${vehicle.vehicleCode}: crowd density updated to ${getCrowdLabel(newCrowd)}`,
+      badge: vehicle.vehicleCode,
+    });
     setPendingUndos((prev) => {
       const next = new Map(prev);
       next.set(vehicle.id, {
@@ -309,29 +323,36 @@ function FleetManagementContent() {
     const pending = pendingUndos.get(vehicleId);
     if (!pending) return;
 
-    // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
-    const current = simulatedVehicles.find((v) => v.id === vehicleId);
-    if (current) {
-      if (pending.field === "status") {
-        const prevStatus = pending.previous as VehicleOperationalStatus;
-        const restored: Vehicle = {
-          ...current,
-          status: prevStatus,
-          speedKmh: pending.previousSpeedKmh !== undefined ? pending.previousSpeedKmh : current.speedKmh,
-        };
-        updateSingleVehicle(restored);
-        if (selectedVehicle?.id === vehicleId) {
-          setSelectedVehicle(restored);
-        }
-      } else if (pending.field === "crowdLevel") {
-        const prevCrowd = pending.previous as CrowdDensityLevel;
-        const restored: Vehicle = {
-          ...current,
-          crowdLevel: prevCrowd,
-        };
-        updateSingleVehicle(restored);
-        if (selectedVehicle?.id === vehicleId) {
-          setSelectedVehicle(restored);
+    if (pending.field === "add") {
+      updateSimulatedVehicles(simulatedVehicles.filter((v) => v.id !== vehicleId));
+      if (selectedVehicle?.id === vehicleId) {
+        setSelectedVehicle(null);
+      }
+    } else {
+      // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
+      const current = simulatedVehicles.find((v) => v.id === vehicleId);
+      if (current) {
+        if (pending.field === "status") {
+          const prevStatus = pending.previous as VehicleOperationalStatus;
+          const restored: Vehicle = {
+            ...current,
+            status: prevStatus,
+            speedKmh: pending.previousSpeedKmh !== undefined ? pending.previousSpeedKmh : current.speedKmh,
+          };
+          updateSingleVehicle(restored);
+          if (selectedVehicle?.id === vehicleId) {
+            setSelectedVehicle(restored);
+          }
+        } else if (pending.field === "crowdLevel") {
+          const prevCrowd = pending.previous as CrowdDensityLevel;
+          const restored: Vehicle = {
+            ...current,
+            crowdLevel: prevCrowd,
+          };
+          updateSingleVehicle(restored);
+          if (selectedVehicle?.id === vehicleId) {
+            setSelectedVehicle(restored);
+          }
         }
       }
     }
@@ -383,6 +404,27 @@ function FleetManagementContent() {
     setIsAddModalOpen(false);
     setNewVehicleCode("");
     setNewName("");
+
+    recordShiftAction({
+      operatorId: "OCC-DISPATCHER",
+      actionType: "FLEET_ADD",
+      summary: `Added vehicle ${newUnit.vehicleCode} (${newUnit.name}) on line ${assignedLine.code}`,
+      badge: newUnit.vehicleCode,
+    });
+
+    const undoLabel = `${t.admin.addVehicle}: ${newUnit.vehicleCode}`;
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(newId, {
+        vehicleId: newId,
+        vehicleCode: newUnit.vehicleCode,
+        field: "add",
+        label: undoLabel,
+        expiry: Date.now() + 5000,
+      });
+      return next;
+    });
+    requestAnimationFrame(() => undoButtonRefs.current.get(newId)?.focus());
   };
 
   const getCategoryIcon = (category: TransitCategory) => {
@@ -498,6 +540,7 @@ function FleetManagementContent() {
 
       {/* 2.5 UNDO RESTORE BANNERS (5s Pausable Window per Vehicle) */}
       {/* Design Standard (Semantic Undo Theming):
+          - Amber is used for destructive/removal undos (e.g. canceling vehicle creation).
           - Cyan is used for non-destructive state changes (operational status, crowd density).
       */}
       {pageUndos.length > 0 && (
@@ -507,10 +550,18 @@ function FleetManagementContent() {
               key={undo.vehicleId}
               role="status"
               aria-live="polite"
-              className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
+              className={`p-4 rounded-xl bg-slate-900 border text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200 ${
+                undo.field === "add"
+                  ? "border-amber-500/40"
+                  : "border-cyan-500/40"
+              }`}
             >
               <div className="flex items-center gap-2 truncate">
-                <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                {undo.field === "add" ? (
+                  <Trash2 className="w-4 h-4 text-amber-400 shrink-0" />
+                ) : (
+                  <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                )}
                 <span className="truncate">
                   {t.admin.pendingUndo}: <strong>{undo.label}</strong>
                 </span>
@@ -525,7 +576,11 @@ function FleetManagementContent() {
                 onBlur={() => setUndoPaused(false)}
                 onClick={() => handleUndo(undo.vehicleId)}
                 aria-label={`${t.admin.pendingUndo}: ${undo.label}`}
-                className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs transition btn-tactile min-h-[36px] shrink-0 ${
+                  undo.field === "add"
+                    ? "bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950"
+                    : "bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950"
+                }`}
               >
                 {t.common.undo}
                 <span aria-hidden="true">

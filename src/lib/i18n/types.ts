@@ -942,5 +942,9 @@ export interface TranslationDictionary {
     opsJakLingkoDesc: string;
     opsStatusDesc: string;
     closeHelpDialog: string;
+    helpShiftLogTitle: string;
+    shiftLogEmpty: string;
+    shiftLogClear: string;
+    shiftLogTotalActions: string;
   };
 }

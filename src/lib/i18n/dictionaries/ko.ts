@@ -932,6 +932,10 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     opsJakLingkoDesc: "JakLingko 환승 상한: 트랜스자카르타, MRT, LRT 간 180분 이내 이용 시 최대 10,000루피아 상한 적용.",
     opsStatusDesc: "차량 상태: IN_SERVICE (정상 운행), BOARDING (승하차 중), CONGESTION_HOLD (정체 대기), OUT_OF_SERVICE (차고지/회송).",
     closeHelpDialog: "관제사 가이드 닫기",
+    helpShiftLogTitle: "근무 교대 활동 기록",
+    shiftLogEmpty: "이번 근무 교대 세션 동안 기록된 관제 작업이 없습니다.",
+    shiftLogClear: "근무 인수인계 / 기록 초기화",
+    shiftLogTotalActions: "기록된 총 관제 작업 수",
   },
 };
 

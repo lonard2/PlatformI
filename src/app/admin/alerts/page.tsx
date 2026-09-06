@@ -26,6 +26,7 @@ import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+import { recordShiftAction } from "@/lib/services/shiftLogService";
 
 interface PendingAlertMutation {
   id: string;
@@ -349,6 +350,12 @@ export default function AdminAlertsPage() {
           setTitle("");
           setDescription("");
           setAffectedStops([]);
+          recordShiftAction({
+            operatorId: "OCC-DISPATCHER",
+            actionType: "ALERT_BROADCAST",
+            summary: `Broadcasted disruption alert: ${data.data.title} (${data.data.severity})`,
+            badge: data.data.severity,
+          });
           notify(t.admin.publishAlert + " — " + data.data.title);
         }
       } else {
@@ -392,6 +399,12 @@ export default function AdminAlertsPage() {
           },
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        recordShiftAction({
+          operatorId: "OCC-DISPATCHER",
+          actionType: "ALERT_RESOLVE",
+          summary: `Resolved disruption: ${alert.title}`,
+          badge: "RESOLVED",
+        });
         notify(t.admin.resolved + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
@@ -427,6 +440,12 @@ export default function AdminAlertsPage() {
           prev.map((a) => (a.id === id ? { ...a, severity: "CRITICAL" } : a))
         );
         const title = alerts.find((a) => a.id === id)?.title;
+        recordShiftAction({
+          operatorId: "OCC-DISPATCHER",
+          actionType: "ALERT_ESCALATE",
+          summary: `Escalated alert to CRITICAL: ${title || id}`,
+          badge: "CRITICAL",
+        });
         notify(t.admin.escalatedToast + (title ? ` — ${title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
@@ -469,6 +488,12 @@ export default function AdminAlertsPage() {
           },
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        recordShiftAction({
+          operatorId: "OCC-DISPATCHER",
+          actionType: "ALERT_DEMOTE",
+          summary: `Demoted alert: ${alert.title}`,
+          badge: "DEMOTED",
+        });
         notify(t.admin.demotedToast + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
@@ -511,6 +536,12 @@ export default function AdminAlertsPage() {
           },
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        recordShiftAction({
+          operatorId: "OCC-DISPATCHER",
+          actionType: "ALERT_REOPEN",
+          summary: `Reopened disruption: ${alert.title}`,
+          badge: "REOPENED",
+        });
         notify(t.admin.reopenAlert + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
@@ -591,6 +622,13 @@ export default function AdminAlertsPage() {
     setAlerts((prev) => prev.filter((a) => a.id !== id));
     setPendingDeletes((prev) => ({ ...prev, [id]: alertToDelete }));
     setDeleteExpiries((prev) => ({ ...prev, [id]: Date.now() + 5000 }));
+
+    recordShiftAction({
+      operatorId: "OCC-DISPATCHER",
+      actionType: "ALERT_DELETE",
+      summary: `Deleted disruption alert: ${alertToDelete.title}`,
+      badge: "DELETED",
+    });
 
     // Keyboard focus follows the vanished row into the undo affordance
     requestAnimationFrame(() => undoButtonRefs.current.get(id)?.focus());

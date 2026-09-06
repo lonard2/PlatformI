@@ -932,6 +932,10 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     opsJakLingkoDesc: "JakLingko Tariff Cap: Maximum Rp 10,000 integrated fare within 180 minutes across TransJakarta, MRT, and LRT.",
     opsStatusDesc: "Fleet Statuses: IN_SERVICE (live tracking), BOARDING (at station), CONGESTION_HOLD (traffic held), OUT_OF_SERVICE (depot).",
     closeHelpDialog: "Close dispatcher guide",
+    helpShiftLogTitle: "Shift Activity Log",
+    shiftLogEmpty: "No operator actions recorded during this shift session yet.",
+    shiftLogClear: "Hand Over / Reset Shift Log",
+    shiftLogTotalActions: "Total Recorded Shift Actions",
   },
 };
 

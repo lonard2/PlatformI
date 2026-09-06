@@ -27,6 +27,7 @@ import {
   DEFAULT_QR_SECRET,
 } from "@/lib/services/qrSecurityService";
 import { useTranslation } from "@/lib/i18n";
+import { recordShiftAction } from "@/lib/services/shiftLogService";
 
 interface ScanAuditEntry {
   id: string;
@@ -180,6 +181,13 @@ export default function AdminScannerPage() {
     };
 
     setAuditLog((prev) => [auditEntry, ...prev]);
+
+    recordShiftAction({
+      operatorId: "OCC-DISPATCHER",
+      actionType: "GATE_SCAN",
+      summary: `Gate turnstile scan at ${selectedGate}: ${isGateOpen ? "GRANTED" : "DENIED"} (${auditEntry.ticketId})`,
+      badge: isGateOpen ? "GRANTED" : "DENIED",
+    });
 
     // Reset gate animation after 3.5 seconds
     if (gateResetTimerRef.current) clearTimeout(gateResetTimerRef.current);

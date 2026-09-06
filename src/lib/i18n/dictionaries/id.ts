@@ -932,6 +932,10 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     opsJakLingkoDesc: "Batas Tarif JakLingko: Tarif integrasi maksimal Rp 10.000 dalam 180 menit di TransJakarta, MRT, dan LRT.",
     opsStatusDesc: "Status Armada: IN_SERVICE (aktif melaju), BOARDING (penaikan penumpang), CONGESTION_HOLD (tertahan macet), OUT_OF_SERVICE (pul).",
     closeHelpDialog: "Tutup panduan dispatcher",
+    helpShiftLogTitle: "Catatan Aktivitas Shift",
+    shiftLogEmpty: "Belum ada tindakan operator yang tercatat selama sesi shift ini.",
+    shiftLogClear: "Serah Terima / Atur Ulang Shift",
+    shiftLogTotalActions: "Total Tindakan Shift Tercatat",
   },
 };
 

@@ -932,6 +932,10 @@ export const ar: TranslationDictionary = {
     opsJakLingkoDesc: "سقف تعرفة جاكلينجكو: حد أقصى 10,000 روبية خلال 180 دقيقة عبر شبكات ترانسجاكرتا والمترو والقطار الخفيف.",
     opsStatusDesc: "حالات الأسطول: IN_SERVICE (في الخدمة)، BOARDING (صعود الركاب)، CONGESTION_HOLD (توقف ازدحام)، OUT_OF_SERVICE (خارج الخدمة).",
     closeHelpDialog: "إغلاق دليل الموجه",
+    helpShiftLogTitle: "سجل نشاط الوردية",
+    shiftLogEmpty: "لم يتم تسجيل أي إجراءات للموجه خلال فترة هذه الوردية بعد.",
+    shiftLogClear: "تسليم الوردية / إعادة تعيين السجل",
+    shiftLogTotalActions: "إجمالي إجراءات الوردية المسجلة",
   },
 };
 

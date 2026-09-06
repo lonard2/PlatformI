@@ -21,9 +21,12 @@ import {
   CheckCircle2,
   ShieldCheck,
   Zap,
+  History,
+  Trash2,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+import { useShiftLog } from "@/lib/services/shiftLogService";
 
 interface AdminHelpModalProps {
   isOpen: boolean;
@@ -32,7 +35,8 @@ interface AdminHelpModalProps {
 
 export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<"SHORTCUTS" | "TRIAGE" | "OPS">("SHORTCUTS");
+  const [activeTab, setActiveTab] = useState<"SHORTCUTS" | "TRIAGE" | "OPS" | "SHIFTLOG">("SHORTCUTS");
+  const { log: shiftLog, clear: clearShiftLog } = useShiftLog();
   const { containerRef } = useDialogFocusTrap<HTMLDivElement>({
     isOpen,
     onClose,
@@ -122,6 +126,24 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>{t.admin.helpOpsTitle}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("SHIFTLOG")}
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 ${
+              activeTab === "SHIFTLOG"
+                ? "border-teal-400 text-teal-300 bg-slate-900/60"
+                : "border-transparent text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>{t.admin.helpShiftLogTitle}</span>
+            {shiftLog.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-teal-950 text-teal-300 border border-teal-500/40">
+                {shiftLog.length}
+              </span>
+            )}
           </button>
         </div>
 
@@ -257,6 +279,70 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                   {t.admin.opsStatusDesc}
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeTab === "SHIFTLOG" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <div className="text-xs text-slate-400">
+                  {t.admin.shiftLogTotalActions}:{" "}
+                  <strong className="text-white font-mono">{shiftLog.length}</strong>
+                </div>
+                {shiftLog.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearShiftLog}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-[11px] font-semibold transition btn-tactile"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{t.admin.shiftLogClear}</span>
+                  </button>
+                )}
+              </div>
+
+              {shiftLog.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-500 space-y-1">
+                  <History className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                  <p>{t.admin.shiftLogEmpty}</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[48vh] overflow-y-auto pr-1">
+                  {shiftLog.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="p-3 rounded-xl bg-slate-950/80 border border-white/5 flex items-start justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${
+                              entry.actionType === "ALERT_ESCALATE"
+                                ? "bg-rose-950 text-rose-300 border-rose-500/40"
+                                : entry.actionType === "ALERT_RESOLVE"
+                                ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
+                                : entry.actionType === "ALERT_DELETE"
+                                ? "bg-amber-950 text-amber-300 border-amber-500/40"
+                                : "bg-cyan-950 text-cyan-300 border-cyan-500/40"
+                            }`}
+                          >
+                            {entry.actionType.replace(/_/g, " ")}
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-400">
+                            {entry.operatorId}
+                          </span>
+                        </div>
+                        <p className="text-slate-200 text-xs leading-relaxed break-words">
+                          {entry.summary}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                        {entry.timeFormatted}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

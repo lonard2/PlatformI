@@ -932,6 +932,10 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     opsJakLingkoDesc: "JakLingko联程票价上限：180分钟内在TransJakarta、MRT与LRT之间联程乘车，上限封顶10,000印尼盾。",
     opsStatusDesc: "车辆状态：IN_SERVICE（正线运营）、BOARDING（靠站上下客）、CONGESTION_HOLD（拥堵暂扣）、OUT_OF_SERVICE（回库/停运）。",
     closeHelpDialog: "关闭调度员指南",
+    helpShiftLogTitle: "班次值班操作记录",
+    shiftLogEmpty: "当前值班班次暂无已记录的调度操作。",
+    shiftLogClear: "交接班 / 重置班次记录",
+    shiftLogTotalActions: "当前班次累计操作数",
   },
 };
 

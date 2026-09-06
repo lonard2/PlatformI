@@ -932,6 +932,10 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     opsJakLingkoDesc: "JakLingko運賃上限：トランスジャカルタ、MRT、LRT間を180分以内乗り継ぎで最大10,000ルピア。",
     opsStatusDesc: "車両状態：IN_SERVICE（営業運行中）、BOARDING（乗降中）、CONGESTION_HOLD（渋滞抑止）、OUT_OF_SERVICE（回送・車庫）。",
     closeHelpDialog: "指令員ガイドを閉じる",
+    helpShiftLogTitle: "当直運用アクティビティ履歴",
+    shiftLogEmpty: "この当直シフト中に記録された指令操作はありません。",
+    shiftLogClear: "当直引き継ぎ／履歴リセット",
+    shiftLogTotalActions: "当直内総操作件数",
   },
 };
 
