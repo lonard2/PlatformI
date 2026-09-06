@@ -104,6 +104,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-dvh w-screen bg-[#070b14] text-slate-100 overflow-hidden font-sans select-none">
+      {/* Skip to Main Content Anchor for Keyboard & Screen Reader Navigation */}
+      <a
+        href="#admin-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-cyan-950 focus:font-bold focus:text-xs focus:rounded-xl focus:shadow-2xl focus:border focus:border-cyan-300 btn-tactile"
+      >
+        {t.admin.skipToContent}
+      </a>
+
       {/* 1. SIDEBAR NAVIGATION */}
       <aside className="w-64 border-r border-white/10 bg-[#0a0f1d] flex flex-col justify-between shrink-0 hidden md:flex">
         <div>
@@ -222,7 +230,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   href={item.href}
                   aria-label={item.label}
                   title={item.label}
-                  className={`min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-xl text-xs btn-tactile focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                  className={`min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-xl text-xs btn-tactile ${
                     (item.exact ? pathname === item.href : pathname.startsWith(item.href))
                       ? "bg-cyan-950 border border-cyan-500/40 text-cyan-300 shadow-sm"
                       : "text-slate-400 hover:text-white"
@@ -237,7 +245,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
               aria-label={t.admin.languageSwitcher}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 font-medium min-h-[36px]"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium min-h-[36px]"
             >
               {supportedLanguages.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -251,7 +259,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               onClick={handleLogout}
               title={t.admin.logoutFull}
               aria-label={t.admin.logoutFull}
-              className="flex md:hidden items-center justify-center min-w-[40px] min-h-[40px] p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 focus-visible:ring-2 focus-visible:ring-rose-400 transition"
+              className="flex md:hidden items-center justify-center min-w-[40px] min-h-[40px] p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 transition"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -267,7 +275,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page Content Body */}
-        <main className="flex-1 overflow-y-auto bg-[#070b14]">{children}</main>
+        <main id="admin-main" tabIndex={-1} className="flex-1 overflow-y-auto bg-[#070b14] focus:outline-none">
+          {children}
+        </main>
       </div>
     </div>
   );

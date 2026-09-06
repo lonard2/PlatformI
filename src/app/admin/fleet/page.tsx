@@ -465,7 +465,7 @@ function FleetManagementContent() {
                 <th scope="col" className="py-3.5 px-4">{t.admin.currentSpeedAndHeading}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.currentStatus}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.capacityAndDensity}</th>
-                <th scope="col" className="py-3.5 px-4 text-right">{t.admin.actions}</th>
+                <th scope="col" className="sticky right-0 z-20 py-3.5 px-4 text-right bg-slate-950/95 backdrop-blur-md shadow-[-12px_0_16px_-4px_rgba(0,0,0,0.6)] before:content-[''] before:absolute before:inset-y-0 before:-left-4 before:w-4 before:bg-gradient-to-r before:from-transparent before:to-slate-950/95 before:pointer-events-none">{t.admin.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-sans">
@@ -475,7 +475,7 @@ function FleetManagementContent() {
                 return (
                   <tr
                     key={vehicle.id}
-                    className="hover:bg-white/[0.03] transition"
+                    className="group hover:bg-white/[0.03] transition"
                   >
                     {/* Code & Name */}
                     <td className="py-3.5 px-4">
@@ -546,7 +546,7 @@ function FleetManagementContent() {
                         onChange={(e) =>
                           handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus, e.currentTarget)
                         }
-                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
+                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border transition cursor-pointer min-h-[36px] ${
                           vehicle.status === "IN_SERVICE"
                             ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
                             : vehicle.status === "BOARDING"
@@ -575,7 +575,7 @@ function FleetManagementContent() {
                         onChange={(e) =>
                           handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel, e.currentTarget)
                         }
-                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
+                        className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border transition cursor-pointer min-h-[36px] ${
                           vehicle.crowdLevel === "LEVEL_1_MANY_SEATS"
                             ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
                             : vehicle.crowdLevel === "LEVEL_2_FEW_SEATS"
@@ -593,7 +593,7 @@ function FleetManagementContent() {
                     </td>
 
                     {/* Action */}
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="sticky right-0 z-10 py-3.5 px-4 text-right bg-slate-900/95 group-hover:bg-[#131b2e] backdrop-blur-md shadow-[-12px_0_16px_-4px_rgba(0,0,0,0.6)] before:content-[''] before:absolute before:inset-y-0 before:-left-4 before:w-4 before:bg-gradient-to-r before:from-transparent before:to-slate-900/95 group-hover:before:to-[#131b2e] before:pointer-events-none transition-colors">
                       <button
                         type="button"
                         aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}

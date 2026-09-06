@@ -915,6 +915,7 @@ export interface TranslationDictionary {
     pendingUndo: string;
     reopenAlert: string;
     ariaReopen: string;
+    skipToContent: string;
     ariaStatusFor: string;
     ariaCrowdFor: string;
   };

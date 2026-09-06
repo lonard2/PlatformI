@@ -905,6 +905,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     pendingUndo: "操作挂起 — 撤销",
     reopenAlert: "重新开启提醒",
     ariaReopen: "重新开启运营中断提醒",
+    skipToContent: "跳至主要内容",
     ariaStatusFor: "运营状态：",
     ariaCrowdFor: "拥挤度：",
   },

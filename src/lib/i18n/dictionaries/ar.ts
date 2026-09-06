@@ -905,6 +905,7 @@ export const ar: TranslationDictionary = {
     pendingUndo: "الإجراء قيد الانتظار — تراجع",
     reopenAlert: "إعادة فتح التنبيه",
     ariaReopen: "إعادة فتح تنبيه تعطل العمليات",
+    skipToContent: "الانتقال إلى المحتوى الرئيسي",
     ariaStatusFor: "الحالة التشغيلية لـ",
     ariaCrowdFor: "كثافة الركاب لـ",
   },

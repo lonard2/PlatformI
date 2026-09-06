@@ -217,14 +217,14 @@ export default function AdminDashboardPage() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/admin/alerts"
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition shadow-md btn-tactile focus-visible:ring-2 focus-visible:ring-amber-400"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition shadow-md btn-tactile"
           >
             <Radio className="w-3.5 h-3.5 text-amber-400" />
             <span>{t.admin.broadcastAlert}</span>
           </Link>
           <Link
             href="/admin/scanner"
-            className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold flex items-center gap-1.5 transition shadow-md btn-tactile focus-visible:ring-2 focus-visible:ring-cyan-400"
+            className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold flex items-center gap-1.5 transition shadow-md btn-tactile"
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>{t.admin.testTurnstileValidator}</span>

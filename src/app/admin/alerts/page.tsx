@@ -1047,7 +1047,7 @@ export default function AdminAlertsPage() {
       <div
         ref={feedContainerRef}
         tabIndex={-1}
-        className="rounded-2xl bg-slate-900/80 border border-white/10 p-5 space-y-4 shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
+        className="rounded-2xl bg-slate-900/80 border border-white/10 p-5 space-y-4 shadow-xl focus:outline-none"
       >
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">

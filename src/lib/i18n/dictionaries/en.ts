@@ -905,6 +905,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     pendingUndo: "Action pending — Undo",
     reopenAlert: "Reopen Alert",
     ariaReopen: "Reopen operational disruption",
+    skipToContent: "Skip to main content",
     ariaStatusFor: "Operating status for",
     ariaCrowdFor: "Crowd density for",
   },

@@ -905,6 +905,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     pendingUndo: "Perubahan ditunda — Urungkan",
     reopenAlert: "Buka Kembali",
     ariaReopen: "Buka kembali gangguan operasional",
+    skipToContent: "Lewati ke konten utama",
     ariaStatusFor: "Status operasional untuk",
     ariaCrowdFor: "Kepadatan penumpang untuk",
   },

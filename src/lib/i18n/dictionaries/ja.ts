@@ -905,6 +905,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     pendingUndo: "処理を保留中 — 元に戻す",
     reopenAlert: "アラートを再開",
     ariaReopen: "運行支障アラートを再開",
+    skipToContent: "メインコンテンツへスキップ",
     ariaStatusFor: "運行状況:",
     ariaCrowdFor: "混雑状況:",
   },
