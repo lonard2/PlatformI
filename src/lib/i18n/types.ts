@@ -951,5 +951,18 @@ export interface TranslationDictionary {
     shiftLogClearConfirm: string;
     shiftLogCopySummary: string;
     shiftLogCopied: string;
+    fleetSampleBadge: string;
+    shiftLogTemplateAlertBroadcast: string;
+    shiftLogTemplateAlertResolve: string;
+    shiftLogTemplateAlertDemote: string;
+    shiftLogTemplateAlertReopen: string;
+    shiftLogTemplateAlertEscalate: string;
+    shiftLogTemplateAlertDelete: string;
+    shiftLogTemplateAlertUndo: string;
+    shiftLogTemplateFleetStatus: string;
+    shiftLogTemplateFleetCrowd: string;
+    shiftLogTemplateFleetAdd: string;
+    shiftLogTemplateFleetUndo: string;
+    shiftLogTemplateGateScan: string;
   };
 }

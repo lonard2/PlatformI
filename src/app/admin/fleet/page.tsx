@@ -212,7 +212,7 @@ function FleetManagementContent() {
     });
   }, [simulatedVehicles, activeCategory, searchQuery]);
 
-  const getStatusLabel = (status: VehicleOperationalStatus) => {
+  const getStatusLabel = (status: VehicleOperationalStatus): string => {
     switch (status) {
       case "IN_SERVICE":
         return t.admin.moving;
@@ -222,10 +222,12 @@ function FleetManagementContent() {
         return t.admin.hold;
       case "OUT_OF_SERVICE":
         return t.common.inactive;
+      default:
+        return status;
     }
   };
 
-  const getCrowdLabel = (crowd: CrowdDensityLevel) => {
+  const getCrowdLabel = (crowd: CrowdDensityLevel): string => {
     switch (crowd) {
       case "LEVEL_1_MANY_SEATS":
         return t.crowdsource.densitySeatsAvailable;
@@ -235,6 +237,8 @@ function FleetManagementContent() {
         return t.crowdsource.densityStandingOnly;
       case "LEVEL_4_FULL_CRUSH":
         return t.crowdsource.densityFullCrowded;
+      default:
+        return crowd;
     }
   };
 
@@ -259,10 +263,14 @@ function FleetManagementContent() {
       lastTriggerRef.current = triggerEl;
     }
     recordShiftAction({
-      operatorId: "OCC-DISPATCHER",
       actionType: "FLEET_STATUS",
       summary: `${vehicle.vehicleCode}: status changed from ${getStatusLabel(previousStatus)} to ${getStatusLabel(newStatus)}`,
       badge: vehicle.vehicleCode,
+      params: {
+        code: vehicle.vehicleCode,
+        from: getStatusLabel(previousStatus),
+        to: getStatusLabel(newStatus),
+      },
     });
     setPendingUndos((prev) => {
       const next = new Map(prev);
@@ -285,8 +293,8 @@ function FleetManagementContent() {
     newCrowd: CrowdDensityLevel,
     triggerEl?: HTMLElement | null
   ) => {
-    if (vehicle.crowdLevel === newCrowd) return;
     const previousCrowd = vehicle.crowdLevel;
+    if (previousCrowd === newCrowd) return;
     const updated: Vehicle = {
       ...vehicle,
       crowdLevel: newCrowd,
@@ -299,10 +307,14 @@ function FleetManagementContent() {
       lastTriggerRef.current = triggerEl;
     }
     recordShiftAction({
-      operatorId: "OCC-DISPATCHER",
       actionType: "FLEET_CROWD",
       summary: `${vehicle.vehicleCode}: crowd density updated to ${getCrowdLabel(newCrowd)}`,
       badge: vehicle.vehicleCode,
+      params: {
+        code: vehicle.vehicleCode,
+        from: getCrowdLabel(previousCrowd),
+        to: getCrowdLabel(newCrowd),
+      },
     });
     setPendingUndos((prev) => {
       const next = new Map(prev);
@@ -357,6 +369,17 @@ function FleetManagementContent() {
       }
     }
 
+    recordShiftAction({
+      actionType: "FLEET_UNDO",
+      summary: `Undid ${pending.field} on ${pending.vehicleCode} (restored to ${String(pending.previous ?? "removed")})`,
+      badge: pending.vehicleCode,
+      params: {
+        code: pending.vehicleCode,
+        field: pending.field,
+        restored: String(pending.previous ?? "removed"),
+      },
+    });
+
     setPendingUndos((prev) => {
       const next = new Map(prev);
       next.delete(vehicleId);
@@ -406,10 +429,13 @@ function FleetManagementContent() {
     setNewName("");
 
     recordShiftAction({
-      operatorId: "OCC-DISPATCHER",
       actionType: "FLEET_ADD",
-      summary: `Added vehicle ${newUnit.vehicleCode} (${newUnit.name}) on line ${assignedLine.code}`,
+      summary: `Added new vehicle: ${newUnit.vehicleCode} (${assignedLine.code})`,
       badge: newUnit.vehicleCode,
+      params: {
+        code: newUnit.vehicleCode,
+        line: assignedLine.code,
+      },
     });
 
     const undoLabel = `${t.admin.addVehicle}: ${newUnit.vehicleCode}`;
@@ -485,6 +511,7 @@ function FleetManagementContent() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
             type="text"
+            data-hotkey-search="true"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label={t.admin.searchFleetPlaceholder}

@@ -14,6 +14,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 
 export type ShiftActionType =
   | "ALERT_BROADCAST"
@@ -22,9 +23,11 @@ export type ShiftActionType =
   | "ALERT_REOPEN"
   | "ALERT_ESCALATE"
   | "ALERT_DELETE"
+  | "ALERT_UNDO"
   | "FLEET_STATUS"
   | "FLEET_CROWD"
   | "FLEET_ADD"
+  | "FLEET_UNDO"
   | "GATE_SCAN";
 
 export interface ShiftLogEntry {
@@ -34,8 +37,66 @@ export interface ShiftLogEntry {
   operatorId: string;
   actionType: ShiftActionType;
   summary: string;
+  params?: Record<string, string | number>;
   details?: string;
   badge?: string;
+}
+
+export function formatShiftLogSummary(entry: ShiftLogEntry, t: TranslationDictionary): string {
+  if (!entry.params) return entry.summary;
+  const p = entry.params;
+  switch (entry.actionType) {
+    case "ALERT_BROADCAST":
+      return t.admin.shiftLogTemplateAlertBroadcast
+        .replace("{severity}", String(p.severity ?? ""))
+        .replace("{title}", String(p.title ?? ""))
+        .replace("{line}", String(p.line ?? ""));
+    case "ALERT_RESOLVE":
+      return t.admin.shiftLogTemplateAlertResolve
+        .replace("{severity}", String(p.severity ?? ""))
+        .replace("{title}", String(p.title ?? ""));
+    case "ALERT_DEMOTE":
+      return t.admin.shiftLogTemplateAlertDemote
+        .replace("{title}", String(p.title ?? ""));
+    case "ALERT_REOPEN":
+      return t.admin.shiftLogTemplateAlertReopen
+        .replace("{title}", String(p.title ?? ""));
+    case "ALERT_ESCALATE":
+      return t.admin.shiftLogTemplateAlertEscalate
+        .replace("{title}", String(p.title ?? ""));
+    case "ALERT_DELETE":
+      return t.admin.shiftLogTemplateAlertDelete
+        .replace("{title}", String(p.title ?? ""));
+    case "ALERT_UNDO":
+      return t.admin.shiftLogTemplateAlertUndo
+        .replace("{title}", String(p.title ?? ""));
+    case "FLEET_STATUS":
+      return t.admin.shiftLogTemplateFleetStatus
+        .replace("{code}", String(p.code ?? ""))
+        .replace("{from}", String(p.from ?? ""))
+        .replace("{to}", String(p.to ?? ""));
+    case "FLEET_CROWD":
+      return t.admin.shiftLogTemplateFleetCrowd
+        .replace("{code}", String(p.code ?? ""))
+        .replace("{from}", String(p.from ?? ""))
+        .replace("{to}", String(p.to ?? ""));
+    case "FLEET_ADD":
+      return t.admin.shiftLogTemplateFleetAdd
+        .replace("{code}", String(p.code ?? ""))
+        .replace("{line}", String(p.line ?? ""));
+    case "FLEET_UNDO":
+      return t.admin.shiftLogTemplateFleetUndo
+        .replace("{code}", String(p.code ?? ""))
+        .replace("{field}", String(p.field ?? ""))
+        .replace("{restored}", String(p.restored ?? ""));
+    case "GATE_SCAN":
+      return t.admin.shiftLogTemplateGateScan
+        .replace("{gate}", String(p.gate ?? ""))
+        .replace("{status}", String(p.status ?? ""))
+        .replace("{ticketId}", String(p.ticketId ?? ""));
+    default:
+      return entry.summary;
+  }
 }
 
 const STORAGE_KEY = "platformi_shift_log_v1";

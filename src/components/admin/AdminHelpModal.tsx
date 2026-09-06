@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
-import { useShiftLog } from "@/lib/services/shiftLogService";
+import { useShiftLog, formatShiftLogSummary } from "@/lib/services/shiftLogService";
 
 interface AdminHelpModalProps {
   isOpen: boolean;
@@ -47,7 +47,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
   const handleCopySummary = () => {
     if (shiftLog.length === 0) return;
     const summaryText = shiftLog
-      .map((entry) => `${entry.actionType} — ${entry.summary} — ${entry.timeFormatted}`)
+      .map((entry) => `${entry.actionType} — ${formatShiftLogSummary(entry, t)} — ${entry.timeFormatted}`)
       .join("\n");
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(summaryText).then(() => {
@@ -389,7 +389,9 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                                 ? "bg-rose-950 text-rose-300 border-rose-500/40"
                                 : entry.actionType === "ALERT_RESOLVE"
                                 ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
-                                : entry.actionType === "ALERT_DELETE"
+                                : entry.actionType === "ALERT_DELETE" ||
+                                  entry.actionType === "ALERT_UNDO" ||
+                                  entry.actionType === "FLEET_UNDO"
                                 ? "bg-amber-950 text-amber-300 border-amber-500/40"
                                 : "bg-cyan-950 text-cyan-300 border-cyan-500/40"
                             }`}
@@ -401,7 +403,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                           </span>
                         </div>
                         <p className="text-slate-200 text-xs leading-relaxed break-words">
-                          {entry.summary}
+                          {formatShiftLogSummary(entry, t)}
                         </p>
                       </div>
                       <span className="text-[10px] font-mono text-slate-400 shrink-0">

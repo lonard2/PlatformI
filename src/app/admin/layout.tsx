@@ -111,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       } else if (e.key === "/") {
         e.preventDefault();
         const searchInput = document.querySelector<HTMLInputElement>(
-          'input[type="text"], input[type="search"]'
+          'input[data-hotkey-search="true"], input[type="search"]'
         );
         searchInput?.focus();
       }

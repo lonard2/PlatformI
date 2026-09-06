@@ -183,10 +183,14 @@ export default function AdminScannerPage() {
     setAuditLog((prev) => [auditEntry, ...prev]);
 
     recordShiftAction({
-      operatorId: "OCC-DISPATCHER",
       actionType: "GATE_SCAN",
       summary: `Gate turnstile scan at ${selectedGate}: ${isGateOpen ? "GRANTED" : "DENIED"} (${auditEntry.ticketId})`,
       badge: isGateOpen ? "GRANTED" : "DENIED",
+      params: {
+        gate: selectedGate,
+        status: isGateOpen ? "GRANTED" : "DENIED",
+        ticketId: auditEntry.ticketId,
+      },
     });
 
     // Reset gate animation after 3.5 seconds

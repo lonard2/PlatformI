@@ -403,9 +403,12 @@ export default function AdminDashboardPage() {
         {/* Right: Live OCC Telemetry & Event Stream */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-lg lg:col-span-2">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Activity className="w-4 h-4 text-emerald-400" />
               <h3 className="text-sm font-bold text-white">{t.admin.eventStreamTitle}</h3>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 border border-slate-700 text-slate-300">
+                {t.admin.fleetSampleBadge}
+              </span>
             </div>
             <div className="flex items-center gap-2.5">
               <span className="text-[10px] font-mono text-slate-400">

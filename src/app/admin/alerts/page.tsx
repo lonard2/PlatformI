@@ -351,10 +351,14 @@ export default function AdminAlertsPage() {
           setDescription("");
           setAffectedStops([]);
           recordShiftAction({
-            operatorId: "OCC-DISPATCHER",
             actionType: "ALERT_BROADCAST",
-            summary: `Broadcasted disruption alert: ${data.data.title} (${data.data.severity})`,
+            summary: `Broadcasted ${data.data.severity} alert: "${data.data.title}" (${data.data.lineId || "ALL"})`,
             badge: data.data.severity,
+            params: {
+              severity: data.data.severity,
+              title: data.data.title,
+              line: data.data.lineId || "ALL",
+            },
           });
           notify(t.admin.publishAlert + " — " + data.data.title);
         }
@@ -400,10 +404,13 @@ export default function AdminAlertsPage() {
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
         recordShiftAction({
-          operatorId: "OCC-DISPATCHER",
           actionType: "ALERT_RESOLVE",
-          summary: `Resolved disruption: ${alert.title}`,
+          summary: `Resolved ${alert.severity} alert: "${alert.title}"`,
           badge: "RESOLVED",
+          params: {
+            severity: alert.severity,
+            title: alert.title,
+          },
         });
         notify(t.admin.resolved + (alert.title ? ` — ${alert.title}` : ""));
       } else {
@@ -441,10 +448,12 @@ export default function AdminAlertsPage() {
         );
         const title = alerts.find((a) => a.id === id)?.title;
         recordShiftAction({
-          operatorId: "OCC-DISPATCHER",
           actionType: "ALERT_ESCALATE",
-          summary: `Escalated alert to CRITICAL: ${title || id}`,
+          summary: `Escalated alert "${title || id}" to CRITICAL`,
           badge: "CRITICAL",
+          params: {
+            title: title || id,
+          },
         });
         notify(t.admin.escalatedToast + (title ? ` — ${title}` : ""));
       } else {
@@ -489,10 +498,12 @@ export default function AdminAlertsPage() {
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
         recordShiftAction({
-          operatorId: "OCC-DISPATCHER",
           actionType: "ALERT_DEMOTE",
-          summary: `Demoted alert: ${alert.title}`,
+          summary: `Demoted alert: "${alert.title}" to INFO`,
           badge: "DEMOTED",
+          params: {
+            title: alert.title,
+          },
         });
         notify(t.admin.demotedToast + (alert.title ? ` — ${alert.title}` : ""));
       } else {
@@ -537,10 +548,12 @@ export default function AdminAlertsPage() {
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
         recordShiftAction({
-          operatorId: "OCC-DISPATCHER",
           actionType: "ALERT_REOPEN",
-          summary: `Reopened disruption: ${alert.title}`,
+          summary: `Reopened alert: "${alert.title}" to WARNING`,
           badge: "REOPENED",
+          params: {
+            title: alert.title,
+          },
         });
         notify(t.admin.reopenAlert + (alert.title ? ` — ${alert.title}` : ""));
       } else {
@@ -577,6 +590,15 @@ export default function AdminAlertsPage() {
     // Restore focus to row action button
     requestAnimationFrame(() => {
       rowActionRefs.current.get(id)?.focus();
+    });
+
+    recordShiftAction({
+      actionType: "ALERT_UNDO",
+      summary: `Undid action on alert: "${mutation.alertTitle}"`,
+      badge: "UNDO",
+      params: {
+        title: mutation.alertTitle,
+      },
     });
 
     try {
@@ -624,10 +646,12 @@ export default function AdminAlertsPage() {
     setDeleteExpiries((prev) => ({ ...prev, [id]: Date.now() + 5000 }));
 
     recordShiftAction({
-      operatorId: "OCC-DISPATCHER",
       actionType: "ALERT_DELETE",
-      summary: `Deleted disruption alert: ${alertToDelete.title}`,
+      summary: `Deleted alert "${alertToDelete.title}"`,
       badge: "DELETED",
+      params: {
+        title: alertToDelete.title,
+      },
     });
 
     // Keyboard focus follows the vanished row into the undo affordance
@@ -650,6 +674,15 @@ export default function AdminAlertsPage() {
       const next = { ...prev };
       delete next[id];
       return next;
+    });
+
+    recordShiftAction({
+      actionType: "ALERT_UNDO",
+      summary: `Undid action on alert: "${alertToRestore.title}"`,
+      badge: "RESTORED",
+      params: {
+        title: alertToRestore.title,
+      },
     });
   };
 
