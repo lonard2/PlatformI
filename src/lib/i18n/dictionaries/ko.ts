@@ -34,6 +34,7 @@ export const ko: TranslationDictionary = {
     viewOnMap: "지도에서 위치 추적",
     viewSpecs: "기술 제원 보기",
     active: "운행 중",
+    entries: "개 항목",
     inactive: "대기 중",
     loading: "데이터 로딩 중...",
     refresh: "새로고침",

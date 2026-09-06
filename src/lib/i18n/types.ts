@@ -58,6 +58,7 @@ export interface TranslationDictionary {
     viewOnMap: string;
     viewSpecs: string;
     active: string;
+    entries: string;
     inactive: string;
     loading: string;
     refresh: string;

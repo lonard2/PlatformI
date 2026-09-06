@@ -304,3 +304,11 @@ a:focus-visible,
   outline: 2px solid var(--accent-cyan) !important;
   outline-offset: 2px !important;
 }
+
+/* High-contrast focus outline fallback for cyan surfaces (prevents cyan-on-cyan focus invisibility) */
+.bg-cyan-500:focus-visible,
+[class*="bg-cyan-500"]:focus-visible,
+[class*="bg-cyan-400"]:focus-visible {
+  outline-color: #ffffff !important;
+}
+

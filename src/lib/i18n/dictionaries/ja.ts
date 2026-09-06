@@ -34,6 +34,7 @@ export const ja: TranslationDictionary = {
     viewOnMap: "地図で追跡",
     viewSpecs: "車両諸元を見る",
     active: "運行中",
+    entries: "件",
     inactive: "待機中",
     loading: "データを読み込み中...",
     refresh: "更新",

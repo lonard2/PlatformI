@@ -34,6 +34,7 @@ export const id: TranslationDictionary = {
     viewOnMap: "Lacak di Peta",
     viewSpecs: "Lihat Spesifikasi",
     active: "Aktif",
+    entries: "entri",
     inactive: "Tidak Aktif",
     loading: "Memuat data...",
     refresh: "Perbarui",

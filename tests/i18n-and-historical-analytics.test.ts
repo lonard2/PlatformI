@@ -35,6 +35,7 @@ describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
         expect(dict.common.onTime).toBeTruthy();
         expect(dict.common.delayed).toBeTruthy();
         expect(dict.common.selectLanguage).toBeTruthy();
+        expect(dict.common.entries).toBeTruthy();
 
         // Navigation keys
         expect(dict.navigation.systemStatus).toBeTruthy();

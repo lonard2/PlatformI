@@ -34,6 +34,7 @@ export const zh: TranslationDictionary = {
     viewOnMap: "在地图上追踪",
     viewSpecs: "查看技术参数",
     active: "运营中",
+    entries: "条记录",
     inactive: "待命中",
     loading: "正在加载数据...",
     refresh: "刷新",

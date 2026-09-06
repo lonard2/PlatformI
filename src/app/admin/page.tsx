@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
-import type { DisruptionAlert } from "@/types/transit";
+import type { DisruptionAlert, VehicleOperationalStatus } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
 export default function AdminDashboardPage() {
@@ -128,6 +128,19 @@ export default function AdminDashboardPage() {
     const inServiceVehicles = simulatedVehicles.filter((v) => v.status === "IN_SERVICE");
     const sampleVehicles = (inServiceVehicles.length > 0 ? inServiceVehicles : simulatedVehicles).slice(0, 4);
 
+    const getVehicleStatusLabel = (status: VehicleOperationalStatus) => {
+      switch (status) {
+        case "IN_SERVICE":
+          return t.admin.moving;
+        case "BOARDING":
+          return t.admin.boarding;
+        case "CONGESTION_HOLD":
+          return t.admin.hold;
+        case "OUT_OF_SERVICE":
+          return t.common.inactive;
+      }
+    };
+
     sampleVehicles.forEach((v, index) => {
       const line = allLines.find((l) => l.id === v.lineId);
       const pingOffsetMs = index * 8000 + ((Math.round(v.speedKmh) * 17) % 5000);
@@ -144,7 +157,7 @@ export default function AdminDashboardPage() {
         id: `telem-${v.id}`,
         timestamp,
         time,
-        text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${v.status}]`,
+        text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${getVehicleStatusLabel(v.status)}]`,
         badge: line?.code || v.category,
         color: "text-cyan-300 border-cyan-500/40 bg-cyan-950/40",
       });

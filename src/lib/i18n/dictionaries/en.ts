@@ -34,6 +34,7 @@ export const en: TranslationDictionary = {
     viewOnMap: "Track on Map",
     viewSpecs: "View Specs",
     active: "Active",
+    entries: "entries",
     inactive: "Inactive",
     loading: "Loading data...",
     refresh: "Refresh",

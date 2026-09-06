@@ -245,7 +245,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
               aria-label={t.admin.languageSwitcher}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium min-h-[36px]"
+              className="px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium min-h-[44px]"
             >
               {supportedLanguages.map((lang) => (
                 <option key={lang.code} value={lang.code}>

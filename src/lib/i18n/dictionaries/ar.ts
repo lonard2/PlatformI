@@ -34,6 +34,7 @@ export const ar: TranslationDictionary = {
     viewOnMap: "تتبع على الخريطة",
     viewSpecs: "عرض المواصفات الفنية",
     active: "في الخدمة",
+    entries: "سجلات",
     inactive: "في وضع الاستعداد",
     loading: "جارٍ تحميل البيانات...",
     refresh: "تحديث",

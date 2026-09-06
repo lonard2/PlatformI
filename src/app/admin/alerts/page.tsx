@@ -101,7 +101,9 @@ export default function AdminAlertsPage() {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (escalateConfirmId) {
-      escalateCancelRef.current?.focus();
+      requestAnimationFrame(() => {
+        escalateCancelRef.current?.focus();
+      });
     } else if (escalateTriggerRef.current) {
       const trigger = escalateTriggerRef.current;
       escalateTriggerRef.current = null;
@@ -390,7 +392,7 @@ export default function AdminAlertsPage() {
           },
         }));
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
-        notify(t.admin.resolveDisruption + (alert.title ? ` — ${alert.title}` : ""));
+        notify(t.admin.resolved + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.resolveFailed);

@@ -159,7 +159,7 @@ export default function AdminScannerPage() {
       isValid: isGateOpen,
       errorReason: finalError,
       isJakLingkoCapped: firstTapInOffsetMinutes <= 180,
-      fareDeductedRp: isGateOpen ? (firstTapInOffsetMinutes <= 180 ? 0 : 3500) : 0,
+      fareDeductedRp: 0,
     };
 
     setAuditLog((prev) => [auditEntry, ...prev]);
@@ -415,7 +415,7 @@ export default function AdminScannerPage() {
             <h3 className="text-sm font-bold text-white">{t.admin.scanResult}</h3>
           </div>
           <span className="text-xs font-mono text-slate-400">
-            {auditLog.length} {t.common.active}
+            {auditLog.length} {t.common.entries}
           </span>
         </div>
 
