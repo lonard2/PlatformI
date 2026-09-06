@@ -936,6 +936,11 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     shiftLogEmpty: "No operator actions recorded during this shift session yet.",
     shiftLogClear: "Hand Over / Reset Shift Log",
     shiftLogTotalActions: "Total Recorded Shift Actions",
+    shiftLogShiftWindow: "Shift Window",
+    shiftLogActiveOperator: "On-Duty Operator",
+    shiftLogClearConfirm: "Are you sure you want to hand over and clear the active shift activity log? This cannot be undone.",
+    shiftLogCopySummary: "Copy Shift Summary",
+    shiftLogCopied: "Copied!",
   },
 };
 

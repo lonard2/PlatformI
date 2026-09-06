@@ -8,6 +8,14 @@
 import { describe, it, expect } from "vitest";
 import { DICTIONARIES, SUPPORTED_LANGUAGES, SupportedLanguage } from "@/lib/i18n";
 import { HISTORICAL_INCIDENTS, SYSTEM_UPTIME_METRICS } from "@/lib/data/jakarta-dataset";
+import {
+  recordShiftAction,
+  clearShiftLog,
+  getShiftLog,
+  getShiftFraming,
+  setActiveOperatorId,
+  getActiveOperatorId,
+} from "@/lib/services/shiftLogService";
 
 describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
   describe("1. Multi-Language Dictionary Completeness Audit", () => {
@@ -93,7 +101,61 @@ describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
         expect(dict.admin.triageCriticalDesc).toBeTruthy();
         expect(dict.admin.opsJakLingkoDesc).toBeTruthy();
         expect(dict.admin.helpShiftLogTitle).toBeTruthy();
+        expect(dict.admin.shiftLogEmpty).toBeTruthy();
+        expect(dict.admin.shiftLogClear).toBeTruthy();
+        expect(dict.admin.shiftLogTotalActions).toBeTruthy();
+        expect(dict.admin.shiftLogShiftWindow).toBeTruthy();
+        expect(dict.admin.shiftLogActiveOperator).toBeTruthy();
+        expect(dict.admin.shiftLogClearConfirm).toBeTruthy();
+        expect(dict.admin.shiftLogCopySummary).toBeTruthy();
+        expect(dict.admin.shiftLogCopied).toBeTruthy();
       });
+    });
+
+    it("verifies shift log service captures active operator and provides shift framing", () => {
+      clearShiftLog();
+      expect(getShiftLog().length).toBe(0);
+
+      // Set active operator
+      setActiveOperatorId("OCC-DKA-01");
+      expect(getActiveOperatorId()).toBe("OCC-DKA-01");
+
+      // Record first action stamping the shift start
+      const firstAction = recordShiftAction({
+        actionType: "ALERT_BROADCAST",
+        summary: "Emergency speed restriction on Corridor 13",
+        badge: "C13",
+      });
+      expect(firstAction.operatorId).toBe("OCC-DKA-01");
+      expect(firstAction.timeFormatted).toMatch(/WIB$/);
+
+      // Record second action with another action type
+      const secondAction = recordShiftAction({
+        actionType: "FLEET_STATUS",
+        summary: "TJ-0104 status changed to IN_SERVICE",
+        badge: "TJ-0104",
+      });
+      expect(secondAction.operatorId).toBe("OCC-DKA-01");
+
+      const log = getShiftLog();
+      expect(log.length).toBe(2);
+      expect(log[0].id).toBe(secondAction.id);
+      expect(log[1].id).toBe(firstAction.id);
+
+      // Verify framing
+      const framing = getShiftFraming(log);
+      expect(framing.hasEntries).toBe(true);
+      expect(framing.operatorId).toBe("OCC-DKA-01");
+      expect(framing.startTimeFormatted).toBe(firstAction.timeFormatted);
+      expect(framing.endTimeFormatted).toBe(secondAction.timeFormatted);
+      expect(framing.totalActions).toBe(2);
+
+      // Clear shift log
+      clearShiftLog();
+      expect(getShiftLog().length).toBe(0);
+      const clearedFraming = getShiftFraming([]);
+      expect(clearedFraming.hasEntries).toBe(false);
+      expect(clearedFraming.totalActions).toBe(0);
     });
   });
 

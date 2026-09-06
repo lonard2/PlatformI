@@ -39,7 +39,70 @@ export interface ShiftLogEntry {
 }
 
 const STORAGE_KEY = "platformi_shift_log_v1";
+const OPERATOR_STORAGE_KEY = "platformi_active_operator_id";
 const MAX_LOG_ENTRIES = 100;
+
+export function setActiveOperatorId(operatorId: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (!operatorId || operatorId.trim().length === 0) {
+      window.localStorage.removeItem(OPERATOR_STORAGE_KEY);
+    } else {
+      window.localStorage.setItem(OPERATOR_STORAGE_KEY, operatorId.trim());
+    }
+  } catch {
+    // Graceful fallback
+  }
+}
+
+export function getActiveOperatorId(): string {
+  if (typeof window === "undefined") return "OCC-DISPATCHER";
+  try {
+    const saved = window.localStorage.getItem(OPERATOR_STORAGE_KEY);
+    return saved && saved.trim().length > 0 ? saved.trim() : "OCC-DISPATCHER";
+  } catch {
+    return "OCC-DISPATCHER";
+  }
+}
+
+export interface ShiftFraming {
+  hasEntries: boolean;
+  operatorId: string;
+  startTimeFormatted: string | null;
+  endTimeFormatted: string | null;
+  startTimestamp: number | null;
+  endTimestamp: number | null;
+  totalActions: number;
+}
+
+export function getShiftFraming(log: ShiftLogEntry[]): ShiftFraming {
+  if (log.length === 0) {
+    return {
+      hasEntries: false,
+      operatorId: getActiveOperatorId(),
+      startTimeFormatted: null,
+      endTimeFormatted: null,
+      startTimestamp: null,
+      endTimestamp: null,
+      totalActions: 0,
+    };
+  }
+
+  // Earliest entry in the shift session stamps the window start
+  const firstEntry = log[log.length - 1];
+  // Most recent entry stamps current window state
+  const latestEntry = log[0];
+
+  return {
+    hasEntries: true,
+    operatorId: latestEntry.operatorId || getActiveOperatorId(),
+    startTimeFormatted: firstEntry.timeFormatted,
+    endTimeFormatted: latestEntry.timeFormatted,
+    startTimestamp: firstEntry.timestamp,
+    endTimestamp: latestEntry.timestamp,
+    totalActions: log.length,
+  };
+}
 
 type ShiftLogListener = (entries: ShiftLogEntry[]) => void;
 const listeners = new Set<ShiftLogListener>();
@@ -74,8 +137,15 @@ export function getShiftLog(): ShiftLogEntry[] {
 }
 
 export function recordShiftAction(
-  entry: Omit<ShiftLogEntry, "id" | "timestamp" | "timeFormatted">
+  entry: Omit<ShiftLogEntry, "id" | "timestamp" | "timeFormatted" | "operatorId"> & {
+    operatorId?: string;
+  }
 ): ShiftLogEntry {
+  const resolvedOperator =
+    entry.operatorId && entry.operatorId !== "OCC-DISPATCHER"
+      ? entry.operatorId
+      : getActiveOperatorId();
+
   const now = Date.now();
   const timeFormatted = new Date(now).toLocaleTimeString("id-ID", {
     hour: "2-digit",
@@ -90,6 +160,7 @@ export function recordShiftAction(
     timestamp: now,
     timeFormatted: `${timeFormatted} WIB`,
     ...entry,
+    operatorId: resolvedOperator,
   };
 
   const current = readStorage();
@@ -120,8 +191,11 @@ export function useShiftLog() {
     return subscribeShiftLog((updated) => setLog(updated));
   }, []);
 
+  const framing = getShiftFraming(log);
+
   return {
     log,
+    framing,
     clear: clearShiftLog,
   };
 }

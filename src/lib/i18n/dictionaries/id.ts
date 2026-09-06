@@ -936,6 +936,11 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     shiftLogEmpty: "Belum ada tindakan operator yang tercatat selama sesi shift ini.",
     shiftLogClear: "Serah Terima / Atur Ulang Shift",
     shiftLogTotalActions: "Total Tindakan Shift Tercatat",
+    shiftLogShiftWindow: "Jendela Giliran Kerja",
+    shiftLogActiveOperator: "Petugas Berdinas",
+    shiftLogClearConfirm: "Apakah Anda yakin ingin melakukan serah terima dan mengosongkan log aktivitas giliran kerja aktif? Tindakan ini tidak dapat dibatalkan.",
+    shiftLogCopySummary: "Salin Ringkasan Giliran",
+    shiftLogCopied: "Tersalin!",
   },
 };
 

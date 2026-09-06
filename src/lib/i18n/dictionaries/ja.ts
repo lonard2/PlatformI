@@ -936,6 +936,11 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     shiftLogEmpty: "この当直シフト中に記録された指令操作はありません。",
     shiftLogClear: "当直引き継ぎ／履歴リセット",
     shiftLogTotalActions: "当直内総操作件数",
+    shiftLogShiftWindow: "シフト稼働時間枠",
+    shiftLogActiveOperator: "当直指令員",
+    shiftLogClearConfirm: "現在のシフト作業ログを引継ぎ・消去してもよろしいですか？この操作は元に戻せません。",
+    shiftLogCopySummary: "シフト要約をコピー",
+    shiftLogCopied: "コピー完了！",
   },
 };
 

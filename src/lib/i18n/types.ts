@@ -946,5 +946,10 @@ export interface TranslationDictionary {
     shiftLogEmpty: string;
     shiftLogClear: string;
     shiftLogTotalActions: string;
+    shiftLogShiftWindow: string;
+    shiftLogActiveOperator: string;
+    shiftLogClearConfirm: string;
+    shiftLogCopySummary: string;
+    shiftLogCopied: string;
   };
 }

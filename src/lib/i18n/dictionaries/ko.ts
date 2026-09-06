@@ -936,6 +936,11 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     shiftLogEmpty: "이번 근무 교대 세션 동안 기록된 관제 작업이 없습니다.",
     shiftLogClear: "근무 인수인계 / 기록 초기화",
     shiftLogTotalActions: "기록된 총 관제 작업 수",
+    shiftLogShiftWindow: "교대 근무 시간대",
+    shiftLogActiveOperator: "당직 관제사",
+    shiftLogClearConfirm: "현재 교대 근무 활동 로그를 인수인계하고 초기화하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    shiftLogCopySummary: "교대 근무 요약 복사",
+    shiftLogCopied: "복사됨!",
   },
 };
 

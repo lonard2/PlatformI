@@ -936,6 +936,11 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     shiftLogEmpty: "当前值班班次暂无已记录的调度操作。",
     shiftLogClear: "交接班 / 重置班次记录",
     shiftLogTotalActions: "当前班次累计操作数",
+    shiftLogShiftWindow: "值班时间窗口",
+    shiftLogActiveOperator: "当班调度员",
+    shiftLogClearConfirm: "您确定要交接并清空当前值班活动日志吗？此操作无法撤销。",
+    shiftLogCopySummary: "复制值班摘要",
+    shiftLogCopied: "已复制！",
   },
 };
 

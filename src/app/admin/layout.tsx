@@ -28,6 +28,7 @@ import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import type { OperatorProfile } from "@/lib/services/adminAuthService";
 import { AdminHelpModal } from "@/components/admin/AdminHelpModal";
+import { setActiveOperatorId } from "@/lib/services/shiftLogService";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -51,6 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .then((data) => {
         if (data.authenticated && data.operator) {
           setOperator(data.operator);
+          setActiveOperatorId(data.operator.id);
         }
       })
       .catch(() => {
@@ -62,6 +64,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Global Keyboard Navigation & Hotkeys (Point 7 & Point 10)
   useEffect(() => {
+    // Suppress keyboard navigation on login route before authentication guard
+    if (pathname === "/admin/login") return;
+
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       // Ignore when typing inside interactive text fields
       const target = e.target as HTMLElement | null;
@@ -114,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [router, isHelpOpen]);
+  }, [router, isHelpOpen, pathname]);
 
   const handleLogout = async () => {
     try {
@@ -126,6 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } catch {
       // Continue redirect
     }
+    setActiveOperatorId("");
     router.push("/admin/login");
     router.refresh();
   };

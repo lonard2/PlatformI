@@ -28,6 +28,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { setActiveOperatorId } from "@/lib/services/shiftLogService";
 import { PUBLIC_OPERATOR_PRESETS } from "@/lib/services/adminPresetOperators";
 
 function AdminLoginForm() {
@@ -84,6 +85,10 @@ function AdminLoginForm() {
       setSuccessMessage(
         `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing}`
       );
+
+      if (data.operator?.id) {
+        setActiveOperatorId(data.operator.id);
+      }
 
       // Brief pause to display success state before transition
       redirectTimerRef.current = setTimeout(() => {

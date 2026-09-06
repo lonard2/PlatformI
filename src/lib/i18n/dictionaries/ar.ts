@@ -936,6 +936,11 @@ export const ar: TranslationDictionary = {
     shiftLogEmpty: "لم يتم تسجيل أي إجراءات للموجه خلال فترة هذه الوردية بعد.",
     shiftLogClear: "تسليم الوردية / إعادة تعيين السجل",
     shiftLogTotalActions: "إجمالي إجراءات الوردية المسجلة",
+    shiftLogShiftWindow: "نافذة المناوبة",
+    shiftLogActiveOperator: "المشغل المناوب",
+    shiftLogClearConfirm: "هل أنت متأكد من تسليم وسجل نشاط المناوبة الحالية؟ لا يمكن التراجع عن هذا الإجراء.",
+    shiftLogCopySummary: "نسخ ملخص المناوبة",
+    shiftLogCopied: "تم النسخ!",
   },
 };
 

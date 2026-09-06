@@ -23,6 +23,7 @@ import {
   Zap,
   History,
   Trash2,
+  Copy,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
@@ -36,11 +37,34 @@ interface AdminHelpModalProps {
 export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"SHORTCUTS" | "TRIAGE" | "OPS" | "SHIFTLOG">("SHORTCUTS");
-  const { log: shiftLog, clear: clearShiftLog } = useShiftLog();
+  const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
+  const { log: shiftLog, framing: shiftFraming, clear: clearShiftLog } = useShiftLog();
   const { containerRef, handleTrapKeyDown } = useDialogFocusTrap<HTMLDivElement>({
     isOpen,
     onClose,
   });
+
+  const handleCopySummary = () => {
+    if (shiftLog.length === 0) return;
+    const summaryText = shiftLog
+      .map((entry) => `${entry.actionType} — ${entry.summary} — ${entry.timeFormatted}`)
+      .join("\n");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(summaryText).then(() => {
+        setCopiedSummary(true);
+        setTimeout(() => setCopiedSummary(false), 2000);
+      });
+    }
+  };
+
+  const handleClearWithConfirm = () => {
+    const promptText =
+      t.admin.shiftLogClearConfirm ||
+      "Are you sure you want to hand over and clear the active shift activity log? This cannot be undone.";
+    if (window.confirm(promptText)) {
+      clearShiftLog();
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -285,20 +309,63 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
 
           {activeTab === "SHIFTLOG" && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              {/* Shift Framing Window Banner */}
+              {shiftFraming.hasEntries && (
+                <div className="p-3 rounded-xl bg-slate-950/90 border border-cyan-500/20 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                      {t.admin.shiftLogActiveOperator}
+                    </span>
+                    <span className="text-cyan-300 font-semibold truncate block">
+                      {shiftFraming.operatorId}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5 sm:col-span-2">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                      {t.admin.shiftLogShiftWindow}
+                    </span>
+                    <span className="text-slate-200 truncate block">
+                      {shiftFraming.startTimeFormatted} &rarr; {shiftFraming.endTimeFormatted}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pb-2 border-b border-white/10 flex-wrap gap-2">
                 <div className="text-xs text-slate-400">
                   {t.admin.shiftLogTotalActions}:{" "}
                   <strong className="text-white font-mono">{shiftLog.length}</strong>
                 </div>
                 {shiftLog.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={clearShiftLog}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-[11px] font-semibold transition btn-tactile"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>{t.admin.shiftLogClear}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopySummary}
+                      aria-label={t.admin.shiftLogCopySummary}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-[11px] font-semibold transition btn-tactile"
+                    >
+                      {copiedSummary ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-300">{t.admin.shiftLogCopied}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-slate-300" />
+                          <span>{t.admin.shiftLogCopySummary}</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleClearWithConfirm}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-[11px] font-semibold transition btn-tactile"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>{t.admin.shiftLogClear}</span>
+                    </button>
+                  </div>
                 )}
               </div>
 
