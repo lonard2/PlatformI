@@ -77,6 +77,7 @@ export const ko: TranslationDictionary = {
     lines: "개 노선",
     undo: "실행 취소",
     nextAlert: "다음 알림",
+    alertDismissed: "알림 숨김",
     syncCartography: "지역 지도 데이터 동기화 중",
     initEngine: "멀티모달 지도 엔진 초기화 중",
     loadingMapCopy: "자보데타베크 대중교통 벡터 노선, 스마트 허브 비콘, 실시간 차량 텔레메트리를 불러오는 중...",

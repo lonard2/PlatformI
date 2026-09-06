@@ -77,6 +77,7 @@ export const ja: TranslationDictionary = {
     lines: "路線",
     undo: "元に戻す",
     nextAlert: "次の通知",
+    alertDismissed: "アラートを非表示にしました",
     syncCartography: "地域カートグラフィを同期中",
     initEngine: "マルチモーダル地図エンジンを初期化中",
     loadingMapCopy: "ジャボデタベック交通のベクトル路線、スマートハブビーコン、リアルタイム車両テレメトリを読み込み中...",

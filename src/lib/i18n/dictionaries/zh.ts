@@ -77,6 +77,7 @@ export const zh: TranslationDictionary = {
     lines: "条线路",
     undo: "撤销",
     nextAlert: "下一条提醒",
+    alertDismissed: "提醒已隐藏",
     syncCartography: "正在同步区域地图",
     initEngine: "正在初始化多模式地图引擎",
     loadingMapCopy: "正在加载雅加达都市圈交通矢量线路、智能枢纽信标和实时车队遥测数据...",

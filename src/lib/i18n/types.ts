@@ -101,6 +101,7 @@ export interface TranslationDictionary {
     lines: string;
     undo: string;
     nextAlert: string;
+    alertDismissed: string;
     syncCartography: string;
     initEngine: string;
     loadingMapCopy: string;

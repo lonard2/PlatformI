@@ -14,17 +14,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   AlertTriangle,
-  AlertCircle,
   Info,
-  ChevronRight,
-  ChevronDown,
   X,
   Layers,
   MapPin,
-  Clock,
   ArrowRight,
   ShieldAlert,
-  Radio,
   RefreshCw,
 } from "lucide-react";
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
@@ -215,14 +210,16 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
+          transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2 }}
           className="w-full px-3 sm:px-6 py-1 z-20"
         >
           <div className="w-full rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between text-xs text-slate-300">
-            <span>{t.common.close}</span>
+            <span>{t.common.alertDismissed}</span>
             <button
+              type="button"
               onClick={handleUndoDismiss}
               aria-label={t.common.undo}
-              className="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition"
+              className="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
             >
               {t.common.undo}
             </button>
@@ -239,15 +236,18 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           className="w-full px-3 sm:px-6 py-0.5 z-20"
         >
           {/* Thin Status Strip */}
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            aria-expanded={isExpanded}
-            className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 cursor-pointer text-left transition-all duration-200 ${badgeConfig.containerStyle}`}
+          <div
+            className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 transition-all duration-200 ${badgeConfig.containerStyle}`}
           >
             <div className="flex items-center justify-between gap-2">
-              {/* Left: Icon + Count + Title */}
-              <div className="flex items-center gap-2 min-w-0 flex-1">
+              {/* Left: Icon + Count + Title (Toggle Button) */}
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-expanded={isExpanded}
+                aria-controls="disruption-banner-details"
+                className="flex items-center gap-2 min-w-0 flex-1 text-left cursor-pointer hover:opacity-90 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+              >
                 <div className="relative flex items-center justify-center">
                   <span
                     className={`animate-ping absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
@@ -262,9 +262,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 <span className="text-[11px] sm:text-xs font-semibold text-white truncate">
                   {currentAlert.title}
                 </span>
-              </div>
+              </button>
 
-              {/* Right: Actions */}
+              {/* Right: Actions (Siblings) */}
               <div className="flex items-center gap-1 shrink-0">
                 {fetchFailed && (
                   <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300">
@@ -273,55 +273,55 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 )}
                 {activeAlerts.length > 1 && (
                   <button
+                    type="button"
                     onClick={handleNextAlert}
                     aria-label={t.common.nextAlert}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition"
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                   >
                     {currentIndex + 1}/{activeAlerts.length}
                   </button>
                 )}
                 {fetchFailed && (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      fetchAlerts();
-                    }}
+                    type="button"
+                    onClick={() => fetchAlerts()}
                     aria-label={t.common.refresh}
-                    className="p-0.5 rounded hover:bg-white/10 text-amber-400 transition"
+                    className="p-0.5 rounded hover:bg-white/10 text-amber-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                   >
                     <RefreshCw className="w-2.5 h-2.5" />
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={handleOpenDrawer}
                   aria-label={t.common.viewStatus}
-                  className="hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition"
+                  title="View Complete Network Status"
+                  className="hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <span>{t.common.viewStatus}</span>
                   <ArrowRight className="w-2.5 h-2.5" />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDismiss();
-                  }}
+                  type="button"
+                  onClick={handleDismiss}
                   aria-label={t.common.close}
-                  className="p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition"
+                  className="p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* Expandable Details */}
           <AnimatePresence>
             {isExpanded && (
               <motion.div
+                id="disruption-banner-details"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
                 <div className="mt-1 p-2.5 rounded-lg glass-panel border border-white/10 text-xs text-slate-300 space-y-2">
@@ -338,7 +338,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                         </span>
                         {currentAlert.affectedStops.map((stopName, sIdx) => (
                           <span
-                            key={sIdx}
+                            key={`${currentAlert.id}-stop-${stopName}-${sIdx}`}
                             className="px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-[10px] text-slate-300 font-mono"
                           >
                             {stopName}
@@ -350,16 +350,18 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                     <div className="flex items-center gap-1.5">
                       {affectedLine && (
                         <button
+                          type="button"
                           onClick={handleHighlightLine}
-                          className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition"
+                          className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                         >
                           <Layers className="w-2.5 h-2.5" />
                           <span>{t.common.viewOnMap}</span>
                         </button>
                       )}
                       <button
+                        type="button"
                         onClick={handleOpenDrawer}
-                        className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition"
+                        className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                       >
                         <span>{t.statusCenter.title}</span>
                         <ArrowRight className="w-2.5 h-2.5" />

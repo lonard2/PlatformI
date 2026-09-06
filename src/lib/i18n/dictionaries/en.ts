@@ -77,6 +77,7 @@ export const en: TranslationDictionary = {
     lines: "lines",
     undo: "Undo",
     nextAlert: "Next alert",
+    alertDismissed: "Alert hidden",
     syncCartography: "Synchronizing Regional Cartography",
     initEngine: "Initializing Multimodal Cartography Engine",
     loadingMapCopy: "Loading Jabodetabek transit vector polylines, smart hub beacons, and real-time fleet telemetry...",
