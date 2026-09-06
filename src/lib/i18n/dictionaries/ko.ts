@@ -908,6 +908,10 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     skipToContent: "본문으로 바로가기",
     ariaStatusFor: "운행 상태:",
     ariaCrowdFor: "혼잡도:",
+    kpiFleetNotHeld: "비대기 운행 편성",
+    kpiFleetNotHeldBasis: "기준: 혼잡 대기 및 기지 입고를 제외한 운행 선단",
+    kpiOccupiedCabinValue: "추정 객실 점유 가치",
+    kpiOccupiedCabinValueBasis: "기준: 실시간 차내 승객 수 × 기본 요금 Rp 3,500",
   },
 };
 

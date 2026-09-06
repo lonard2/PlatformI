@@ -918,5 +918,9 @@ export interface TranslationDictionary {
     skipToContent: string;
     ariaStatusFor: string;
     ariaCrowdFor: string;
+    kpiFleetNotHeld: string;
+    kpiFleetNotHeldBasis: string;
+    kpiOccupiedCabinValue: string;
+    kpiOccupiedCabinValueBasis: string;
   };
 }

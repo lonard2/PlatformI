@@ -908,6 +908,10 @@ export const ar: TranslationDictionary = {
     skipToContent: "الانتقال إلى المحتوى الرئيسي",
     ariaStatusFor: "الحالة التشغيلية لـ",
     ariaCrowdFor: "كثافة الركاب لـ",
+    kpiFleetNotHeld: "الأسطول غير المحتجز",
+    kpiFleetNotHeldBasis: "الأساس: الأسطول النشط باستثناء احتجاز الازدحام والمستودع",
+    kpiOccupiedCabinValue: "قيمة إشغال المقصورة المقدرة",
+    kpiOccupiedCabinValueBasis: "الأساس: حمولة الركاب المباشرة × الأجرة الأساسية 3,500 روبية",
   },
 };
 

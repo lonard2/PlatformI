@@ -60,18 +60,12 @@ export default function AdminDashboardPage() {
     (v) => v.status === "CONGESTION_HOLD" || v.status === "OUT_OF_SERVICE"
   ).length;
 
+  // Real derivation: share of fleet not held (neither CONGESTION_HOLD nor OUT_OF_SERVICE)
   const onTimePercentage = useMemo(() => {
     if (simulatedVehicles.length === 0) return "\u2014";
     const nominal = simulatedVehicles.length - holdCount;
     return `${((nominal / simulatedVehicles.length) * 100).toFixed(1)}%`;
   }, [simulatedVehicles.length, holdCount]);
-
-  // Real derivation: share of the fleet actually running (not OUT_OF_SERVICE)
-  const uptimePercentage = useMemo(() => {
-    if (simulatedVehicles.length === 0) return "\u2014";
-    const inService = simulatedVehicles.filter((v) => v.status !== "OUT_OF_SERVICE").length;
-    return `${((inService / simulatedVehicles.length) * 100).toFixed(1)}%`;
-  }, [simulatedVehicles]);
 
   // Real derivation: share of fleet reporting OPTIMAL cabin cooling
   const acOptimalPercentage = useMemo(() => {
@@ -263,10 +257,10 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* KPI 2: On-Time Network Reliability */}
+        {/* KPI 2: Fleet Not Held */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.onTimePunctuality}</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.kpiFleetNotHeld}</span>
             <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-emerald-400">
               <TrendingUp className="w-4 h-4" />
             </div>
@@ -275,7 +269,7 @@ export default function AdminDashboardPage() {
             {onTimePercentage}
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.statusCenter.systemWideUptime}: <strong className="text-slate-200">{uptimePercentage}</strong>
+            {t.admin.kpiFleetNotHeldBasis}
           </div>
         </div>
 
@@ -297,10 +291,10 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* KPI 4: JakLingko Tariff Absorption */}
+        {/* KPI 4: Estimated Occupied-Cabin Value */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.fareGateVolume}</span>
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.kpiOccupiedCabinValue}</span>
             <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-cyan-400">
               <DollarSign className="w-4 h-4" />
             </div>
@@ -309,7 +303,7 @@ export default function AdminDashboardPage() {
             Rp {new Intl.NumberFormat(currentLanguageMeta.locale, { notation: "compact", maximumFractionDigits: 1 }).format(fareVolumeRp)}
           </div>
           <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.ticketing.integratedDiscount} ({t.admin.capNote})
+            {t.admin.kpiOccupiedCabinValueBasis}
           </div>
         </div>
       </div>

@@ -908,6 +908,10 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     skipToContent: "Skip to main content",
     ariaStatusFor: "Operating status for",
     ariaCrowdFor: "Crowd density for",
+    kpiFleetNotHeld: "Fleet Not Held",
+    kpiFleetNotHeldBasis: "Basis: Active fleet excl. congestion hold & depot",
+    kpiOccupiedCabinValue: "Est. Occupied-Cabin Value",
+    kpiOccupiedCabinValueBasis: "Basis: Live onboard load × Rp 3,500 base fare",
   },
 };
 

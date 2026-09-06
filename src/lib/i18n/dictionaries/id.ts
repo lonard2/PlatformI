@@ -908,6 +908,10 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     skipToContent: "Lewati ke konten utama",
     ariaStatusFor: "Status operasional untuk",
     ariaCrowdFor: "Kepadatan penumpang untuk",
+    kpiFleetNotHeld: "Armada Tidak Tertahan",
+    kpiFleetNotHeldBasis: "Basis: Armada aktif di luar hambatan macet & depo",
+    kpiOccupiedCabinValue: "Estimasi Nilai Okupansi Kabin",
+    kpiOccupiedCabinValueBasis: "Basis: Okupansi kabin langsung × tarif dasar Rp 3.500",
   },
 };
 
