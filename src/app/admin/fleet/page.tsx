@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useMemo, Suspense, useEffect } from "react";
+import React, { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Truck,
@@ -21,6 +21,7 @@ import {
   Anchor,
   X,
   Gauge,
+  RotateCcw,
 } from "lucide-react";
 import {
   Vehicle,
@@ -31,6 +32,14 @@ import {
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+
+interface PendingFleetUndo {
+  vehicleId: string;
+  vehicleCode: string;
+  previousVehicle: Vehicle;
+  label: string;
+  expiry: number;
+}
 
 export default function FleetManagementPage() {
   return (
@@ -88,6 +97,45 @@ function FleetManagementContent() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
+  // Operational status & crowd density grace undo: 5s pausable window
+  const [pendingUndo, setPendingUndo] = useState<PendingFleetUndo | null>(null);
+  const pendingUndoRef = useRef(pendingUndo);
+  pendingUndoRef.current = pendingUndo;
+  const [undoPaused, setUndoPaused] = useState<boolean>(false);
+  const undoPausedRef = useRef(false);
+  undoPausedRef.current = undoPaused;
+  const [nowTick, setNowTick] = useState<number>(() => Date.now());
+  const undoButtonRef = useRef<HTMLButtonElement | null>(null);
+  const lastTriggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!pendingUndo) return;
+
+    const interval = setInterval(() => {
+      if (undoPausedRef.current) {
+        setPendingUndo((prev) => (prev ? { ...prev, expiry: prev.expiry + 1000 } : null));
+        setNowTick(Date.now());
+        return;
+      }
+      const now = Date.now();
+      setNowTick(now);
+      if (pendingUndoRef.current && pendingUndoRef.current.expiry <= now) {
+        // Natural expiry fallback: restore focus if undo button had focus
+        const btn = undoButtonRef.current;
+        const hadFocus =
+          typeof document !== "undefined" &&
+          btn &&
+          (document.activeElement === btn || btn.contains(document.activeElement));
+        if (hadFocus) {
+          lastTriggerRef.current?.focus();
+        }
+        setPendingUndo(null);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [pendingUndo]);
+
   const closeTelemetryModal = () => setSelectedVehicle(null);
   const closeAddModal = () => setIsAddModalOpen(false);
 
@@ -137,7 +185,39 @@ function FleetManagementContent() {
     });
   }, [simulatedVehicles, activeCategory, searchQuery]);
 
-  const handleUpdateStatus = (vehicle: Vehicle, newStatus: VehicleOperationalStatus) => {
+  const getStatusLabel = (status: VehicleOperationalStatus) => {
+    switch (status) {
+      case "IN_SERVICE":
+        return t.admin.moving;
+      case "BOARDING":
+        return t.admin.boarding;
+      case "CONGESTION_HOLD":
+        return t.admin.hold;
+      case "OUT_OF_SERVICE":
+        return t.common.inactive;
+    }
+  };
+
+  const getCrowdLabel = (crowd: CrowdDensityLevel) => {
+    switch (crowd) {
+      case "LEVEL_1_MANY_SEATS":
+        return t.crowdsource.densitySeatsAvailable;
+      case "LEVEL_2_FEW_SEATS":
+        return t.crowdsource.densityFewSeats;
+      case "LEVEL_3_STANDING_ONLY":
+        return t.crowdsource.densityStandingOnly;
+      case "LEVEL_4_FULL_CRUSH":
+        return t.crowdsource.densityFullCrowded;
+    }
+  };
+
+  const handleUpdateStatus = (
+    vehicle: Vehicle,
+    newStatus: VehicleOperationalStatus,
+    triggerEl?: HTMLElement | null
+  ) => {
+    if (vehicle.status === newStatus) return;
+    const previousVehicle = { ...vehicle };
     const updated: Vehicle = {
       ...vehicle,
       status: newStatus,
@@ -147,9 +227,26 @@ function FleetManagementContent() {
     if (selectedVehicle?.id === vehicle.id) {
       setSelectedVehicle(updated);
     }
+    if (triggerEl) {
+      lastTriggerRef.current = triggerEl;
+    }
+    setPendingUndo({
+      vehicleId: vehicle.id,
+      vehicleCode: vehicle.vehicleCode,
+      previousVehicle,
+      label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(vehicle.status)} → ${getStatusLabel(newStatus)}`,
+      expiry: Date.now() + 5000,
+    });
+    requestAnimationFrame(() => undoButtonRef.current?.focus());
   };
 
-  const handleUpdateCrowd = (vehicle: Vehicle, newCrowd: CrowdDensityLevel) => {
+  const handleUpdateCrowd = (
+    vehicle: Vehicle,
+    newCrowd: CrowdDensityLevel,
+    triggerEl?: HTMLElement | null
+  ) => {
+    if (vehicle.crowdLevel === newCrowd) return;
+    const previousVehicle = { ...vehicle };
     const updated: Vehicle = {
       ...vehicle,
       crowdLevel: newCrowd,
@@ -158,6 +255,30 @@ function FleetManagementContent() {
     if (selectedVehicle?.id === vehicle.id) {
       setSelectedVehicle(updated);
     }
+    if (triggerEl) {
+      lastTriggerRef.current = triggerEl;
+    }
+    setPendingUndo({
+      vehicleId: vehicle.id,
+      vehicleCode: vehicle.vehicleCode,
+      previousVehicle,
+      label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(vehicle.crowdLevel)} → ${getCrowdLabel(newCrowd)}`,
+      expiry: Date.now() + 5000,
+    });
+    requestAnimationFrame(() => undoButtonRef.current?.focus());
+  };
+
+  const handleUndo = () => {
+    if (!pendingUndo) return;
+    const { previousVehicle, vehicleId } = pendingUndo;
+    updateSingleVehicle(previousVehicle);
+    if (selectedVehicle?.id === vehicleId) {
+      setSelectedVehicle(previousVehicle);
+    }
+    setPendingUndo(null);
+    requestAnimationFrame(() => {
+      lastTriggerRef.current?.focus();
+    });
   };
 
   const handleAddVehicle = (e: React.FormEvent) => {
@@ -301,6 +422,37 @@ function FleetManagementContent() {
         </div>
       </div>
 
+      {/* 2.5 UNDO RESTORE BANNER (5s Pausable Window) */}
+      {pendingUndo && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
+        >
+          <div className="flex items-center gap-2 truncate">
+            <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span className="truncate">
+              {t.admin.pendingUndo}: <strong>{pendingUndo.label}</strong>
+            </span>
+          </div>
+          <button
+            type="button"
+            ref={undoButtonRef}
+            onFocus={() => setUndoPaused(true)}
+            onBlur={() => setUndoPaused(false)}
+            onClick={handleUndo}
+            aria-label={`${t.admin.pendingUndo}: ${pendingUndo.label}`}
+            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+          >
+            {t.common.undo}
+            <span aria-hidden="true">
+              {" "}
+              ({Math.max(0, Math.ceil((pendingUndo.expiry - nowTick) / 1000))}s)
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* 3. FLEET TABLE */}
       <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
@@ -366,13 +518,9 @@ function FleetManagementContent() {
                     </td>
 
                     {/* Karoseri & Chassis */}
-                    <td className="py-3.5 px-4">
-                      <div className="text-[11px] font-semibold text-slate-200 truncate max-w-[200px]">
-                        {vehicle.coachbuilder}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono truncate max-w-[200px]">
-                        {vehicle.chassis}
-                      </div>
+                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-300">
+                      <div className="font-semibold text-white">{vehicle.coachbuilder}</div>
+                      <div className="text-[10px] text-slate-400">{vehicle.chassis}</div>
                     </td>
 
                     {/* Speed & Heading */}
@@ -396,7 +544,7 @@ function FleetManagementContent() {
                         value={vehicle.status}
                         aria-label={`${t.admin.ariaStatusFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
-                          handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus)
+                          handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus, e.currentTarget)
                         }
                         className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
                           vehicle.status === "IN_SERVICE"
@@ -425,7 +573,7 @@ function FleetManagementContent() {
                         value={vehicle.crowdLevel}
                         aria-label={`${t.admin.ariaCrowdFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
-                          handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel)
+                          handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel, e.currentTarget)
                         }
                         className={`text-[10px] font-mono font-semibold px-2 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 transition cursor-pointer min-h-[36px] ${
                           vehicle.crowdLevel === "LEVEL_1_MANY_SEATS"
@@ -556,7 +704,7 @@ function FleetManagementContent() {
                         key={st}
                         type="button"
                         aria-pressed={selectedVehicle.status === st}
-                        onClick={() => handleUpdateStatus(selectedVehicle, st)}
+                        onClick={(e) => handleUpdateStatus(selectedVehicle, st, e.currentTarget)}
                         className={`p-3 rounded-xl border text-xs font-mono transition min-h-[44px] ${
                           selectedVehicle.status === st
                             ? "bg-cyan-950 border-cyan-500/60 text-cyan-300 font-bold shadow-md"

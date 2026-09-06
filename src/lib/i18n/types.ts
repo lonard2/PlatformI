@@ -912,18 +912,9 @@ export interface TranslationDictionary {
     sevWarning: string;
     sevInfo: string;
     pausedLabel: string;
-
-
-
-
-
-
-
-
-
-
-
-
+    pendingUndo: string;
+    reopenAlert: string;
+    ariaReopen: string;
     ariaStatusFor: string;
     ariaCrowdFor: string;
   };

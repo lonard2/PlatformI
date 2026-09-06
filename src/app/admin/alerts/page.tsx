@@ -18,6 +18,7 @@ import {
   Send,
   Trash2,
   RefreshCw,
+  RotateCcw,
   Eye,
   X,
 } from "lucide-react";
@@ -25,6 +26,18 @@ import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+
+interface PendingAlertMutation {
+  id: string;
+  alertTitle: string;
+  actionType: "RESOLVE" | "DEMOTE" | "REOPEN";
+  reversePatch: {
+    status?: "ACTIVE" | "RESOLVED";
+    severity?: DisruptionSeverity;
+  };
+  previousAlert: DisruptionAlert;
+  expiry: number;
+}
 
 export default function AdminAlertsPage() {
   const { t, currentLanguageMeta } = useTranslation();
@@ -46,10 +59,16 @@ export default function AdminAlertsPage() {
   const escalateConfirmRef = useRef<HTMLButtonElement | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Generalized mutation grace: resolve, demote, and reopen support 5s reverse-PATCH undo
+  const [pendingMutations, setPendingMutations] = useState<Record<string, PendingAlertMutation>>({});
+  const pendingMutationsRef = useRef(pendingMutations);
+  pendingMutationsRef.current = pendingMutations;
+  const mutationUndoRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const rowActionRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
   // Per-row undo grace: one tick engine drives the countdown display, pauses
   // while an undo control holds focus (WCAG 2.2.1 timing adjustable), and
-  // fires the server delete when a row's expiry passes. No setTimeout:
-  // pausing must defer the real deletion, not just the displayed number.
+  // fires the server delete or finalizes mutations when a row's expiry passes.
   const [deleteExpiries, setDeleteExpiries] = useState<Record<string, number>>({});
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
   const [undoPaused, setUndoPaused] = useState<boolean>(false);
@@ -144,14 +163,24 @@ export default function AdminAlertsPage() {
   executeDeleteRef.current = executeDelete;
 
   useEffect(() => {
-    if (Object.keys(deleteExpiries).length === 0) return;
+    const hasDeletes = Object.keys(deleteExpiries).length > 0;
+    const hasMutations = Object.keys(pendingMutations).length > 0;
+    if (!hasDeletes && !hasMutations) return;
+
     const interval = setInterval(() => {
       if (undoPausedRef.current) {
-        // Grace paused: push every expiry forward so the real deletion
+        // Grace paused: push every expiry forward so the real deletion / action
         // is deferred along with the visible countdown
         setDeleteExpiries((prev) => {
           const next = { ...prev };
           for (const id of Object.keys(next)) next[id] += 1000;
+          return next;
+        });
+        setPendingMutations((prev) => {
+          const next = { ...prev };
+          for (const id of Object.keys(next)) {
+            next[id] = { ...next[id], expiry: next[id].expiry + 1000 };
+          }
           return next;
         });
         setNowTick(Date.now());
@@ -159,15 +188,42 @@ export default function AdminAlertsPage() {
       }
       const now = Date.now();
       setNowTick(now);
-      const due = Object.entries(deleteExpiries)
+
+      // Process expired deletes
+      const dueDeletes = Object.entries(deleteExpiries)
         .filter(([, expiry]) => expiry <= now)
         .map(([id]) => id);
-      for (const id of due) {
+      for (const id of dueDeletes) {
         void executeDeleteRef.current(id);
+      }
+
+      // Process expired mutations (finalizes the action, dismisses undo affordance)
+      const dueMutations = Object.entries(pendingMutationsRef.current)
+        .filter(([, m]) => m.expiry <= now)
+        .map(([id]) => id);
+      if (dueMutations.length > 0) {
+        for (const id of dueMutations) {
+          const undoBtn = mutationUndoRefs.current.get(id);
+          const hadFocus =
+            typeof document !== "undefined" &&
+            undoBtn &&
+            (document.activeElement === undoBtn || undoBtn.contains(document.activeElement));
+          if (hadFocus) {
+            feedContainerRef.current?.focus();
+          }
+          mutationUndoRefs.current.delete(id);
+        }
+        setPendingMutations((prev) => {
+          const next = { ...prev };
+          for (const id of dueMutations) {
+            delete next[id];
+          }
+          return next;
+        });
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [deleteExpiries, undoPaused]);
+  }, [deleteExpiries, pendingMutations, undoPaused]);
 
   useEffect(() => {
     // pagehide flush for hard-reload / tab-close mid-grace with keepalive: true.
@@ -305,6 +361,10 @@ export default function AdminAlertsPage() {
   };
 
   const handleResolveAlert = async (id: string) => {
+    const alert = alerts.find((a) => a.id === id);
+    if (!alert) return;
+    const previousAlert = { ...alert };
+
     setMutatingAlertId(id);
     setBroadcastError(null);
     try {
@@ -317,8 +377,20 @@ export default function AdminAlertsPage() {
         setAlerts((prev) =>
           prev.map((a) => (a.id === id ? { ...a, status: "RESOLVED" } : a))
         );
-        const title = alerts.find((a) => a.id === id)?.title;
-        notify(t.admin.resolveDisruption + (title ? ` — ${title}` : ""));
+        // Register reverse-PATCH undo grace
+        setPendingMutations((prev) => ({
+          ...prev,
+          [id]: {
+            id,
+            alertTitle: alert.title,
+            actionType: "RESOLVE",
+            reversePatch: { status: "ACTIVE" },
+            previousAlert,
+            expiry: Date.now() + 5000,
+          },
+        }));
+        requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        notify(t.admin.resolveDisruption + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.resolveFailed);
@@ -358,6 +430,10 @@ export default function AdminAlertsPage() {
   };
 
   const handleDemoteAlert = async (id: string) => {
+    const alert = alerts.find((a) => a.id === id);
+    if (!alert) return;
+    const previousAlert = { ...alert };
+
     setMutatingAlertId(id);
     setBroadcastError(null);
     try {
@@ -370,8 +446,20 @@ export default function AdminAlertsPage() {
         setAlerts((prev) =>
           prev.map((a) => (a.id === id ? { ...a, severity: "WARNING" } : a))
         );
-        const title = alerts.find((a) => a.id === id)?.title;
-        notify(t.admin.demotedToast + (title ? ` — ${title}` : ""));
+        // Register reverse-PATCH undo grace
+        setPendingMutations((prev) => ({
+          ...prev,
+          [id]: {
+            id,
+            alertTitle: alert.title,
+            actionType: "DEMOTE",
+            reversePatch: { severity: "CRITICAL" },
+            previousAlert,
+            expiry: Date.now() + 5000,
+          },
+        }));
+        requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        notify(t.admin.demotedToast + (alert.title ? ` — ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.demoteFailed);
@@ -383,8 +471,110 @@ export default function AdminAlertsPage() {
     }
   };
 
+  const handleReopenAlert = async (id: string) => {
+    const alert = alerts.find((a) => a.id === id);
+    if (!alert) return;
+    const previousAlert = { ...alert };
+
+    setMutatingAlertId(id);
+    setBroadcastError(null);
+    try {
+      const res = await fetch("/api/alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "ACTIVE" }),
+      });
+      if (res.ok) {
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, status: "ACTIVE" } : a))
+        );
+        // Register reverse-PATCH undo grace
+        setPendingMutations((prev) => ({
+          ...prev,
+          [id]: {
+            id,
+            alertTitle: alert.title,
+            actionType: "REOPEN",
+            reversePatch: { status: "RESOLVED" },
+            previousAlert,
+            expiry: Date.now() + 5000,
+          },
+        }));
+        requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
+        notify(t.admin.reopenAlert + (alert.title ? ` — ${alert.title}` : ""));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setBroadcastError(data.error || t.admin.resolveFailed);
+      }
+    } catch {
+      setBroadcastError(t.admin.alertsNetwork);
+    } finally {
+      setMutatingAlertId(null);
+    }
+  };
+
+  const handleUndoMutation = async (id: string) => {
+    const mutation = pendingMutations[id];
+    if (!mutation) return;
+
+    setMutatingAlertId(id);
+    setBroadcastError(null);
+
+    // Optimistically reverse in state
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, ...mutation.reversePatch } : a))
+    );
+
+    // Clean up mutation
+    setPendingMutations((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    mutationUndoRefs.current.delete(id);
+
+    // Restore focus to row action button
+    requestAnimationFrame(() => {
+      rowActionRefs.current.get(id)?.focus();
+    });
+
+    try {
+      const res = await fetch("/api/alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...mutation.reversePatch }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        // If reverse patch failed, restore previous alert state
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === id ? mutation.previousAlert : a))
+        );
+        setBroadcastError(data.error || t.admin.alertsNetwork);
+      } else {
+        notify(t.common.undo + (mutation.alertTitle ? ` — ${mutation.alertTitle}` : ""));
+      }
+    } catch {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? mutation.previousAlert : a))
+      );
+      setBroadcastError(t.admin.alertsNetwork);
+    } finally {
+      setMutatingAlertId(null);
+    }
+  };
+
   const handleDeleteAlert = (alertToDelete: DisruptionAlert) => {
     const id = alertToDelete.id;
+
+    // Clean up any pending mutation for this alert
+    setPendingMutations((prev) => {
+      if (!prev[id]) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    mutationUndoRefs.current.delete(id);
 
     // Optimistically remove from visible list and park in the undo buffer;
     // the tick engine performs the server delete when the expiry passes
@@ -776,9 +966,8 @@ export default function AdminAlertsPage() {
       </div>
 
       {/* 3. ACTIVE DISRUPTIONS MANAGEMENT FEED */}
-      {/* Undo Delete Grace: rendered at the feed so the affordance sits where
-          the row just vanished, not at the top of the page */}
-      {Object.values(pendingDeletes).length > 0 && (
+      {/* Undo Delete & Mutation Grace: sit where the action happened */}
+      {(Object.values(pendingDeletes).length > 0 || Object.values(pendingMutations).length > 0) && (
         <div className="space-y-2">
           {Object.values(pendingDeletes).map((deletedAlert) => (
             <div
@@ -809,6 +998,46 @@ export default function AdminAlertsPage() {
                 <span aria-hidden="true">
                   {" "}
                   ({Math.max(0, Math.ceil(((deleteExpiries[deletedAlert.id] ?? nowTick) - nowTick) / 1000))}s)
+                </span>
+              </button>
+            </div>
+          ))}
+
+          {Object.values(pendingMutations).map((mutation) => (
+            <div
+              key={mutation.id}
+              role="status"
+              aria-live="polite"
+              className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="truncate">
+                  {t.admin.pendingUndo}: <strong>{mutation.alertTitle}</strong> (
+                  {mutation.actionType === "RESOLVE"
+                    ? t.admin.resolved
+                    : mutation.actionType === "DEMOTE"
+                    ? t.admin.demoteAlert
+                    : t.admin.reopenAlert}
+                  )
+                </span>
+              </div>
+              <button
+                type="button"
+                ref={(el) => {
+                  if (el) mutationUndoRefs.current.set(mutation.id, el);
+                  else mutationUndoRefs.current.delete(mutation.id);
+                }}
+                onFocus={() => setUndoPaused(true)}
+                onBlur={() => setUndoPaused(false)}
+                onClick={() => handleUndoMutation(mutation.id)}
+                aria-label={`${t.admin.pendingUndo}: ${mutation.alertTitle}`}
+                className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+              >
+                {t.common.undo}
+                <span aria-hidden="true">
+                  {" "}
+                  ({Math.max(0, Math.ceil((mutation.expiry - nowTick) / 1000))}s)
                 </span>
               </button>
             </div>
@@ -894,11 +1123,34 @@ export default function AdminAlertsPage() {
 
                 {/* Operations Actions */}
                 <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-                  {!isResolved && (
+                  {isResolved ? (
+                    <button
+                      type="button"
+                      ref={(el) => {
+                        if (el) rowActionRefs.current.set(alert.id, el);
+                        else rowActionRefs.current.delete(alert.id);
+                      }}
+                      onClick={() => handleReopenAlert(alert.id)}
+                      disabled={mutatingAlertId === alert.id}
+                      aria-label={`${t.admin.ariaReopen} ${alert.title}`}
+                      className="px-3 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition disabled:opacity-50 min-h-[40px] flex items-center gap-1.5 btn-tactile"
+                    >
+                      {mutatingAlertId === alert.id ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      )}
+                      <span>{t.admin.reopenAlert}</span>
+                    </button>
+                  ) : (
                     <>
                       {alert.severity !== "CRITICAL" && (
                         <button
                           type="button"
+                          ref={(el) => {
+                            if (el) rowActionRefs.current.set(alert.id, el);
+                            else rowActionRefs.current.delete(alert.id);
+                          }}
                           onClick={(e) => {
                             escalateTriggerRef.current = e.currentTarget;
                             setEscalateConfirmId(alert.id);
@@ -916,6 +1168,10 @@ export default function AdminAlertsPage() {
                       {alert.severity === "CRITICAL" && (
                         <button
                           type="button"
+                          ref={(el) => {
+                            if (el) rowActionRefs.current.set(alert.id, el);
+                            else rowActionRefs.current.delete(alert.id);
+                          }}
                           onClick={() => handleDemoteAlert(alert.id)}
                           disabled={mutatingAlertId === alert.id}
                           aria-label={`${t.admin.ariaDemote} ${alert.title}`}
@@ -929,6 +1185,10 @@ export default function AdminAlertsPage() {
                       )}
                       <button
                         type="button"
+                        ref={(el) => {
+                          if (el) rowActionRefs.current.set(alert.id, el);
+                          else rowActionRefs.current.delete(alert.id);
+                        }}
                         onClick={() => handleResolveAlert(alert.id)}
                         disabled={mutatingAlertId === alert.id}
                         aria-label={`${t.admin.ariaResolve} ${alert.title}`}
