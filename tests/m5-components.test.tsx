@@ -228,11 +228,11 @@ describe("Milestone 5: React UI Components Integration", () => {
         />
       );
 
-      expect(screen.getByText(/Track on Map|Lacak di Peta|Live Map|Peta/i)).toBeInTheDocument();
-      expect(screen.getByText(/Status Langsung|Live Status|Layanan/i)).toBeInTheDocument();
+      expect(screen.getByText(/Track on Map|Lacak di Peta|Live Map|Peta|Map/i)).toBeInTheDocument();
+      expect(screen.getByText(/Status Langsung|Live Status|Layanan|Status/i)).toBeInTheDocument();
       expect(screen.getByText(/Route|Rute/i)).toBeInTheDocument();
-      expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket/i)).toBeInTheDocument();
-      expect(screen.getByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket|Tickets/i)).toBeInTheDocument();
+      expect(screen.getByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas|Crowd|Warga/i)).toBeInTheDocument();
 
       // Click tickets button (accessible name now matches the visible label)
       const qrBtn = screen.getByRole("button", { name: /Position QR Code on Gate Scanner|dynamic QR|kode QR|QR|Tiket|Tickets|Pass/i });
@@ -240,7 +240,7 @@ describe("Milestone 5: React UI Components Integration", () => {
       expect(useTransitStore.getState().activeDrawer).toBe("tickets");
 
       // Click Status button
-      const statusBtn = screen.getByText(/Status Langsung|Live Status|Layanan/i);
+      const statusBtn = screen.getByText(/Status Langsung|Live Status|Layanan|Status/i);
       fireEvent.click(statusBtn);
       expect(onOpenStatusMock).toHaveBeenCalled();
 
@@ -267,7 +267,7 @@ describe("Milestone 5: React UI Components Integration", () => {
       const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
       expect(aiBtn).toHaveAttribute("aria-pressed", "true");
 
-      const mapBtn = screen.getByRole("button", { name: /Track on Map|Lacak di Peta|Live Map|Peta/i });
+      const mapBtn = screen.getByRole("button", { name: /Track on Map|Lacak di Peta|Live Map|Peta|Map/i });
       fireEvent.click(mapBtn);
       expect(onCloseAIMock).toHaveBeenCalled();
     });

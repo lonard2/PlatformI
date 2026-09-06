@@ -20,9 +20,8 @@ import {
   Minus,
   Navigation,
   Check,
-  RotateCcw,
 } from "lucide-react";
-import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
+import { useTransitStore, TileLayerId } from "@/lib/stores/useTransitStore";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
 import { useTranslation } from "@/lib/i18n";
 
@@ -40,6 +39,7 @@ export function MapControls({ map }: MapControlsProps) {
 
   const [tileMenuOpen, setTileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const tileTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!tileMenuOpen) return;
@@ -51,6 +51,7 @@ export function MapControls({ map }: MapControlsProps) {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setTileMenuOpen(false);
+        tileTriggerRef.current?.focus();
       }
     };
     document.addEventListener("mousedown", handleOutside);
@@ -79,14 +80,16 @@ export function MapControls({ map }: MapControlsProps) {
   return (
     <>
       {/* 1. TOP-RIGHT: Basemap Tile Switcher Dropdown */}
-      <div ref={menuRef} className="absolute top-4 right-4 z-[400]">
+      <div ref={menuRef} className="absolute top-4 right-4 z-30">
         <div className="relative">
           <button
+            ref={tileTriggerRef}
             type="button"
             onClick={() => setTileMenuOpen(!tileMenuOpen)}
             aria-label={t.settings.basemapStyle}
-            aria-haspopup="true"
+            aria-haspopup="menu"
             aria-expanded={tileMenuOpen}
+            aria-controls="basemap-tile-menu"
             className="glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
@@ -94,7 +97,12 @@ export function MapControls({ map }: MapControlsProps) {
           </button>
 
           {tileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 glass-dropdown rounded-xl p-1.5 shadow-2xl border border-white/15 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div
+              id="basemap-tile-menu"
+              role="menu"
+              aria-label={t.settings.mapTileLayer}
+              className="absolute right-0 mt-2 w-48 glass-dropdown rounded-xl p-1.5 shadow-2xl border border-white/15 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+            >
               <div className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
                 {t.settings.mapTileLayer}
               </div>
@@ -105,12 +113,15 @@ export function MapControls({ map }: MapControlsProps) {
                 return (
                   <button
                     key={tileId}
+                    role="menuitemradio"
+                    aria-checked={isCurrent}
                     type="button"
                     onClick={() => {
                       setTileLayer(tileId);
                       setTileMenuOpen(false);
+                      tileTriggerRef.current?.focus();
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
                       isCurrent
                         ? "bg-cyan-950/70 text-cyan-300 font-semibold border border-cyan-500/30"
                         : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
@@ -127,7 +138,7 @@ export function MapControls({ map }: MapControlsProps) {
       </div>
 
       {/* 3. BOTTOM-RIGHT: Simulation Speed Controller & Viewport Navigation */}
-      <div className="absolute bottom-6 right-4 z-[400] flex flex-col items-end gap-3">
+      <div className="absolute bottom-6 right-4 z-30 flex flex-col items-end gap-3">
         {/* Simulation Speed Multiplier Controls */}
         <div className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-2xl shadow-black/50 border border-white/15">
           <span className="hidden sm:inline-block px-2 text-[10px] font-mono text-slate-400 uppercase tracking-wider">

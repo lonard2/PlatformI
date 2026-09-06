@@ -207,9 +207,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
     <AnimatePresence>
       {isUndoVisible && !isDismissed && (
         <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
           transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2 }}
           className="w-full px-3 sm:px-6 py-1 z-20"
         >
@@ -229,9 +229,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
       {!isDismissed && !isUndoVisible && activeAlerts.length > 0 && currentAlert && badgeConfig && (
         <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
           transition={shouldReduceMotion ? { duration: 0.1 } : { type: "spring", damping: 28, stiffness: 300 }}
           className="w-full px-3 sm:px-6 py-0.5 z-20"
         >
@@ -250,7 +250,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
               >
                 <div className="relative flex items-center justify-center">
                   <span
-                    className={`animate-ping absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
+                    className={`animate-ping motion-reduce:animate-none absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
                   />
                   {badgeConfig.icon}
                 </div>
@@ -304,7 +304,8 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 <button
                   type="button"
                   onClick={handleDismiss}
-                  aria-label={t.common.close}
+                  aria-label={t.common.dismissAlert}
+                  title={t.common.dismissAlert}
                   className="p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <X className="w-2.5 h-2.5" />
@@ -318,9 +319,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             {isExpanded && (
               <motion.div
                 id="disruption-banner-details"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
                 transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2, ease: "easeInOut" }}
                 className="overflow-hidden"
               >

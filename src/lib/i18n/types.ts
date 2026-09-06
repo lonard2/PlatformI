@@ -102,11 +102,18 @@ export interface TranslationDictionary {
     undo: string;
     nextAlert: string;
     alertDismissed: string;
+    dismissAlert: string;
     syncCartography: string;
     initEngine: string;
     loadingMapCopy: string;
   };
   navigation: {
+    tabMap: string;
+    tabStatus: string;
+    tabRoute: string;
+    tabTickets: string;
+    tabCommunity: string;
+    tabAI: string;
     systemStatus: string;
     liveFleet: string;
     stationsAndHubs: string;
@@ -625,6 +632,8 @@ export interface TranslationDictionary {
     journeyPlotted: string;
     journeyHint: string;
     journeyNoMatch: string;
+    journeyRefinePrompt: string;
+    transitLines: string;
     clearRoute: string;
     swapStops: string;
     mapZoomIn: string;

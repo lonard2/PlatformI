@@ -41,7 +41,6 @@ import {
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus } from "@/types/transit";
-import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
@@ -1487,7 +1486,7 @@ export function TransportationSystemBar() {
 
                     return (
                       <button
-                        key={idx}
+                        key={corridor.code || `${activeItem.id}-corridor-${idx}`}
                         onClick={() => handleCorridorSelect(corridor)}
                         className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/60 transition-all flex items-start justify-between gap-3 group text-left shadow-sm"
                       >

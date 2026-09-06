@@ -24,7 +24,6 @@ import {
   Sparkles,
   Info,
   CheckCircle2,
-  AlertCircle,
   Maximize2,
   Cpu,
   Bus,

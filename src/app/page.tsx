@@ -81,6 +81,23 @@ export default function Home() {
   const journeyPanelRef = useRef<HTMLDivElement>(null);
   const journeyPillRef = useRef<HTMLButtonElement>(null);
   const shouldRestorePillFocus = useRef<boolean>(false);
+  const drawerTriggerRef = useRef<HTMLElement | null>(null);
+  const crowdsourceDrawerRef = useRef<HTMLDivElement>(null);
+  const ticketsDrawerRef = useRef<HTMLDivElement>(null);
+  const prevDrawerRef = useRef<string | null>(null);
+
+  // Restore focus to opener button when crowdsource or tickets drawer closes
+  useEffect(() => {
+    if (activeDrawer === "crowdsource" || activeDrawer === "tickets") {
+      if (!prevDrawerRef.current) {
+        drawerTriggerRef.current = (document.activeElement as HTMLElement) || null;
+      }
+    } else if (!activeDrawer && (prevDrawerRef.current === "crowdsource" || prevDrawerRef.current === "tickets")) {
+      drawerTriggerRef.current?.focus();
+      drawerTriggerRef.current = null;
+    }
+    prevDrawerRef.current = activeDrawer;
+  }, [activeDrawer]);
 
   // P0 Journey-to-Map binding: resolve the deterministic route on a settled
   // input (300ms) — never per keystroke, so pins and the camera stop thrashing
@@ -130,8 +147,12 @@ export default function Home() {
       ? plannedJourney.directLines.map((l) => l.code).join(", ")
       : plannedJourney?.transferOption
       ? `${plannedJourney.transferOption.firstLine.code} → ${plannedJourney.transferOption.secondLine.code} via ${plannedJourney.transferOption.transferStop.name}`
-      : "transit lines";
-    setJourneyQuery(`Refine journey from ${origin} to ${dest} via ${lineSummary}. Calculate JakLingko fare cap, transfer guidance, and crowd recommendations.`);
+      : t.journey.transitLines;
+    const query = t.journey.journeyRefinePrompt
+      .replace("{origin}", origin)
+      .replace("{dest}", dest)
+      .replace("{lineSummary}", lineSummary);
+    setJourneyQuery(query);
     setActiveDrawer("ai");
   };
 
@@ -553,9 +574,11 @@ export default function Home() {
         <AnimatePresence>
           {activeDrawer === "crowdsource" && (
             <motion.div
+              ref={crowdsourceDrawerRef}
               role="dialog"
               aria-label={t.crowdsource.liveFeedTitle}
               tabIndex={-1}
+              onAnimationComplete={() => crowdsourceDrawerRef.current?.focus()}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
@@ -566,7 +589,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={drawerTransition}
-              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-96 max-w-[calc(100vw-24px)]"
+              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-96 max-w-[calc(100vw-24px)] focus-visible:outline-none"
             >
               <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
             </motion.div>
@@ -577,9 +600,11 @@ export default function Home() {
         <AnimatePresence>
           {activeDrawer === "tickets" && (
             <motion.div
+              ref={ticketsDrawerRef}
               role="dialog"
               aria-label={t.navigation.ticketing}
               tabIndex={-1}
+              onAnimationComplete={() => ticketsDrawerRef.current?.focus()}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
@@ -590,7 +615,7 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={drawerTransition}
-              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-[420px] max-w-[calc(100vw-24px)]"
+              className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-[420px] max-w-[calc(100vw-24px)] focus-visible:outline-none"
             >
               <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
             </motion.div>
