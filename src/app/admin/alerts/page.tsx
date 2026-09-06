@@ -56,7 +56,7 @@ export default function AdminAlertsPage() {
   const [pendingDeletes, setPendingDeletes] = useState<Record<string, DisruptionAlert>>({});
   const [escalateConfirmId, setEscalateConfirmId] = useState<string | null>(null);
   const escalateTriggerRef = useRef<HTMLElement | null>(null);
-  const escalateConfirmRef = useRef<HTMLButtonElement | null>(null);
+  const escalateCancelRef = useRef<HTMLButtonElement | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Generalized mutation grace: resolve, demote, and reopen support 5s reverse-PATCH undo
@@ -101,7 +101,7 @@ export default function AdminAlertsPage() {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (escalateConfirmId) {
-      escalateConfirmRef.current?.focus();
+      escalateCancelRef.current?.focus();
     } else if (escalateTriggerRef.current) {
       const trigger = escalateTriggerRef.current;
       escalateTriggerRef.current = null;
@@ -406,6 +406,14 @@ export default function AdminAlertsPage() {
     setEscalateConfirmId(null);
     setMutatingAlertId(id);
     setBroadcastError(null);
+    // Clear any pending undo mutations on this alert id so prior undo doesn't clobber escalation
+    setPendingMutations((prev) => {
+      if (!prev[id]) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    mutationUndoRefs.current.delete(id);
     try {
       const res = await fetch("/api/alerts", {
         method: "PATCH",
@@ -1238,7 +1246,6 @@ export default function AdminAlertsPage() {
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
-                        ref={escalateConfirmRef}
                         onClick={() => handleEscalateAlert(alert.id)}
                         disabled={mutatingAlertId === alert.id}
                         className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition disabled:opacity-50 min-h-[40px] btn-tactile"
@@ -1247,6 +1254,7 @@ export default function AdminAlertsPage() {
                       </button>
                       <button
                         type="button"
+                        ref={escalateCancelRef}
                         onClick={closeEscalateConfirm}
                         className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition min-h-[40px] btn-tactile"
                       >

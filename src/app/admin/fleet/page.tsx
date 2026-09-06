@@ -36,7 +36,9 @@ import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 interface PendingFleetUndo {
   vehicleId: string;
   vehicleCode: string;
-  previousVehicle: Vehicle;
+  field: "status" | "crowdLevel";
+  previous: VehicleOperationalStatus | CrowdDensityLevel;
+  previousSpeedKmh?: number;
   label: string;
   expiry: number;
 }
@@ -97,44 +99,67 @@ function FleetManagementContent() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
-  // Operational status & crowd density grace undo: 5s pausable window
-  const [pendingUndo, setPendingUndo] = useState<PendingFleetUndo | null>(null);
-  const pendingUndoRef = useRef(pendingUndo);
-  pendingUndoRef.current = pendingUndo;
+  // Operational status & crowd density grace undo: field-scoped Map registry with 5s pausable window
+  const [pendingUndos, setPendingUndos] = useState<Map<string, PendingFleetUndo>>(() => new Map());
+  const pendingUndosRef = useRef(pendingUndos);
+  pendingUndosRef.current = pendingUndos;
   const [undoPaused, setUndoPaused] = useState<boolean>(false);
   const undoPausedRef = useRef(false);
   undoPausedRef.current = undoPaused;
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
-  const undoButtonRef = useRef<HTMLButtonElement | null>(null);
+  const undoButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const lastTriggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!pendingUndo) return;
+    if (pendingUndos.size === 0) return;
 
     const interval = setInterval(() => {
       if (undoPausedRef.current) {
-        setPendingUndo((prev) => (prev ? { ...prev, expiry: prev.expiry + 1000 } : null));
+        setPendingUndos((prev) => {
+          const next = new Map(prev);
+          for (const [id, item] of next) {
+            next.set(id, { ...item, expiry: item.expiry + 1000 });
+          }
+          return next;
+        });
         setNowTick(Date.now());
         return;
       }
       const now = Date.now();
       setNowTick(now);
-      if (pendingUndoRef.current && pendingUndoRef.current.expiry <= now) {
-        // Natural expiry fallback: restore focus if undo button had focus
-        const btn = undoButtonRef.current;
-        const hadFocus =
-          typeof document !== "undefined" &&
-          btn &&
-          (document.activeElement === btn || btn.contains(document.activeElement));
-        if (hadFocus) {
-          lastTriggerRef.current?.focus();
+
+      const currentMap = pendingUndosRef.current;
+      const expiredIds: string[] = [];
+      for (const [id, item] of currentMap) {
+        if (item.expiry <= now) {
+          expiredIds.push(id);
         }
-        setPendingUndo(null);
+      }
+
+      if (expiredIds.length > 0) {
+        // Natural expiry fallback: restore focus if undo button had focus
+        expiredIds.forEach((id) => {
+          const btn = undoButtonRefs.current.get(id);
+          const hadFocus =
+            typeof document !== "undefined" &&
+            btn &&
+            (document.activeElement === btn || btn.contains(document.activeElement));
+          if (hadFocus) {
+            lastTriggerRef.current?.focus();
+          }
+          undoButtonRefs.current.delete(id);
+        });
+
+        setPendingUndos((prev) => {
+          const next = new Map(prev);
+          expiredIds.forEach((id) => next.delete(id));
+          return next;
+        });
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [pendingUndo]);
+  }, [pendingUndos.size]);
 
   const closeTelemetryModal = () => setSelectedVehicle(null);
   const closeAddModal = () => setIsAddModalOpen(false);
@@ -217,7 +242,8 @@ function FleetManagementContent() {
     triggerEl?: HTMLElement | null
   ) => {
     if (vehicle.status === newStatus) return;
-    const previousVehicle = { ...vehicle };
+    const previousStatus = vehicle.status;
+    const previousSpeedKmh = vehicle.speedKmh;
     const updated: Vehicle = {
       ...vehicle,
       status: newStatus,
@@ -230,14 +256,20 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
-    setPendingUndo({
-      vehicleId: vehicle.id,
-      vehicleCode: vehicle.vehicleCode,
-      previousVehicle,
-      label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(vehicle.status)} → ${getStatusLabel(newStatus)}`,
-      expiry: Date.now() + 5000,
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "status",
+        previous: previousStatus,
+        previousSpeedKmh,
+        label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(previousStatus)} → ${getStatusLabel(newStatus)}`,
+        expiry: Date.now() + 5000,
+      });
+      return next;
     });
-    requestAnimationFrame(() => undoButtonRef.current?.focus());
+    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
   };
 
   const handleUpdateCrowd = (
@@ -246,7 +278,7 @@ function FleetManagementContent() {
     triggerEl?: HTMLElement | null
   ) => {
     if (vehicle.crowdLevel === newCrowd) return;
-    const previousVehicle = { ...vehicle };
+    const previousCrowd = vehicle.crowdLevel;
     const updated: Vehicle = {
       ...vehicle,
       crowdLevel: newCrowd,
@@ -258,24 +290,59 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
-    setPendingUndo({
-      vehicleId: vehicle.id,
-      vehicleCode: vehicle.vehicleCode,
-      previousVehicle,
-      label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(vehicle.crowdLevel)} → ${getCrowdLabel(newCrowd)}`,
-      expiry: Date.now() + 5000,
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "crowdLevel",
+        previous: previousCrowd,
+        label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(previousCrowd)} → ${getCrowdLabel(newCrowd)}`,
+        expiry: Date.now() + 5000,
+      });
+      return next;
     });
-    requestAnimationFrame(() => undoButtonRef.current?.focus());
+    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
   };
 
-  const handleUndo = () => {
-    if (!pendingUndo) return;
-    const { previousVehicle, vehicleId } = pendingUndo;
-    updateSingleVehicle(previousVehicle);
-    if (selectedVehicle?.id === vehicleId) {
-      setSelectedVehicle(previousVehicle);
+  const handleUndo = (vehicleId: string) => {
+    const pending = pendingUndos.get(vehicleId);
+    if (!pending) return;
+
+    // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
+    const current = simulatedVehicles.find((v) => v.id === vehicleId);
+    if (current) {
+      if (pending.field === "status") {
+        const prevStatus = pending.previous as VehicleOperationalStatus;
+        const restored: Vehicle = {
+          ...current,
+          status: prevStatus,
+          speedKmh: pending.previousSpeedKmh !== undefined ? pending.previousSpeedKmh : current.speedKmh,
+        };
+        updateSingleVehicle(restored);
+        if (selectedVehicle?.id === vehicleId) {
+          setSelectedVehicle(restored);
+        }
+      } else if (pending.field === "crowdLevel") {
+        const prevCrowd = pending.previous as CrowdDensityLevel;
+        const restored: Vehicle = {
+          ...current,
+          crowdLevel: prevCrowd,
+        };
+        updateSingleVehicle(restored);
+        if (selectedVehicle?.id === vehicleId) {
+          setSelectedVehicle(restored);
+        }
+      }
     }
-    setPendingUndo(null);
+
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.delete(vehicleId);
+      return next;
+    });
+    undoButtonRefs.current.delete(vehicleId);
+
     requestAnimationFrame(() => {
       lastTriggerRef.current?.focus();
     });
@@ -330,6 +397,13 @@ function FleetManagementContent() {
         return <Anchor className="w-3.5 h-3.5 text-blue-400" />;
     }
   };
+
+  const modalUndo = selectedVehicle ? pendingUndos.get(selectedVehicle.id) : undefined;
+  const pageUndos = useMemo(() => {
+    const all = Array.from(pendingUndos.values());
+    if (!selectedVehicle) return all;
+    return all.filter((u) => u.vehicleId !== selectedVehicle.id);
+  }, [pendingUndos, selectedVehicle]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -422,34 +496,42 @@ function FleetManagementContent() {
         </div>
       </div>
 
-      {/* 2.5 UNDO RESTORE BANNER (5s Pausable Window) */}
-      {pendingUndo && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
-        >
-          <div className="flex items-center gap-2 truncate">
-            <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span className="truncate">
-              {t.admin.pendingUndo}: <strong>{pendingUndo.label}</strong>
-            </span>
-          </div>
-          <button
-            type="button"
-            ref={undoButtonRef}
-            onFocus={() => setUndoPaused(true)}
-            onBlur={() => setUndoPaused(false)}
-            onClick={handleUndo}
-            aria-label={`${t.admin.pendingUndo}: ${pendingUndo.label}`}
-            className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
-          >
-            {t.common.undo}
-            <span aria-hidden="true">
-              {" "}
-              ({Math.max(0, Math.ceil((pendingUndo.expiry - nowTick) / 1000))}s)
-            </span>
-          </button>
+      {/* 2.5 UNDO RESTORE BANNERS (5s Pausable Window per Vehicle) */}
+      {pageUndos.length > 0 && (
+        <div className="space-y-2">
+          {pageUndos.map((undo) => (
+            <div
+              key={undo.vehicleId}
+              role="status"
+              aria-live="polite"
+              className="p-4 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="truncate">
+                  {t.admin.pendingUndo}: <strong>{undo.label}</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                ref={(el) => {
+                  if (el) undoButtonRefs.current.set(undo.vehicleId, el);
+                  else undoButtonRefs.current.delete(undo.vehicleId);
+                }}
+                onFocus={() => setUndoPaused(true)}
+                onBlur={() => setUndoPaused(false)}
+                onClick={() => handleUndo(undo.vehicleId)}
+                aria-label={`${t.admin.pendingUndo}: ${undo.label}`}
+                className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+              >
+                {t.common.undo}
+                <span aria-hidden="true">
+                  {" "}
+                  ({Math.max(0, Math.ceil((undo.expiry - nowTick) / 1000))}s)
+                </span>
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
@@ -660,6 +742,40 @@ function FleetManagementContent() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {/* In-Modal Undo Banner: Keeps focus trapped inside dialog without z-50 leak */}
+            {modalUndo && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="mx-5 mt-4 p-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-slate-200 text-xs flex items-center justify-between shadow-lg animate-in slide-in-from-top-2 duration-150 shrink-0"
+              >
+                <div className="flex items-center gap-2 truncate pr-2">
+                  <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span className="truncate">
+                    {t.admin.pendingUndo}: <strong>{modalUndo.label}</strong>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  ref={(el) => {
+                    if (el) undoButtonRefs.current.set(modalUndo.vehicleId, el);
+                    else undoButtonRefs.current.delete(modalUndo.vehicleId);
+                  }}
+                  onFocus={() => setUndoPaused(true)}
+                  onBlur={() => setUndoPaused(false)}
+                  onClick={() => handleUndo(modalUndo.vehicleId)}
+                  aria-label={`${t.admin.pendingUndo}: ${modalUndo.label}`}
+                  className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+                >
+                  {t.common.undo}
+                  <span aria-hidden="true">
+                    {" "}
+                    ({Math.max(0, Math.ceil((modalUndo.expiry - nowTick) / 1000))}s)
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Body */}
             <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
