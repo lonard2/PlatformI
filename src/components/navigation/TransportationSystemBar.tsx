@@ -10,7 +10,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Train,
   TrainTrack,
@@ -42,7 +42,7 @@ import {
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
-import { useTranslation, SupportedLanguage } from "@/lib/i18n";
+import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
 export interface SystemCorridorDetail {
@@ -786,6 +786,7 @@ export function TransportationSystemBar() {
   const setViewport = useTransitStore((state) => state.setViewport);
   const allLines = useTransitStore((state) => state.allLines);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
+  const activeDrawer = useTransitStore((state) => state.activeDrawer);
 
   // States
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<"ALL" | TransitCategory>("ALL");
@@ -794,6 +795,7 @@ export function TransportationSystemBar() {
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [hoverCardPos, setHoverCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
   const [showLangMenu, setShowLangMenu] = useState<boolean>(false);
   const [corridorSearchQuery, setCorridorSearchQuery] = useState<string>("");
 
@@ -988,7 +990,7 @@ export function TransportationSystemBar() {
         {/* Quick Global Settings / Reset / Language Selector */}
         <div className="flex items-center gap-2 text-[10px]">
           <button
-            onClick={() => setActiveDrawer("settings")}
+            onClick={() => setActiveDrawer(activeDrawer === "settings" ? null : "settings")}
             aria-label={t.navigation.settings}
             title={t.navigation.settings}
             className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white transition`}
@@ -1031,7 +1033,7 @@ export function TransportationSystemBar() {
                   initial={{ opacity: 0, y: -4, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.12 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.12 }}
                   className="absolute right-0 top-full mt-1 z-50 w-36 bg-[var(--glass-chrome)] border border-slate-700 rounded-xl shadow-2xl p-1 space-y-0.5"
                 >
                   {supportedLanguages.map((lang) => (
@@ -1090,7 +1092,7 @@ export function TransportationSystemBar() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }}
                   className="flex items-center gap-1.5 sm:gap-2 shrink-0 pr-2 sm:pr-3 border-r border-white/10 last:border-r-0"
                 >
                   {/* Group Category Header Badge with Toggle and Collapse */}
@@ -1153,8 +1155,8 @@ export function TransportationSystemBar() {
                             id={`system-item-${item.id}`}
                             aria-expanded={isSelected}
                             aria-controls={`system-tray-${item.id}`}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.96 }}
+                            whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                            whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
                             onClick={(e) => handleItemToggle(item, e)}
                             onMouseEnter={(e) => handleItemMouseEnter(item, e)}
                             onMouseLeave={handleItemMouseLeave}
@@ -1264,7 +1266,7 @@ export function TransportationSystemBar() {
             initial={{ opacity: 0, y: -4, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.15 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.15 }}
             style={{
               position: "fixed",
               left: `${hoverCardPos.left}px`,
@@ -1332,7 +1334,7 @@ export function TransportationSystemBar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.25, ease: "easeOut" }}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.stopPropagation();

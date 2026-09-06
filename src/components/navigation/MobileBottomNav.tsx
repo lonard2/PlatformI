@@ -9,6 +9,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { getHighestSeverity } from "@/lib/services/severityRollup";
 import {
   MapPin,
   Activity,
@@ -43,13 +44,7 @@ export function MobileBottomNav({
   const clearSelection = useTransitStore((state) => state.clearSelection);
   const activeAlerts = useTransitStore((state) => state.activeAlerts);
 
-  const highestSeverity: "CRITICAL" | "WARNING" | "INFO" | "NORMAL" = useMemo(() => {
-    const active = activeAlerts.filter((a) => a.status === "ACTIVE");
-    if (active.some((a) => a.severity === "CRITICAL")) return "CRITICAL";
-    if (active.some((a) => a.severity === "WARNING")) return "WARNING";
-    if (active.some((a) => a.severity === "INFO")) return "INFO";
-    return "NORMAL";
-  }, [activeAlerts]);
+  const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
 
   const isWalletActive = activeDrawer === "tickets";
   const isCrowdsourceActive = activeDrawer === "crowdsource";
@@ -82,14 +77,14 @@ export function MobileBottomNav({
         onClick={handleMapClick}
         aria-current={isMapActive ? "page" : undefined}
         aria-pressed={isMapActive}
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isMapActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
       >
         <MapPin className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight">{t.common.viewOnMap}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.common.viewOnMap}</span>
         {isMapActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
@@ -99,7 +94,7 @@ export function MobileBottomNav({
         aria-haspopup="dialog"
         aria-expanded={isStatusActive}
         aria-pressed={isStatusActive}
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isStatusActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
@@ -117,7 +112,7 @@ export function MobileBottomNav({
             }`}
           />
         </div>
-        <span className="text-[11px] tracking-tight">{t.statusCenter.tabLive}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.statusCenter.tabLive}</span>
         {isStatusActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
@@ -126,10 +121,10 @@ export function MobileBottomNav({
         onClick={onOpenJourney}
         aria-expanded={isJourneyOpen}
         aria-pressed={isJourneyOpen}
-        className="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
+        className="flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
       >
         <Navigation className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight">{t.common.route}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.common.route}</span>
         {isJourneyOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
@@ -139,14 +134,14 @@ export function MobileBottomNav({
         aria-haspopup="dialog"
         aria-expanded={isWalletActive}
         aria-pressed={isWalletActive}
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isWalletActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
       >
         <QrCode className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight">{t.navigation.ticketing}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.ticketing}</span>
         {isWalletActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
@@ -156,14 +151,14 @@ export function MobileBottomNav({
         aria-haspopup="dialog"
         aria-expanded={isCrowdsourceActive}
         aria-pressed={isCrowdsourceActive}
-        className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isCrowdsourceActive
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
       >
         <Users className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight">{t.navigation.crowdsource}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.crowdsource}</span>
         {isCrowdsourceActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
@@ -175,7 +170,7 @@ export function MobileBottomNav({
         aria-haspopup="dialog"
         aria-expanded={isAIOpen}
         aria-pressed={isAIOpen}
-        className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-center min-w-[44px] min-h-[48px] px-1 py-1 rounded-xl transition-all active:scale-95 shrink-0"
+        className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center justify-center flex-1 min-w-0 min-h-[48px] px-1 py-1 rounded-xl transition-all active:scale-95"
       >
         <div
           className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all ${
