@@ -87,6 +87,11 @@ describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
         expect(dict.admin.kpiFleetNotHeldBasis).toBeTruthy();
         expect(dict.admin.kpiOccupiedCabinValue).toBeTruthy();
         expect(dict.admin.kpiOccupiedCabinValueBasis).toBeTruthy();
+        expect(dict.admin.helpTitle).toBeTruthy();
+        expect(dict.admin.helpShortcutsTitle).toBeTruthy();
+        expect(dict.admin.shortcutHelp).toBeTruthy();
+        expect(dict.admin.triageCriticalDesc).toBeTruthy();
+        expect(dict.admin.opsJakLingkoDesc).toBeTruthy();
       });
     });
   });

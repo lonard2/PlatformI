@@ -923,5 +923,24 @@ export interface TranslationDictionary {
     kpiFleetNotHeldBasis: string;
     kpiOccupiedCabinValue: string;
     kpiOccupiedCabinValueBasis: string;
+    helpTitle: string;
+    helpSubtitle: string;
+    helpShortcutsTitle: string;
+    helpTriageTitle: string;
+    helpOpsTitle: string;
+    shortcutHelp: string;
+    shortcutSearch: string;
+    shortcutDashboard: string;
+    shortcutFleet: string;
+    shortcutAlerts: string;
+    shortcutScanner: string;
+    shortcutEscape: string;
+    triageCriticalDesc: string;
+    triageWarningDesc: string;
+    triageInfoDesc: string;
+    triageUndoDesc: string;
+    opsJakLingkoDesc: string;
+    opsStatusDesc: string;
+    closeHelpDialog: string;
   };
 }

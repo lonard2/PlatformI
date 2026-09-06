@@ -22,10 +22,12 @@ import {
   Activity,
   UserCheck,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import type { OperatorProfile } from "@/lib/services/adminAuthService";
+import { AdminHelpModal } from "@/components/admin/AdminHelpModal";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -55,6 +57,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         // Fallback default
       });
   }, [pathname]);
+
+  const [isHelpOpen, setIsHelpOpen] = useState<boolean>(false);
+
+  // Global Keyboard Navigation & Hotkeys (Point 7 & Point 10)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignore when typing inside interactive text fields
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // Do not capture if any system modifier is active (except shift for '?')
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key === "?" || (e.shiftKey && e.key === "?")) {
+        e.preventDefault();
+        setIsHelpOpen((prev) => !prev);
+      } else if (e.key === "1") {
+        router.push("/admin");
+      } else if (e.key === "2") {
+        router.push("/admin/fleet");
+      } else if (e.key === "3") {
+        router.push("/admin/alerts");
+      } else if (e.key === "4") {
+        router.push("/admin/scanner");
+      } else if (e.key === "/") {
+        e.preventDefault();
+        const searchInput = document.querySelector<HTMLInputElement>(
+          'input[type="text"], input[type="search"]'
+        );
+        searchInput?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [router]);
 
   const handleLogout = async () => {
     try {
@@ -241,6 +287,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               ))}
             </nav>
 
+            {/* OCC Dispatcher Help & Shortcuts Trigger (Point 7 & Point 10) */}
+            <button
+              type="button"
+              onClick={() => setIsHelpOpen(true)}
+              title={`${t.admin.helpTitle} (?)`}
+              aria-label={t.admin.helpTitle}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs font-medium text-slate-300 hover:text-white transition btn-tactile min-h-[44px]"
+            >
+              <HelpCircle className="w-4 h-4 text-cyan-400" />
+              <span className="hidden lg:inline text-xs">{t.admin.helpShortcutsTitle}</span>
+              <kbd className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-mono bg-slate-800 border border-slate-700 rounded text-cyan-300 font-bold">
+                ?
+              </kbd>
+            </button>
+
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
@@ -279,6 +340,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {children}
         </main>
       </div>
+
+      {/* Dispatcher Help & Documentation Modal (Point 7 & Point 10) */}
+      <AdminHelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 }
