@@ -239,9 +239,11 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           className="w-full px-3 sm:px-6 py-0.5 z-20"
         >
           {/* Thin Status Strip */}
-          <div
+          <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 cursor-pointer transition-all duration-200 ${badgeConfig.containerStyle}`}
+            aria-expanded={isExpanded}
+            className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 cursor-pointer text-left transition-all duration-200 ${badgeConfig.containerStyle}`}
           >
             <div className="flex items-center justify-between gap-2">
               {/* Left: Icon + Count + Title */}
@@ -310,7 +312,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 </button>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Expandable Details */}
           <AnimatePresence>
