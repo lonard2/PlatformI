@@ -561,6 +561,34 @@ function FleetManagementContent() {
     });
   };
 
+  // Keyboard shortcut: Ctrl+Z / Cmd+Z triggers undo on latest pending mutation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+        const target = e.target as HTMLElement | null;
+        if (
+          target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.tagName === "SELECT" ||
+            target.isContentEditable)
+        ) {
+          return;
+        }
+
+        const entries = Array.from(pendingUndos.entries());
+        if (entries.length > 0) {
+          e.preventDefault();
+          const [lastVehicleId] = entries[entries.length - 1];
+          handleUndo(lastVehicleId);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pendingUndos]);
+
   const handleAddVehicle = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVehicleCode.trim() || !newName.trim()) return;

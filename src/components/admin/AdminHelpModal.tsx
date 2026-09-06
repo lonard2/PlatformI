@@ -177,7 +177,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
           {activeTab === "SHORTCUTS" && (
             <div className="space-y-3">
               <p className="text-slate-400 text-xs">
-                Global hotkeys active across the OCC dispatch portal when not editing text inputs:
+                {t.admin.helpShortcutsIntro}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
@@ -223,7 +223,14 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                   </kbd>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-white/5 sm:col-span-2">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-white/5">
+                  <span className="text-slate-300">{t.admin.shortcutUndo}</span>
+                  <kbd className="px-2 py-1 rounded bg-slate-800 border border-slate-700 font-mono text-xs font-bold text-cyan-300">
+                    Ctrl+Z / ⌘Z
+                  </kbd>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-white/5">
                   <span className="text-slate-300">{t.admin.shortcutEscape}</span>
                   <kbd className="px-2.5 py-1 rounded bg-slate-800 border border-slate-700 font-mono text-xs font-bold text-cyan-300">
                     Esc
@@ -274,7 +281,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
               <div className="p-3.5 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
                 <div className="flex items-center gap-2 text-cyan-400 font-semibold">
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Undo Grace Architecture</span>
+                  <span>{t.admin.triageUndoTitle}</span>
                 </div>
                 <p className="text-slate-400 text-xs leading-relaxed">
                   {t.admin.triageUndoDesc}
@@ -288,7 +295,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
               <div className="p-3.5 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
                 <div className="flex items-center gap-2 text-emerald-400 font-semibold">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>JakLingko Integration Rules</span>
+                  <span>{t.admin.opsJakLingkoTitle}</span>
                 </div>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   {t.admin.opsJakLingkoDesc}
@@ -298,7 +305,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
               <div className="p-3.5 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
                 <div className="flex items-center gap-2 text-teal-400 font-semibold">
                   <Zap className="w-4 h-4" />
-                  <span>Vehicle Operational State Machine</span>
+                  <span>{t.admin.opsStatusTitle}</span>
                 </div>
                 <p className="text-slate-300 text-xs leading-relaxed">
                   {t.admin.opsStatusDesc}

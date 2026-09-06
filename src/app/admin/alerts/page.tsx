@@ -686,6 +686,43 @@ export default function AdminAlertsPage() {
     });
   };
 
+  // Keyboard shortcut: Ctrl+Z / Cmd+Z triggers undo on latest pending delete or mutation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+        const target = e.target as HTMLElement | null;
+        if (
+          target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.tagName === "SELECT" ||
+            target.isContentEditable)
+        ) {
+          return;
+        }
+
+        const deleteIds = Object.keys(pendingDeletes);
+        if (deleteIds.length > 0) {
+          e.preventDefault();
+          const lastDeleteId = deleteIds[deleteIds.length - 1];
+          handleUndoDelete(lastDeleteId);
+          return;
+        }
+
+        const mutationIds = Object.keys(pendingMutations);
+        if (mutationIds.length > 0) {
+          e.preventDefault();
+          const lastMutationId = mutationIds[mutationIds.length - 1];
+          handleUndoMutation(lastMutationId);
+          return;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pendingDeletes, pendingMutations]);
+
   // Stops on the selected line
   const lineStops = selectedLine?.stops || allStops.filter((s) => s.lineId === targetLineId);
 

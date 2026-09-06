@@ -73,6 +73,16 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
 
+    if (!containerRef.current.contains(document.activeElement)) {
+      e.preventDefault();
+      if (e.shiftKey) {
+        last.focus();
+      } else {
+        first.focus();
+      }
+      return;
+    }
+
     if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
       last.focus();
@@ -81,6 +91,20 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
       first.focus();
     }
   }, []);
+
+  // 3b. Document-level Tab listener to prevent focus leak outside container
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleDocumentTab = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        handleTrapKeyDown(e);
+      }
+    };
+
+    document.addEventListener("keydown", handleDocumentTab);
+    return () => document.removeEventListener("keydown", handleDocumentTab);
+  }, [isOpen, handleTrapKeyDown]);
 
   // 4. Initial autofocus
   useEffect(() => {
