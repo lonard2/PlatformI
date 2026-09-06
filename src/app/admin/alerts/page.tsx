@@ -761,7 +761,7 @@ export default function AdminAlertsPage() {
                     <span className="text-xs font-semibold text-white">{selectedLine.name}</span>
                   </div>
                   <div className="text-[10px] font-mono text-amber-400 font-bold">
-                    {severity}
+                    {severityLabel[severity]}
                   </div>
                 </div>
                 <div className="text-xs text-slate-300">{title || t.admin.activeDisruptions}</div>
@@ -857,7 +857,7 @@ export default function AdminAlertsPage() {
                           : "bg-amber-900/80 text-amber-300 border-amber-500/40"
                       }`}
                     >
-                      {isResolved ? t.admin.resolved : alert.severity}
+                      {isResolved ? t.admin.resolved : severityLabel[alert.severity]}
                     </span>
 
                     {line && (

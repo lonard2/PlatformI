@@ -174,7 +174,13 @@ export default function AdminDashboardPage() {
         timestamp,
         time,
         text: `${a.title}: ${a.description}`,
-        badge: line?.code || a.severity,
+        badge:
+          line?.code ||
+          (a.severity === "CRITICAL"
+            ? t.admin.sevCritical
+            : a.severity === "WARNING"
+            ? t.admin.sevWarning
+            : t.admin.sevInfo),
         color:
           a.severity === "CRITICAL"
             ? "text-rose-300 border-rose-500/40 bg-rose-950/40"
