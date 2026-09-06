@@ -21,6 +21,7 @@ import { AppSettingsModal } from "../src/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "../src/components/settings/UserTransitPreferencesModal";
 import { TransportationSystemBar } from "../src/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "../src/components/navigation/MobileBottomNav";
+import { AdminHelpModal } from "../src/components/admin/AdminHelpModal";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { useLanguageStore } from "../src/lib/i18n";
 import { TRANSIT_LINES, TRANSIT_STOPS, TRANSIT_VEHICLES, DISRUPTION_ALERTS } from "../src/lib/data/jakarta-dataset";
@@ -270,6 +271,51 @@ describe("Milestone 5: React UI Components Integration", () => {
       const mapBtn = screen.getByRole("button", { name: /Track on Map|Lacak di Peta|Live Map|Peta|Map/i });
       fireEvent.click(mapBtn);
       expect(onCloseAIMock).toHaveBeenCalled();
+    });
+  });
+
+  describe("8. AdminHelpModal & Dialog Trap Gate", () => {
+    it("renders with role=dialog, aria-modal=true, and fires onClose on Escape", () => {
+      const onClose = vi.fn();
+      render(<AdminHelpModal isOpen={true} onClose={onClose} />);
+
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toBeInTheDocument();
+      expect(dialog).toHaveAttribute("aria-modal", "true");
+
+      // Verify presence of open dialog in DOM matches dialog-overlay count gate
+      const openDialogs = document.querySelectorAll('[role="dialog"], [aria-modal="true"], dialog[open]');
+      expect(openDialogs.length).toBeGreaterThan(0);
+
+      // Escape key closes modal
+      fireEvent.keyDown(document, { key: "Escape" });
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it("traps Tab keyboard navigation within dialog elements", () => {
+      const onClose = vi.fn();
+      render(<AdminHelpModal isOpen={true} onClose={onClose} />);
+
+      const dialog = screen.getByRole("dialog");
+      const focusables = dialog.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      expect(focusables.length).toBeGreaterThan(0);
+
+      const firstElement = focusables[0];
+      const lastElement = focusables[focusables.length - 1];
+
+      // Focus last element and press Tab -> should wrap to first element
+      lastElement.focus();
+      expect(document.activeElement).toBe(lastElement);
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: false });
+      expect(document.activeElement).toBe(firstElement);
+
+      // Focus first element and press Shift+Tab -> should wrap to last element
+      firstElement.focus();
+      expect(document.activeElement).toBe(firstElement);
+      fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(lastElement);
     });
   });
 });

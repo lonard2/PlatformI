@@ -78,6 +78,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       // Do not capture if any system modifier is active (except shift for '?')
       if (e.ctrlKey || e.metaKey || e.altKey) return;
 
+      // Short-circuit all global shortcuts whenever any dialog/overlay is open
+      const openDialogCount = document.querySelectorAll(
+        '[role="dialog"], [aria-modal="true"], dialog[open]'
+      ).length;
+
+      if (openDialogCount > 0) {
+        // If the help dialog is open, allow toggling it closed with '?'
+        if (isHelpOpen && (e.key === "?" || (e.shiftKey && e.key === "?"))) {
+          e.preventDefault();
+          setIsHelpOpen(false);
+        }
+        return;
+      }
+
       if (e.key === "?" || (e.shiftKey && e.key === "?")) {
         e.preventDefault();
         setIsHelpOpen((prev) => !prev);
@@ -100,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [router]);
+  }, [router, isHelpOpen]);
 
   const handleLogout = async () => {
     try {

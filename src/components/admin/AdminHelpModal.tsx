@@ -37,7 +37,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"SHORTCUTS" | "TRIAGE" | "OPS" | "SHIFTLOG">("SHORTCUTS");
   const { log: shiftLog, clear: clearShiftLog } = useShiftLog();
-  const { containerRef } = useDialogFocusTrap<HTMLDivElement>({
+  const { containerRef, handleTrapKeyDown } = useDialogFocusTrap<HTMLDivElement>({
     isOpen,
     onClose,
   });
@@ -59,6 +59,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
         aria-labelledby="admin-help-title"
         aria-describedby="admin-help-subtitle"
         tabIndex={-1}
+        onKeyDown={handleTrapKeyDown}
         className="w-full max-w-2xl max-h-[85vh] flex flex-col bg-slate-900 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden focus:outline-none"
       >
         {/* Modal Header */}
