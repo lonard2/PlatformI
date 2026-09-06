@@ -129,7 +129,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(1)}
-            aria-label="Real-Time Cruising Speed (1x)"
+            aria-label={t.journey.simSpeedRealtime}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 1
                 ? "bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/20"
@@ -144,7 +144,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(2)}
-            aria-label="Accelerated Movement (2x)"
+            aria-label={t.journey.simSpeedAccelerated}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 2
                 ? "bg-blue-950/80 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20"
@@ -159,7 +159,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(5)}
-            aria-label="High-Speed Schedule Preview (5x)"
+            aria-label={t.journey.simSpeedPreview}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 5
                 ? "bg-rose-950/80 text-rose-300 border border-rose-500/40 shadow-lg shadow-rose-500/20"
@@ -176,7 +176,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleZoomIn}
-            aria-label="Zoom In"
+            aria-label={t.journey.mapZoomIn}
             className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -187,7 +187,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleZoomOut}
-            aria-label="Zoom Out"
+            aria-label={t.journey.mapZoomOut}
             className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
           >
             <Minus className="w-4 h-4" />
@@ -198,7 +198,7 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={handleRecenter}
-            aria-label="Recenter Map to Jakarta Hub"
+            aria-label={t.journey.mapRecenter}
             className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors"
           >
             <Navigation className="w-4 h-4" />

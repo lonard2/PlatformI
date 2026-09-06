@@ -617,7 +617,22 @@ export interface TranslationDictionary {
     youChip: string;
     feedStaleNotice: string;
     selectVehiclePlaceholder: string;
-  };  aiAdvisor: {
+  };
+  journey: {
+    journeyDirect: string;
+    journeyTransfer: string;
+    journeyPlotted: string;
+    journeyHint: string;
+    clearRoute: string;
+    swapStops: string;
+    mapZoomIn: string;
+    mapZoomOut: string;
+    mapRecenter: string;
+    simSpeedRealtime: string;
+    simSpeedAccelerated: string;
+    simSpeedPreview: string;
+  };
+  aiAdvisor: {
     title: string;
     subtitle: string;
     inputPlaceholder: string;
@@ -886,6 +901,18 @@ export interface TranslationDictionary {
     sevWarning: string;
     sevInfo: string;
     pausedLabel: string;
+
+
+
+
+
+
+
+
+
+
+
+
     ariaStatusFor: string;
     ariaCrowdFor: string;
   };
