@@ -207,10 +207,11 @@ export default function AdminDashboardPage() {
       <div className="rounded-2xl bg-slate-900/90 border border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold">
-              {t.admin.occCommandBadge}
+            <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-semibold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              {t.admin.liveTelemetryBadge}
             </span>
-            <span className="text-xs text-slate-400 font-mono">{t.admin.liveTelemetryBadge}</span>
+            <span className="text-xs text-slate-400 font-mono">Dukuh Atas TOD</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
             {t.admin.heroTitle}

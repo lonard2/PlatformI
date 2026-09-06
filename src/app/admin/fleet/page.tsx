@@ -497,6 +497,9 @@ function FleetManagementContent() {
       </div>
 
       {/* 2.5 UNDO RESTORE BANNERS (5s Pausable Window per Vehicle) */}
+      {/* Design Standard (Semantic Undo Theming):
+          - Cyan is used for non-destructive state changes (operational status, crowd density).
+      */}
       {pageUndos.length > 0 && (
         <div className="space-y-2">
           {pageUndos.map((undo) => (

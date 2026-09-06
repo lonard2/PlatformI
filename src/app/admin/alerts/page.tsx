@@ -408,14 +408,6 @@ export default function AdminAlertsPage() {
     setEscalateConfirmId(null);
     setMutatingAlertId(id);
     setBroadcastError(null);
-    // Clear any pending undo mutations on this alert id so prior undo doesn't clobber escalation
-    setPendingMutations((prev) => {
-      if (!prev[id]) return prev;
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    mutationUndoRefs.current.delete(id);
     try {
       const res = await fetch("/api/alerts", {
         method: "PATCH",
@@ -423,6 +415,14 @@ export default function AdminAlertsPage() {
         body: JSON.stringify({ id, severity: "CRITICAL" }),
       });
       if (res.ok) {
+        // Clear any pending undo mutations on this alert id on success so prior undo doesn't clobber escalation
+        setPendingMutations((prev) => {
+          if (!prev[id]) return prev;
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+        mutationUndoRefs.current.delete(id);
         setAlerts((prev) =>
           prev.map((a) => (a.id === id ? { ...a, severity: "CRITICAL" } : a))
         );
@@ -976,7 +976,10 @@ export default function AdminAlertsPage() {
       </div>
 
       {/* 3. ACTIVE DISRUPTIONS MANAGEMENT FEED */}
-      {/* Undo Delete & Mutation Grace: sit where the action happened */}
+      {/* Design Standard (Semantic Undo Theming):
+          - Amber is explicitly reserved for DESTRUCTIVE DELETION undos.
+          - Cyan is reserved for NON-DESTRUCTIVE STATE MUTATION undos (resolve/demote/reopen).
+      */}
       {(Object.values(pendingDeletes).length > 0 || Object.values(pendingMutations).length > 0) && (
         <div className="space-y-2">
           {Object.values(pendingDeletes).map((deletedAlert) => (

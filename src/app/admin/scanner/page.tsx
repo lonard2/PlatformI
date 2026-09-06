@@ -42,7 +42,7 @@ interface ScanAuditEntry {
 
 export default function AdminScannerPage() {
   const { t, currentLanguageMeta } = useTranslation();
-  const [selectedGate, setSelectedGate] = useState<string>("CSW-ASEAN Hub Gate #04");
+  const [selectedGate, setSelectedGate] = useState<string>("CSW-ASEAN Hub Gate #04 (Corridor 13 Flyover)");
   const [scannedPayload, setScannedPayload] = useState<string>("");
   const [lastValidationResult, setLastValidationResult] = useState<GateValidationResult | null>(null);
   const [gateStatus, setGateStatus] = useState<"IDLE" | "GRANTED" | "DENIED">("IDLE");
@@ -62,13 +62,30 @@ export default function AdminScannerPage() {
   const [mockUserId, setMockUserId] = useState<string>("USR-COMMUTER-99");
   const [firstTapInOffsetMinutes, setFirstTapInOffsetMinutes] = useState<number>(45);
 
-  const gateOptions = [
-    "CSW-ASEAN Hub Gate #04 (Corridor 13 Flyover)",
-    "Dukuh Atas TOD Multi-Modal Turnstile #01",
-    "Manggarai Central Rail Gate #09",
-    "Stasiun Halim Whoosh Concourse Gate #02",
-    "Pelabuhan Muara Angke Speedboat Pier #01",
-    "Stasiun Bandara Soekarno-Hatta (SHIA) Gate #03",
+  const gateGroups = [
+    {
+      group: "BRT & Busway Trunk",
+      gates: ["CSW-ASEAN Hub Gate #04 (Corridor 13 Flyover)"],
+    },
+    {
+      group: "Urban & Commuter Rail",
+      gates: [
+        "Dukuh Atas TOD Multi-Modal Turnstile #01",
+        "Manggarai Central Rail Gate #09",
+      ],
+    },
+    {
+      group: "High-Speed Rail",
+      gates: ["Stasiun Halim Whoosh Concourse Gate #02"],
+    },
+    {
+      group: "Airport Rail",
+      gates: ["Stasiun Bandara Soekarno-Hatta (SHIA) Gate #03"],
+    },
+    {
+      group: "Maritime & Speedboat",
+      gates: ["Pelabuhan Muara Angke Speedboat Pier #01"],
+    },
   ];
 
   // Auto-generate a live valid test payload on initial load
@@ -200,10 +217,14 @@ export default function AdminScannerPage() {
             onChange={(e) => setSelectedGate(e.target.value)}
             className="bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
           >
-            {gateOptions.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
+            {gateGroups.map((grp) => (
+              <optgroup key={grp.group} label={grp.group} className="bg-slate-900 text-slate-400 font-sans font-semibold">
+                {grp.gates.map((g) => (
+                  <option key={g} value={g} className="bg-slate-950 text-slate-200 font-mono">
+                    {g}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
