@@ -448,22 +448,39 @@ export function NetworkMapCanvas({
     });
   }, [stops, selectedLine, selectedStop, onSelectStop, onStopDragEnd]);
 
-  // Fit view to selected line bounds
-  const handleFitToLine = useCallback(() => {
-    if (!mapInstanceRef.current || !selectedLine || !selectedLine.polylineCoordinates) return;
-    if (selectedLine.polylineCoordinates.length === 0) return;
+  // Keep ref to selectedLine to decouple fit calculations from re-renders
+  const selectedLineRef = useRef<Line | null>(selectedLine);
+  useEffect(() => {
+    selectedLineRef.current = selectedLine;
+  }, [selectedLine]);
 
-    const latLngs: [number, number][] = selectedLine.polylineCoordinates.map((c) => [
+  // Track the line ID that was last auto-fitted so edits never trigger unexpected zoom-outs
+  const lastFittedLineIdRef = useRef<string | null>(null);
+
+  // Manual fit view to selected line bounds (on-demand or on distinct line change)
+  const handleFitToLine = useCallback(() => {
+    const line = selectedLineRef.current;
+    if (!mapInstanceRef.current || !line || !line.polylineCoordinates) return;
+    if (line.polylineCoordinates.length === 0) return;
+
+    const latLngs: [number, number][] = line.polylineCoordinates.map((c) => [
       c.latitude,
       c.longitude,
     ]);
     const bounds = L.latLngBounds(latLngs);
     mapInstanceRef.current.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
-  }, [selectedLine]);
+  }, []);
 
-  // Auto-fit on selected line change
+  // ONLY auto-fit when switching to a completely DIFFERENT line ID
+  // Edits, vertex movements, and station additions will NEVER zoom the map out!
   useEffect(() => {
-    if (selectedLine) {
+    if (!selectedLine) {
+      lastFittedLineIdRef.current = null;
+      return;
+    }
+
+    if (selectedLine.id !== lastFittedLineIdRef.current) {
+      lastFittedLineIdRef.current = selectedLine.id;
       handleFitToLine();
     }
   }, [selectedLine?.id, handleFitToLine]);
