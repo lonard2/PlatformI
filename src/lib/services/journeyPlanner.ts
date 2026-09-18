@@ -19,7 +19,7 @@ import { PlannedJourney } from "@/lib/stores/useTransitStore";
  * Normalizes and finds a matching stop from user input, handling common prefixes like
  * 'Stasiun', 'Halte', 'Terminal', 'Pelabuhan', 'Bandara'.
  */
-function findMatchingStop(input: string, allStops: Stop[]): Stop | null {
+export function findMatchingStop(input: string, allStops: Stop[]): Stop | null {
   const norm = input.trim().toLowerCase();
   if (!norm) return null;
 
@@ -160,26 +160,37 @@ export function resolvePlannedJourney(
     if (transferOption) break;
   }
 
-  const candidateLines = transferOption
-    ? [transferOption.firstLine, transferOption.secondLine]
-    : [...candidateOriginLines.slice(0, 2), ...candidateDestLines.slice(0, 2)];
+  if (transferOption) {
+    const candidateLines = [transferOption.firstLine, transferOption.secondLine];
+    const firstMode = candidateLines[0]?.mode || "tj_brt";
+    const secondMode = candidateLines[1]?.mode || firstMode;
+    const fare1 = calculateLegFare(firstMode, distanceKm * 0.5);
+    const fare2 = calculateLegFare(secondMode, distanceKm * 0.5);
+    // JakLingko 3-hour tariff cap: Rp 10,000 max integrated ceiling
+    const estimatedFareRp = Math.min(10000, fare1 + fare2);
+    const estimatedDurationMinutes = Math.max(8, Math.round(distanceKm * 2.8 + 8));
 
-  const firstMode = candidateLines[0]?.mode || "tj_brt";
-  const secondMode = candidateLines[1]?.mode || firstMode;
-  const fare1 = calculateLegFare(firstMode, distanceKm * 0.5);
-  const fare2 = calculateLegFare(secondMode, distanceKm * 0.5);
-  // JakLingko 3-hour tariff cap: Rp 10,000 max integrated ceiling
-  const estimatedFareRp = Math.min(10000, fare1 + fare2);
-  const estimatedDurationMinutes = Math.max(8, Math.round(distanceKm * 2.8 + 8));
+    return {
+      originStop,
+      destinationStop: destStop,
+      directLines: [],
+      transferOption,
+      candidateLines,
+      distanceKm: Math.round(distanceKm * 10) / 10,
+      estimatedFareRp,
+      estimatedDurationMinutes,
+    };
+  }
 
+  // 3. No direct line and no 1-transfer route found between stops
   return {
     originStop,
     destinationStop: destStop,
     directLines: [],
-    transferOption,
-    candidateLines,
+    transferOption: undefined,
+    candidateLines: [],
     distanceKm: Math.round(distanceKm * 10) / 10,
-    estimatedFareRp,
-    estimatedDurationMinutes,
+    estimatedFareRp: 0,
+    estimatedDurationMinutes: Math.max(8, Math.round(distanceKm * 2.8 + 8)),
   };
 }

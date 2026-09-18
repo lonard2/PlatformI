@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { resolvePlannedJourney } from "@/lib/services/journeyPlanner";
+import { resolvePlannedJourney, findMatchingStop } from "@/lib/services/journeyPlanner";
 import { CheckInModal } from "@/components/crowdsource/CheckInModal";
 import { CommunityLiveFeed } from "@/components/crowdsource/CommunityLiveFeed";
 import { DigitalPassWallet } from "@/components/ticketing/DigitalPassWallet";
@@ -100,7 +100,7 @@ export default function Home() {
   }, [activeDrawer]);
 
   // P0 Journey-to-Map binding: resolve the deterministic route on a settled
-  // input (300ms) — never per keystroke, so pins and the camera stop thrashing
+  // input (300ms) — never per keystroke, so pins, camera, and history stop thrashing
   useEffect(() => {
     const timer = setTimeout(() => {
       if (journeyOrigin.trim() && journeyDest.trim()) {
@@ -108,6 +108,16 @@ export default function Home() {
         setPlannedJourney(planned);
       } else {
         clearPlannedJourney();
+      }
+
+      // Sync URL shallowly after input settles (debounced, avoids per-keystroke history thrashing)
+      const params = new URLSearchParams();
+      if (journeyOrigin.trim()) params.set("from", journeyOrigin.trim());
+      if (journeyDest.trim()) params.set("to", journeyDest.trim());
+      const qs = params.toString();
+      const target = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
+      if (window.location.pathname + window.location.search !== target) {
+        window.history.replaceState(null, "", target);
       }
     }, 300);
     return () => clearTimeout(timer);
@@ -126,17 +136,6 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (journeyOrigin.trim()) params.set("from", journeyOrigin);
-    if (journeyDest.trim()) params.set("to", journeyDest);
-    const qs = params.toString();
-    const target = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
-    if (window.location.pathname + window.location.search !== target) {
-      window.history.replaceState(null, "", target);
-    }
-  }, [journeyOrigin, journeyDest]);
 
   // AI demoted to refinement: provides fare capping reasoning, transfer walkway guidance, crowd tips
   const handleRefineWithAI = () => {
@@ -174,16 +173,34 @@ export default function Home() {
   );
 
   const originMismatch = useMemo(() => {
-    const trimmed = journeyOrigin.trim();
-    if (!trimmed) return false;
-    return !stopNames.some((name) => name.toLowerCase() === trimmed.toLowerCase());
-  }, [journeyOrigin, stopNames]);
+    const trimmedOrigin = journeyOrigin.trim();
+    const trimmedDest = journeyDest.trim();
+    // Only flag mismatch when BOTH endpoints are entered, preventing premature red borders while typing
+    if (!trimmedOrigin || !trimmedDest) return false;
+    return !findMatchingStop(trimmedOrigin, allStops);
+  }, [journeyOrigin, journeyDest, allStops]);
 
   const destMismatch = useMemo(() => {
-    const trimmed = journeyDest.trim();
-    if (!trimmed) return false;
-    return !stopNames.some((name) => name.toLowerCase() === trimmed.toLowerCase());
-  }, [journeyDest, stopNames]);
+    const trimmedOrigin = journeyOrigin.trim();
+    const trimmedDest = journeyDest.trim();
+    // Only flag mismatch when BOTH endpoints are entered, preventing premature red borders while typing
+    if (!trimmedOrigin || !trimmedDest) return false;
+    return !findMatchingStop(trimmedDest, allStops);
+  }, [journeyOrigin, journeyDest, allStops]);
+
+  const isSameStop = useMemo(() => {
+    const trimmedOrigin = journeyOrigin.trim();
+    const trimmedDest = journeyDest.trim();
+    if (!trimmedOrigin || !trimmedDest) return false;
+    const originStop = findMatchingStop(trimmedOrigin, allStops);
+    const destStop = findMatchingStop(trimmedDest, allStops);
+    return !!(
+      originStop &&
+      destStop &&
+      (originStop.id === destStop.id ||
+        originStop.name.trim().toLowerCase() === destStop.name.trim().toLowerCase())
+    );
+  }, [journeyOrigin, journeyDest, allStops]);
 
   const failingField = useMemo(() => {
     if (originMismatch && destMismatch) {
@@ -220,6 +237,7 @@ export default function Home() {
             onClick={() => setActiveDrawer(activeDrawer === "alerts" ? null : "alerts")}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "alerts"}
+            aria-label={t.navigation.serviceStatus}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile transition"
           >
             <Activity
@@ -231,7 +249,10 @@ export default function Home() {
                   : "text-emerald-400"
               }`}
             />
-            <span className="hidden sm:inline">{allLines.length} {t.navigation.activeLines}</span>
+            <span className="hidden sm:inline">
+              {t.navigation.serviceStatus}
+              {activeAlerts.length > 0 ? ` (${activeAlerts.length})` : ""}
+            </span>
           </button>
 
           <button
@@ -425,101 +446,121 @@ export default function Home() {
                 </div>
 
                 {/* Deterministic Route Answer Bound to Map */}
-                {plannedJourney ? (
-                  <div className="space-y-2 pt-1">
-                    <div className="p-3 rounded-xl bg-slate-950/80 border border-cyan-500/30 space-y-2 shadow-inner">
-                      {/* Resolved endpoints: a wrong match is visible, not silent */}
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-100 truncate">
-                        <span className="truncate">{plannedJourney.originStop.name}</span>
-                        <span className="text-cyan-400 shrink-0">&rarr;</span>
-                        <span className="truncate">{plannedJourney.destinationStop.name}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
-                          plannedJourney.directLines.length > 0
-                            ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                            : "bg-amber-950/60 border-amber-500/40 text-amber-300"
-                        }`}>
-                          {plannedJourney.directLines.length > 0 ? t.journey.journeyDirect : t.journey.journeyTransfer}
-                        </span>
-                        <span className="text-xs font-mono font-bold text-cyan-300">
-                          Rp {plannedJourney.estimatedFareRp.toLocaleString("id-ID")}
-                        </span>
+                <div aria-live="polite" aria-atomic="true" className="space-y-2 pt-1">
+                  {plannedJourney ? (
+                    <div className="space-y-2">
+                      <div className="p-3 rounded-xl bg-slate-950/80 border border-cyan-500/30 space-y-2 shadow-inner">
+                        {/* Resolved endpoints: a wrong match is visible, not silent */}
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-100 truncate">
+                          <span className="truncate">{plannedJourney.originStop.name}</span>
+                          <span className="text-cyan-400 shrink-0">&rarr;</span>
+                          <span className="truncate">{plannedJourney.destinationStop.name}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                            plannedJourney.directLines.length > 0
+                              ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                              : plannedJourney.transferOption
+                              ? "bg-amber-950/60 border-amber-500/40 text-amber-300"
+                              : "bg-slate-800/80 border-slate-700/60 text-slate-300"
+                          }`}>
+                            {plannedJourney.directLines.length > 0
+                              ? t.journey.journeyDirect
+                              : plannedJourney.transferOption
+                              ? t.journey.journeyTransfer
+                              : t.journey.journeyNoTransfer}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-cyan-300">
+                            {plannedJourney.estimatedFareRp > 0
+                              ? `Rp ${plannedJourney.estimatedFareRp.toLocaleString("id-ID")}`
+                              : "-"}
+                          </span>
+                        </div>
+
+                        {/* Candidate Line Badges */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {plannedJourney.directLines.length > 0 ? (
+                            plannedJourney.directLines.map((l) => (
+                              <span
+                                key={l.id}
+                                style={{
+                                  backgroundColor: `${l.colorHex}25`,
+                                  borderColor: `${l.colorHex}60`,
+                                  color: l.colorHex,
+                                }}
+                                className="px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold truncate max-w-[200px]"
+                              >
+                                [{l.code}] {l.name}
+                              </span>
+                            ))
+                          ) : plannedJourney.transferOption ? (
+                            <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                              <span
+                                style={{
+                                  backgroundColor: `${plannedJourney.transferOption.firstLine.colorHex}25`,
+                                  borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
+                                  color: plannedJourney.transferOption.firstLine.colorHex,
+                                }}
+                                className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
+                              >
+                                {plannedJourney.transferOption.firstLine.code}
+                              </span>
+                              <span className="text-slate-500 font-mono">&rarr;</span>
+                              <span
+                                style={{
+                                  backgroundColor: `${plannedJourney.transferOption.secondLine.colorHex}25`,
+                                  borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
+                                  color: plannedJourney.transferOption.secondLine.colorHex,
+                                }}
+                                className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
+                              >
+                                {plannedJourney.transferOption.secondLine.code}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                ({plannedJourney.transferOption.transferStop.name})
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="text-[11px] text-amber-300/90 font-mono flex items-center gap-1.5 py-0.5">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                              <span>{t.journey.journeyNoTransfer}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1 border-t border-white/5">
+                          <span>~{plannedJourney.estimatedDurationMinutes} min</span>
+                          <span>{plannedJourney.distanceKm} km</span>
+                          <span className="text-emerald-400 font-semibold">{t.journey.journeyPlotted}</span>
+                        </div>
                       </div>
 
-                      {/* Candidate Line Badges */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {plannedJourney.directLines.length > 0 ? (
-                          plannedJourney.directLines.map((l) => (
-                            <span
-                              key={l.id}
-                              style={{
-                                backgroundColor: `${l.colorHex}25`,
-                                borderColor: `${l.colorHex}60`,
-                                color: l.colorHex,
-                              }}
-                              className="px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold truncate max-w-[200px]"
-                            >
-                              [{l.code}] {l.name}
-                            </span>
-                          ))
-                        ) : plannedJourney.transferOption ? (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-300">
-                            <span
-                              style={{
-                                backgroundColor: `${plannedJourney.transferOption.firstLine.colorHex}25`,
-                                borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
-                                color: plannedJourney.transferOption.firstLine.colorHex,
-                              }}
-                              className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
-                            >
-                              {plannedJourney.transferOption.firstLine.code}
-                            </span>
-                            <span className="text-slate-500 font-mono">&rarr;</span>
-                            <span
-                              style={{
-                                backgroundColor: `${plannedJourney.transferOption.secondLine.colorHex}25`,
-                                borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
-                                color: plannedJourney.transferOption.secondLine.colorHex,
-                              }}
-                              className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
-                            >
-                              {plannedJourney.transferOption.secondLine.code}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              ({plannedJourney.transferOption.transferStop.name})
-                            </span>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1 border-t border-white/5">
-                        <span>~{plannedJourney.estimatedDurationMinutes} min</span>
-                        <span>{plannedJourney.distanceKm} km</span>
-                        <span className="text-emerald-400 font-semibold">{t.journey.journeyPlotted}</span>
-                      </div>
+                      {/* Refinement Action: AI Advisor */}
+                      <button
+                        type="button"
+                        onClick={handleRefineWithAI}
+                        className="w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
+                      </button>
                     </div>
-
-                    {/* Refinement Action: AI Advisor */}
-                    <button
-                      type="button"
-                      onClick={handleRefineWithAI}
-                      className="w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
-                    </button>
-                  </div>
-                ) : failingField ? (
-                  <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                    <span>{t.journey.journeyNoMatch.replace("{field}", failingField)}</span>
-                  </div>
-                ) : (
-                  <div className="p-2 rounded-xl bg-slate-950/40 border border-white/5 text-[11px] text-slate-400 text-center">
-                    {t.journey.journeyHint}
-                  </div>
-                )}
+                  ) : isSameStop ? (
+                    <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>{t.journey.journeySameStop}</span>
+                    </div>
+                  ) : failingField ? (
+                    <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                      <span>{t.journey.journeyNoMatch.replace("{field}", failingField)}</span>
+                    </div>
+                  ) : (
+                    <div className="p-2 rounded-xl bg-slate-950/40 border border-white/5 text-[11px] text-slate-400 text-center">
+                      {t.journey.journeyHint}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             ) : (
               <motion.button
@@ -576,13 +617,33 @@ export default function Home() {
             <motion.div
               ref={crowdsourceDrawerRef}
               role="dialog"
+              aria-modal="true"
               aria-label={t.crowdsource.liveFeedTitle}
               tabIndex={-1}
-              onAnimationComplete={() => crowdsourceDrawerRef.current?.focus()}
+              onAnimationComplete={() => {
+                if (activeDrawer === "crowdsource") {
+                  crowdsourceDrawerRef.current?.focus();
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
                   setActiveDrawer(null);
+                } else if (e.key === "Tab" && crowdsourceDrawerRef.current) {
+                  const focusables = crowdsourceDrawerRef.current.querySelectorAll<HTMLElement>(
+                    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                  );
+                  if (focusables.length > 0) {
+                    const first = focusables[0];
+                    const last = focusables[focusables.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                      e.preventDefault();
+                      last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                      e.preventDefault();
+                      first.focus();
+                    }
+                  }
                 }
               }}
               initial={{ opacity: 0, x: 40 }}
@@ -602,13 +663,33 @@ export default function Home() {
             <motion.div
               ref={ticketsDrawerRef}
               role="dialog"
+              aria-modal="true"
               aria-label={t.navigation.ticketing}
               tabIndex={-1}
-              onAnimationComplete={() => ticketsDrawerRef.current?.focus()}
+              onAnimationComplete={() => {
+                if (activeDrawer === "tickets") {
+                  ticketsDrawerRef.current?.focus();
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.stopPropagation();
                   setActiveDrawer(null);
+                } else if (e.key === "Tab" && ticketsDrawerRef.current) {
+                  const focusables = ticketsDrawerRef.current.querySelectorAll<HTMLElement>(
+                    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                  );
+                  if (focusables.length > 0) {
+                    const first = focusables[0];
+                    const last = focusables[focusables.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                      e.preventDefault();
+                      last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                      e.preventDefault();
+                      first.focus();
+                    }
+                  }
                 }
               }}
               initial={{ opacity: 0, x: 40 }}

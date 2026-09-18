@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -54,6 +54,7 @@ import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
 interface HubDetailSheetProps {
   stopId: string | null;
@@ -470,13 +471,19 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
     return true;
   });
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
     } else {
       clearSelection();
     }
-  };
+  }, [onClose, clearSelection]);
+
+  const { containerRef, handleTrapKeyDown } = useDialogFocusTrap<HTMLElement>({
+    isOpen: Boolean(stop),
+    onClose: handleClose,
+    autoFocus: false,
+  });
 
   const handleTrackVehicle = (item: DepartureBoardItem) => {
     // Find simulated vehicle on this line or mode
@@ -509,6 +516,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
         {/* The Hub Detail Sheet Container */}
         <motion.aside
+          ref={containerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={stop.name}
+          tabIndex={-1}
+          onKeyDown={handleTrapKeyDown}
           initial={{ y: "100%", opacity: 0.5 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
@@ -601,7 +614,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           <div className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("departures")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "departures"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                   : "border-transparent text-slate-400 hover:text-slate-200"
@@ -614,7 +627,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
             {destinationGroups && destinationGroups.length > 0 && (
               <button
                 onClick={() => setActiveTab("destinations")}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === "destinations"
                     ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                     : "border-transparent text-slate-400 hover:text-slate-200"
@@ -627,7 +640,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
             <button
               onClick={() => setActiveTab("facilities")}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === "facilities"
                   ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                   : "border-transparent text-slate-400 hover:text-slate-200"
@@ -640,7 +653,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
             {skybridgeHubId && (
               <button
                 onClick={() => setActiveTab("skybridge")}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === "skybridge"
                     ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
                     : "border-transparent text-slate-400 hover:text-slate-200"
@@ -776,7 +789,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                   {item.lineCode}
                                 </span>
                                 {item.runNumber && (
-                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 shrink-0">
+                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 shrink-0">
                                     {item.runNumber}
                                   </span>
                                 )}

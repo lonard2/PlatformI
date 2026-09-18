@@ -85,15 +85,27 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
     const fetchWithMount = async () => {
       if (!isMounted) return;
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return;
+      }
       await fetchAlerts(controller.signal);
     };
 
     fetchWithMount();
     const interval = setInterval(fetchWithMount, 30000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchWithMount();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       isMounted = false;
       controller.abort();
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -213,7 +225,11 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           transition={shouldReduceMotion ? { duration: 0.1 } : { duration: 0.2 }}
           className="w-full px-3 sm:px-6 py-1 z-20"
         >
-          <div className="w-full rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between text-xs text-slate-300">
+          <div
+            role="status"
+            aria-live="polite"
+            className="w-full rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-md px-3 py-2 flex items-center justify-between text-xs text-slate-300"
+          >
             <span>{t.common.alertDismissed}</span>
             <button
               type="button"
@@ -237,6 +253,8 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
         >
           {/* Thin Status Strip */}
           <div
+            role="region"
+            aria-label={t.navigation.serviceStatus}
             className={`w-full rounded-lg border backdrop-blur-md px-2.5 py-1 transition-all duration-200 ${badgeConfig.containerStyle}`}
           >
             <div className="flex items-center justify-between gap-2">

@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { resolvePlannedJourney } from "../src/lib/services/journeyPlanner";
+import { resolvePlannedJourney, findMatchingStop } from "../src/lib/services/journeyPlanner";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { TRANSIT_STOPS, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
 
@@ -92,5 +92,39 @@ describe("Deterministic Journey Planning & Map Binding", () => {
 
     useTransitStore.getState().clearPlannedJourney();
     expect(useTransitStore.getState().plannedJourney).toBeNull();
+  });
+
+  it("accurately finds matching stops with exact, stripped prefix, and substring strategies", () => {
+    // Exact
+    expect(findMatchingStop("Lebak Bulus Grab", TRANSIT_STOPS)?.name).toContain("Lebak Bulus");
+    // Case insensitive
+    expect(findMatchingStop("lebak bulus grab", TRANSIT_STOPS)?.name).toContain("Lebak Bulus");
+    // Stripped transit prefix
+    expect(findMatchingStop("Stasiun Dukuh Atas BNI", TRANSIT_STOPS)?.name).toContain("Dukuh Atas");
+    // Substring
+    expect(findMatchingStop("Halim", TRANSIT_STOPS)?.name).toContain("Halim");
+    // Unknown returns null
+    expect(findMatchingStop("TotallyUnknownStop123", TRANSIT_STOPS)).toBeNull();
+    // Empty returns null
+    expect(findMatchingStop("", TRANSIT_STOPS)).toBeNull();
+    expect(findMatchingStop("   ", TRANSIT_STOPS)).toBeNull();
+  });
+
+  it("handles stop pairs with no direct or 1-transfer path honestly without fake fares", () => {
+    // Pair from different networks without direct or 1-transfer connecting stop
+    const journey = resolvePlannedJourney(
+      "Stasiun Lebak Bulus Grab",
+      "Stasiun Kereta Cepat Padalarang",
+      TRANSIT_STOPS,
+      TRANSIT_LINES
+    );
+
+    expect(journey).not.toBeNull();
+    if (!journey) return;
+
+    expect(journey.directLines).toHaveLength(0);
+    expect(journey.transferOption).toBeUndefined();
+    expect(journey.candidateLines).toHaveLength(0);
+    expect(journey.estimatedFareRp).toBe(0);
   });
 });
