@@ -758,6 +758,7 @@ export interface TranslationDictionary {
     fleetControl: string;
     disruptionManager: string;
     gateScanner: string;
+    networkStudio: string;
     broadcastAlert: string;
     activeVehicles: string;
     validateTicket: string;
@@ -940,6 +941,7 @@ export interface TranslationDictionary {
     shortcutFleet: string;
     shortcutAlerts: string;
     shortcutScanner: string;
+    shortcutNetworkStudio: string;
     shortcutUndo: string;
     shortcutEscape: string;
     triageCriticalDesc: string;

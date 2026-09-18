@@ -86,9 +86,16 @@ export interface TransitStoreState {
   updateSimulatedVehicles: (vehicles: Vehicle[]) => void;
   updateSingleVehicle: (vehicle: Vehicle) => void;
 
-  // 9. Static Domain Data References
+  // 9. Dynamic & Static Domain Data References
   allLines: Line[];
   allStops: Stop[];
+  isNetworkLoading: boolean;
+  networkError: string | null;
+  fetchNetworkData: () => Promise<void>;
+  upsertLine: (line: Line) => void;
+  upsertStop: (stop: Stop) => void;
+  removeLine: (id: string) => void;
+  removeStop: (id: string) => void;
 
   // 10. Search & Filter Query
   searchQuery: string;
@@ -236,9 +243,86 @@ export const useTransitStore = create<TransitStoreState>((set, get) => ({
     }
   },
 
-  // 9. Static Domain Data
+  // 9. Dynamic & Static Domain Data
   allLines: TRANSIT_LINES,
   allStops: TRANSIT_STOPS,
+  isNetworkLoading: false,
+  networkError: null,
+  fetchNetworkData: async () => {
+    set({ isNetworkLoading: true, networkError: null });
+    try {
+      const [linesRes, stopsRes] = await Promise.all([
+        fetch("/api/network/lines"),
+        fetch("/api/network/stops"),
+      ]);
+
+      if (!linesRes.ok || !stopsRes.ok) {
+        throw new Error("Failed to fetch lines or stops from network API");
+      }
+
+      const linesJson = await linesRes.json();
+      const stopsJson = await stopsRes.json();
+
+      const linesList: Line[] = Array.isArray(linesJson?.data)
+        ? linesJson.data
+        : Array.isArray(linesJson)
+        ? linesJson
+        : [];
+      const stopsList: Stop[] = Array.isArray(stopsJson?.data)
+        ? stopsJson.data
+        : Array.isArray(stopsJson)
+        ? stopsJson
+        : [];
+
+      set({
+        allLines: linesList.length > 0 ? linesList : TRANSIT_LINES,
+        allStops: stopsList.length > 0 ? stopsList : TRANSIT_STOPS,
+        isNetworkLoading: false,
+        networkError: null,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Network fetch failed";
+      // Graceful fallback to static dataset
+      set({
+        isNetworkLoading: false,
+        networkError: msg,
+      });
+    }
+  },
+  upsertLine: (line: Line) => {
+    const existing = get().allLines;
+    const idx = existing.findIndex((l) => l.id === line.id);
+    if (idx >= 0) {
+      const updated = [...existing];
+      updated[idx] = line;
+      set({ allLines: updated });
+    } else {
+      set({ allLines: [...existing, line] });
+    }
+  },
+  upsertStop: (stop: Stop) => {
+    const existing = get().allStops;
+    const idx = existing.findIndex((s) => s.id === stop.id);
+    if (idx >= 0) {
+      const updated = [...existing];
+      updated[idx] = stop;
+      set({ allStops: updated });
+    } else {
+      set({ allStops: [...existing, stop] });
+    }
+  },
+  removeLine: (id: string) => {
+    set({
+      allLines: get().allLines.filter((l) => l.id !== id),
+      selectedLineId: get().selectedLineId === id ? null : get().selectedLineId,
+    });
+  },
+  removeStop: (id: string) => {
+    set({
+      allStops: get().allStops.filter((s) => s.id !== id),
+      selectedStopId: get().selectedStopId === id ? null : get().selectedStopId,
+    });
+  },
 
   // 10. Search
   searchQuery: "",

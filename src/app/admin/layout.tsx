@@ -23,6 +23,7 @@ import {
   UserCheck,
   LogOut,
   HelpCircle,
+  Route,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -108,6 +109,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push("/admin/alerts");
       } else if (e.code === "Digit4" || e.code === "Numpad4" || e.key === "4") {
         router.push("/admin/scanner");
+      } else if (e.code === "Digit5" || e.code === "Numpad5" || e.key === "5") {
+        router.push("/admin/network");
       } else if (e.key === "/") {
         e.preventDefault();
         const searchInput = document.querySelector<HTMLInputElement>(
@@ -164,6 +167,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: "/admin/scanner",
       label: t.admin.gateScanner,
       icon: <QrCode className="w-4 h-4" />,
+      exact: false,
+    },
+    {
+      href: "/admin/network",
+      label: t.admin.networkStudio,
+      icon: <Route className="w-4 h-4" />,
       exact: false,
     },
   ];
