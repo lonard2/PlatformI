@@ -25,6 +25,8 @@ import {
   Crosshair,
   MapPin,
   Spline,
+  RotateCcw,
+  Save,
 } from "lucide-react";
 
 export interface NetworkMapCanvasProps {
@@ -35,8 +37,15 @@ export interface NetworkMapCanvasProps {
   onSelectLine: (line: Line) => void;
   onSelectStop: (stop: Stop | null) => void;
   isAddStopMode: boolean;
+  onToggleAddStopMode?: () => void;
   onMapClickAddStop: (lat: number, lng: number) => void;
   onStopDragEnd: (stopId: string, lat: number, lng: number) => void;
+  onVertexDragEnd?: (vertexIndex: number, lat: number, lng: number) => void;
+  onInsertVertex?: (lat: number, lng: number) => void;
+  onDeleteVertex?: (vertexIndex: number) => void;
+  hasUnsavedChanges?: boolean;
+  onSaveLineCoordinates?: () => void;
+  onRevertLineCoordinates?: () => void;
   smoothedCoordinates: [number, number][] | null;
   previewSmoothedLine: boolean;
   tempPlacementCoord: [number, number] | null;
@@ -51,8 +60,15 @@ export function NetworkMapCanvas({
   onSelectLine,
   onSelectStop,
   isAddStopMode,
+  onToggleAddStopMode,
   onMapClickAddStop,
   onStopDragEnd,
+  onVertexDragEnd,
+  onInsertVertex,
+  onDeleteVertex,
+  hasUnsavedChanges,
+  onSaveLineCoordinates,
+  onRevertLineCoordinates,
   smoothedCoordinates,
   previewSmoothedLine,
   tempPlacementCoord,
@@ -232,37 +248,99 @@ export function NetworkMapCanvas({
 
       polyline.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
-        onSelectLine(line);
+        if (isSelected && !previewSmoothedLine && onInsertVertex) {
+          onInsertVertex(e.latlng.lat, e.latlng.lng);
+        } else {
+          onSelectLine(line);
+        }
       });
 
       polyline.bindTooltip(
-        `<div class="font-sans text-xs"><strong>${line.code}</strong> - ${line.name}</div>`,
+        `<div class="font-sans text-xs">
+          <strong>${line.code}</strong> - ${line.name}
+          ${
+            isSelected && !previewSmoothedLine
+              ? `<div class="text-[10px] text-cyan-300 mt-0.5">Click anywhere on line to insert vertex</div>`
+              : ""
+          }
+        </div>`,
         { sticky: true }
       );
 
       polyline.addTo(group);
 
-      // If line is selected, draw vertex handles along the raw line
+      // If line is selected, draw draggable vertex handles along the raw line
       if (isSelected && !previewSmoothedLine) {
         latLngs.forEach((coord, idx) => {
+          const isEndpoint = idx === 0 || idx === latLngs.length - 1;
           const vertexIcon = L.divIcon({
             className: "vertex-handle",
             html: `
-              <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border-2 border-white shadow hover:scale-125 transition"></div>
+              <div class="relative group cursor-grab active:cursor-grabbing flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full ${
+                  isEndpoint ? "bg-amber-400 ring-amber-300/60" : "bg-cyan-400 ring-cyan-300/60"
+                } border-2 border-slate-950 shadow-md ring-2 transition transform group-hover:scale-150"></div>
+                <div class="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block whitespace-nowrap bg-slate-950/95 text-white text-[10px] font-mono px-1.5 py-0.5 rounded border border-white/20 pointer-events-none z-50">
+                  #${idx + 1}
+                </div>
+              </div>
             `,
-            iconSize: [10, 10],
-            iconAnchor: [5, 5],
+            iconSize: [12, 12],
+            iconAnchor: [6, 6],
           });
-          const vertexMarker = L.marker(coord, { icon: vertexIcon });
+
+          const vertexMarker = L.marker(coord, {
+            icon: vertexIcon,
+            draggable: true,
+          });
+
+          vertexMarker.on("dragend", () => {
+            const pos = vertexMarker.getLatLng();
+            onVertexDragEnd?.(idx, pos.lat, pos.lng);
+          });
+
+          vertexMarker.on("click", (e) => {
+            L.DomEvent.stopPropagation(e);
+            if (e.originalEvent.altKey || e.originalEvent.shiftKey) {
+              onDeleteVertex?.(idx);
+            }
+          });
+
+          vertexMarker.on("contextmenu", (e) => {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e.originalEvent);
+            onDeleteVertex?.(idx);
+          });
+
           vertexMarker.bindTooltip(
-            `<div class="text-[10px] font-mono">Vertex ${idx + 1}: ${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}</div>`,
-            { direction: "top", offset: [0, -6] }
+            `<div class="font-sans text-xs">
+              <div class="font-bold text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full ${isEndpoint ? "bg-amber-400" : "bg-cyan-400"}"></span>
+                <span>Vertex #${idx + 1} ${isEndpoint ? "(Terminal)" : ""}</span>
+              </div>
+              <div class="text-[10px] text-slate-300 font-mono mt-0.5">
+                ${coord[0].toFixed(5)}°, ${coord[1].toFixed(5)}°
+              </div>
+              <div class="text-[10px] text-cyan-300 mt-1 font-semibold">&bull; Drag to bend route curve</div>
+              <div class="text-[10px] text-rose-400 font-semibold">&bull; Right-click or Alt-click to delete</div>
+            </div>`,
+            { direction: "top", offset: [0, -8] }
           );
+
           vertexMarker.addTo(group);
         });
       }
     });
-  }, [lines, selectedLine, activeCategory, onSelectLine, previewSmoothedLine]);
+  }, [
+    lines,
+    selectedLine,
+    activeCategory,
+    onSelectLine,
+    previewSmoothedLine,
+    onVertexDragEnd,
+    onInsertVertex,
+    onDeleteVertex,
+  ]);
 
   // 6. Render Smoothed Catmull-Rom Curve Overlay
   useEffect(() => {
@@ -399,6 +477,29 @@ export function NetworkMapCanvas({
       {/* Map DOM Element */}
       <div ref={mapContainerRef} className="w-full h-full leaflet-container" />
 
+      {/* Floating HUD: Top Left Actions */}
+      <div className="absolute top-4 left-4 z-[400] flex items-center gap-2">
+        {onToggleAddStopMode && (
+          <button
+            type="button"
+            onClick={onToggleAddStopMode}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold shadow-xl backdrop-blur-md border transition btn-tactile ${
+              isAddStopMode
+                ? "bg-cyan-400 text-cyan-950 border-white ring-2 ring-cyan-300/60 shadow-cyan-500/30 font-bold"
+                : "bg-slate-900/90 text-slate-200 border-white/10 hover:bg-slate-800 hover:text-white"
+            }`}
+            title="Click anywhere on the map to add a new station or bus stop"
+          >
+            <Crosshair
+              className={`w-4 h-4 ${
+                isAddStopMode ? "animate-spin text-cyan-950" : "text-cyan-400"
+              }`}
+            />
+            <span>{isAddStopMode ? "Cancel Placement" : "+ Add Stop (Click Map)"}</span>
+          </button>
+        )}
+      </div>
+
       {/* Floating HUD: Crosshair Placement Banner */}
       {isAddStopMode && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] px-4 py-2 rounded-full bg-cyan-950/95 border border-cyan-400/50 shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-xs text-cyan-200 font-semibold animate-pulse motion-reduce:animate-none">
@@ -488,6 +589,37 @@ export function NetworkMapCanvas({
               <Spline className="w-3.5 h-3.5" />
               <span>Spline Curvature Active</span>
             </div>
+          </>
+        )}
+
+        {hasUnsavedChanges && (
+          <>
+            <span className="text-slate-600">&bull;</span>
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold">
+              <span>Unsaved Edits</span>
+            </div>
+            {onSaveLineCoordinates && (
+              <button
+                type="button"
+                onClick={onSaveLineCoordinates}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] shadow transition btn-tactile"
+                title="Save modified polyline to database"
+              >
+                <Save className="w-3 h-3" />
+                <span>Save</span>
+              </button>
+            )}
+            {onRevertLineCoordinates && (
+              <button
+                type="button"
+                onClick={onRevertLineCoordinates}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[10px] font-medium transition btn-tactile border border-white/10"
+                title="Discard unsaved changes and restore original path"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Revert</span>
+              </button>
+            )}
           </>
         )}
       </div>

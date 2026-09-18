@@ -40,18 +40,22 @@ import {
   Upload,
   Wand2,
   Compass,
+  RotateCcw,
+  Scissors,
 } from "lucide-react";
-import { Line, Stop, TransitCategory, TransitMode, FareStructureType } from "@/types/transit";
+import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DynamicNetworkMap } from "@/components/admin/DynamicNetworkMap";
 import {
   smoothPolyline,
+  simplifyPolyline,
   coordinatesToLatLngTuples,
   latLngTuplesToCoordinates,
   lineToGeoJSON,
   parseGeoJSONToLine,
   generatePathFromStops,
   snapRouteToRoads,
+  haversineDistanceMeters,
 } from "@/lib/geodesy/curveSmoothing";
 
 const CATEGORIES: { id: TransitCategory | "ALL"; label: string; icon: React.ReactNode }[] = [
@@ -129,10 +133,28 @@ export default function AdminNetworkStudioPage() {
     return () => clearTimeout(timer);
   }, [statusMessage]);
 
+  // Track saved database polyline coordinates to enable instant Revert / Cancel
+  const [savedCoordinatesMap, setSavedCoordinatesMap] = useState<Record<string, Coordinate[]>>({});
+
   // Initial load
   useEffect(() => {
     fetchNetworkData();
   }, [fetchNetworkData]);
+
+  // Sync baseline whenever lines are loaded
+  useEffect(() => {
+    if (allLines.length > 0) {
+      setSavedCoordinatesMap((prev) => {
+        const next = { ...prev };
+        allLines.forEach((l) => {
+          if (!next[l.id]) {
+            next[l.id] = [...(l.polylineCoordinates || [])];
+          }
+        });
+        return next;
+      });
+    }
+  }, [allLines]);
 
   // Refresh data handler
   const handleRefresh = async () => {
@@ -159,6 +181,24 @@ export default function AdminNetworkStudioPage() {
     return allLines.find((l) => l.id === selectedLineId) || null;
   }, [allLines, selectedLineId]);
 
+  // Detect unsaved polyline modifications compared to database baseline
+  const hasUnsavedChanges = useMemo(() => {
+    if (!selectedLine) return false;
+    const baseline = savedCoordinatesMap[selectedLine.id];
+    if (!baseline) return false;
+    const current = selectedLine.polylineCoordinates || [];
+    if (baseline.length !== current.length) return true;
+    for (let i = 0; i < current.length; i++) {
+      if (
+        Math.abs(current[i].latitude - baseline[i].latitude) > 0.000001 ||
+        Math.abs(current[i].longitude - baseline[i].longitude) > 0.000001
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }, [selectedLine, savedCoordinatesMap]);
+
   // Stops belonging to selected line, ordered by sequence
   const lineStops = useMemo(() => {
     if (!selectedLine) return [];
@@ -181,20 +221,27 @@ export default function AdminNetworkStudioPage() {
     return coordinatesToLatLngTuples(smoothed);
   }, [selectedLine]);
 
-  // 1. Map Click Callback for Add Station Mode
+  // 1. Map Click Callback for Add Station Mode with smart defaults
   const handleMapClickAddStop = useCallback(
     (lat: number, lng: number) => {
       setTempPlacementCoord([lat, lng]);
       setIsAddStopMode(false);
 
-      // Open Stop Modal pre-filled with clicked coordinates
+      const targetLine = selectedLine || allLines[0];
+      const nextSeq = lineStops.length + 1;
+      const cleanCode = targetLine
+        ? targetLine.code.replace(/[^a-zA-Z0-9]/g, "")
+        : "ST";
+      const suggestedCode = `${cleanCode}-${String(nextSeq).padStart(2, "0")}`;
+
+      // Open Stop Modal pre-filled with clicked coordinates and smart defaults
       setEditingStop({
-        lineId: selectedLineId || (allLines[0]?.id ?? ""),
+        lineId: targetLine?.id || "",
         name: "",
-        code: "",
+        code: suggestedCode,
         latitude: Number(lat.toFixed(6)),
         longitude: Number(lng.toFixed(6)),
-        sequence: lineStops.length + 1,
+        sequence: nextSeq,
         isInterchange: false,
         connectedLineIds: [],
         facilities: ["TOILET", "TICKET_VENDING"],
@@ -204,8 +251,12 @@ export default function AdminNetworkStudioPage() {
         platformType: "ISLAND",
       });
       setIsStopModalOpen(true);
+      setStatusMessage({
+        type: "success",
+        text: `Point selected: ${lat.toFixed(5)}°, ${lng.toFixed(5)}°. Enter station name and save.`,
+      });
     },
-    [selectedLineId, allLines, lineStops.length]
+    [selectedLine, allLines, lineStops.length]
   );
 
   // 2. Marker Drag End Callback for Calibrating Coordinates
@@ -241,6 +292,186 @@ export default function AdminNetworkStudioPage() {
     [allStops, upsertStop]
   );
 
+  // 2b. Drag Vertex End Callback for Bending Route Geometry
+  const handleVertexDragEnd = useCallback(
+    (vertexIndex: number, lat: number, lng: number) => {
+      if (!selectedLine) return;
+      const currentCoords = [...(selectedLine.polylineCoordinates || [])];
+      if (vertexIndex < 0 || vertexIndex >= currentCoords.length) return;
+
+      currentCoords[vertexIndex] = {
+        latitude: Number(lat.toFixed(6)),
+        longitude: Number(lng.toFixed(6)),
+      };
+
+      const updatedLine: Line = {
+        ...selectedLine,
+        polylineCoordinates: currentCoords,
+      };
+
+      upsertLine(updatedLine);
+      setStatusMessage({
+        type: "success",
+        text: `Vertex #${vertexIndex + 1} moved. Click 'Save to DB' to persist or 'Revert' to discard.`,
+      });
+    },
+    [selectedLine, upsertLine]
+  );
+
+  // 2c. Insert Vertex by Clicking Anywhere Along Route Polyline
+  const handleInsertVertex = useCallback(
+    (lat: number, lng: number) => {
+      if (!selectedLine) return;
+      const coords = [...(selectedLine.polylineCoordinates || [])];
+      if (coords.length < 2) {
+        coords.push({ latitude: Number(lat.toFixed(6)), longitude: Number(lng.toFixed(6)) });
+      } else {
+        // Find segment (i, i+1) where perpendicular distance to (lat, lng) is minimal
+        let bestIndex = coords.length - 1;
+        let minDistance = Infinity;
+
+        for (let i = 0; i < coords.length - 1; i++) {
+          const d1 = haversineDistanceMeters(lat, lng, coords[i].latitude, coords[i].longitude);
+          const d2 = haversineDistanceMeters(lat, lng, coords[i + 1].latitude, coords[i + 1].longitude);
+          const segLen = haversineDistanceMeters(
+            coords[i].latitude,
+            coords[i].longitude,
+            coords[i + 1].latitude,
+            coords[i + 1].longitude
+          );
+          const excess = d1 + d2 - segLen;
+          if (excess < minDistance) {
+            minDistance = excess;
+            bestIndex = i;
+          }
+        }
+
+        coords.splice(bestIndex + 1, 0, {
+          latitude: Number(lat.toFixed(6)),
+          longitude: Number(lng.toFixed(6)),
+        });
+      }
+
+      const updatedLine: Line = {
+        ...selectedLine,
+        polylineCoordinates: coords,
+      };
+
+      upsertLine(updatedLine);
+      setStatusMessage({
+        type: "success",
+        text: `Inserted vertex at (${lat.toFixed(5)}°, ${lng.toFixed(5)}°). Drag to shape curve.`,
+      });
+    },
+    [selectedLine, upsertLine]
+  );
+
+  // 2d. Delete Vertex Handle
+  const handleDeleteVertex = useCallback(
+    (vertexIndex: number) => {
+      if (!selectedLine) return;
+      const coords = [...(selectedLine.polylineCoordinates || [])];
+      if (coords.length <= 2) {
+        setStatusMessage({
+          type: "error",
+          text: "A transit line requires at least 2 coordinate vertices.",
+        });
+        return;
+      }
+      coords.splice(vertexIndex, 1);
+      const updatedLine: Line = {
+        ...selectedLine,
+        polylineCoordinates: coords,
+      };
+      upsertLine(updatedLine);
+      setStatusMessage({
+        type: "success",
+        text: `Deleted vertex #${vertexIndex + 1}.`,
+      });
+    },
+    [selectedLine, upsertLine]
+  );
+
+  // 2e. Revert Unsaved Route Modifications to Database Baseline
+  const handleRevertChanges = useCallback(() => {
+    if (!selectedLine) return;
+    const baseline = savedCoordinatesMap[selectedLine.id];
+    if (!baseline) return;
+
+    const revertedLine: Line = {
+      ...selectedLine,
+      polylineCoordinates: [...baseline],
+    };
+    upsertLine(revertedLine);
+    setPreviewSmoothedLine(false);
+    setStatusMessage({
+      type: "success",
+      text: `Reverted changes for ${selectedLine.code} to saved database state.`,
+    });
+  }, [selectedLine, savedCoordinatesMap, upsertLine]);
+
+  // 2f. Save Current Line Polyline to Database
+  const handleSaveLineCoordinates = async () => {
+    if (!selectedLine) return;
+    setIsSavingCurve(true);
+    try {
+      const payload: Partial<Line> = {
+        id: selectedLine.id,
+        code: selectedLine.code,
+        name: selectedLine.name,
+        polylineCoordinates: selectedLine.polylineCoordinates,
+      };
+
+      const res = await fetch("/api/network/lines", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to save coordinates to database");
+      const savedRes = await res.json();
+      const savedData: Line = savedRes.data || savedRes;
+      upsertLine(savedData);
+
+      setSavedCoordinatesMap((prev) => ({
+        ...prev,
+        [savedData.id]: [...(savedData.polylineCoordinates || [])],
+      }));
+      setPreviewSmoothedLine(false);
+      setStatusMessage({
+        type: "success",
+        text: `Persisted ${savedData.polylineCoordinates.length} vertices for ${savedData.code} to database.`,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Save failed";
+      setStatusMessage({ type: "error", text: msg });
+    } finally {
+      setIsSavingCurve(false);
+    }
+  };
+
+  // 2g. Simplify Polyline (Douglas-Peucker reduction)
+  const handleSimplifyLine = () => {
+    if (!selectedLine || selectedLine.polylineCoordinates.length <= 2) {
+      setStatusMessage({
+        type: "error",
+        text: "Line does not have enough coordinates to simplify.",
+      });
+      return;
+    }
+    const initialCount = selectedLine.polylineCoordinates.length;
+    const simplified = simplifyPolyline(selectedLine.polylineCoordinates, 25);
+    const updatedLine: Line = {
+      ...selectedLine,
+      polylineCoordinates: simplified,
+    };
+    upsertLine(updatedLine);
+    setStatusMessage({
+      type: "success",
+      text: `Simplified route from ${initialCount} to ${simplified.length} vertices. Click 'Save to DB' to persist.`,
+    });
+  };
+
   // 3. Save Smoothed Polyline to Database
   const handleSaveSmoothedCurve = async () => {
     if (!selectedLine || !smoothedCoordinates) return;
@@ -262,6 +493,10 @@ export default function AdminNetworkStudioPage() {
       const savedRes = await res.json();
       const savedData: Line = savedRes.data || savedRes;
       upsertLine(savedData);
+      setSavedCoordinatesMap((prev) => ({
+        ...prev,
+        [savedData.id]: [...(savedData.polylineCoordinates || [])],
+      }));
       setPreviewSmoothedLine(false);
       setStatusMessage({
         type: "success",
@@ -733,6 +968,36 @@ export default function AdminNetworkStudioPage() {
                   </div>
                 </div>
 
+                {/* Unsaved Changes Banner */}
+                {hasUnsavedChanges && (
+                  <div className="p-3 rounded-xl bg-amber-950/70 border border-amber-500/40 flex items-center justify-between gap-3 shadow-lg">
+                    <div className="flex items-center gap-2 text-xs text-amber-300 font-semibold min-w-0">
+                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="truncate">Unsaved path edits detected</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleSaveLineCoordinates}
+                        disabled={isSavingCurve}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow btn-tactile"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Save to DB</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRevertChanges}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition border border-white/10 btn-tactile"
+                        title="Discard all unsaved edits and restore database coordinates"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Revert</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Spline Smoothing Geometry Card */}
                 <div className="p-3 rounded-xl bg-slate-950/70 border border-white/10 space-y-2.5">
                   <div className="flex items-center justify-between">
@@ -794,6 +1059,16 @@ export default function AdminNetworkStudioPage() {
                     >
                       <Wand2 className="w-3 h-3 text-cyan-400" />
                       <span>Build from Stops</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSimplifyLine}
+                      title="Reduce vertex clutter using Douglas-Peucker algorithm while preserving track shape"
+                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                    >
+                      <Scissors className="w-3 h-3 text-rose-400" />
+                      <span>Simplify Path</span>
                     </button>
 
                     <button
@@ -1035,8 +1310,15 @@ export default function AdminNetworkStudioPage() {
               setSelectedStopId(s?.id || null);
             }}
             isAddStopMode={isAddStopMode}
+            onToggleAddStopMode={() => setIsAddStopMode((prev) => !prev)}
             onMapClickAddStop={handleMapClickAddStop}
             onStopDragEnd={handleStopDragEnd}
+            onVertexDragEnd={handleVertexDragEnd}
+            onInsertVertex={handleInsertVertex}
+            onDeleteVertex={handleDeleteVertex}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSaveLineCoordinates={handleSaveLineCoordinates}
+            onRevertLineCoordinates={handleRevertChanges}
             smoothedCoordinates={smoothedCoordinates}
             previewSmoothedLine={previewSmoothedLine}
             tempPlacementCoord={tempPlacementCoord}
@@ -1257,6 +1539,7 @@ export default function AdminNetworkStudioPage() {
                   <input
                     type="text"
                     required
+                    autoFocus
                     placeholder="e.g. Bundaran HI"
                     value={editingStop.name || ""}
                     onChange={(e) => setEditingStop({ ...editingStop, name: e.target.value })}

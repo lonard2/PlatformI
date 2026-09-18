@@ -418,3 +418,74 @@ export async function snapRouteToRoads(
     return smoothPolyline(coordinates, { stepsPerSegment: 6 });
   }
 }
+
+/**
+ * Simplifies a dense or jagged polyline using the Ramer-Douglas-Peucker algorithm.
+ * Reduces vertex count while preserving overall geometric corridor alignment.
+ *
+ * @param coordinates Array of coordinates to simplify
+ * @param toleranceMeters Maximum allowable deviation distance in meters (default: 20m)
+ */
+export function simplifyPolyline(
+  coordinates: Coordinate[],
+  toleranceMeters: number = 20
+): Coordinate[] {
+  if (coordinates.length <= 2) return coordinates;
+
+  // Equirectangular projection helper centered at mean latitude
+  const meanLat =
+    coordinates.reduce((sum, c) => sum + c.latitude, 0) / coordinates.length;
+  const latFactor = 111320; // meters per degree latitude
+  const lonFactor = 111320 * Math.cos((meanLat * Math.PI) / 180); // meters per degree longitude
+
+  function toXY(c: Coordinate): [number, number] {
+    return [c.longitude * lonFactor, c.latitude * latFactor];
+  }
+
+  function perpendicularDistance(
+    pt: [number, number],
+    lineStart: [number, number],
+    lineEnd: [number, number]
+  ): number {
+    const dx = lineEnd[0] - lineStart[0];
+    const dy = lineEnd[1] - lineStart[1];
+    const lenSq = dx * dx + dy * dy;
+
+    if (lenSq === 0) {
+      const dpx = pt[0] - lineStart[0];
+      const dpy = pt[1] - lineStart[1];
+      return Math.sqrt(dpx * dpx + dpy * dpy);
+    }
+
+    const num = Math.abs(dy * pt[0] - dx * pt[1] + lineEnd[0] * lineStart[1] - lineEnd[1] * lineStart[0]);
+    return num / Math.sqrt(lenSq);
+  }
+
+  function rdpRecursive(pts: Coordinate[]): Coordinate[] {
+    if (pts.length <= 2) return pts;
+
+    let maxDist = 0;
+    let maxIdx = 0;
+    const startPt = toXY(pts[0]);
+    const endPt = toXY(pts[pts.length - 1]);
+
+    for (let i = 1; i < pts.length - 1; i++) {
+      const dist = perpendicularDistance(toXY(pts[i]), startPt, endPt);
+      if (dist > maxDist) {
+        maxDist = dist;
+        maxIdx = i;
+      }
+    }
+
+    if (maxDist > toleranceMeters) {
+      const left = rdpRecursive(pts.slice(0, maxIdx + 1));
+      const right = rdpRecursive(pts.slice(maxIdx));
+      return left.slice(0, left.length - 1).concat(right);
+    } else {
+      return [pts[0], pts[pts.length - 1]];
+    }
+  }
+
+  return rdpRecursive(coordinates);
+}
+

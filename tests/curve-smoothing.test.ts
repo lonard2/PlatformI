@@ -13,10 +13,12 @@ import {
   lineToGeoJSON,
   parseGeoJSONToLine,
   snapRouteToRoads,
+  simplifyPolyline,
 } from "@/lib/geodesy/curveSmoothing";
 import { Coordinate } from "@/types/transit";
 
 describe("Cartographic Curve Smoothing (Centripetal Catmull-Rom)", () => {
+
   it("preserves empty or single-point input without modification", () => {
     expect(smoothPolyline([])).toEqual([]);
     const single: Coordinate[] = [{ latitude: -6.2, longitude: 106.8 }];
@@ -150,5 +152,24 @@ describe("Cartographic Curve Smoothing (Centripetal Catmull-Rom)", () => {
     const result = await snapRouteToRoads(rawCoords, 500);
     expect(result.length).toBeGreaterThanOrEqual(rawCoords.length);
     expect(result[0].latitude).toBeCloseTo(rawCoords[0].latitude, 3);
+  });
+
+  it("simplifies dense polyline paths using Douglas-Peucker algorithm", () => {
+    // Collinear points along a line plus a few slight deviations
+    const straightLineWithNoise: Coordinate[] = [
+      { latitude: -6.1929, longitude: 106.8236 },
+      { latitude: -6.1949, longitude: 106.8236 }, // directly collinear
+      { latitude: -6.1969, longitude: 106.8236 }, // directly collinear
+      { latitude: -6.1989, longitude: 106.8236 }, // directly collinear
+      { latitude: -6.2008, longitude: 106.8228 }, // sharp turn
+    ];
+
+    const simplified = simplifyPolyline(straightLineWithNoise, 30);
+    expect(simplified.length).toBeLessThan(straightLineWithNoise.length);
+    expect(simplified[0].latitude).toBeCloseTo(straightLineWithNoise[0].latitude, 4);
+    expect(simplified[simplified.length - 1].latitude).toBeCloseTo(
+      straightLineWithNoise[straightLineWithNoise.length - 1].latitude,
+      4
+    );
   });
 });
