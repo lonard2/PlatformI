@@ -901,7 +901,7 @@ function FleetManagementContent() {
                     {/* Operational Status (Quick Toggle) */}
                     <td className="py-3.5 px-4">
                       <label htmlFor={`status-select-${vehicle.id}`} className="sr-only">
-                        {t.admin.currentStatus} — {vehicle.vehicleCode}
+                        {t.admin.currentStatus}: {vehicle.vehicleCode}
                       </label>
                       <select
                         id={`status-select-${vehicle.id}`}
@@ -930,7 +930,7 @@ function FleetManagementContent() {
                     {/* Capacity & Crowd Density */}
                     <td className="py-3.5 px-4">
                       <label htmlFor={`crowd-select-${vehicle.id}`} className="sr-only">
-                        {t.admin.capacityAndDensity} — {vehicle.vehicleCode}
+                        {t.admin.capacityAndDensity}: {vehicle.vehicleCode}
                       </label>
                       <select
                         id={`crowd-select-${vehicle.id}`}

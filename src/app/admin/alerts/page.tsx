@@ -286,7 +286,7 @@ export default function AdminAlertsPage() {
           setFetchError(t.admin.fetchFormat);
         }
       } else {
-        setFetchError(t.admin.fetchHttp + ` (HTTP ${res.status}) — ${t.admin.cachedState}`);
+        setFetchError(t.admin.fetchHttp + ` (HTTP ${res.status}): ${t.admin.cachedState}`);
       }
     } catch {
       setFetchError(t.admin.fetchNetwork);
@@ -360,7 +360,7 @@ export default function AdminAlertsPage() {
               line: data.data.lineId || "ALL",
             },
           });
-          notify(t.admin.publishAlert + " — " + data.data.title);
+          notify(t.admin.publishAlert + ": " + data.data.title);
         }
       } else {
         const data = await res.json().catch(() => ({}));
@@ -412,7 +412,7 @@ export default function AdminAlertsPage() {
             title: alert.title,
           },
         });
-        notify(t.admin.resolved + (alert.title ? ` — ${alert.title}` : ""));
+        notify(t.admin.resolved + (alert.title ? `: ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.resolveFailed);
@@ -455,7 +455,7 @@ export default function AdminAlertsPage() {
             title: title || id,
           },
         });
-        notify(t.admin.escalatedToast + (title ? ` — ${title}` : ""));
+        notify(t.admin.escalatedToast + (title ? `: ${title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.escalateFailed);
@@ -505,7 +505,7 @@ export default function AdminAlertsPage() {
             title: alert.title,
           },
         });
-        notify(t.admin.demotedToast + (alert.title ? ` — ${alert.title}` : ""));
+        notify(t.admin.demotedToast + (alert.title ? `: ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.demoteFailed);
@@ -555,7 +555,7 @@ export default function AdminAlertsPage() {
             title: alert.title,
           },
         });
-        notify(t.admin.reopenAlert + (alert.title ? ` — ${alert.title}` : ""));
+        notify(t.admin.reopenAlert + (alert.title ? `: ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.resolveFailed);
@@ -615,7 +615,7 @@ export default function AdminAlertsPage() {
         );
         setBroadcastError(data.error || t.admin.alertsNetwork);
       } else {
-        notify(t.common.undo + (mutation.alertTitle ? ` — ${mutation.alertTitle}` : ""));
+        notify(t.common.undo + (mutation.alertTitle ? `: ${mutation.alertTitle}` : ""));
       }
     } catch {
       setAlerts((prev) =>
@@ -1354,7 +1354,7 @@ export default function AdminAlertsPage() {
                   >
                     <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
                     <p id="escalate-confirm-body" className="text-xs text-rose-200 flex-1">
-                      <strong className="text-rose-100">{alert.title}</strong> — {t.admin.escalateConfirmBody}
+                      <strong className="text-rose-100">{alert.title}</strong>: {t.admin.escalateConfirmBody}
                     </p>
                     <div className="flex items-center gap-2 shrink-0">
                       <button

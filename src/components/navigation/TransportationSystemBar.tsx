@@ -992,7 +992,7 @@ export function TransportationSystemBar() {
             onClick={() => setActiveDrawer(activeDrawer === "settings" ? null : "settings")}
             aria-label={t.navigation.settings}
             title={t.navigation.settings}
-            className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white transition`}
+            className={`sm:hidden touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white transition`}
           >
             <Settings className="w-3.5 h-3.5" />
           </button>

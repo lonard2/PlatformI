@@ -1064,7 +1064,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                             onClick={() => setSelectedHistoryDate(cell.dateStr)}
                             aria-label={`${monthLabel} ${cell.dayNum}${
                               cell.events.length > 0
-                                ? ` — ${cell.events.length} ${t.statusCenter.incidentCountLabel}`
+                                ? `: ${cell.events.length} ${t.statusCenter.incidentCountLabel}`
                                 : ""
                             }`}
                             className={`h-10 rounded-lg p-1 flex flex-col items-center justify-between border transition-all ${

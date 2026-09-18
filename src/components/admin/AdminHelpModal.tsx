@@ -47,7 +47,7 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
   const handleCopySummary = () => {
     if (shiftLog.length === 0) return;
     const summaryText = shiftLog
-      .map((entry) => `${entry.actionType} — ${formatShiftLogSummary(entry, t)} — ${entry.timeFormatted}`)
+      .map((entry) => `${entry.actionType} - ${formatShiftLogSummary(entry, t)} - ${entry.timeFormatted}`)
       .join("\n");
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(summaryText).then(() => {
