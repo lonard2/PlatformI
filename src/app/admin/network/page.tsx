@@ -36,11 +36,23 @@ import {
   Accessibility,
   Eye,
   EyeOff,
+  Download,
+  Upload,
+  Wand2,
+  Compass,
 } from "lucide-react";
 import { Line, Stop, TransitCategory, TransitMode, FareStructureType } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DynamicNetworkMap } from "@/components/admin/DynamicNetworkMap";
-import { smoothPolyline, coordinatesToLatLngTuples, latLngTuplesToCoordinates } from "@/lib/geodesy/curveSmoothing";
+import {
+  smoothPolyline,
+  coordinatesToLatLngTuples,
+  latLngTuplesToCoordinates,
+  lineToGeoJSON,
+  parseGeoJSONToLine,
+  generatePathFromStops,
+  snapRouteToRoads,
+} from "@/lib/geodesy/curveSmoothing";
 
 const CATEGORIES: { id: TransitCategory | "ALL"; label: string; icon: React.ReactNode }[] = [
   { id: "ALL", label: "All Modes", icon: <Route className="w-3.5 h-3.5" /> },
@@ -97,6 +109,8 @@ export default function AdminNetworkStudioPage() {
   // Curve Smoothing State
   const [previewSmoothedLine, setPreviewSmoothedLine] = useState<boolean>(false);
   const [isSavingCurve, setIsSavingCurve] = useState<boolean>(false);
+  const [isSnappingRoads, setIsSnappingRoads] = useState<boolean>(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Modals
   const [isLineModalOpen, setIsLineModalOpen] = useState<boolean>(false);
@@ -259,6 +273,139 @@ export default function AdminNetworkStudioPage() {
     } finally {
       setIsSavingCurve(false);
     }
+  };
+
+  // 3b. Auto-build Path from Stations Sequence
+  const handleAutoBuildFromStations = () => {
+    if (!selectedLine || lineStops.length < 2) {
+      setStatusMessage({
+        type: "error",
+        text: "At least 2 stations/stops are required to build a route path.",
+      });
+      return;
+    }
+    const newPath = generatePathFromStops(lineStops, true);
+    const updatedLine: Line = {
+      ...selectedLine,
+      polylineCoordinates: newPath,
+    };
+    upsertLine(updatedLine);
+    setPreviewSmoothedLine(true);
+    setStatusMessage({
+      type: "success",
+      text: `Generated smoothed curve path connecting all ${lineStops.length} stations. Click 'Apply to DB' to save.`,
+    });
+  };
+
+  // 3c. Snap Route to Road Network via OSRM
+  const handleSnapToRoads = async () => {
+    if (!selectedLine || selectedLine.polylineCoordinates.length < 2) {
+      setStatusMessage({
+        type: "error",
+        text: "Line has no coordinates to snap to road network.",
+      });
+      return;
+    }
+    setIsSnappingRoads(true);
+    try {
+      const snapped = await snapRouteToRoads(selectedLine.polylineCoordinates, 4000);
+      const updatedLine: Line = {
+        ...selectedLine,
+        polylineCoordinates: snapped,
+      };
+      upsertLine(updatedLine);
+      setPreviewSmoothedLine(true);
+      setStatusMessage({
+        type: "success",
+        text: `Snapped ${snapped.length} roadway nodes to physical street alignments. Click 'Apply to DB' to save.`,
+      });
+    } catch {
+      setStatusMessage({
+        type: "error",
+        text: "Failed to query road network geometry.",
+      });
+    } finally {
+      setIsSnappingRoads(false);
+    }
+  };
+
+  // 3d. Export RFC 7946 GeoJSON
+  const handleExportGeoJSON = () => {
+    if (!selectedLine) return;
+    const geojson = lineToGeoJSON(selectedLine, lineStops);
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: "application/geo+json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `platformi-${selectedLine.code.toLowerCase()}-route.geojson`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setStatusMessage({
+      type: "success",
+      text: `Exported ${selectedLine.code} GeoJSON to downloads.`,
+    });
+  };
+
+  // 3e. Import GeoJSON
+  const handleImportGeoJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedLine) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parsed = parseGeoJSONToLine(text);
+
+        if (parsed.polylineCoordinates.length === 0 && parsed.stops.length === 0) {
+          throw new Error("No LineString or Point geometries found in GeoJSON");
+        }
+
+        const updatedLine: Line = {
+          ...selectedLine,
+          name: parsed.name || selectedLine.name,
+          colorHex: parsed.colorHex || selectedLine.colorHex,
+          polylineCoordinates:
+            parsed.polylineCoordinates.length > 0
+              ? parsed.polylineCoordinates
+              : selectedLine.polylineCoordinates,
+        };
+
+        upsertLine(updatedLine);
+
+        // Import any stops
+        parsed.stops.forEach((s) => {
+          const newStop: Stop = {
+            id: `stop-${selectedLine.id}-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+            lineId: selectedLine.id,
+            name: s.name,
+            code: s.code,
+            latitude: s.latitude,
+            longitude: s.longitude,
+            sequence: s.sequence,
+            isInterchange: Boolean(s.isInterchange),
+            connectedLineIds: [],
+            facilities: ["TOILET", "TICKET_VENDING"],
+            accessibleElevator: true,
+            tactilePaving: true,
+            wheelchairRamp: true,
+          };
+          upsertStop(newStop);
+        });
+
+        setStatusMessage({
+          type: "success",
+          text: `Imported ${parsed.polylineCoordinates.length} vertices and ${parsed.stops.length} stations from GeoJSON.`,
+        });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Invalid GeoJSON file";
+        setStatusMessage({ type: "error", text: msg });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   };
 
   // 4. Save/Create Line
@@ -635,6 +782,57 @@ export default function AdminNetworkStudioPage() {
                         <span>{isSavingCurve ? "Saving..." : "Apply to DB"}</span>
                       </button>
                     )}
+                  </div>
+
+                  {/* Secondary Advanced GIS & Alignment Tools */}
+                  <div className="pt-2 grid grid-cols-2 gap-1.5 border-t border-white/5 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={handleAutoBuildFromStations}
+                      title="Generate curved track path connecting all stations in sequence"
+                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                    >
+                      <Wand2 className="w-3 h-3 text-cyan-400" />
+                      <span>Build from Stops</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSnapToRoads}
+                      disabled={isSnappingRoads}
+                      title="Snap polyline nodes to physical road centerlines"
+                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                    >
+                      <Compass className={`w-3 h-3 text-amber-400 ${isSnappingRoads ? "animate-spin" : ""}`} />
+                      <span>{isSnappingRoads ? "Snapping..." : "Snap to Roads"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleExportGeoJSON}
+                      title="Export route and stations to standard RFC 7946 GeoJSON"
+                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                    >
+                      <Download className="w-3 h-3 text-emerald-400" />
+                      <span>Export GeoJSON</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Import GeoJSON file (.geojson / .json)"
+                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                    >
+                      <Upload className="w-3 h-3 text-indigo-400" />
+                      <span>Import GeoJSON</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".geojson,.json,application/geo+json,application/json"
+                      onChange={handleImportGeoJSON}
+                      className="hidden"
+                    />
                   </div>
                 </div>
 

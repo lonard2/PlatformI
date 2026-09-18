@@ -9,6 +9,10 @@ import {
   haversineDistanceMeters,
   coordinatesToLatLngTuples,
   latLngTuplesToCoordinates,
+  generatePathFromStops,
+  lineToGeoJSON,
+  parseGeoJSONToLine,
+  snapRouteToRoads,
 } from "@/lib/geodesy/curveSmoothing";
 import { Coordinate } from "@/types/transit";
 
@@ -85,5 +89,66 @@ describe("Cartographic Curve Smoothing (Centripetal Catmull-Rom)", () => {
 
     const backToCoords = latLngTuplesToCoordinates(tuples);
     expect(backToCoords).toEqual(coords);
+  });
+
+  it("generates smoothed route path from ordered transit stops", () => {
+    const stops = [
+      { latitude: -6.1929, longitude: 106.8236, sequence: 1 },
+      { latitude: -6.2008, longitude: 106.8228, sequence: 2 },
+      { latitude: -6.2088, longitude: 106.822, sequence: 3 },
+    ];
+
+    const path = generatePathFromStops(stops, true);
+    expect(path.length).toBeGreaterThan(stops.length);
+    expect(path[0].latitude).toBeCloseTo(stops[0].latitude, 4);
+    expect(path[path.length - 1].latitude).toBeCloseTo(stops[2].latitude, 4);
+  });
+
+  it("exports and imports standard RFC 7946 GeoJSON FeatureCollections", () => {
+    const mockLine = {
+      id: "line-test-geojson",
+      code: "GEO-1",
+      name: "GeoJSON Test Corridor",
+      polylineCoordinates: [
+        { latitude: -6.1929, longitude: 106.8236 },
+        { latitude: -6.2008, longitude: 106.8228 },
+      ],
+    };
+
+    const mockStops = [
+      {
+        id: "stop-g1",
+        name: "Station Alpha",
+        code: "STA",
+        latitude: -6.1929,
+        longitude: 106.8236,
+        sequence: 1,
+        isInterchange: true,
+      },
+    ];
+
+    const geojson = lineToGeoJSON(mockLine, mockStops);
+    expect(geojson.type).toBe("FeatureCollection");
+    expect(geojson.features).toHaveLength(2);
+
+    const serialized = JSON.stringify(geojson);
+    const parsed = parseGeoJSONToLine(serialized);
+
+    expect(parsed.code).toBe("GEO-1");
+    expect(parsed.polylineCoordinates).toHaveLength(2);
+    expect(parsed.stops).toHaveLength(1);
+    expect(parsed.stops[0].name).toBe("Station Alpha");
+    expect(parsed.stops[0].isInterchange).toBe(true);
+  });
+
+  it("snaps route to road network with graceful Catmull-Rom fallback", async () => {
+    const rawCoords: Coordinate[] = [
+      { latitude: -6.1929, longitude: 106.8236 },
+      { latitude: -6.2008, longitude: 106.8228 },
+    ];
+
+    const result = await snapRouteToRoads(rawCoords, 500);
+    expect(result.length).toBeGreaterThanOrEqual(rawCoords.length);
+    expect(result[0].latitude).toBeCloseTo(rawCoords[0].latitude, 3);
   });
 });

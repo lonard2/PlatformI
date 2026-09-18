@@ -446,13 +446,22 @@ export default function AdminDashboardPage() {
 
           <div className="pt-2 flex items-center justify-between text-xs">
             <span className="text-slate-500 font-mono text-[11px]">{t.admin.occCommandBadge}</span>
-            <Link
-              href="/admin/fleet"
-              className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition btn-tactile"
-            >
-              <span>{t.admin.fleetControl}</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/admin/network"
+                className="text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition btn-tactile"
+              >
+                <span>{t.admin.networkStudio}</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              <Link
+                href="/admin/fleet"
+                className="text-slate-400 hover:text-slate-200 font-semibold flex items-center gap-1 transition btn-tactile"
+              >
+                <span>{t.admin.fleetControl}</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

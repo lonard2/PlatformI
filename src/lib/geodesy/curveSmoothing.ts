@@ -208,3 +208,213 @@ export function latLngTuplesToCoordinates(
     longitude: Number(longitude.toFixed(6)),
   }));
 }
+
+/**
+ * Generates route polyline coordinates from an ordered list of transit stops.
+ */
+export function generatePathFromStops(
+  stops: { latitude: number; longitude: number; sequence: number }[],
+  smooth: boolean = true
+): Coordinate[] {
+  if (!stops || stops.length === 0) return [];
+  const sorted = [...stops].sort((a, b) => a.sequence - b.sequence);
+  const raw: Coordinate[] = sorted.map((s) => ({
+    latitude: s.latitude,
+    longitude: s.longitude,
+  }));
+
+  return smooth ? smoothPolyline(raw, { stepsPerSegment: 6 }) : raw;
+}
+
+export interface GeoJSONFeature {
+  type: "Feature";
+  geometry: {
+    type: "LineString" | "Point";
+    coordinates: number[] | number[][];
+  };
+  properties: Record<string, unknown>;
+}
+
+export interface GeoJSONFeatureCollection {
+  type: "FeatureCollection";
+  features: GeoJSONFeature[];
+}
+
+/**
+ * Converts a Transit Line and optional Stops to standard RFC 7946 GeoJSON.
+ */
+export function lineToGeoJSON(
+  line: {
+    id: string;
+    code: string;
+    name: string;
+    category?: string;
+    mode?: string;
+    colorHex?: string;
+    polylineCoordinates: Coordinate[];
+  },
+  stops: {
+    id: string;
+    name: string;
+    code: string;
+    latitude: number;
+    longitude: number;
+    sequence: number;
+    isInterchange?: boolean;
+    platformType?: string;
+  }[] = []
+): GeoJSONFeatureCollection {
+  const features: GeoJSONFeature[] = [];
+
+  // 1. LineString feature for polyline path
+  if (line.polylineCoordinates && line.polylineCoordinates.length >= 2) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        // GeoJSON coordinate order: [longitude, latitude]
+        coordinates: line.polylineCoordinates.map((c) => [c.longitude, c.latitude]),
+      },
+      properties: {
+        id: line.id,
+        code: line.code,
+        name: line.name,
+        category: line.category,
+        mode: line.mode,
+        colorHex: line.colorHex,
+      },
+    });
+  }
+
+  // 2. Point features for each station/stop
+  stops.forEach((stop) => {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [stop.longitude, stop.latitude],
+      },
+      properties: {
+        id: stop.id,
+        name: stop.name,
+        code: stop.code,
+        sequence: stop.sequence,
+        isInterchange: Boolean(stop.isInterchange),
+        platformType: stop.platformType || "ISLAND",
+      },
+    });
+  });
+
+  return {
+    type: "FeatureCollection",
+    features,
+  };
+}
+
+export interface ParsedGeoJSONResult {
+  code?: string;
+  name?: string;
+  colorHex?: string;
+  polylineCoordinates: Coordinate[];
+  stops: {
+    name: string;
+    code: string;
+    latitude: number;
+    longitude: number;
+    sequence: number;
+    isInterchange?: boolean;
+  }[];
+}
+
+/**
+ * Parses GeoJSON string into polyline coordinates and stops for ingestion.
+ */
+export function parseGeoJSONToLine(geoJsonString: string): ParsedGeoJSONResult {
+  const parsed = JSON.parse(geoJsonString) as {
+    type?: string;
+    features?: GeoJSONFeature[];
+    geometry?: { type: string; coordinates: unknown };
+    properties?: Record<string, unknown>;
+  };
+
+  const result: ParsedGeoJSONResult = {
+    polylineCoordinates: [],
+    stops: [],
+  };
+
+  const features: GeoJSONFeature[] =
+    parsed.type === "FeatureCollection" && Array.isArray(parsed.features)
+      ? parsed.features
+      : parsed.type === "Feature"
+      ? [(parsed as GeoJSONFeature)]
+      : [];
+
+  let seqCounter = 1;
+
+  for (const feat of features) {
+    if (feat.geometry?.type === "LineString" && Array.isArray(feat.geometry.coordinates)) {
+      const coords = feat.geometry.coordinates as [number, number][];
+      result.polylineCoordinates = coords.map(([lon, lat]) => ({
+        latitude: Number(lat.toFixed(6)),
+        longitude: Number(lon.toFixed(6)),
+      }));
+
+      if (feat.properties) {
+        if (typeof feat.properties.code === "string") result.code = feat.properties.code;
+        if (typeof feat.properties.name === "string") result.name = feat.properties.name;
+        if (typeof feat.properties.colorHex === "string") result.colorHex = feat.properties.colorHex;
+      }
+    } else if (feat.geometry?.type === "Point" && Array.isArray(feat.geometry.coordinates)) {
+      const [lon, lat] = feat.geometry.coordinates as [number, number];
+      const p = feat.properties || {};
+      result.stops.push({
+        name: typeof p.name === "string" ? p.name : `Stop ${seqCounter}`,
+        code: typeof p.code === "string" ? p.code : `ST-${seqCounter}`,
+        latitude: Number(lat.toFixed(6)),
+        longitude: Number(lon.toFixed(6)),
+        sequence: typeof p.sequence === "number" ? p.sequence : seqCounter,
+        isInterchange: Boolean(p.isInterchange),
+      });
+      seqCounter++;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Snaps a sequence of road transit waypoints to real OpenStreetMap road geometry via OSRM.
+ * Falls back to local Centripetal Catmull-Rom spline smoothing if offline or timeout.
+ */
+export async function snapRouteToRoads(
+  coordinates: Coordinate[],
+  signalTimeoutMs: number = 3000
+): Promise<Coordinate[]> {
+  if (!coordinates || coordinates.length < 2) return coordinates;
+
+  try {
+    const coordString = coordinates.map((c) => `${c.longitude},${c.latitude}`).join(";");
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), signalTimeoutMs);
+
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) throw new Error(`OSRM API error: ${res.status}`);
+
+    const json = await res.json();
+    if (json.routes && json.routes[0]?.geometry?.coordinates) {
+      const roadCoords: [number, number][] = json.routes[0].geometry.coordinates;
+      return roadCoords.map(([lon, lat]) => ({
+        latitude: Number(lat.toFixed(6)),
+        longitude: Number(lon.toFixed(6)),
+      }));
+    }
+    throw new Error("Invalid OSRM geometry payload");
+  } catch {
+    // Graceful fallback to Centripetal Catmull-Rom spline
+    return smoothPolyline(coordinates, { stepsPerSegment: 6 });
+  }
+}

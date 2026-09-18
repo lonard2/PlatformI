@@ -56,6 +56,11 @@ export default function Home() {
   const setPlannedJourney = useTransitStore((state) => state.setPlannedJourney);
   const clearPlannedJourney = useTransitStore((state) => state.clearPlannedJourney);
   const activeAlerts = useTransitStore((state) => state.activeAlerts);
+  const fetchNetworkData = useTransitStore((state) => state.fetchNetworkData);
+
+  useEffect(() => {
+    fetchNetworkData();
+  }, [fetchNetworkData]);
 
   const shouldReduceMotion = useReducedMotion();
   const springTransition: Transition = shouldReduceMotion
