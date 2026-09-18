@@ -119,6 +119,7 @@ export default function AdminNetworkStudioPage() {
   // Modals
   const [isLineModalOpen, setIsLineModalOpen] = useState<boolean>(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState<boolean>(false);
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
   const [editingLine, setEditingLine] = useState<Partial<Line> | null>(null);
   const [editingStop, setEditingStop] = useState<Partial<Stop> | null>(null);
 
@@ -849,6 +850,7 @@ export default function AdminNetworkStudioPage() {
           <button
             type="button"
             onClick={() => {
+              setIsCustomMode(false);
               setEditingLine({
                 code: "",
                 name: "",
@@ -938,6 +940,8 @@ export default function AdminNetworkStudioPage() {
                     <button
                       type="button"
                       onClick={() => {
+                        const isKnown = (MODES_BY_CATEGORY[selectedLine.category] || []).includes(selectedLine.mode as TransitMode);
+                        setIsCustomMode(!isKnown);
                         setEditingLine(selectedLine);
                         setIsLineModalOpen(true);
                       }}
@@ -1417,56 +1421,203 @@ export default function AdminNetworkStudioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Mode</label>
-                  <select
-                    value={editingLine.mode || "MRT_JAKARTA"}
-                    onChange={(e) => setEditingLine({ ...editingLine, mode: e.target.value as TransitMode })}
-                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
-                  >
-                    {(MODES_BY_CATEGORY[editingLine.category || "RAIL"] || []).map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="block text-[11px] text-slate-400 mb-1">Transit Mode *</label>
+                  {!isCustomMode ? (
+                    <select
+                      value={editingLine.mode || "MRT_JAKARTA"}
+                      onChange={(e) => {
+                        if (e.target.value === "__CUSTOM__") {
+                          setIsCustomMode(true);
+                          setEditingLine({ ...editingLine, mode: "" });
+                        } else {
+                          setEditingLine({ ...editingLine, mode: e.target.value as TransitMode });
+                        }
+                      }}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                    >
+                      {(MODES_BY_CATEGORY[editingLine.category || "RAIL"] || []).map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                      <option value="__CUSTOM__">+ Custom Transit Mode...</option>
+                    </select>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. APMS_SKYTRAIN, CABLE_CAR, MONORAIL"
+                        value={editingLine.mode || ""}
+                        onChange={(e) =>
+                          setEditingLine({
+                            ...editingLine,
+                            mode: e.target.value.toUpperCase().replace(/\s+/g, "_"),
+                          })
+                        }
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-cyan-500/40 text-cyan-300 font-mono text-xs uppercase"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomMode(false);
+                          setEditingLine({
+                            ...editingLine,
+                            mode: MODES_BY_CATEGORY[editingLine.category || "RAIL"][0] || "MRT_JAKARTA",
+                          });
+                        }}
+                        className="px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-xs whitespace-nowrap btn-tactile"
+                        title="Switch back to standard preset modes"
+                      >
+                        Presets
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Base Fare (Rp)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="500"
-                    value={editingLine.baseFareRp ?? 3000}
-                    onChange={(e) => setEditingLine({ ...editingLine, baseFareRp: Number(e.target.value) })}
-                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
-                  />
+              {/* Fare System Configuration */}
+              <div className="space-y-2 pt-1 border-t border-white/5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] text-slate-400">Fare Tariff System *</label>
+                  <span className="text-[10px] text-cyan-400 font-mono font-semibold">
+                    {editingLine.fareType || "PROGRESSIVE_DISTANCE"}
+                  </span>
                 </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Fare Per Km (Rp)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100"
-                    value={editingLine.farePerKmRp ?? 1000}
-                    onChange={(e) => setEditingLine({ ...editingLine, farePerKmRp: Number(e.target.value) })}
-                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Max Fare (Rp)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="500"
-                    value={editingLine.maxFareRp ?? 14000}
-                    onChange={(e) => setEditingLine({ ...editingLine, maxFareRp: Number(e.target.value) })}
-                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
-                  />
-                </div>
+
+                <select
+                  value={editingLine.fareType || "PROGRESSIVE_DISTANCE"}
+                  onChange={(e) => {
+                    const type = e.target.value as FareStructureType;
+                    let base = editingLine.baseFareRp ?? 3000;
+                    let perKm = editingLine.farePerKmRp ?? 1000;
+                    let max = editingLine.maxFareRp ?? 14000;
+
+                    if (type === "FLAT") {
+                      base = editingLine.baseFareRp || 3500;
+                      perKm = 0;
+                      max = base;
+                    } else if (type === "FREE_TAP") {
+                      base = 0;
+                      perKm = 0;
+                      max = 0;
+                    } else if (type === "PROGRESSIVE_STATION") {
+                      base = 3000;
+                      perKm = 1000;
+                      max = 14000;
+                    } else if (type === "PROGRESSIVE_DISTANCE") {
+                      base = 3000;
+                      perKm = 1000;
+                      max = 20000;
+                    } else if (type === "DYNAMIC_TIERED") {
+                      base = editingLine.baseFareRp || 225000;
+                      perKm = 0;
+                      max = base;
+                    }
+
+                    setEditingLine({
+                      ...editingLine,
+                      fareType: type,
+                      baseFareRp: base,
+                      farePerKmRp: perKm,
+                      maxFareRp: max,
+                    });
+                  }}
+                  className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                >
+                  <option value="FLAT">Flat Single Rate (e.g. TransJakarta BRT / LRT Jakarta)</option>
+                  <option value="PROGRESSIVE_DISTANCE">Distance-Based Progressive Rate (e.g. KRL Commuter / LRT Jabodebek)</option>
+                  <option value="PROGRESSIVE_STATION">Station-Based Progressive Rate (e.g. MRT Jakarta)</option>
+                  <option value="FREE_TAP">100% Subsidized Zero-Fare (e.g. MikroTrans JakLingko)</option>
+                  <option value="DYNAMIC_TIERED">Class-Based / Dynamic Tiered (e.g. Whoosh HSR / Airport Rail / AKAP)</option>
+                </select>
               </div>
+
+              {/* Dynamic Inputs Based on Fare Structure Type */}
+              {editingLine.fareType === "FREE_TAP" ? (
+                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span>
+                    <strong>100% Subsidized Transit (Rp 0):</strong> Passengers tap card/QR for census and boarding validation without fare deduction.
+                  </span>
+                </div>
+              ) : editingLine.fareType === "FLAT" ? (
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1">Flat Rate (Rp) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="500"
+                    value={editingLine.baseFareRp ?? 3500}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setEditingLine({ ...editingLine, baseFareRp: val, maxFareRp: val, farePerKmRp: 0 });
+                    }}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Fixed single rate charged upon tap-in or boarding, regardless of distance or stations traveled.
+                  </p>
+                </div>
+              ) : editingLine.fareType === "DYNAMIC_TIERED" ? (
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1">Standard / Economy Base Fare (Rp) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5000"
+                    value={editingLine.baseFareRp ?? 225000}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setEditingLine({ ...editingLine, baseFareRp: val, maxFareRp: val });
+                    }}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Base tariff for standard seat class. Premium tiers (Executive, Business, Sleeper) are configured via vehicle cabin classes.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">
+                      {editingLine.fareType === "PROGRESSIVE_STATION" ? "First Station Fare (Rp)" : "Initial Base Fare (Rp)"}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="500"
+                      value={editingLine.baseFareRp ?? 3000}
+                      onChange={(e) => setEditingLine({ ...editingLine, baseFareRp: Number(e.target.value) })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">
+                      {editingLine.fareType === "PROGRESSIVE_STATION" ? "Per Station (Rp)" : "Per Km Rate (Rp)"}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="100"
+                      value={editingLine.farePerKmRp ?? 1000}
+                      onChange={(e) => setEditingLine({ ...editingLine, farePerKmRp: Number(e.target.value) })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Max Ceiling Cap (Rp)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="500"
+                      value={editingLine.maxFareRp ?? 14000}
+                      onChange={(e) => setEditingLine({ ...editingLine, maxFareRp: Number(e.target.value) })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="pt-2 flex items-center justify-end gap-2">
                 <button

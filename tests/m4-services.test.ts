@@ -6,6 +6,7 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateLegFare,
+  calculateLineFare,
   calculateJakLingkoTripFare,
   normalizeModeKey,
   isJakLingkoEligibleMode,
@@ -64,6 +65,44 @@ describe("Milestone 4: Fare Engine Service (fareCalculator.ts)", () => {
 
     expect(calculateLegFare("MARITIME_SPEEDBOAT", 20.0)).toBe(54000);
     expect(calculateLegFare("MARITIME_SPEEDBOAT", 45.0)).toBe(74000);
+  });
+
+  it("calculates dynamic multi-modal fare structures via calculateLineFare", () => {
+    // 1. FLAT rate (e.g. TransJakarta BRT Rp 3,500)
+    expect(calculateLineFare({ fareType: "FLAT", baseFareRp: 3500 }, 15.0)).toBe(3500);
+    expect(calculateLineFare({ fareType: "FLAT", baseFareRp: 5000 }, 30.0)).toBe(5000);
+
+    // 2. FREE_TAP (100% Subsidized e.g. MikroTrans JakLingko)
+    expect(calculateLineFare({ fareType: "FREE_TAP", baseFareRp: 0 }, 12.0)).toBe(0);
+
+    // 3. PROGRESSIVE_STATION (e.g. MRT Jakarta: base 3,000 + 1,000/station, max 14,000)
+    expect(calculateLineFare({ fareType: "PROGRESSIVE_STATION", baseFareRp: 3000, farePerKmRp: 1000, maxFareRp: 14000 }, 4.0, { stationCount: 2 })).toBe(5000);
+    expect(calculateLineFare({ fareType: "PROGRESSIVE_STATION", baseFareRp: 3000, farePerKmRp: 1000, maxFareRp: 14000 }, 18.0, { stationCount: 15 })).toBe(14000);
+
+    // 4. PROGRESSIVE_DISTANCE (e.g. LRT / KRL track distance with cap)
+    expect(calculateLineFare({ fareType: "PROGRESSIVE_DISTANCE", baseFareRp: 5000, farePerKmRp: 700, maxFareRp: 20000 }, 10.0)).toBe(5000 + 9 * 700);
+    expect(calculateLineFare({ fareType: "PROGRESSIVE_DISTANCE", baseFareRp: 5000, farePerKmRp: 700, maxFareRp: 10000 }, 30.0)).toBe(10000);
+
+    // 5. DYNAMIC_TIERED (e.g. Whoosh HSR / Airport Rail standard class)
+    expect(calculateLineFare({ fareType: "DYNAMIC_TIERED", baseFareRp: 225000 }, 142.3)).toBe(225000);
+  });
+
+  it("calculates fares for custom future transit modes using line configuration", () => {
+    // Custom transit mode: APMS_SKYTRAIN with flat rate
+    const apmsFare = calculateLegFare("APMS_SKYTRAIN", 5.0, {
+      line: { fareType: "FLAT", baseFareRp: 0 },
+    });
+    expect(apmsFare).toBe(0);
+
+    // Custom transit mode: CABLE_CAR with progressive distance
+    const cableCarFare = calculateLegFare("CABLE_CAR", 3.2, {
+      line: { fareType: "PROGRESSIVE_DISTANCE", baseFareRp: 15000, farePerKmRp: 5000, maxFareRp: 30000 },
+    });
+    expect(cableCarFare).toBe(15000 + 3 * 5000); // 30,000 capped at 30,000
+
+    // Custom transit mode fallback without line options returns standard safe default
+    const unknownModeFare = calculateLegFare("AUTONOMOUS_RAPID_TRANSIT", 10.0);
+    expect(unknownModeFare).toBe(3500);
   });
 
   it("enforces JakLingko 3-Hour Rp 10,000 cap across MRT + TJ + LRT", () => {

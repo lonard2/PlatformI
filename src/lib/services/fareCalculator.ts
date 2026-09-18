@@ -10,7 +10,7 @@
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
 
-import { TransitMode } from "@/types/transit";
+import { TransitMode, FareStructureType } from "@/types/transit";
 
 export type TransitModeType =
   | "mrt"
@@ -34,6 +34,58 @@ export interface FareCalculationOptions {
   stationCount?: number;
   departureHour?: number;
   seatClass?: "economy" | "business" | "first" | "executive";
+  line?: {
+    fareType?: FareStructureType;
+    baseFareRp?: number;
+    farePerKmRp?: number;
+    maxFareRp?: number;
+  };
+}
+
+/**
+ * Calculates fare dynamically for any transit line (standard or custom)
+ * using its configured fare structure (FLAT, PROGRESSIVE_DISTANCE, PROGRESSIVE_STATION, FREE_TAP, DYNAMIC_TIERED).
+ */
+export function calculateLineFare(
+  line: {
+    fareType?: FareStructureType;
+    baseFareRp?: number;
+    farePerKmRp?: number;
+    maxFareRp?: number;
+  },
+  distanceKm: number,
+  options?: FareCalculationOptions
+): number {
+  const fareType = line.fareType || "PROGRESSIVE_DISTANCE";
+  const base = line.baseFareRp ?? 3000;
+  const perKm = line.farePerKmRp ?? 1000;
+  const max = line.maxFareRp && line.maxFareRp > 0 ? line.maxFareRp : Infinity;
+
+  switch (fareType) {
+    case "FLAT":
+      return base;
+
+    case "FREE_TAP":
+      return 0;
+
+    case "PROGRESSIVE_STATION": {
+      const stations = options?.stationCount !== undefined ? options.stationCount : Math.ceil(distanceKm);
+      const fare = base + Math.max(0, stations) * perKm;
+      return Math.min(max, fare);
+    }
+
+    case "PROGRESSIVE_DISTANCE": {
+      const extraKm = Math.ceil(Math.max(0, distanceKm - 1));
+      const fare = base + extraKm * perKm;
+      return Math.min(max, fare);
+    }
+
+    case "DYNAMIC_TIERED":
+      return base;
+
+    default:
+      return base;
+  }
 }
 
 export interface JakLingkoLegInput {
@@ -93,6 +145,11 @@ export function calculateLegFare(
 ): number {
   const dist = Math.max(0, distanceKm);
   const opts = options || {};
+
+  if (opts.line) {
+    return calculateLineFare(opts.line, dist, opts);
+  }
+
   const canonicalMode = normalizeModeKey(mode);
 
   switch (canonicalMode) {

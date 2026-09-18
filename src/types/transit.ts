@@ -28,7 +28,9 @@ export type TransitMode =
   // Air & Maritime
   | "AIRPORT_COMMERCIAL"
   | "MARITIME_SPEEDBOAT"
-  | "MARITIME_PELNI";
+  | "MARITIME_PELNI"
+  // Extensible for future transit modes (e.g. APMS Skytrain, Cable Car, Autonomous Rapid Transit, Monorail)
+  | (string & {});
 
 export type ServiceOperatingStatus =
   | "NORMAL"
