@@ -621,6 +621,9 @@ export const zh: TranslationDictionary = {
     simSpeedRealtime: "实时巡航速度 (1x)",
     simSpeedAccelerated: "加速移动 (2x)",
     simSpeedPreview: "高速时刻预览 (5x)",
+    estTime: "预计时间",
+    distance: "距离",
+    estFare: "预计票价",
   },
   aiAdvisor: {
     title: "PlatformI AI智能出行与换乘顾问",

@@ -621,6 +621,9 @@ export const ja: TranslationDictionary = {
     simSpeedRealtime: "リアルタイム巡航速度 (1x)",
     simSpeedAccelerated: "高速移動 (2x)",
     simSpeedPreview: "高速ダイヤルプレビュー (5x)",
+    estTime: "所要時間",
+    distance: "距離",
+    estFare: "運賃",
   },
   aiAdvisor: {
     title: "PlatformI AI乗換・経路アドバイザー",

@@ -621,6 +621,9 @@ export const ko: TranslationDictionary = {
     simSpeedRealtime: "실시간 순항 속도 (1x)",
     simSpeedAccelerated: "가속 이동 (2x)",
     simSpeedPreview: "고속 시간표 미리보기 (5x)",
+    estTime: "소요 시간",
+    distance: "거리",
+    estFare: "예상 요금",
   },
   aiAdvisor: {
     title: "PlatformI AI 스마트 경로 안내",

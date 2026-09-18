@@ -88,6 +88,15 @@ code, kbd, samp, pre, .font-mono {
   transform: scale(0.97);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .btn-tactile {
+    transition: none !important;
+  }
+  .btn-tactile:active {
+    transform: none !important;
+  }
+}
+
 /* Custom Scrollbar for Glass UI */
 ::-webkit-scrollbar {
   width: 6px;

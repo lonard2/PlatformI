@@ -59,11 +59,11 @@ export default function Home() {
 
   const shouldReduceMotion = useReducedMotion();
   const springTransition: Transition = shouldReduceMotion
-    ? { duration: 0.15 }
-    : { type: "spring", damping: 25, stiffness: 300 };
+    ? { duration: 0 }
+    : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 };
   const drawerTransition: Transition = shouldReduceMotion
-    ? { duration: 0.15 }
-    : { type: "spring", damping: 25, stiffness: 280 };
+    ? { duration: 0 }
+    : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 };
 
   const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
 
@@ -449,15 +449,107 @@ export default function Home() {
                 <div aria-live="polite" aria-atomic="true" className="space-y-2 pt-1">
                   {plannedJourney ? (
                     <div className="space-y-2">
-                      <div className="p-3 rounded-xl bg-slate-950/80 border border-cyan-500/30 space-y-2 shadow-inner">
-                        {/* Resolved endpoints: a wrong match is visible, not silent */}
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-100 truncate">
-                          <span className="truncate">{plannedJourney.originStop.name}</span>
-                          <span className="text-cyan-400 shrink-0">&rarr;</span>
-                          <span className="truncate">{plannedJourney.destinationStop.name}</span>
+                      <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-cyan-500/40 space-y-2.5 shadow-2xl shadow-black/40">
+                        {/* Wayfinding Stepper Flow */}
+                        <div className="space-y-1.5 border-b border-white/10 pb-2">
+                          {/* Origin Node A */}
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 flex items-center justify-center text-[10px] font-mono font-bold shrink-0">
+                              A
+                            </span>
+                            <span className="font-semibold text-white truncate">
+                              {plannedJourney.originStop.name}
+                            </span>
+                          </div>
+
+                          {/* Intermediate Transfer / Direct Stem */}
+                          {plannedJourney.transferOption ? (
+                            <div className="ml-2 pl-3 border-l-2 border-dashed border-amber-500/40 py-1 space-y-1">
+                              <div className="flex items-center gap-1.5 text-[11px] font-mono flex-wrap">
+                                <span
+                                  style={{
+                                    backgroundColor: `${plannedJourney.transferOption.firstLine.colorHex}25`,
+                                    borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
+                                    color: plannedJourney.transferOption.firstLine.colorHex,
+                                  }}
+                                  className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                >
+                                  {plannedJourney.transferOption.firstLine.code}
+                                </span>
+                                <span className="text-slate-400 text-[10px]">&rarr;</span>
+                                <span className="text-amber-300 font-semibold truncate">
+                                  {plannedJourney.transferOption.transferStop.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[11px] font-mono flex-wrap">
+                                <span
+                                  style={{
+                                    backgroundColor: `${plannedJourney.transferOption.secondLine.colorHex}25`,
+                                    borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
+                                    color: plannedJourney.transferOption.secondLine.colorHex,
+                                  }}
+                                  className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                >
+                                  {plannedJourney.transferOption.secondLine.code}
+                                </span>
+                                <span className="text-slate-400 text-[10px]">
+                                  ({t.journey.journeyTransfer})
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="ml-2 pl-3 border-l-2 border-cyan-500/40 py-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {plannedJourney.directLines.map((l) => (
+                                  <span
+                                    key={l.id}
+                                    style={{
+                                      backgroundColor: `${l.colorHex}25`,
+                                      borderColor: `${l.colorHex}60`,
+                                      color: l.colorHex,
+                                    }}
+                                    className="px-1.5 py-0.2 rounded border text-[10px] font-mono font-bold truncate max-w-[180px]"
+                                  >
+                                    [{l.code}] {l.name}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Destination Node B */}
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="w-4 h-4 rounded-full bg-rose-500/20 border border-rose-400 text-rose-300 flex items-center justify-center text-[10px] font-mono font-bold shrink-0">
+                              B
+                            </span>
+                            <span className="font-semibold text-white truncate">
+                              {plannedJourney.destinationStop.name}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+
+                        {/* Summary Metrics & Fare */}
+                        <div className="grid grid-cols-3 gap-1.5 pt-0.5 text-center font-mono">
+                          <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
+                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.estTime}</div>
+                            <div className="text-xs font-bold text-cyan-300 tabular-nums">~{plannedJourney.estimatedDurationMinutes} min</div>
+                          </div>
+                          <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
+                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.distance}</div>
+                            <div className="text-xs font-bold text-slate-200 tabular-nums">{plannedJourney.distanceKm} km</div>
+                          </div>
+                          <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
+                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.estFare}</div>
+                            <div className="text-xs font-bold text-emerald-300 tabular-nums">
+                              {plannedJourney.estimatedFareRp > 0
+                                ? `Rp ${plannedJourney.estimatedFareRp.toLocaleString("id-ID")}`
+                                : "-"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-0.5">
+                          <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold border ${
                             plannedJourney.directLines.length > 0
                               ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
                               : plannedJourney.transferOption
@@ -470,67 +562,6 @@ export default function Home() {
                               ? t.journey.journeyTransfer
                               : t.journey.journeyNoTransfer}
                           </span>
-                          <span className="text-xs font-mono font-bold text-cyan-300">
-                            {plannedJourney.estimatedFareRp > 0
-                              ? `Rp ${plannedJourney.estimatedFareRp.toLocaleString("id-ID")}`
-                              : "-"}
-                          </span>
-                        </div>
-
-                        {/* Candidate Line Badges */}
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {plannedJourney.directLines.length > 0 ? (
-                            plannedJourney.directLines.map((l) => (
-                              <span
-                                key={l.id}
-                                style={{
-                                  backgroundColor: `${l.colorHex}25`,
-                                  borderColor: `${l.colorHex}60`,
-                                  color: l.colorHex,
-                                }}
-                                className="px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold truncate max-w-[200px]"
-                              >
-                                [{l.code}] {l.name}
-                              </span>
-                            ))
-                          ) : plannedJourney.transferOption ? (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-300">
-                              <span
-                                style={{
-                                  backgroundColor: `${plannedJourney.transferOption.firstLine.colorHex}25`,
-                                  borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
-                                  color: plannedJourney.transferOption.firstLine.colorHex,
-                                }}
-                                className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
-                              >
-                                {plannedJourney.transferOption.firstLine.code}
-                              </span>
-                              <span className="text-slate-500 font-mono">&rarr;</span>
-                              <span
-                                style={{
-                                  backgroundColor: `${plannedJourney.transferOption.secondLine.colorHex}25`,
-                                  borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
-                                  color: plannedJourney.transferOption.secondLine.colorHex,
-                                }}
-                                className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold"
-                              >
-                                {plannedJourney.transferOption.secondLine.code}
-                              </span>
-                              <span className="text-[10px] text-slate-400 font-mono">
-                                ({plannedJourney.transferOption.transferStop.name})
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="text-[11px] text-amber-300/90 font-mono flex items-center gap-1.5 py-0.5">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span>{t.journey.journeyNoTransfer}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1 border-t border-white/5">
-                          <span>~{plannedJourney.estimatedDurationMinutes} min</span>
-                          <span>{plannedJourney.distanceKm} km</span>
                           <span className="text-emerald-400 font-semibold">{t.journey.journeyPlotted}</span>
                         </div>
                       </div>

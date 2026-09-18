@@ -621,6 +621,9 @@ export const ar: TranslationDictionary = {
     simSpeedRealtime: "سرعة الانسياب في الوقت الحقيقي (1x)",
     simSpeedAccelerated: "حركة متسارعة (2x)",
     simSpeedPreview: "معاينة الجدول بسرعة عالية (5x)",
+    estTime: "الوقت المقدر",
+    distance: "المسافة",
+    estFare: "الأجرة المقدرة",
   },
   aiAdvisor: {
     title: "مستشار الرحلات والمسارات الذكي (PlatformI AI)",

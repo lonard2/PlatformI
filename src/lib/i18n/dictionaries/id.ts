@@ -621,6 +621,9 @@ export const id: TranslationDictionary = {
     simSpeedRealtime: "Kecepatan Dengung Waktu Nyata (1x)",
     simSpeedAccelerated: "Gerakan Dipercepat (2x)",
     simSpeedPreview: "Pratinjau Jadwal Kecepatan Tinggi (5x)",
+    estTime: "Est. Waktu",
+    distance: "Jarak",
+    estFare: "Est. Tarif",
   },
   aiAdvisor: {
     title: "Asisten Rute AI PlatformI",

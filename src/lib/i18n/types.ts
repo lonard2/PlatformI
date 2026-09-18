@@ -645,6 +645,9 @@ export interface TranslationDictionary {
     simSpeedRealtime: string;
     simSpeedAccelerated: string;
     simSpeedPreview: string;
+    estTime: string;
+    distance: string;
+    estFare: string;
   };
   aiAdvisor: {
     title: string;

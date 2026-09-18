@@ -621,6 +621,9 @@ export const en: TranslationDictionary = {
     simSpeedRealtime: "Real-Time Cruising Speed (1x)",
     simSpeedAccelerated: "Accelerated Movement (2x)",
     simSpeedPreview: "High-Speed Schedule Preview (5x)",
+    estTime: "Est. Time",
+    distance: "Distance",
+    estFare: "Est. Fare",
   },
   aiAdvisor: {
     title: "PlatformI AI Route Advisor",
