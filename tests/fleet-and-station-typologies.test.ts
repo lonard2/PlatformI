@@ -623,3 +623,96 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
     expect(json.success).toBe(true);
   });
 });
+
+describe("Vehicle Temporal & Spatial Divergence Engine", () => {
+  it("Temporal divergence: speed modulation and ETA dilation when delayMinutes is set", async () => {
+    const {
+      clampSpeedModifier,
+      calculateModulatedSpeed,
+      calculateDivergentEta,
+    } = await import("../src/lib/simulation/divergence");
+
+    // 1. Speed modulation clamping
+    expect(clampSpeedModifier(undefined)).toBe(1.0);
+    expect(clampSpeedModifier(0.05)).toBe(0.1); // clamped min
+    expect(clampSpeedModifier(3.5)).toBe(2.5); // clamped max
+    expect(clampSpeedModifier(1.4)).toBe(1.4);
+
+    // 2. Modulated cruising speed
+    const baseSpeed = 40; // 40 km/h
+    expect(calculateModulatedSpeed(baseSpeed, 0.5)).toBe(20);
+    expect(calculateModulatedSpeed(baseSpeed, 1.5)).toBe(60);
+    expect(calculateModulatedSpeed(baseSpeed, 0.01)).toBe(4); // 40 * 0.1
+
+    // 3. ETA dilation with delayMinutes
+    const baseEtaSeconds = 180; // 3 minutes nominal travel time
+    const dilatedEtaNoDelay = calculateDivergentEta(baseEtaSeconds, 0, "IN_SERVICE");
+    expect(dilatedEtaNoDelay).toBe(180);
+
+    const dilatedEtaWithDelay = calculateDivergentEta(baseEtaSeconds, 8, "IN_SERVICE");
+    expect(dilatedEtaWithDelay).toBe(180 + 8 * 60); // 660 seconds (11 minutes)
+
+    const dilatedEtaWithUndefinedDelay = calculateDivergentEta(baseEtaSeconds, undefined, "IN_SERVICE");
+    expect(dilatedEtaWithUndefinedDelay).toBe(180);
+  });
+
+  it("Spatial divergence: coordinate interpolation along detourCoordinates produces distinct path coordinates from default line polyline", async () => {
+    const {
+      interpolateDetourPath,
+      applyLateralLaneOffset,
+      getRoadVehicleLaneOffset,
+    } = await import("../src/lib/simulation/divergence");
+
+    // Standard Corridor 1 path
+    const defaultPolyline = [
+      { latitude: -6.2, longitude: 106.82 },
+      { latitude: -6.21, longitude: 106.82 },
+      { latitude: -6.22, longitude: 106.82 },
+    ];
+
+    // Detour path bypassing road construction (deviates eastward)
+    const detourPath = [
+      { latitude: -6.2, longitude: 106.82 },
+      { latitude: -6.205, longitude: 106.835 }, // noticeable eastward detour
+      { latitude: -6.215, longitude: 106.835 },
+      { latitude: -6.22, longitude: 106.82 },
+    ];
+
+    const distance = 800; // 800 meters along path
+    const detourResult = interpolateDetourPath(detourPath, distance);
+
+    expect(detourResult.totalLength).toBeGreaterThan(0);
+    expect(detourResult.position).toBeDefined();
+    expect(detourResult.heading).toBeGreaterThan(0);
+
+    // Detour coordinate should deviate significantly eastward (> 106.825 vs 106.82)
+    expect(detourResult.position[1]).toBeGreaterThan(106.825);
+
+    // Lateral lane offset test for road vehicles
+    const busOffset = getRoadVehicleLaneOffset("bus-tj-01", "BUS");
+    expect(busOffset).toBeGreaterThanOrEqual(-2.8);
+    expect(busOffset).toBeLessThanOrEqual(2.8);
+
+    const railOffset = getRoadVehicleLaneOffset("train-mrt-01", "RAIL");
+    expect(railOffset).toBe(0); // Rail vehicles must have zero lane offset
+
+    const basePosition: [number, number] = [-6.2, 106.82];
+    const offsetPos = applyLateralLaneOffset(basePosition, 0, 2.5); // 0 deg = North, perpendicular = East
+    expect(offsetPos[1]).toBeGreaterThan(basePosition[1]); // Shifted East
+  });
+
+  it("Holding state: CONGESTION_HOLD pauses vehicle movement and retains ETA", async () => {
+    const { calculateDivergentEta } = await import("../src/lib/simulation/divergence");
+
+    const baseEta = 90;
+    const holdEta = calculateDivergentEta(baseEta, 5, "CONGESTION_HOLD");
+    // With 5 minutes delay + congestion hold, ETA should be base + delayMinutes * 60
+    expect(holdEta).toBe(90 + 300);
+
+    // When baseEta is 0 (arrived at bottleneck) but vehicle is CONGESTION_HOLD with 0 delayMinutes,
+    // minimum hold safety ETA should be retained (at least 60s)
+    const zeroBaseHoldEta = calculateDivergentEta(0, 0, "CONGESTION_HOLD");
+    expect(zeroBaseHoldEta).toBe(60);
+  });
+});
+

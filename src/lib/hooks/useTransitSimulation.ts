@@ -20,6 +20,14 @@ import {
   findNearestPointOnPolyline,
   calculateNextStopEta,
 } from "@/lib/math/geodesy";
+import {
+  clampSpeedModifier,
+  calculateModulatedSpeed,
+  calculateDivergentEta,
+  applyLateralLaneOffset,
+  getRoadVehicleLaneOffset,
+  interpolateDetourPath,
+} from "@/lib/simulation/divergence";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { Vehicle, VehicleOperationalStatus, Line, Stop } from "@/types/transit";
 
@@ -43,6 +51,7 @@ export function useTransitSimulation() {
 
   const [fps, setFps] = useState<number>(60);
   const internalStateRef = useRef<Map<string, InternalVehicleState>>(new Map());
+  const detourCacheRef = useRef<Map<string, { totalLength: number }>>(new Map());
   const animFrameIdRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
@@ -160,7 +169,25 @@ export function useTransitSimulation() {
           continue;
         }
 
-        const totalLength = cached.totalLength;
+        // Active detour coordinates handling
+        const hasDetour =
+          Array.isArray(vehicle.detourCoordinates) &&
+          vehicle.detourCoordinates.length >= 2;
+
+        let totalLength = cached.totalLength;
+        if (hasDetour && vehicle.detourCoordinates) {
+          let detourCached = detourCacheRef.current.get(vehicle.id);
+          if (!detourCached) {
+            detourCached = {
+              totalLength: calculatePolylineLength(vehicle.detourCoordinates),
+            };
+            detourCacheRef.current.set(vehicle.id, detourCached);
+          }
+          if (detourCached.totalLength > 0) {
+            totalLength = detourCached.totalLength;
+          }
+        }
+
         let state = internalStateRef.current.get(vehicle.id);
         if (!state) {
           state = {
@@ -171,31 +198,51 @@ export function useTransitSimulation() {
         }
 
         const modeConfig = TRANSIT_MODE_CONFIG[vehicle.mode];
-        const cruisingSpeedKmh =
+        const baseCruisingSpeedKmh =
           modeConfig?.speedProfile?.cruisingSpeedKmh || vehicle.speedKmh || 40;
+        // Modulate cruising speed via clamped speedModifier [0.1, 2.5]
+        const cruisingSpeedKmh = calculateModulatedSpeed(
+          baseCruisingSpeedKmh,
+          vehicle.speedModifier
+        );
         const standardDwell =
           modeConfig?.speedProfile?.standardDwellSeconds || 30;
 
-        // 1. Station Dwell Countdown
-        if (state.dwellRemainingSeconds > 0) {
-          const newDwell = Math.max(
-            0,
-            state.dwellRemainingSeconds - deltaSeconds * simulationSpeed
-          );
-          state.dwellRemainingSeconds = newDwell;
+        // CONGESTION_HOLD condition: dwell / hold countdown holds until status resumes
+        const isCongestionHold = vehicle.status === "CONGESTION_HOLD";
 
-          const status: VehicleOperationalStatus =
-            newDwell > 0 ? "BOARDING" : "IN_SERVICE";
+        // 1. Station Dwell Countdown & Congestion Hold
+        if (state.dwellRemainingSeconds > 0 || isCongestionHold) {
+          if (!isCongestionHold) {
+            const newDwell = Math.max(
+              0,
+              state.dwellRemainingSeconds - deltaSeconds * simulationSpeed
+            );
+            state.dwellRemainingSeconds = newDwell;
+          }
+
+          const status: VehicleOperationalStatus = isCongestionHold
+            ? "CONGESTION_HOLD"
+            : state.dwellRemainingSeconds > 0
+            ? "BOARDING"
+            : "IN_SERVICE";
+
+          const dilatedEta = calculateDivergentEta(
+            vehicle.nextStopEtaSeconds,
+            vehicle.delayMinutes,
+            status
+          );
 
           updatedList.push({
             ...vehicle,
             status,
-            speedKmh: newDwell > 0 ? 0 : cruisingSpeedKmh,
+            speedKmh: 0,
+            nextStopEtaSeconds: dilatedEta,
           });
           continue;
         }
 
-        // 2. Vector movement progression
+        // 2. Vector movement progression with modulated speed
         const speedMps = (cruisingSpeedKmh * 1000) / 3600;
         const stepDist = speedMps * deltaSeconds * simulationSpeed;
         const prevDistance = state.currentDistanceMeters;
@@ -206,28 +253,51 @@ export function useTransitSimulation() {
         const lineStops = cached.stops;
         let triggeredDwell = false;
 
-        for (let sIdx = 0; sIdx < lineStops.length; sIdx++) {
-          const stopDist = lineStops[sIdx].alongTrackMeters;
+        // Only trigger standard station dwell if not traversing a detour bypass
+        if (!hasDetour) {
+          for (let sIdx = 0; sIdx < lineStops.length; sIdx++) {
+            const stopDist = lineStops[sIdx].alongTrackMeters;
 
-          if (
-            (prevDistance <= stopDist && nextDistance >= stopDist) ||
-            (nextDistance < prevDistance &&
-              (prevDistance <= stopDist || nextDistance >= stopDist))
-          ) {
-            state.dwellRemainingSeconds = standardDwell;
-            triggeredDwell = true;
-            break;
+            if (
+              (prevDistance <= stopDist && nextDistance >= stopDist) ||
+              (nextDistance < prevDistance &&
+                (prevDistance <= stopDist || nextDistance >= stopDist))
+            ) {
+              state.dwellRemainingSeconds = standardDwell;
+              triggeredDwell = true;
+              break;
+            }
           }
         }
 
-        // 4. Interpolate new position and continuous heading
-        const { position, heading, segmentIndex } =
-          interpolatePositionAlongPolyline(
+        // 4. Interpolate new position and continuous heading (using detour if active)
+        let rawPosition: [number, number];
+        let heading: number;
+        let segmentIndex: number;
+
+        if (hasDetour && vehicle.detourCoordinates) {
+          const detourInterp = interpolatePositionAlongPolyline(
+            vehicle.detourCoordinates,
+            nextDistance
+          );
+          rawPosition = detourInterp.position;
+          heading = detourInterp.heading;
+          segmentIndex = detourInterp.segmentIndex;
+        } else {
+          const polyInterp = interpolatePositionAlongPolyline(
             line.polylineCoordinates,
             nextDistance
           );
+          rawPosition = polyInterp.position;
+          heading = polyInterp.heading;
+          segmentIndex = polyInterp.segmentIndex;
+        }
 
-        // 5. Upcoming next stop & dynamic ETA calculation
+        // Subtle lateral lane offset for road vehicles (BUS category) for natural spatial separation
+        const laneOffsetMeters = getRoadVehicleLaneOffset(vehicle.id, vehicle.category);
+        const position = applyLateralLaneOffset(rawPosition, heading, laneOffsetMeters);
+
+        // 5. Upcoming next stop & dynamic ETA calculation with delayMinutes dilation
         let nextStopId = vehicle.nextStopId;
         let nextStopEtaSeconds = vehicle.nextStopEtaSeconds;
         let operationalStatus: VehicleOperationalStatus = triggeredDwell
@@ -250,7 +320,7 @@ export function useTransitSimulation() {
                 ? targetDist - nextDistance
                 : totalLength - nextDistance + targetDist;
 
-            nextStopEtaSeconds = calculateNextStopEta(
+            const baseEta = calculateNextStopEta(
               0,
               remainingMeters,
               cruisingSpeedKmh,
@@ -258,10 +328,23 @@ export function useTransitSimulation() {
               0
             );
 
+            // Incorporate vehicle.delayMinutes into nextStopEtaSeconds calculation
+            nextStopEtaSeconds = calculateDivergentEta(
+              baseEta,
+              vehicle.delayMinutes,
+              operationalStatus
+            );
+
             if (!triggeredDwell && remainingMeters < 150) {
               operationalStatus = "APPROACHING_STOP";
             }
           }
+        } else if (vehicle.delayMinutes) {
+          nextStopEtaSeconds = calculateDivergentEta(
+            vehicle.nextStopEtaSeconds,
+            vehicle.delayMinutes,
+            operationalStatus
+          );
         }
 
         const progressFraction =
