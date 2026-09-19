@@ -390,6 +390,7 @@ export const en: TranslationDictionary = {
     filterRail: "Rail & Trains",
     filterBus: "Bus & Feeder",
     filterIntercity: "Intercity",
+    operationalNotes: "Operational Notes:",
   },
   statusCenter: {
     title: "Operations & Reliability Command Center",

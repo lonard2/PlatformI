@@ -390,6 +390,7 @@ export const ar: TranslationDictionary = {
     filterRail: "السكك والقطارات",
     filterBus: "الحافلات والتغذية",
     filterIntercity: "بين المدن",
+    operationalNotes: "ملاحظات تشغيلية:",
   },
   statusCenter: {
     title: "مركز قيادة العمليات ومؤشرات الموثوقية",

@@ -390,6 +390,7 @@ export const ja: TranslationDictionary = {
     filterRail: "鉄道・列車",
     filterBus: "バス・フィーダー",
     filterIntercity: "都市間",
+    operationalNotes: "運行注記:",
   },
   statusCenter: {
     title: "運行情報管理司令センター",

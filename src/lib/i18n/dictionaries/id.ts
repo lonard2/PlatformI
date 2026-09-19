@@ -390,6 +390,7 @@ export const id: TranslationDictionary = {
     filterRail: "Rel & Kereta",
     filterBus: "Bus & Feeder",
     filterIntercity: "Antarkota",
+    operationalNotes: "Catatan Operasional:",
   },
   statusCenter: {
     title: "Pusat Status & Informasi Jaringan",

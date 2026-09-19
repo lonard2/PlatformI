@@ -390,6 +390,7 @@ export const zh: TranslationDictionary = {
     filterRail: "轨道与列车",
     filterBus: "公交与接驳",
     filterIntercity: "城际",
+    operationalNotes: "运营备注:",
   },
   statusCenter: {
     title: "运营指挥与线网可靠性监控中心",

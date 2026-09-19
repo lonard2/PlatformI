@@ -201,7 +201,7 @@ function getStandardizedModeMeta(mode: TransitMode, lineCode?: string, lineId?: 
 /**
  * Generates dynamic departure board items for any station in the network
  */
-function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDictionary): DepartureBoardItem[] {
+export function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDictionary): DepartureBoardItem[] {
   const departures: DepartureBoardItem[] = [];
   const connectedLines = lines.filter(
     (l) => l.id === stop.lineId || stop.connectedLineIds.includes(l.id)
@@ -210,6 +210,29 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
   const now = new Date();
 
   connectedLines.forEach((line, lineIdx) => {
+    // Derive origin and destination termini from line.name if structured as "(Origin - Destination)" or "Origin - Destination"
+    let derivedOrigin = "";
+    let derivedDestination = line.name;
+
+    if (line.name.includes("(") && line.name.includes(")")) {
+      const inside = line.name.slice(line.name.indexOf("(") + 1, line.name.lastIndexOf(")"));
+      if (inside.includes(" - ")) {
+        const parts = inside.split(" - ");
+        derivedOrigin = parts[0].trim();
+        derivedDestination = parts[1].trim();
+      } else if (inside.includes("-")) {
+        const parts = inside.split("-");
+        derivedOrigin = parts[0].trim();
+        derivedDestination = parts[1].trim();
+      } else {
+        derivedDestination = inside.trim();
+      }
+    } else if (line.name.includes(" - ")) {
+      const parts = line.name.split(" - ");
+      derivedOrigin = parts[0].trim();
+      derivedDestination = parts[1].trim();
+    }
+
     [0, 1, 2].forEach((offsetIdx) => {
       const minutesOffset = offsetIdx * line.headwayMinutes + (lineIdx * 3);
       const scheduledDate = new Date(now.getTime() + minutesOffset * 60000);
@@ -267,7 +290,19 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
       let licensePlate: string | undefined = undefined;
       let operatorName: string | undefined = undefined;
 
+      // Rich metadata fields
+      let origin: string = derivedOrigin || stop.name;
+      let destination: string = derivedDestination;
+      let gateOrBay: string = `Peron ${platformNumber} (Jalur ${(offsetIdx % 6) + 1})`;
+      let serviceClass: string = "Ekonomi AC";
+      let baggageBelt: string | undefined = undefined;
+      let notes: string = "Harap perhatikan pengumuman peron dan patuhi protokol keselamatan.";
+      let transitStopsSummary: string = `${origin} -> ${destination}`;
+
       if (line.category === "RAIL") {
+        gateOrBay = `Peron ${platformNumber} (Jalur ${(offsetIdx % 6) + 1})`;
+        notes = "Direct Express bypasses intermediate stops. Free onboard Wi-Fi.";
+
         if (line.mode === "MRT_JAKARTA") {
           runNumber = `M-${101 + offsetIdx * 2 + lineIdx}`;
           trainsetNumber = `TS-0${(offsetIdx % 16) + 1}`;
@@ -275,6 +310,10 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "6 Kereta (4M2T)";
           depotHome = "Depo MRT Lebak Bulus";
           operatorName = "PT MRT Jakarta (Perseroda)";
+          origin = stop.name.includes("Bundaran HI") ? "Stasiun Bundaran HI" : "Stasiun Lebak Bulus Grab";
+          destination = stop.name.includes("Bundaran HI") ? "Lebak Bulus Grab" : "Bundaran HI Bank DKI";
+          serviceClass = "Standard Metro Commuter";
+          transitStopsSummary = "Lebak Bulus -> Fatmawati -> Blok M -> Dukuh Atas -> Bundaran HI";
         } else if (line.mode === "WHOOSH_HSR") {
           runNumber = `G10${12 + offsetIdx * 4}`;
           trainsetNumber = `CR400AF-220${(offsetIdx % 11) + 1}`;
@@ -282,6 +321,10 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "8 Kereta High-Speed (4M4T)";
           depotHome = "Depo KCIC Tegalluar, Bandung";
           operatorName = "PT Kereta Cepat Indonesia China (KCIC)";
+          origin = "Stasiun Halim HSR";
+          destination = "Stasiun Tegalluar Summarecon";
+          serviceClass = "Premium Economy & First Class";
+          transitStopsSummary = "Halim HSR -> Karawang -> Padalarang -> Tegalluar";
         } else if (line.mode === "LRT_JABODEBEK_CIBUBUR" || line.mode === "LRT_JABODEBEK_BEKASI") {
           const isBekasi = line.mode === "LRT_JABODEBEK_BEKASI";
           runNumber = isBekasi ? `BK-${301 + offsetIdx * 3}` : `CB-${201 + offsetIdx * 3}`;
@@ -290,6 +333,12 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "6 Kereta Articulated GoA3 (4M2T)";
           depotHome = "Depo LRT Jabodebek Jatimulya, Bekasi";
           operatorName = "PT Kereta Api Indonesia (LRT Jabodebek)";
+          origin = isBekasi ? "Stasiun Jatimulya" : "Stasiun Harjamukti";
+          destination = "Dukuh Atas";
+          serviceClass = "GoA3 Driverless Automated";
+          transitStopsSummary = isBekasi
+            ? "Dukuh Atas -> Cawang -> Halim -> Bekasi Barat -> Jatimulya"
+            : "Dukuh Atas -> Cawang -> Ciracas -> Harjamukti";
         } else if (line.mode === "LRT_JAKARTA") {
           runNumber = `S-${101 + offsetIdx * 2}`;
           trainsetNumber = `TS-0${(offsetIdx % 8) + 1}`;
@@ -297,6 +346,10 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "2 Kereta Light Rail (1M1T)";
           depotHome = "Depo LRT Pegangsaan Dua, Kelapa Gading";
           operatorName = "PT LRT Jakarta (Jakpro Group)";
+          origin = "Stasiun Pegangsaan Dua";
+          destination = "Velodrome Rawamangun";
+          serviceClass = "Light Rail Transit Metro";
+          transitStopsSummary = "Pegangsaan Dua -> Boulevard Utara -> Velodrome";
         } else if (line.mode.startsWith("KRL_")) {
           runNumber = `KA-${2040 + offsetIdx * 4 + lineIdx}`;
           trainsetNumber = `SF12-JR205-C0${(offsetIdx % 10) + 1}`;
@@ -304,6 +357,10 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "12 Kereta Stainless Steel (6M6T)";
           depotHome = "Depo KRL Bukit Duri / Manggarai";
           operatorName = "PT Kereta Commuter Indonesia (KAI Commuter)";
+          origin = derivedOrigin || "Stasiun Jakarta Kota";
+          destination = derivedDestination || "Stasiun Bogor";
+          serviceClass = "Commuter Line AC";
+          transitStopsSummary = "Jakarta Kota -> Manggarai -> Pasar Minggu -> Depok -> Bogor";
         } else if (line.mode === "KAI_BANDARA") {
           runNumber = `A-${10 + offsetIdx * 2}`;
           trainsetNumber = `EA203-0${(offsetIdx % 10) + 1}`;
@@ -311,6 +368,10 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "6 Kereta Airport Express";
           depotHome = "Depo Manggarai";
           operatorName = "PT KAI Bandara (Railink)";
+          origin = "Stasiun Manggarai";
+          destination = "Bandara Soekarno-Hatta (BST)";
+          serviceClass = "Airport Executive Express";
+          transitStopsSummary = "Manggarai -> BNI City -> Duri -> Rawa Buaya -> Bandara Soetta";
         } else if (line.mode === "KAI_INTERCITY") {
           runNumber = `KA-${1 + offsetIdx * 2}`;
           trainsetNumber = `CC206-13-42 / K1-NewGen`;
@@ -318,26 +379,50 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           carFormation = "9 Kereta Eksekutif New Gen + 1 Luxury + 1 Pembangkit";
           depotHome = "Depo Kereta Cipinang, Jakarta Timur";
           operatorName = "PT Kereta Api Indonesia (Persero)";
+          origin = offsetIdx % 2 === 0 ? "Stasiun Gambir (GMR)" : "Pasar Senen (PSE)";
+          destination = derivedDestination || "Surabaya Pasarturi (SBI)";
+          serviceClass = "Eksekutif New Gen & Luxury Suite";
+          transitStopsSummary = "Gambir -> Cirebon -> Semarang Tawang -> Surabaya Pasarturi";
         }
       } else if (line.category === "BUS") {
+        gateOrBay = `Bay ${offsetIdx + 3}`;
+
         if (line.mode === "MIKROTRANS") {
           runNumber = `JAK-${line.code.replace(/^JAK\./, "")}-0${offsetIdx + 1}`;
           fleetNumber = `KWK-${1000 + lineIdx * 25 + offsetIdx * 4}`;
           licensePlate = `B ${1000 + lineIdx * 25 + offsetIdx * 4} TQN`;
           depotHome = "Pool KWK / Kencana MikroTrans";
           operatorName = "JakLingko (Koperasi Wahana Kalpika)";
+          origin = derivedOrigin || "Terminal Lingko Mikrotrans";
+          destination = derivedDestination || "Pemberhentian Akhir";
+          serviceClass = "JakLingko AC & Non-AC Angkot";
+          gateOrBay = `Bay ${offsetIdx + 1}`;
+          notes = "Tarif Rp 0 dengan tap kartu JakLingko / Kartu Multi Trip.";
+          transitStopsSummary = "Rute Lingkungan Terintegrasi JakLingko";
         } else if (line.mode === "AKAP_INTERCITY_BUS") {
           runNumber = `AKAP-${line.code}-0${offsetIdx + 1}`;
           fleetNumber = `BUS-AKAP-${200 + lineIdx * 10 + offsetIdx * 3}`;
           licensePlate = `B ${7200 + lineIdx * 15 + offsetIdx * 2} SGA`;
           depotHome = "Terminal Terpadu Pulo Gebang / Kp. Rambutan";
-          operatorName = "PO Sinar Jaya / Rosalia Indah / Harapan Jaya";
+          operatorName = offsetIdx % 3 === 0 ? "PO Sinar Jaya" : offsetIdx % 3 === 1 ? "PO Rosalia Indah" : "PO Harapan Jaya";
+          origin = offsetIdx % 2 === 0 ? "Terminal Terpadu Pulo Gebang" : "Terminal Kampung Rambutan";
+          destination = derivedDestination || "Yogyakarta / Solo Tirtonadi";
+          serviceClass = "Executive Sleeper & Suite Class";
+          gateOrBay = `Bay ${offsetIdx + 3}`;
+          notes = "Direct via Tol Layang MBZ. Max luggage allowance 20kg.";
+          transitStopsSummary = "Terminal Pulo Gebang -> Tol Trans-Jawa -> Solo -> Yogyakarta";
         } else if (line.mode === "EXECUTIVE_SHUTTLE") {
           runNumber = `SHT-${line.code}-0${offsetIdx + 1}`;
           fleetNumber = `SHUTTLE-HIACE-${10 + lineIdx * 5 + offsetIdx}`;
           licensePlate = `D ${1400 + lineIdx * 20 + offsetIdx * 4} DTR`;
           depotHome = "Pool fX Sudirman / Blora Dukuh Atas";
-          operatorName = "DayTrans / CitiTrans Executive Travel";
+          operatorName = offsetIdx % 2 === 0 ? "DayTrans Executive Shuttle" : "CitiTrans Executive Travel";
+          origin = "Pool fX Sudirman";
+          destination = derivedDestination || "Pasteur Bandung";
+          serviceClass = "VIP 8-Seater Captain Recliner";
+          gateOrBay = `Bay ${offsetIdx + 3}`;
+          notes = "Direct via Tol Layang MBZ. Max luggage allowance 20kg.";
+          transitStopsSummary = "Pool fX Sudirman -> Tol Layang MBZ -> Pasteur Bandung";
         } else {
           // Standard TransJakarta BRT & Feeder
           runNumber = `${t.common.runShort} ${line.code}-0${offsetIdx + 1}`;
@@ -345,24 +430,51 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
           licensePlate = `B ${7000 + lineIdx * 20 + offsetIdx * 4} TJK`;
           depotHome = "Pool TransJakarta Cawang / Pinang Ranti";
           operatorName = "PT Transportasi Jakarta";
+          origin = derivedOrigin || "Halte Blok M";
+          destination = derivedDestination || "Kota";
+          serviceClass = line.mode === "TRANSJAKARTA_NON_BRT" ? "Non-BRT Lowdeck AC" : "BRT Standard Rapid";
+          gateOrBay = `Bay ${offsetIdx + 1}`;
+          notes = "Angkutan AMARI beroperasi 24 Jam.";
+          transitStopsSummary = `${origin} <-> Monas <-> ${destination}`;
         }
       } else if (line.category === "AVIATION") {
-        runNumber = `GA-${400 + lineIdx * 20 + offsetIdx * 2}`;
+        const airlines = ["Garuda Indonesia", "Citilink", "Batik Air"];
+        operatorName = airlines[(lineIdx + offsetIdx) % airlines.length];
+        runNumber = `${operatorName === "Garuda Indonesia" ? "GA" : operatorName === "Citilink" ? "QG" : "ID"}-${400 + lineIdx * 20 + offsetIdx * 2}`;
         fleetNumber = "PK-GFA (Boeing 777-300ER)";
         depotHome = "Terminal 3 Soekarno-Hatta (CGK)";
-        operatorName = "Garuda Indonesia / Citilink";
+        origin = stop.code === "HLP" || stop.name.includes("Halim") ? "Halim Perdanakusuma (HLP)" : "Soekarno-Hatta (CGK)";
+        const airDestinations = ["Ngurah Rai (DPS)", "Juanda (SUB)", "Kualanamu (KNO)", "Sultan Hasanuddin (UPG)"];
+        destination = derivedDestination !== line.name ? derivedDestination : airDestinations[(lineIdx * 2 + offsetIdx) % airDestinations.length];
+        gateOrBay = `Gate ${offsetIdx + 12}`;
+        serviceClass = "Business & Economy Class";
+        baggageBelt = `Belt ${(offsetIdx % 8) + 1}`;
+        notes = "Boarding gate closes 15 minutes prior to departure. Valid photo ID required.";
+        transitStopsSummary = "Direct Flight Non-Stop";
       } else if (line.category === "MARITIME") {
-        runNumber = line.mode === "MARITIME_PELNI" ? `PELNI-${offsetIdx + 1}` : `BOAT-${offsetIdx + 1}`;
-        fleetNumber = line.mode === "MARITIME_PELNI" ? "KM Kelud (14.665 GT)" : "Speedboat Marina Express 08";
-        depotHome = line.mode === "MARITIME_PELNI" ? "Pelabuhan Tanjung Priok" : "Dermaga Muara Angke / Marina Ancol";
-        operatorName = line.mode === "MARITIME_PELNI" ? "PT PELNI (Persero)" : "Dinas Perhubungan DKI Jakarta";
+        const isPelni = line.mode === "MARITIME_PELNI";
+        runNumber = isPelni ? `PELNI-${offsetIdx + 1}` : `BOAT-${offsetIdx + 1}`;
+        fleetNumber = isPelni ? "KM Kelud (14.665 GT)" : "Speedboat Marina Express 08";
+        depotHome = isPelni ? "Pelabuhan Tanjung Priok" : "Dermaga Muara Angke / Marina Ancol";
+        operatorName = isPelni ? "PT PELNI (Persero)" : "Dinas Perhubungan DKI Jakarta";
+        origin = isPelni ? "Pelabuhan Tanjung Priok" : "Dermaga Marina Ancol";
+        destination = isPelni ? "Tanjung Perak Surabaya" : "Pulau Pramuka";
+        gateOrBay = `Dermaga ${platformNumber}`;
+        serviceClass = isPelni ? "Kelas 1A & Ekonomi" : "Speedboat Reguler & VIP";
+        notes = isPelni
+          ? "Check-in tiket fisik dan bagasi kapal dibuka 2 jam sebelum keberangkatan."
+          : "Wajib mengenakan life jacket selama pelayaran melintasi Kepulauan Seribu.";
+        transitStopsSummary = isPelni
+          ? "Tanjung Priok -> Tanjung Perak -> Makassar"
+          : "Marina Ancol -> Pulau Untung Jawa -> Pulau Pari -> Pulau Pramuka";
       }
 
       departures.push({
         tripId: `trip-${line.id}-${offsetIdx}`,
         lineCode: line.code,
         lineName: line.name,
-        destination: line.name.includes("(") ? line.name.split("(")[1].replace(")", "") : line.name,
+        destination,
+        origin,
         mode: line.mode,
         scheduledTime: scheduledStr,
         estimatedTime: estimatedStr,
@@ -377,6 +489,11 @@ function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDiction
         fleetNumber,
         licensePlate,
         operatorName,
+        gateOrBay,
+        serviceClass,
+        baggageBelt,
+        notes,
+        transitStopsSummary,
         vehicleCode: trainsetNumber || fleetNumber || line.code,
       });
     });
@@ -444,10 +561,16 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   );
 
   const filteredDepartures = departureBoard.filter((item) => {
+    const q = departureSearch.toLowerCase();
     const matchesSearch =
-      item.destination.toLowerCase().includes(departureSearch.toLowerCase()) ||
-      item.lineCode.toLowerCase().includes(departureSearch.toLowerCase()) ||
-      item.platform.toLowerCase().includes(departureSearch.toLowerCase());
+      item.destination.toLowerCase().includes(q) ||
+      item.lineCode.toLowerCase().includes(q) ||
+      item.platform.toLowerCase().includes(q) ||
+      (item.origin && item.origin.toLowerCase().includes(q)) ||
+      (item.operatorName && item.operatorName.toLowerCase().includes(q)) ||
+      (item.gateOrBay && item.gateOrBay.toLowerCase().includes(q)) ||
+      (item.serviceClass && item.serviceClass.toLowerCase().includes(q)) ||
+      (item.notes && item.notes.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
 
@@ -793,12 +916,20 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                     {item.runNumber}
                                   </span>
                                 )}
-                                <span className="text-xs font-bold text-white tracking-tight truncate">
-                                  {item.destination}
-                                </span>
+                                {item.origin ? (
+                                  <div className="flex items-center gap-1 text-xs font-bold text-white tracking-tight truncate">
+                                    <span className="text-slate-300 font-medium truncate max-w-[110px]">{item.origin}</span>
+                                    <ArrowRight className="w-3 h-3 text-cyan-400 shrink-0" />
+                                    <span className="truncate">{item.destination}</span>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs font-bold text-white tracking-tight truncate">
+                                    {item.destination}
+                                  </span>
+                                )}
                               </div>
 
-                              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+                              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono flex-wrap">
                                 <span className="text-slate-300 font-semibold">{item.platform}</span>
                                 <span>&bull;</span>
                                 <span>{t.hubInspector.estPrefix} <strong className="text-cyan-300">{item.estimatedTime} WIB</strong></span>
@@ -807,6 +938,28 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                     <span>&bull;</span>
                                     <span className="text-slate-400 hidden sm:inline">{item.trainsetNumber}</span>
                                   </>
+                                )}
+                              </div>
+
+                              {/* Badges/chips for gateOrBay, serviceClass, baggageBelt */}
+                              <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                                {item.gateOrBay && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-cyan-950/70 border border-cyan-500/30 text-cyan-300">
+                                    <DoorOpen className="w-2.5 h-2.5 text-cyan-400 shrink-0" />
+                                    <span>{item.gateOrBay}</span>
+                                  </span>
+                                )}
+                                {item.serviceClass && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-950/70 border border-indigo-500/30 text-indigo-300">
+                                    <Sparkles className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+                                    <span className="truncate max-w-[140px] sm:max-w-none">{item.serviceClass}</span>
+                                  </span>
+                                )}
+                                {item.baggageBelt && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-amber-950/70 border border-amber-500/30 text-amber-300">
+                                    <Layers className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                    <span>{item.baggageBelt}</span>
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -835,6 +988,30 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                               transition={{ duration: 0.2 }}
                               className="px-3.5 pb-3.5 pt-1 border-t border-white/10 bg-slate-950/90 space-y-2.5 text-xs font-mono"
                             >
+                              {/* Distinct, Sleek Subtle Operational Notes Box */}
+                              {item.notes && (
+                                <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 backdrop-blur-md flex items-start gap-2.5 text-cyan-200">
+                                  <HelpCircle className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
+                                  <div className="space-y-0.5 min-w-0">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider text-cyan-300 block font-mono">
+                                      {t.hubInspector.operationalNotes}
+                                    </span>
+                                    <p className="text-[11px] leading-relaxed text-slate-300">
+                                      {item.notes}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* High-level Routing Summary */}
+                              {item.transitStopsSummary && (
+                                <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-slate-900/70 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                                  <Compass className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                                  <span className="text-slate-400 text-[10px] font-mono">Rute:</span>
+                                  <span className="font-semibold text-white truncate">{item.transitStopsSummary}</span>
+                                </div>
+                              )}
+
                               {/* Run & Trainset Specifics Grid */}
                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-[11px]">
                                 {item.runNumber && (
@@ -880,6 +1057,13 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                   <div>
                                     <span className="text-[10px] text-slate-400 block">{t.common.licensePlate}:</span>
                                     <span className="text-amber-300 font-bold">{item.licensePlate}</span>
+                                  </div>
+                                )}
+
+                                {item.operatorName && (
+                                  <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex items-center justify-between">
+                                    <span className="text-[10px] text-slate-400">Operator:</span>
+                                    <span className="text-slate-200 font-bold">{item.operatorName}</span>
                                   </div>
                                 )}
 

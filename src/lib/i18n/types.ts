@@ -414,6 +414,7 @@ export interface TranslationDictionary {
     filterRail: string;
     filterBus: string;
     filterIntercity: string;
+    operationalNotes: string;
   };
   statusCenter: {
     title: string;

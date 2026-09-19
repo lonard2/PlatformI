@@ -390,6 +390,7 @@ export const ko: TranslationDictionary = {
     filterRail: "철도 및 열차",
     filterBus: "버스 및 피더",
     filterIntercity: "도시간",
+    operationalNotes: "운행 참고사항:",
   },
   statusCenter: {
     title: "운행 관제 및 정시율 분석 센터",

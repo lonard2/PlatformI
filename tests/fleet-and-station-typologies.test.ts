@@ -4,10 +4,13 @@ import {
   StationType,
   StationScale,
   Stop,
+  Line,
   DepartureBoardItem,
   TimetableRun,
   Vehicle,
 } from "../src/types/transit";
+import { generateDepartureBoard } from "../src/components/inspector/HubDetailSheet";
+import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
 import {
   GET as getVehicles,
   POST as postVehicle,
@@ -146,6 +149,265 @@ describe("Domain Model: Station Typologies & Timetable Runs", () => {
     expect(divergingVehicle.speedModifier).toBeCloseTo(0.65);
     expect(divergingVehicle.detourCoordinates).toHaveLength(3);
     expect(divergingVehicle.detourCoordinates?.[0].latitude).toBe(-6.215);
+  });
+});
+
+describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", () => {
+  it("generates rich Aviation departure metadata with airlines, gate, serviceClass, baggageBelt, and origin", () => {
+    const cgkStop: Stop = {
+      id: "stop-cgk-t3",
+      lineId: "line-air-cgk-dps",
+      name: "Bandara Internasional Soekarno-Hatta Terminal 3",
+      code: "CGK",
+      latitude: -6.1275,
+      longitude: 106.6537,
+      sequence: 1,
+      isInterchange: true,
+      connectedLineIds: [],
+      facilities: ["Gate Lounge", "Baggage Claim", "Customs", "SkyTrain"],
+      accessibleElevator: true,
+      tactilePaving: true,
+      wheelchairRamp: true,
+      stationType: "AIRPORT_TERMINAL",
+      scale: "BIG",
+    };
+
+    const airLine: Line = {
+      id: "line-air-cgk-dps",
+      regionId: "region-national",
+      code: "GA-404",
+      name: "Garuda Indonesia (CGK - DPS)",
+      category: "AVIATION",
+      mode: "AIRPORT_COMMERCIAL",
+      colorHex: "#0EA5E9",
+      textColorHex: "#FFFFFF",
+      fareType: "DYNAMIC_TIERED",
+      baseFareRp: 1200000,
+      farePerKmRp: 800,
+      maxFareRp: 2500000,
+      headwayMinutes: 30,
+      firstDeparture: "05:00",
+      lastDeparture: "23:00",
+      polylineCoordinates: [],
+    };
+
+    const departures = generateDepartureBoard(cgkStop, [airLine], idDictionary);
+    expect(departures.length).toBe(3);
+
+    const firstDeparture = departures[0];
+    expect(firstDeparture.origin).toBe("Soekarno-Hatta (CGK)");
+    expect(firstDeparture.destination).toBe("DPS");
+    expect(firstDeparture.gateOrBay).toMatch(/^Gate \d+$/);
+    expect(firstDeparture.serviceClass).toBe("Business & Economy Class");
+    expect(firstDeparture.baggageBelt).toMatch(/^Belt \d+$/);
+    expect(firstDeparture.notes).toContain("Boarding gate closes 15 minutes prior");
+    expect(["Garuda Indonesia", "Citilink", "Batik Air"]).toContain(firstDeparture.operatorName);
+    expect(firstDeparture.transitStopsSummary).toBe("Direct Flight Non-Stop");
+  });
+
+  it("generates rich Rail departure metadata (Whoosh & KAI Intercity) with origin, track/peron, and Wi-Fi notes", () => {
+    const hlmStop: Stop = {
+      id: "stop-hlm-hsr",
+      lineId: "line-whoosh-hsr",
+      name: "Stasiun Halim HSR",
+      code: "HLM",
+      latitude: -6.2445,
+      longitude: 106.8867,
+      sequence: 1,
+      isInterchange: true,
+      connectedLineIds: ["line-kai-intercity"],
+      facilities: ["Peron Tinggi", "Waiting Lounge VIP", "Retail & Cafe"],
+      accessibleElevator: true,
+      tactilePaving: true,
+      wheelchairRamp: true,
+      stationType: "TOD",
+      scale: "BIG",
+    };
+
+    const whooshLine: Line = {
+      id: "line-whoosh-hsr",
+      regionId: "region-jabodetabek",
+      code: "WHOOSH",
+      name: "Whoosh HSR (Halim - Tegalluar)",
+      category: "RAIL",
+      mode: "WHOOSH_HSR",
+      colorHex: "#C41230",
+      textColorHex: "#FFFFFF",
+      fareType: "DYNAMIC_TIERED",
+      baseFareRp: 250000,
+      farePerKmRp: 1500,
+      maxFareRp: 600000,
+      headwayMinutes: 40,
+      firstDeparture: "06:00",
+      lastDeparture: "21:30",
+      polylineCoordinates: [],
+    };
+
+    const intercityLine: Line = {
+      id: "line-kai-intercity",
+      regionId: "region-national",
+      code: "KA-01",
+      name: "Argo Bromo Anggrek (Gambir - Surabaya)",
+      category: "RAIL",
+      mode: "KAI_INTERCITY",
+      colorHex: "#003366",
+      textColorHex: "#FFFFFF",
+      fareType: "DYNAMIC_TIERED",
+      baseFareRp: 450000,
+      farePerKmRp: 800,
+      maxFareRp: 1200000,
+      headwayMinutes: 120,
+      firstDeparture: "08:00",
+      lastDeparture: "22:00",
+      polylineCoordinates: [],
+    };
+
+    const departures = generateDepartureBoard(hlmStop, [whooshLine, intercityLine], idDictionary);
+    expect(departures.length).toBe(6);
+
+    const whooshItem = departures.find((d) => d.mode === "WHOOSH_HSR");
+    expect(whooshItem).toBeDefined();
+    expect(whooshItem?.origin).toBe("Stasiun Halim HSR");
+    expect(whooshItem?.destination).toBe("Stasiun Tegalluar Summarecon");
+    expect(whooshItem?.serviceClass).toBe("Premium Economy & First Class");
+    expect(whooshItem?.gateOrBay).toMatch(/^Peron \d+ \(Jalur \d+\)$/);
+    expect(whooshItem?.notes).toContain("Direct Express bypasses intermediate stops");
+    expect(whooshItem?.operatorName).toBe("PT Kereta Cepat Indonesia China (KCIC)");
+
+    const kaiItem = departures.find((d) => d.mode === "KAI_INTERCITY");
+    expect(kaiItem).toBeDefined();
+    expect(["Stasiun Gambir (GMR)", "Pasar Senen (PSE)"]).toContain(kaiItem?.origin);
+    expect(kaiItem?.serviceClass).toBe("Eksekutif New Gen & Luxury Suite");
+    expect(kaiItem?.gateOrBay).toMatch(/^Peron \d+ \(Jalur \d+\)$/);
+    expect(kaiItem?.operatorName).toBe("PT Kereta Api Indonesia (Persero)");
+  });
+
+  it("generates rich Executive Shuttle departure metadata with pool origins, bay, and MBZ notes", () => {
+    const fxStop: Stop = {
+      id: "stop-fx-sudirman",
+      lineId: "line-shuttle-fx-bdg",
+      name: "Pool fX Sudirman",
+      code: "FXS",
+      latitude: -6.2248,
+      longitude: 106.8043,
+      sequence: 1,
+      isInterchange: false,
+      connectedLineIds: [],
+      facilities: ["AC Waiting Lounge", "Ticket Counter", "Water Dispenser"],
+      accessibleElevator: false,
+      tactilePaving: false,
+      wheelchairRamp: true,
+      stationType: "BUS_TERMINAL",
+      scale: "MEDIUM",
+    };
+
+    const shuttleLine: Line = {
+      id: "line-shuttle-fx-bdg",
+      regionId: "region-jabodetabek",
+      code: "SHT-01",
+      name: "DayTrans (fX Sudirman - Pasteur Bandung)",
+      category: "BUS",
+      mode: "EXECUTIVE_SHUTTLE",
+      colorHex: "#06B6D4",
+      textColorHex: "#FFFFFF",
+      fareType: "FLAT",
+      baseFareRp: 130000,
+      farePerKmRp: 0,
+      maxFareRp: 130000,
+      headwayMinutes: 45,
+      firstDeparture: "05:30",
+      lastDeparture: "21:30",
+      polylineCoordinates: [],
+    };
+
+    const departures = generateDepartureBoard(fxStop, [shuttleLine], idDictionary);
+    expect(departures.length).toBe(3);
+
+    const shuttleItem = departures[0];
+    expect(shuttleItem.origin).toBe("Pool fX Sudirman");
+    expect(shuttleItem.destination).toBe("Pasteur Bandung");
+    expect(shuttleItem.gateOrBay).toMatch(/^Bay \d+$/);
+    expect(shuttleItem.serviceClass).toBe("VIP 8-Seater Captain Recliner");
+    expect(shuttleItem.notes).toBe("Direct via Tol Layang MBZ. Max luggage allowance 20kg.");
+    expect(["DayTrans Executive Shuttle", "CitiTrans Executive Travel"]).toContain(shuttleItem.operatorName);
+    expect(shuttleItem.transitStopsSummary).toBe("Pool fX Sudirman -> Tol Layang MBZ -> Pasteur Bandung");
+  });
+
+  it("generates rich TransJakarta BRT & Mikrotrans metadata with 24h AMARI and Rp 0 JakLingko notes", () => {
+    const blokMStop: Stop = {
+      id: "stop-tj-blok-m",
+      lineId: "line-tj-1",
+      name: "Halte Blok M",
+      code: "BLM",
+      latitude: -6.2442,
+      longitude: 106.7981,
+      sequence: 1,
+      isInterchange: true,
+      connectedLineIds: ["line-jak-10"],
+      facilities: ["Platform Screen Doors", "Tap In/Out Gate", "Bridge Access"],
+      accessibleElevator: true,
+      tactilePaving: true,
+      wheelchairRamp: true,
+      stationType: "BUS_TERMINAL",
+      scale: "BIG",
+    };
+
+    const tjBrtLine: Line = {
+      id: "line-tj-1",
+      regionId: "region-jabodetabek",
+      code: "1",
+      name: "Koridor 1 (Blok M - Kota)",
+      category: "BUS",
+      mode: "TRANSJAKARTA_BRT",
+      colorHex: "#D9252A",
+      textColorHex: "#FFFFFF",
+      fareType: "FLAT",
+      baseFareRp: 3500,
+      farePerKmRp: 0,
+      maxFareRp: 3500,
+      headwayMinutes: 5,
+      firstDeparture: "05:00",
+      lastDeparture: "23:59",
+      polylineCoordinates: [],
+    };
+
+    const mikrotransLine: Line = {
+      id: "line-jak-10",
+      regionId: "region-jabodetabek",
+      code: "JAK.10",
+      name: "Mikrotrans JAK.10 (Tanah Abang - Kota)",
+      category: "BUS",
+      mode: "MIKROTRANS",
+      colorHex: "#00A39D",
+      textColorHex: "#FFFFFF",
+      fareType: "FREE_TAP",
+      baseFareRp: 0,
+      farePerKmRp: 0,
+      maxFareRp: 0,
+      headwayMinutes: 10,
+      firstDeparture: "05:00",
+      lastDeparture: "22:00",
+      polylineCoordinates: [],
+    };
+
+    const departures = generateDepartureBoard(blokMStop, [tjBrtLine, mikrotransLine], idDictionary);
+    expect(departures.length).toBe(6);
+
+    const brtItem = departures.find((d) => d.mode === "TRANSJAKARTA_BRT");
+    expect(brtItem).toBeDefined();
+    expect(brtItem?.origin).toBe("Blok M");
+    expect(brtItem?.destination).toBe("Kota");
+    expect(brtItem?.serviceClass).toBe("BRT Standard Rapid");
+    expect(brtItem?.notes).toBe("Angkutan AMARI beroperasi 24 Jam.");
+    expect(brtItem?.operatorName).toBe("PT Transportasi Jakarta");
+
+    const mikroItem = departures.find((d) => d.mode === "MIKROTRANS");
+    expect(mikroItem).toBeDefined();
+    expect(mikroItem?.origin).toBe("Tanah Abang");
+    expect(mikroItem?.destination).toBe("Kota");
+    expect(mikroItem?.serviceClass).toBe("JakLingko AC & Non-AC Angkot");
+    expect(mikroItem?.notes).toBe("Tarif Rp 0 dengan tap kartu JakLingko / Kartu Multi Trip.");
+    expect(mikroItem?.operatorName).toBe("JakLingko (Koperasi Wahana Kalpika)");
   });
 });
 
