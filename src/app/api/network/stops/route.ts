@@ -9,11 +9,107 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Stop } from "@/types/transit";
+import { Stop, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 
+function inferStationType(s: { name: string; lineId: string; isInterchange?: boolean }): StationType {
+  const nameLower = s.name.toLowerCase();
+  const lineLower = s.lineId.toLowerCase();
+
+  if (
+    nameLower.includes("bandara") ||
+    nameLower.includes("airport") ||
+    nameLower.includes("terminal 1") ||
+    nameLower.includes("terminal 2") ||
+    nameLower.includes("terminal 3") ||
+    lineLower.includes("airport") ||
+    lineLower.includes("bandara")
+  ) {
+    return "AIRPORT_TERMINAL";
+  }
+  if (
+    nameLower.includes("pelabuhan") ||
+    nameLower.includes("dermaga") ||
+    nameLower.includes("muara angke") ||
+    nameLower.includes("marina ancol") ||
+    nameLower.includes("port") ||
+    lineLower.includes("sea") ||
+    lineLower.includes("marine")
+  ) {
+    return "HARBOR_PORT";
+  }
+  if (
+    nameLower.includes("terminal bus") ||
+    nameLower.includes("terminal pulo") ||
+    nameLower.includes("terminal kalideres") ||
+    nameLower.includes("terminal kampung rambutan")
+  ) {
+    return "BUS_TERMINAL";
+  }
+  if (lineLower.includes("tj-cor") || lineLower.includes("transjakarta") || nameLower.includes("halte")) {
+    return "BUS_SHELTER";
+  }
+  if (
+    lineLower.includes("mrt") ||
+    lineLower.includes("lrt") ||
+    lineLower.includes("krl") ||
+    lineLower.includes("whoosh") ||
+    lineLower.includes("kai")
+  ) {
+    return s.isInterchange ? "TOD" : "RAIL_STATION";
+  }
+  return s.isInterchange ? "TOD" : "RAIL_STATION";
+}
+
+function parsePlatformType(
+  raw?: string | null,
+  stopContext?: { name: string; lineId: string; isInterchange?: boolean }
+): {
+  platformType?: string;
+  stationType: StationType;
+  scale: StationScale;
+} {
+  const defaultStationType = stopContext ? inferStationType(stopContext) : "RAIL_STATION";
+  const defaultScale: StationScale = stopContext?.isInterchange ? "BIG" : "MEDIUM";
+
+  if (!raw) {
+    return {
+      platformType: undefined,
+      stationType: defaultStationType,
+      scale: defaultScale,
+    };
+  }
+
+  if (raw.includes("::")) {
+    const parts = raw.split("::");
+    return {
+      platformType: parts[0] || undefined,
+      stationType: (parts[1] as StationType) || defaultStationType,
+      scale: (parts[2] as StationScale) || defaultScale,
+    };
+  }
+
+  return {
+    platformType: raw,
+    stationType: defaultStationType,
+    scale: defaultScale,
+  };
+}
+
 // In-memory runtime cache ensuring operational continuity if DB is temporarily locked
-let runtimeStops: Stop[] = [...TRANSIT_STOPS];
+let runtimeStops: Stop[] = TRANSIT_STOPS.map((s) => {
+  const parsed = parsePlatformType(s.platformType, {
+    name: s.name,
+    lineId: s.lineId,
+    isInterchange: s.isInterchange,
+  });
+  return {
+    ...s,
+    platformType: parsed.platformType,
+    stationType: s.stationType || parsed.stationType,
+    scale: s.scale || parsed.scale,
+  };
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,22 +129,31 @@ export async function GET(request: NextRequest) {
       });
 
       if (dbStops.length > 0) {
-        stops = dbStops.map((s) => ({
-          id: s.id,
-          lineId: s.lineId,
-          name: s.name,
-          code: s.code,
-          latitude: s.latitude,
-          longitude: s.longitude,
-          sequence: s.sequence,
-          isInterchange: s.isInterchange,
-          connectedLineIds: JSON.parse(s.connectedLineIdsJson || "[]") as string[],
-          facilities: JSON.parse(s.facilitiesJson || "[]") as string[],
-          accessibleElevator: s.accessibleElevator,
-          tactilePaving: s.tactilePaving,
-          wheelchairRamp: s.wheelchairRamp,
-          platformType: s.platformType || undefined,
-        }));
+        stops = dbStops.map((s) => {
+          const parsed = parsePlatformType(s.platformType, {
+            name: s.name,
+            lineId: s.lineId,
+            isInterchange: s.isInterchange,
+          });
+          return {
+            id: s.id,
+            lineId: s.lineId,
+            name: s.name,
+            code: s.code,
+            latitude: s.latitude,
+            longitude: s.longitude,
+            sequence: s.sequence,
+            isInterchange: s.isInterchange,
+            connectedLineIds: JSON.parse(s.connectedLineIdsJson || "[]") as string[],
+            facilities: JSON.parse(s.facilitiesJson || "[]") as string[],
+            accessibleElevator: s.accessibleElevator,
+            tactilePaving: s.tactilePaving,
+            wheelchairRamp: s.wheelchairRamp,
+            platformType: parsed.platformType,
+            stationType: parsed.stationType,
+            scale: parsed.scale,
+          };
+        });
       } else {
         stops = [...runtimeStops];
       }
@@ -94,6 +199,8 @@ export async function POST(request: NextRequest) {
       tactilePaving = false,
       wheelchairRamp = false,
       platformType = "ISLAND",
+      stationType,
+      scale,
     } = body;
 
     // Validation
@@ -120,6 +227,12 @@ export async function POST(request: NextRequest) {
     const newStopId = body.id || `stop-${code.toLowerCase().replace(/[^a-z0-9]/g, "")}-${Date.now()}`;
     const seq = sequence !== undefined ? Number(sequence) : runtimeStops.filter((s) => s.lineId === lineId).length + 1;
 
+    const parsed = parsePlatformType(platformType, { name, lineId, isInterchange });
+    const finalStationType: StationType = (stationType as StationType) || parsed.stationType;
+    const finalScale: StationScale = (scale as StationScale) || parsed.scale;
+    const finalPlatformType: string = parsed.platformType || "ISLAND";
+    const serializedPlatformType = `${finalPlatformType}::${finalStationType}::${finalScale}`;
+
     const createdStop: Stop = {
       id: newStopId,
       lineId,
@@ -134,7 +247,9 @@ export async function POST(request: NextRequest) {
       accessibleElevator: Boolean(accessibleElevator),
       tactilePaving: Boolean(tactilePaving),
       wheelchairRamp: Boolean(wheelchairRamp),
-      platformType: String(platformType),
+      platformType: finalPlatformType,
+      stationType: finalStationType,
+      scale: finalScale,
     };
 
     try {
@@ -153,7 +268,7 @@ export async function POST(request: NextRequest) {
           accessibleElevator: createdStop.accessibleElevator,
           tactilePaving: createdStop.tactilePaving,
           wheelchairRamp: createdStop.wheelchairRamp,
-          platformType: createdStop.platformType,
+          platformType: serializedPlatformType,
         },
       });
     } catch {
@@ -194,6 +309,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const existing = runtimeStops.find((s) => s.id === id);
+
     const updateData: Partial<Stop> = {};
     if (body.name !== undefined) updateData.name = String(body.name).trim();
     if (body.code !== undefined) updateData.code = String(body.code).trim().toUpperCase();
@@ -205,13 +322,29 @@ export async function PUT(request: NextRequest) {
     if (body.accessibleElevator !== undefined) updateData.accessibleElevator = Boolean(body.accessibleElevator);
     if (body.tactilePaving !== undefined) updateData.tactilePaving = Boolean(body.tactilePaving);
     if (body.wheelchairRamp !== undefined) updateData.wheelchairRamp = Boolean(body.wheelchairRamp);
-    if (body.platformType !== undefined) updateData.platformType = String(body.platformType);
+    if (body.stationType !== undefined) updateData.stationType = body.stationType as StationType;
+    if (body.scale !== undefined) updateData.scale = body.scale as StationScale;
+    if (body.platformType !== undefined) {
+      const parsedPType = parsePlatformType(String(body.platformType));
+      updateData.platformType = parsedPType.platformType || "ISLAND";
+      if (body.stationType === undefined && parsedPType.stationType) {
+        updateData.stationType = parsedPType.stationType;
+      }
+      if (body.scale === undefined && parsedPType.scale) {
+        updateData.scale = parsedPType.scale;
+      }
+    }
     if (body.connectedLineIds !== undefined && Array.isArray(body.connectedLineIds)) {
       updateData.connectedLineIds = body.connectedLineIds;
     }
     if (body.facilities !== undefined && Array.isArray(body.facilities)) {
       updateData.facilities = body.facilities;
     }
+
+    const mergedPType = updateData.platformType ?? existing?.platformType ?? "ISLAND";
+    const mergedSType = updateData.stationType ?? existing?.stationType ?? (existing?.isInterchange ? "TOD" : "RAIL_STATION");
+    const mergedScale = updateData.scale ?? existing?.scale ?? (existing?.isInterchange ? "BIG" : "MEDIUM");
+    const serializedPlatformType = `${mergedPType.includes("::") ? mergedPType.split("::")[0] : mergedPType}::${mergedSType}::${mergedScale}`;
 
     try {
       const dbUpdatePayload: Record<string, unknown> = { ...updateData };
@@ -223,6 +356,9 @@ export async function PUT(request: NextRequest) {
         dbUpdatePayload.facilitiesJson = JSON.stringify(updateData.facilities);
         delete dbUpdatePayload.facilities;
       }
+      delete dbUpdatePayload.stationType;
+      delete dbUpdatePayload.scale;
+      dbUpdatePayload.platformType = serializedPlatformType;
 
       await db.stop.update({
         where: { id },

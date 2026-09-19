@@ -247,6 +247,21 @@ code, kbd, samp, pre, .font-mono {
   border-top-color: rgba(8, 12, 22, 0.96) !important;
 }
 
+/* Leaflet Custom Glassmorphic Tooltip for Transit Hubs & Stations */
+.leaflet-tooltip.custom-glass-hub-tooltip {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  padding: 4px 8px !important;
+  border-radius: 8px !important;
+  backdrop-filter: blur(8px) !important;
+  color: #ffffff !important;
+}
+
+.leaflet-tooltip.custom-glass-hub-tooltip::before {
+  border-top-color: rgba(15, 23, 42, 0.95) !important;
+}
+
 /* GPU Hardware Acceleration for Vector Simulation & Map Markers */
 .custom-vehicle-div-icon {
   will-change: transform;

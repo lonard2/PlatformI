@@ -43,7 +43,7 @@ import {
   RotateCcw,
   Scissors,
 } from "lucide-react";
-import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate } from "@/types/transit";
+import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DynamicNetworkMap } from "@/components/admin/DynamicNetworkMap";
 import {
@@ -250,6 +250,8 @@ export default function AdminNetworkStudioPage() {
         tactilePaving: true,
         wheelchairRamp: true,
         platformType: "ISLAND",
+        stationType: targetLine?.category === "BUS" ? "BUS_SHELTER" : "RAIL_STATION",
+        scale: "MEDIUM",
       });
       setIsStopModalOpen(true);
       setStatusMessage({
@@ -1154,6 +1156,8 @@ export default function AdminNetworkStudioPage() {
                             tactilePaving: true,
                             wheelchairRamp: true,
                             platformType: "ISLAND",
+                            stationType: selectedLine.category === "BUS" ? "BUS_SHELTER" : "RAIL_STATION",
+                            scale: "MEDIUM",
                           });
                           setIsStopModalOpen(true);
                         }}
@@ -1193,11 +1197,29 @@ export default function AdminNetworkStudioPage() {
                                 {stop.sequence}
                               </span>
                               <div className="min-w-0">
-                                <div className="text-xs font-semibold text-white truncate flex items-center gap-1.5">
+                                <div className="text-xs font-semibold text-white truncate flex items-center gap-1.5 flex-wrap">
                                   <span>{stop.name}</span>
                                   {stop.isInterchange && (
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 font-mono">
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 font-mono font-bold">
                                       HUB
+                                    </span>
+                                  )}
+                                  {stop.stationType && (
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">
+                                      {stop.stationType.replace("_", " ")}
+                                    </span>
+                                  )}
+                                  {stop.scale && (
+                                    <span
+                                      className={`text-[9px] px-1.5 py-0.5 rounded font-mono border ${
+                                        stop.scale === "BIG"
+                                          ? "bg-purple-950/80 border-purple-500/40 text-purple-300 font-bold"
+                                          : stop.scale === "MEDIUM"
+                                          ? "bg-sky-950/80 border-sky-500/40 text-sky-300"
+                                          : "bg-slate-900 border-slate-700 text-slate-400"
+                                      }`}
+                                    >
+                                      {stop.scale}
                                     </span>
                                   )}
                                 </div>
@@ -1746,6 +1768,42 @@ export default function AdminNetworkStudioPage() {
                     onChange={(e) => setEditingStop({ ...editingStop, sequence: Number(e.target.value) })}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
                   />
+                </div>
+              </div>
+
+              {/* Station Typology & Scale */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1">Station Typology</label>
+                  <select
+                    value={editingStop.stationType || "RAIL_STATION"}
+                    onChange={(e) =>
+                      setEditingStop({ ...editingStop, stationType: e.target.value as StationType })
+                    }
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    <option value="TOD">TOD - Transit-Oriented Development</option>
+                    <option value="RAIL_STATION">RAIL_STATION - Heavy/Commuter/Rapid Rail</option>
+                    <option value="BUS_TERMINAL">BUS_TERMINAL - Intercity/Intermodal Bus Terminal</option>
+                    <option value="AIRPORT_TERMINAL">AIRPORT_TERMINAL - Airport Passenger Terminal</option>
+                    <option value="HARBOR_PORT">HARBOR_PORT - Maritime Passenger Port / Pier</option>
+                    <option value="BUS_SHELTER">BUS_SHELTER - BRT Halte / Feeder Shelter</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1">Station Scale</label>
+                  <select
+                    value={editingStop.scale || "MEDIUM"}
+                    onChange={(e) =>
+                      setEditingStop({ ...editingStop, scale: e.target.value as StationScale })
+                    }
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    <option value="SMALL">SMALL - Minor Shelter / Local Stop</option>
+                    <option value="MEDIUM">MEDIUM - Standard Station / Halte</option>
+                    <option value="BIG">BIG - Major Intermodal Hub / Grand Terminal</option>
+                  </select>
                 </div>
               </div>
 

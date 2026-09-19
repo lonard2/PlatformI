@@ -10,5 +10,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
     include: ['tests/**/*.test.{ts,tsx}'],
+    fileParallelism: false,
   },
 });

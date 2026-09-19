@@ -14,6 +14,12 @@ import {
   PUT as putVehicle,
   DELETE as deleteVehicle,
 } from "../src/app/api/fleet/vehicles/route";
+import {
+  GET as getStops,
+  POST as postStop,
+  PUT as putStop,
+  DELETE as deleteStop,
+} from "../src/app/api/network/stops/route";
 
 describe("Domain Model: Station Typologies & Timetable Runs", () => {
   it("validates station typology and scale assignments", () => {
@@ -265,5 +271,93 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
 
     const json = await res.json();
     expect(json.success).toBe(false);
+  });
+});
+
+describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
+  const testStopId = `stop-test-typology-${Date.now()}`;
+
+  it("GET: returns transit stops with mapped stationType and scale properties", async () => {
+    const req = new NextRequest("http://localhost:3000/api/network/stops");
+    const res = await getStops(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(Array.isArray(json.data)).toBe(true);
+    expect(json.data.length).toBeGreaterThan(0);
+
+    const firstStop = json.data[0];
+    expect(firstStop).toHaveProperty("stationType");
+    expect(firstStop).toHaveProperty("scale");
+  });
+
+  it("POST: persists stop with explicit stationType and scale", async () => {
+    const req = new NextRequest("http://localhost:3000/api/network/stops", {
+      method: "POST",
+      body: JSON.stringify({
+        id: testStopId,
+        lineId: "line-mrt-ns",
+        name: "Test Station Hub",
+        code: "TSTH",
+        latitude: -6.2,
+        longitude: 106.8,
+        sequence: 99,
+        isInterchange: true,
+        stationType: "TOD",
+        scale: "BIG",
+        platformType: "ISLAND",
+      }),
+    });
+
+    const res = await postStop(req);
+    expect(res.status).toBe(201);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data.stationType).toBe("TOD");
+    expect(json.data.scale).toBe("BIG");
+    expect(json.data.platformType).toBe("ISLAND");
+  });
+
+  it("PUT: updates stop stationType and scale dynamically", async () => {
+    const req = new NextRequest("http://localhost:3000/api/network/stops", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: testStopId,
+        stationType: "BUS_TERMINAL",
+        scale: "MEDIUM",
+      }),
+    });
+
+    const res = await putStop(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data.stationType).toBe("BUS_TERMINAL");
+    expect(json.data.scale).toBe("MEDIUM");
+  });
+
+  it("GET: retrieves updated stop retaining stationType and scale", async () => {
+    const req = new NextRequest("http://localhost:3000/api/network/stops");
+    const res = await getStops(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    const found = json.data.find((s: Stop) => s.id === testStopId);
+    expect(found).toBeDefined();
+    expect(found.stationType).toBe("BUS_TERMINAL");
+    expect(found.scale).toBe("MEDIUM");
+  });
+
+  it("DELETE: removes test stop from persistence", async () => {
+    const req = new NextRequest(`http://localhost:3000/api/network/stops?id=${testStopId}`, {
+      method: "DELETE",
+    });
+    const res = await deleteStop(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
   });
 });

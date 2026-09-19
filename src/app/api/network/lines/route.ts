@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Line, TransitMode, TransitCategory, FareStructureType, Coordinate } from "@/types/transit";
+import { Line, TransitMode, TransitCategory, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_LINES, JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
 
 // In-memory runtime cache ensuring operational continuity if DB is temporarily locked
@@ -51,22 +51,35 @@ export async function GET(request: NextRequest) {
           firstDeparture: l.firstDeparture,
           lastDeparture: l.lastDeparture,
           polylineCoordinates: JSON.parse(l.polylineCoordinatesJson || "[]") as Coordinate[],
-          stops: l.stops.map((s) => ({
-            id: s.id,
-            lineId: s.lineId,
-            name: s.name,
-            code: s.code,
-            latitude: s.latitude,
-            longitude: s.longitude,
-            sequence: s.sequence,
-            isInterchange: s.isInterchange,
-            connectedLineIds: JSON.parse(s.connectedLineIdsJson || "[]") as string[],
-            facilities: JSON.parse(s.facilitiesJson || "[]") as string[],
-            accessibleElevator: s.accessibleElevator,
-            tactilePaving: s.tactilePaving,
-            wheelchairRamp: s.wheelchairRamp,
-            platformType: s.platformType || undefined,
-          })),
+          stops: l.stops.map((s) => {
+            let pType = s.platformType || undefined;
+            let sType: StationType = s.isInterchange ? "TOD" : "RAIL_STATION";
+            let sScale: StationScale = s.isInterchange ? "BIG" : "MEDIUM";
+            if (pType && pType.includes("::")) {
+              const parts = pType.split("::");
+              pType = parts[0] || undefined;
+              if (parts[1]) sType = parts[1] as StationType;
+              if (parts[2]) sScale = parts[2] as StationScale;
+            }
+            return {
+              id: s.id,
+              lineId: s.lineId,
+              name: s.name,
+              code: s.code,
+              latitude: s.latitude,
+              longitude: s.longitude,
+              sequence: s.sequence,
+              isInterchange: s.isInterchange,
+              connectedLineIds: JSON.parse(s.connectedLineIdsJson || "[]") as string[],
+              facilities: JSON.parse(s.facilitiesJson || "[]") as string[],
+              accessibleElevator: s.accessibleElevator,
+              tactilePaving: s.tactilePaving,
+              wheelchairRamp: s.wheelchairRamp,
+              platformType: pType,
+              stationType: sType,
+              scale: sScale,
+            };
+          }),
         }));
       } else {
         lines = [...runtimeLines];
