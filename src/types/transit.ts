@@ -130,6 +130,16 @@ export interface StopFacility {
   description: string;
 }
 
+export type StationType =
+  | "TOD"
+  | "RAIL_STATION"
+  | "BUS_TERMINAL"
+  | "AIRPORT_TERMINAL"
+  | "HARBOR_PORT"
+  | "BUS_SHELTER";
+
+export type StationScale = "SMALL" | "MEDIUM" | "BIG";
+
 export interface Stop {
   id: string;
   lineId: string;
@@ -145,6 +155,8 @@ export interface Stop {
   tactilePaving: boolean;
   wheelchairRamp: boolean;
   platformType?: string;
+  stationType?: StationType;
+  scale?: StationScale;
 }
 
 export interface Line {
@@ -318,6 +330,9 @@ export interface Vehicle {
   busRunNumber?: string;
   licensePlate?: string;
   operatorName?: string;
+  delayMinutes?: number;
+  speedModifier?: number;
+  detourCoordinates?: Coordinate[];
   carriages?: VehicleCarriageTelemetry[];
   technicalSpec?: TechnicalSpec;
   seatingDiagram?: SeatingDiagram;
@@ -372,6 +387,22 @@ export interface Ticket {
   gateScannedAt?: string;
 }
 
+export interface TimetableRun {
+  id: string;
+  lineId: string;
+  tripCode: string;
+  origin: string;
+  destination: string;
+  departureTime: string; // HH:mm format
+  arrivalTime: string;   // HH:mm format
+  operatorName: string;
+  serviceClass?: string;
+  gateOrBay?: string;
+  notes?: string;
+  baggageBelt?: string;
+  daysOfWeek?: number[];
+}
+
 export interface DepartureBoardItem {
   tripId: string;
   lineCode: string;
@@ -393,6 +424,12 @@ export interface DepartureBoardItem {
   licensePlate?: string;
   operatorName?: string;
   depotHome?: string;
+  origin?: string;
+  serviceClass?: string;
+  gateOrBay?: string;
+  notes?: string;
+  baggageBelt?: string;
+  transitStopsSummary?: string;
 }
 
 export interface IntermodalSkybridgeTransfer {
