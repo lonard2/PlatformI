@@ -915,6 +915,9 @@ export interface TranslationDictionary {
     viewTelemetryFor: string;
     closeTelemetryDialog: string;
     closeAddVehicleDialog: string;
+    deleteVehicle: string;
+    confirmDeleteVehicle: string;
+    ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;
     sevInfo: string;

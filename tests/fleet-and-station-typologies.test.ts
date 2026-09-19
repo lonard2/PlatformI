@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { NextRequest } from "next/server";
 import {
   StationType,
   StationScale,
@@ -7,6 +8,12 @@ import {
   TimetableRun,
   Vehicle,
 } from "../src/types/transit";
+import {
+  GET as getVehicles,
+  POST as postVehicle,
+  PUT as putVehicle,
+  DELETE as deleteVehicle,
+} from "../src/app/api/fleet/vehicles/route";
 
 describe("Domain Model: Station Typologies & Timetable Runs", () => {
   it("validates station typology and scale assignments", () => {
@@ -133,5 +140,130 @@ describe("Domain Model: Station Typologies & Timetable Runs", () => {
     expect(divergingVehicle.speedModifier).toBeCloseTo(0.65);
     expect(divergingVehicle.detourCoordinates).toHaveLength(3);
     expect(divergingVehicle.detourCoordinates?.[0].latitude).toBe(-6.215);
+  });
+});
+
+describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
+  const testVehicleCode = `TEST-${Date.now().toString(36).toUpperCase()}`;
+  let createdVehicleId = "";
+
+  it("GET: returns list of vehicles with success flag and count", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles");
+    const res = await getVehicles(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(typeof json.count).toBe("number");
+    expect(Array.isArray(json.data)).toBe(true);
+    expect(json.data.length).toBeGreaterThan(0);
+
+    const sample = json.data[0];
+    expect(sample).toHaveProperty("id");
+    expect(sample).toHaveProperty("vehicleCode");
+    expect(sample).toHaveProperty("name");
+    expect(sample).toHaveProperty("lineId");
+    expect(sample).toHaveProperty("speedKmh");
+    expect(sample).toHaveProperty("status");
+  });
+
+  it("POST: rejects creation with 400 when required fields are missing", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+      method: "POST",
+      body: JSON.stringify({ name: "Incomplete Vehicle" }),
+    });
+    const res = await postVehicle(req);
+    expect(res.status).toBe(400);
+
+    const json = await res.json();
+    expect(json.success).toBe(false);
+    expect(json.error).toBeDefined();
+  });
+
+  it("POST: creates a new vehicle and returns 201 with created vehicle payload", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+      method: "POST",
+      body: JSON.stringify({
+        vehicleCode: testVehicleCode,
+        name: "Test Custom Bus",
+        lineId: "line-tj-corridor-1",
+        category: "BUS",
+        mode: "TRANSJAKARTA_BRT",
+        speedKmh: 45,
+        coachbuilder: "Laksana Karoseri",
+        chassis: "Mercedes-Benz OH 1626",
+      }),
+    });
+    const res = await postVehicle(req);
+    expect(res.status).toBe(201);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data).toBeDefined();
+    expect(json.data.vehicleCode).toBe(testVehicleCode);
+    expect(json.data.name).toBe("Test Custom Bus");
+    expect(json.data.coachbuilder).toBe("Laksana Karoseri");
+    expect(json.data.chassis).toBe("Mercedes-Benz OH 1626");
+
+    createdVehicleId = json.data.id;
+    expect(createdVehicleId).toBeDefined();
+  });
+
+  it("PUT: updates vehicle properties (status, speed, crowd level)", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: createdVehicleId,
+        status: "CONGESTION_HOLD",
+        speedKmh: 0,
+        crowdLevel: "LEVEL_4_FULL_CRUSH",
+      }),
+    });
+    const res = await putVehicle(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data.status).toBe("CONGESTION_HOLD");
+    expect(json.data.speedKmh).toBe(0);
+    expect(json.data.crowdLevel).toBe("LEVEL_4_FULL_CRUSH");
+  });
+
+  it("PUT: returns 400 when id or vehicleCode is missing", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+      method: "PUT",
+      body: JSON.stringify({
+        speedKmh: 55,
+      }),
+    });
+    const res = await putVehicle(req);
+    expect(res.status).toBe(400);
+
+    const json = await res.json();
+    expect(json.success).toBe(false);
+  });
+
+  it("DELETE: deletes vehicle by id query param", async () => {
+    const req = new NextRequest(
+      `http://localhost:3000/api/fleet/vehicles?id=${createdVehicleId}`,
+      { method: "DELETE" }
+    );
+    const res = await deleteVehicle(req);
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.message).toContain("deleted successfully");
+  });
+
+  it("DELETE: returns 400 when id and vehicleCode query param are omitted", async () => {
+    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+      method: "DELETE",
+    });
+    const res = await deleteVehicle(req);
+    expect(res.status).toBe(400);
+
+    const json = await res.json();
+    expect(json.success).toBe(false);
   });
 });

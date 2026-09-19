@@ -26,6 +26,8 @@ export type ShiftActionType =
   | "ALERT_UNDO"
   | "FLEET_STATUS"
   | "FLEET_CROWD"
+  | "FLEET_SPEED"
+  | "FLEET_DELETE"
   | "FLEET_ADD"
   | "FLEET_UNDO"
   | "GATE_SCAN";

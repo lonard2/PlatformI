@@ -39,9 +39,10 @@ import { recordShiftAction } from "@/lib/services/shiftLogService";
 interface PendingFleetUndo {
   vehicleId: string;
   vehicleCode: string;
-  field: "status" | "crowdLevel" | "add";
+  field: "status" | "crowdLevel" | "add" | "speed" | "delete";
   previous?: VehicleOperationalStatus | CrowdDensityLevel;
   previousSpeedKmh?: number;
+  previousVehicle?: Vehicle;
   label: string;
   expiry: number;
 }
@@ -248,6 +249,30 @@ function FleetManagementContent() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
+  // Sync custom/database vehicles on mount
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/fleet/vehicles")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((result) => {
+        if (!isMounted || !result?.data || !Array.isArray(result.data)) return;
+        if (result.data.length > 0) {
+          // Merge custom/persisted vehicles with existing simulated vehicles
+          const existingIds = new Set(simulatedVehicles.map((v) => v.id));
+          const newVehicles = (result.data as Vehicle[]).filter((v) => !existingIds.has(v.id));
+          if (newVehicles.length > 0) {
+            updateSimulatedVehicles([...simulatedVehicles, ...newVehicles]);
+          }
+        }
+      })
+      .catch(() => {
+        // Retain current in-memory store seamlessly
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Operational status & crowd density grace undo: field-scoped Map registry with 5s pausable window
   const [pendingUndos, setPendingUndos] = useState<Map<string, PendingFleetUndo>>(() => new Map());
   const pendingUndosRef = useRef(pendingUndos);
@@ -431,6 +456,19 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
+
+    // Persist to SQLite API
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        status: updated.status,
+        speedKmh: updated.speedKmh,
+      }),
+    }).catch(() => {});
+
     recordShiftAction({
       actionType: "FLEET_STATUS",
       summary: `${vehicle.vehicleCode}: status changed from ${getStatusLabel(previousStatus)} to ${getStatusLabel(newStatus)}`,
@@ -475,6 +513,18 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
+
+    // Persist to SQLite API
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        crowdLevel: newCrowd,
+      }),
+    }).catch(() => {});
+
     recordShiftAction({
       actionType: "FLEET_CROWD",
       summary: `${vehicle.vehicleCode}: crowd density updated to ${getCrowdLabel(newCrowd)}`,
@@ -500,6 +550,108 @@ function FleetManagementContent() {
     requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
   };
 
+  const handleUpdateSpeed = (
+    vehicle: Vehicle,
+    newSpeedKmh: number,
+    triggerEl?: HTMLElement | null
+  ) => {
+    if (vehicle.speedKmh === newSpeedKmh) return;
+    const previousSpeedKmh = vehicle.speedKmh;
+    const updated: Vehicle = {
+      ...vehicle,
+      speedKmh: newSpeedKmh,
+    };
+    updateSingleVehicle(updated);
+    if (selectedVehicle?.id === vehicle.id) {
+      setSelectedVehicle(updated);
+    }
+    if (triggerEl) {
+      lastTriggerRef.current = triggerEl;
+    }
+
+    // Persist to SQLite API
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        speedKmh: newSpeedKmh,
+      }),
+    }).catch(() => {});
+
+    recordShiftAction({
+      actionType: "FLEET_SPEED",
+      summary: `${vehicle.vehicleCode}: speed updated from ${Math.round(previousSpeedKmh)} km/h to ${Math.round(newSpeedKmh)} km/h`,
+      badge: vehicle.vehicleCode,
+      params: {
+        code: vehicle.vehicleCode,
+        from: `${Math.round(previousSpeedKmh)} km/h`,
+        to: `${Math.round(newSpeedKmh)} km/h`,
+      },
+    });
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "speed",
+        previousSpeedKmh,
+        label: `${vehicle.vehicleCode} • ${t.vehicleInspector.speed}: ${Math.round(previousSpeedKmh)} → ${Math.round(newSpeedKmh)} km/h`,
+        expiry: Date.now() + 5000,
+      });
+      return next;
+    });
+    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+  };
+
+  const handleDeleteVehicle = (
+    vehicle: Vehicle,
+    triggerEl?: HTMLElement | null
+  ) => {
+    if (!window.confirm(`${t.admin.confirmDeleteVehicle}: ${vehicle.vehicleCode}?`)) return;
+
+    if (triggerEl) {
+      lastTriggerRef.current = triggerEl;
+    }
+
+    // Remove from store
+    updateSimulatedVehicles(simulatedVehicles.filter((v) => v.id !== vehicle.id));
+    if (selectedVehicle?.id === vehicle.id) {
+      setSelectedVehicle(null);
+    }
+
+    // Call API DELETE
+    fetch(`/api/fleet/vehicles?id=${encodeURIComponent(vehicle.id)}`, {
+      method: "DELETE",
+    }).catch(() => {});
+
+    recordShiftAction({
+      actionType: "FLEET_DELETE",
+      summary: `Deleted vehicle: ${vehicle.vehicleCode} (${vehicle.name})`,
+      badge: vehicle.vehicleCode,
+      params: {
+        code: vehicle.vehicleCode,
+        name: vehicle.name,
+      },
+    });
+
+    const undoLabel = `${t.admin.deleteVehicle}: ${vehicle.vehicleCode}`;
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "delete",
+        previousVehicle: vehicle,
+        label: undoLabel,
+        expiry: Date.now() + 5000,
+      });
+      return next;
+    });
+    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+  };
+
   const handleUndo = (vehicleId: string) => {
     const pending = pendingUndos.get(vehicleId);
     if (!pending) return;
@@ -509,6 +661,19 @@ function FleetManagementContent() {
       if (selectedVehicle?.id === vehicleId) {
         setSelectedVehicle(null);
       }
+      // Revert from backend via DELETE
+      fetch(`/api/fleet/vehicles?id=${encodeURIComponent(vehicleId)}`, {
+        method: "DELETE",
+      }).catch(() => {});
+    } else if (pending.field === "delete" && pending.previousVehicle) {
+      // Recreate vehicle in store and database
+      const restored = pending.previousVehicle;
+      updateSimulatedVehicles([...simulatedVehicles, restored]);
+      fetch("/api/fleet/vehicles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(restored),
+      }).catch(() => {});
     } else {
       // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
       const current = simulatedVehicles.find((v) => v.id === vehicleId);
@@ -524,6 +689,16 @@ function FleetManagementContent() {
           if (selectedVehicle?.id === vehicleId) {
             setSelectedVehicle(restored);
           }
+          fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: current.id,
+              vehicleCode: current.vehicleCode,
+              status: restored.status,
+              speedKmh: restored.speedKmh,
+            }),
+          }).catch(() => {});
         } else if (pending.field === "crowdLevel") {
           const prevCrowd = pending.previous as CrowdDensityLevel;
           const restored: Vehicle = {
@@ -534,6 +709,33 @@ function FleetManagementContent() {
           if (selectedVehicle?.id === vehicleId) {
             setSelectedVehicle(restored);
           }
+          fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: current.id,
+              vehicleCode: current.vehicleCode,
+              crowdLevel: restored.crowdLevel,
+            }),
+          }).catch(() => {});
+        } else if (pending.field === "speed" && pending.previousSpeedKmh !== undefined) {
+          const restored: Vehicle = {
+            ...current,
+            speedKmh: pending.previousSpeedKmh,
+          };
+          updateSingleVehicle(restored);
+          if (selectedVehicle?.id === vehicleId) {
+            setSelectedVehicle(restored);
+          }
+          fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: current.id,
+              vehicleCode: current.vehicleCode,
+              speedKmh: restored.speedKmh,
+            }),
+          }).catch(() => {});
         }
       }
     }
@@ -624,6 +826,13 @@ function FleetManagementContent() {
     setIsAddModalOpen(false);
     setNewVehicleCode("");
     setNewName("");
+
+    // Persist new vehicle via POST /api/fleet/vehicles
+    fetch("/api/fleet/vehicles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUnit),
+    }).catch(() => {});
 
     recordShiftAction({
       actionType: "FLEET_ADD",
@@ -775,14 +984,14 @@ function FleetManagementContent() {
               role="status"
               aria-live="polite"
               className={`p-4 rounded-xl bg-slate-900 border text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200 ${
-                undo.field === "add"
+                undo.field === "add" || undo.field === "delete"
                   ? "border-amber-500/40"
                   : "border-cyan-500/40"
               }`}
             >
               <div className="flex items-center gap-2 truncate">
-                {undo.field === "add" ? (
-                  <Trash2 className="w-4 h-4 text-amber-400 shrink-0" />
+                {undo.field === "add" || undo.field === "delete" ? (
+                  <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
                 ) : (
                   <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
                 )}
@@ -801,7 +1010,7 @@ function FleetManagementContent() {
                 onClick={() => handleUndo(undo.vehicleId)}
                 aria-label={`${t.admin.pendingUndo}: ${undo.label}`}
                 className={`px-3 py-1.5 rounded-lg font-bold text-xs transition btn-tactile min-h-[36px] shrink-0 ${
-                  undo.field === "add"
+                  undo.field === "add" || undo.field === "delete"
                     ? "bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950"
                     : "bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950"
                 }`}
@@ -958,14 +1167,24 @@ function FleetManagementContent() {
 
                     {/* Action */}
                     <td className="sticky right-0 z-10 py-3.5 px-4 text-right bg-slate-900/95 group-hover:bg-[#131b2e] backdrop-blur-md shadow-[-12px_0_16px_-4px_rgba(0,0,0,0.6)] before:content-[''] before:absolute before:inset-y-0 before:-left-4 before:w-4 before:bg-gradient-to-r before:from-transparent before:to-slate-900/95 group-hover:before:to-[#131b2e] before:pointer-events-none transition-colors">
-                      <button
-                        type="button"
-                        aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}
-                        onClick={() => openTelemetryModal(vehicle)}
-                        className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
-                      >
-                        {t.admin.viewTelemetry}
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}
+                          onClick={() => openTelemetryModal(vehicle)}
+                          className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
+                        >
+                          {t.admin.viewTelemetry}
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`${t.admin.ariaDeleteVehicle} ${vehicle.vehicleCode}`}
+                          onClick={(e) => handleDeleteVehicle(vehicle, e.currentTarget)}
+                          className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 hover:border-rose-500/60 text-rose-400 hover:text-rose-200 text-[11px] transition btn-tactile min-h-[36px] min-w-[36px] flex items-center justify-center"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -1094,6 +1313,27 @@ function FleetManagementContent() {
               </div>
 
               <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="telemetry-speed-slider" className="text-xs font-bold text-slate-300">
+                    {t.vehicleInspector.speed}
+                  </label>
+                  <span className="font-mono text-cyan-400 font-bold">{Math.round(selectedVehicle.speedKmh)} km/h</span>
+                </div>
+                <input
+                  id="telemetry-speed-slider"
+                  type="range"
+                  min="0"
+                  max="140"
+                  step="5"
+                  value={Math.round(selectedVehicle.speedKmh)}
+                  onChange={(e) =>
+                    handleUpdateSpeed(selectedVehicle, parseInt(e.target.value, 10))
+                  }
+                  className="w-full cursor-pointer accent-cyan-400"
+                />
+              </div>
+
+              <div className="space-y-2 pt-2">
                 <label className="text-xs font-bold text-slate-300">{t.admin.currentStatus}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["IN_SERVICE", "BOARDING", "CONGESTION_HOLD", "OUT_OF_SERVICE"] as VehicleOperationalStatus[]).map(
@@ -1124,7 +1364,20 @@ function FleetManagementContent() {
             </div>
 
             {/* Footer */}
-            <div className="p-4 bg-slate-950 border-t border-white/10 flex justify-end">
+            <div className="p-4 bg-slate-950 border-t border-white/10 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={(e) => {
+                  const target = selectedVehicle;
+                  closeTelemetryModal();
+                  handleDeleteVehicle(target, e.currentTarget);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-rose-950/50 border border-rose-500/40 hover:bg-rose-900/60 text-xs text-rose-300 hover:text-rose-100 font-semibold transition btn-tactile min-h-[36px] flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{t.admin.deleteVehicle}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={closeTelemetryModal}
