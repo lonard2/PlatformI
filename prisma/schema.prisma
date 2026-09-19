@@ -41,6 +41,7 @@ model Line {
   stops                   Stop[]
   vehicles                Vehicle[]
   disruptionAlerts        DisruptionAlert[]
+  timetableRuns           TimetableRun[]
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
 }
@@ -165,4 +166,23 @@ model Ticket {
   expiresAt         DateTime
   rollingToken      String
   gateScannedAt     DateTime?
+}
+
+model TimetableRun {
+  id             String   @id @default(cuid())
+  lineId         String
+  line           Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  tripCode       String
+  origin         String
+  destination    String
+  departureTime  String
+  arrivalTime    String
+  operatorName   String
+  serviceClass   String?
+  gateOrBay      String?
+  notes          String?
+  baggageBelt    String?
+  daysOfWeekJson String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

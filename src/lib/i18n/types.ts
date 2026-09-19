@@ -760,6 +760,7 @@ export interface TranslationDictionary {
     disruptionManager: string;
     gateScanner: string;
     networkStudio: string;
+    timetableManager: string;
     broadcastAlert: string;
     activeVehicles: string;
     validateTicket: string;
@@ -946,6 +947,7 @@ export interface TranslationDictionary {
     shortcutAlerts: string;
     shortcutScanner: string;
     shortcutNetworkStudio: string;
+    shortcutTimetable: string;
     shortcutUndo: string;
     shortcutEscape: string;
     triageCriticalDesc: string;

@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -47,7 +47,7 @@ import {
   Radio,
   ExternalLink,
 } from "lucide-react";
-import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle } from "@/types/transit";
+import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle, TimetableRun } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
@@ -201,7 +201,12 @@ function getStandardizedModeMeta(mode: TransitMode, lineCode?: string, lineId?: 
 /**
  * Generates dynamic departure board items for any station in the network
  */
-export function generateDepartureBoard(stop: Stop, lines: Line[], t: TranslationDictionary): DepartureBoardItem[] {
+export function generateDepartureBoard(
+  stop: Stop,
+  lines: Line[],
+  t: TranslationDictionary,
+  customRuns?: TimetableRun[]
+): DepartureBoardItem[] {
   const departures: DepartureBoardItem[] = [];
   const connectedLines = lines.filter(
     (l) => l.id === stop.lineId || stop.connectedLineIds.includes(l.id)
@@ -499,6 +504,58 @@ export function generateDepartureBoard(stop: Stop, lines: Line[], t: Translation
     });
   });
 
+  if (customRuns && customRuns.length > 0) {
+    const stopNameLower = stop.name.toLowerCase();
+
+    customRuns.forEach((run) => {
+      const runOriginLower = run.origin.toLowerCase();
+      const runDestLower = run.destination.toLowerCase();
+      const isLineConnected = stop.lineId === run.lineId || stop.connectedLineIds.includes(run.lineId);
+      const isStationMatch =
+        runOriginLower.includes(stopNameLower) ||
+        stopNameLower.includes(runOriginLower) ||
+        runDestLower.includes(stopNameLower) ||
+        stopNameLower.includes(runDestLower) ||
+        run.lineId === stop.lineId;
+
+      if (isLineConnected || isStationMatch) {
+        const line = lines.find((l) => l.id === run.lineId);
+        const isAviation = line?.category === "AVIATION";
+        const isMaritime = line?.category === "MARITIME";
+        const isBus = line?.category === "BUS";
+        const defaultPlatformStr = isAviation
+          ? `${t.hubInspector.platformGate} 1`
+          : isMaritime
+          ? `${t.common.pier} 1`
+          : isBus
+          ? `${t.hubInspector.platformBay} 1`
+          : `${t.common.peron} 1`;
+
+        departures.push({
+          tripId: `run-${run.id}`,
+          lineCode: line?.code || "TRIP",
+          lineName: line?.name || run.operatorName,
+          destination: run.destination,
+          origin: run.origin,
+          mode: line?.mode || "KAI_INTERCITY",
+          scheduledTime: run.departureTime,
+          estimatedTime: run.departureTime,
+          status: "ON_TIME",
+          platform: run.gateOrBay || defaultPlatformStr,
+          crowdLevel: "LEVEL_2_FEW_SEATS",
+          runNumber: run.tripCode,
+          operatorName: run.operatorName,
+          gateOrBay: run.gateOrBay,
+          serviceClass: run.serviceClass,
+          baggageBelt: run.baggageBelt,
+          notes: run.notes,
+          transitStopsSummary: `${run.origin} -> ${run.destination}`,
+          vehicleCode: run.tripCode,
+        });
+      }
+    });
+  }
+
   return departures.sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 }
 
@@ -549,10 +606,29 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
     destinationGroups && destinationGroups[0] ? destinationGroups[0].id : ""
   );
 
+  const [customTimetables, setCustomTimetables] = useState<TimetableRun[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/network/timetables")
+      .then((res) => res.json())
+      .then((json) => {
+        if (isMounted && json.success && Array.isArray(json.data)) {
+          setCustomTimetables(json.data);
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully to procedural departures
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [stop?.id]);
+
   const departureBoard = useMemo(() => {
     if (!stop) return [];
-    return generateDepartureBoard(stop, allLines, t);
-  }, [stop, allLines, t]);
+    return generateDepartureBoard(stop, allLines, t, customTimetables);
+  }, [stop, allLines, t, customTimetables]);
 
   if (!stop) return null;
 

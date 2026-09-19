@@ -231,6 +231,13 @@ export function AdminHelpModal({ isOpen, onClose }: AdminHelpModalProps) {
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-white/5">
+                  <span className="text-slate-300">{t.admin.shortcutTimetable}</span>
+                  <kbd className="px-2 py-1 rounded bg-slate-800 border border-slate-700 font-mono text-xs font-bold text-cyan-300">
+                    6
+                  </kbd>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-white/5">
                   <span className="text-slate-300">{t.admin.shortcutUndo}</span>
                   <kbd className="px-2 py-1 rounded bg-slate-800 border border-slate-700 font-mono text-xs font-bold text-cyan-300">
                     Ctrl+Z / ⌘Z

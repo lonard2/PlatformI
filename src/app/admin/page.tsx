@@ -455,6 +455,13 @@ export default function AdminDashboardPage() {
                 <ArrowRight className="w-3 h-3" />
               </Link>
               <Link
+                href="/admin/timetables"
+                className="text-teal-400 hover:text-teal-300 font-semibold flex items-center gap-1 transition btn-tactile"
+              >
+                <span>{t.admin.timetableManager}</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              <Link
                 href="/admin/fleet"
                 className="text-slate-400 hover:text-slate-200 font-semibold flex items-center gap-1 transition btn-tactile"
               >

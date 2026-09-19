@@ -24,6 +24,7 @@ import {
   LogOut,
   HelpCircle,
   Route,
+  Clock,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -111,6 +112,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push("/admin/scanner");
       } else if (e.code === "Digit5" || e.code === "Numpad5" || e.key === "5") {
         router.push("/admin/network");
+      } else if (e.code === "Digit6" || e.code === "Numpad6" || e.key === "6") {
+        router.push("/admin/timetables");
       } else if (e.key === "/") {
         e.preventDefault();
         const searchInput = document.querySelector<HTMLInputElement>(
@@ -173,6 +176,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: "/admin/network",
       label: t.admin.networkStudio,
       icon: <Route className="w-4 h-4" />,
+      exact: false,
+    },
+    {
+      href: "/admin/timetables",
+      label: t.admin.timetableManager,
+      icon: <Clock className="w-4 h-4" />,
       exact: false,
     },
   ];
