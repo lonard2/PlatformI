@@ -76,8 +76,9 @@ describe("Domain Model: Station Typologies & Timetable Runs", () => {
       "AIRPORT_TERMINAL",
       "HARBOR_PORT",
       "BUS_SHELTER",
+      "BUS_POLE",
     ];
-    expect(validTypologies).toHaveLength(6);
+    expect(validTypologies).toHaveLength(7);
 
     const validScales: StationScale[] = ["SMALL", "MEDIUM", "BIG"];
     expect(validScales).toHaveLength(3);
@@ -713,6 +714,106 @@ describe("Vehicle Temporal & Spatial Divergence Engine", () => {
     // minimum hold safety ETA should be retained (at least 60s)
     const zeroBaseHoldEta = calculateDivergentEta(0, 0, "CONGESTION_HOLD");
     expect(zeroBaseHoldEta).toBe(60);
+  });
+
+  it("validates BUS_POLE signpost bus stop typology for minor stops and MikroTrans", () => {
+    const poleStop: Partial<Stop> = {
+      id: "stop-rambu-tebet-01",
+      lineId: "line-jak-48a",
+      name: "Rambu Bus Stop Tebet Timur Dalam",
+      code: "JAK-TBT",
+      latitude: -6.2345,
+      longitude: 106.8521,
+      sequence: 4,
+      isInterchange: false,
+      connectedLineIds: [],
+      facilities: ["Tiang Rambu Informasi", "Jalur Pedestrian"],
+      accessibleElevator: false,
+      tactilePaving: true,
+      wheelchairRamp: false,
+      stationType: "BUS_POLE",
+      scale: "SMALL",
+    };
+
+    expect(poleStop.stationType).toBe("BUS_POLE");
+    expect(poleStop.scale).toBe("SMALL");
+    expect(poleStop.facilities).toContain("Tiang Rambu Informasi");
+  });
+
+  it("supports custom coachbuilder, custom chassis, and interior seating diagrams", async () => {
+    const { generateSleeper111Seats, generateHiAceCaptainSeats } = await import("../src/lib/data/jakarta-dataset");
+
+    const customSleeperBus: Vehicle = {
+      id: "veh-custom-sleeper-01",
+      lineId: "line-akap-rosalia",
+      vehicleCode: "RS-SLEEPER-99",
+      name: "Rosalia Indah First Class Double Decker",
+      category: "BUS",
+      mode: "AKAP_INTERCITY_BUS",
+      currentLatitude: -6.2,
+      currentLongitude: 106.8,
+      headingDegrees: 90,
+      speedKmh: 80,
+      status: "IN_SERVICE",
+      crowdLevel: "LEVEL_1_MANY_SEATS",
+      acComfort: "OPTIMAL",
+      coachbuilder: "Adiputro Jetbus 5 Dream Coach",
+      chassis: "Scania K410CB 6x2*4 Euro 5",
+      progressFraction: 0.5,
+      currentSegmentIndex: 2,
+      nextStopId: "stop-solo",
+      nextStopEtaSeconds: 1200,
+      seatingDiagram: generateSleeper111Seats("veh-custom-sleeper-01"),
+      technicalSpec: {
+        id: "spec-custom-01",
+        vehicleId: "veh-custom-sleeper-01",
+        coachbuilder: "Adiputro Jetbus 5 Dream Coach",
+        chassisModel: "Scania K410CB 6x2*4 Euro 5",
+        powertrain: "DC13 139 Euro 5 Clean Diesel",
+        engineOutput: "410 HP @ 1,900 RPM",
+        torque: "2,000 Nm @ 1,000-1,350 RPM",
+        transmission: "Opticruise 12-Speed Automated Manual",
+        suspensionType: "Full Air Suspension with Electronic Level Control",
+        lengthMeters: 13.5,
+        passengerCapacity: 22,
+        maxSpeedKmh: 100,
+        safetyFeatures: ["EBS", "Retarder", "Lane Departure Warning", "Fire Suppression"],
+        historicalNotes: "Custom flagship coachbuilder build for PlatformI fleet.",
+      },
+    };
+
+    expect(customSleeperBus.coachbuilder).toBe("Adiputro Jetbus 5 Dream Coach");
+    expect(customSleeperBus.chassis).toBe("Scania K410CB 6x2*4 Euro 5");
+    expect(customSleeperBus.seatingDiagram).toBeDefined();
+    expect(customSleeperBus.seatingDiagram?.layoutType).toBe("SLEEPER_1_1_1");
+    expect(customSleeperBus.technicalSpec?.passengerCapacity).toBe(22);
+
+    const customShuttle: Vehicle = {
+      id: "veh-custom-hiace-02",
+      lineId: "line-shuttle-daytrans",
+      vehicleCode: "DT-VIP-08",
+      name: "DayTrans Executive Captain Recliner",
+      category: "BUS",
+      mode: "EXECUTIVE_SHUTTLE",
+      currentLatitude: -6.21,
+      currentLongitude: 106.82,
+      headingDegrees: 180,
+      speedKmh: 75,
+      status: "IN_SERVICE",
+      crowdLevel: "LEVEL_2_FEW_SEATS",
+      acComfort: "COLD",
+      coachbuilder: "Baze Luxury Custom VIP",
+      chassis: "Toyota HiAce Premio 2.8L",
+      progressFraction: 0.3,
+      currentSegmentIndex: 1,
+      nextStopId: "stop-bdg",
+      nextStopEtaSeconds: 3600,
+      seatingDiagram: generateHiAceCaptainSeats("veh-custom-hiace-02"),
+    };
+
+    expect(customShuttle.coachbuilder).toBe("Baze Luxury Custom VIP");
+    expect(customShuttle.seatingDiagram?.layoutType).toBe("HIACE_VIP_CAPTAIN");
+    expect(customShuttle.seatingDiagram?.totalSeats).toBe(7);
   });
 });
 

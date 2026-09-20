@@ -30,7 +30,15 @@ import {
   TransitCategory,
   TransitMode,
   CrowdDensityLevel,
+  SeatingDiagram,
 } from "@/types/transit";
+import {
+  generateSleeper111Seats,
+  generateSuperExec21Seats,
+  generateExecutive22Seats,
+  generateCommuterLongitudinalSeats,
+  generateHiAceCaptainSeats,
+} from "@/lib/data/jakarta-dataset";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
@@ -375,18 +383,21 @@ function FleetManagementContent() {
   const [newCoachbuilder, setNewCoachbuilder] = useState<string>(
     () => modeSpecs.coachbuilders[0]?.value || "Laksana Karoseri"
   );
+  const [customCoachbuilder, setCustomCoachbuilder] = useState<string>("");
   const [newChassis, setNewChassis] = useState<string>(
     () => modeSpecs.chassises[0]?.value || "Scania K250UB 4x2"
   );
+  const [customChassis, setCustomChassis] = useState<string>("");
+  const [seatingLayoutChoice, setSeatingLayoutChoice] = useState<string>("DEFAULT");
 
   useEffect(() => {
-    if (!modeSpecs.coachbuilders.some((c) => c.value === newCoachbuilder)) {
+    if (newCoachbuilder !== "__CUSTOM__" && !modeSpecs.coachbuilders.some((c) => c.value === newCoachbuilder)) {
       setNewCoachbuilder(modeSpecs.coachbuilders[0]?.value || "");
     }
-    if (!modeSpecs.chassises.some((c) => c.value === newChassis)) {
+    if (newChassis !== "__CUSTOM__" && !modeSpecs.chassises.some((c) => c.value === newChassis)) {
       setNewChassis(modeSpecs.chassises[0]?.value || "");
     }
-  }, [modeSpecs]);
+  }, [modeSpecs, newCoachbuilder, newChassis]);
 
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
@@ -797,8 +808,28 @@ function FleetManagementContent() {
 
     const assignedLine = allLines.find((l) => l.id === newLineId) || allLines[0];
     const newId = `veh-custom-${Date.now().toString(36)}`;
-
     const firstCoord = assignedLine.polylineCoordinates[0] || { latitude: -6.2088, longitude: 106.8456 };
+
+    const effectiveCoachbuilder =
+      newCoachbuilder === "__CUSTOM__" ? customCoachbuilder.trim() || "Custom Karoseri" : newCoachbuilder;
+    const effectiveChassis =
+      newChassis === "__CUSTOM__" ? customChassis.trim() || "Custom Chassis" : newChassis;
+
+    let seatingDiagram: SeatingDiagram | undefined = undefined;
+    if (seatingLayoutChoice === "SLEEPER_1_1_1") {
+      seatingDiagram = generateSleeper111Seats(newId);
+    } else if (seatingLayoutChoice === "SUPER_EXEC_2_1") {
+      seatingDiagram = generateSuperExec21Seats(newId);
+    } else if (seatingLayoutChoice === "EXEC_2_2") {
+      seatingDiagram = generateExecutive22Seats(newId);
+    } else if (seatingLayoutChoice === "HIACE_VIP") {
+      seatingDiagram = generateHiAceCaptainSeats(newId);
+    } else if (seatingLayoutChoice === "COMMUTER_LONGITUDINAL") {
+      seatingDiagram = generateCommuterLongitudinalSeats(newId);
+    }
+
+    const seatCap = seatingDiagram ? seatingDiagram.totalSeats : assignedLine.category === "RAIL" ? 312 : 36;
+    const standCap = assignedLine.category === "RAIL" ? 800 : assignedLine.mode === "MIKROTRANS" ? 0 : 45;
 
     const newUnit: Vehicle = {
       id: newId,
@@ -814,18 +845,44 @@ function FleetManagementContent() {
       status: "IN_SERVICE",
       crowdLevel: "LEVEL_2_FEW_SEATS",
       acComfort: "OPTIMAL",
-      coachbuilder: newCoachbuilder,
-      chassis: newChassis,
+      coachbuilder: effectiveCoachbuilder,
+      chassis: effectiveChassis,
       progressFraction: 0,
       currentSegmentIndex: 0,
       nextStopId: assignedLine.stops?.[0]?.id || "stop-0",
       nextStopEtaSeconds: 180,
+      seatingDiagram,
+      technicalSpec: {
+        id: `spec-${newId}`,
+        vehicleId: newId,
+        coachbuilder: effectiveCoachbuilder,
+        chassisModel: effectiveChassis,
+        powertrain: assignedLine.category === "RAIL" ? "Electric Traction Motor (VVVF Inverter)" : "Euro 5 / Euro 6 Clean Diesel / Electric Battery",
+        engineOutput: assignedLine.category === "RAIL" ? "1,200 kW" : "360 HP @ 1,900 RPM",
+        torque: assignedLine.category === "RAIL" ? "4,500 Nm" : "1,600 Nm @ 1,100 RPM",
+        transmission: assignedLine.category === "RAIL" ? "Direct Drive Automatic" : "ZF EcoLife 6-Speed Automatic / Voith DIWA",
+        suspensionType: "Full Electronically Controlled Air Suspension (ECAS)",
+        lengthMeters: assignedLine.category === "RAIL" ? 20.0 : assignedLine.mode === "MIKROTRANS" ? 5.5 : 12.0,
+        passengerCapacity: seatCap + standCap,
+        maxSpeedKmh: assignedLine.category === "RAIL" ? 120 : 100,
+        safetyFeatures: [
+          "Anti-lock Braking System (ABS)",
+          "Electronic Stability Control (ESP)",
+          "Automatic Door Interlock",
+          "Surveillance CCTV 360",
+          "Automatic Fire Suppression System",
+        ],
+        historicalNotes: `Operated by ${assignedLine.code} fleet division. Built with ${effectiveCoachbuilder} body and ${effectiveChassis} platform.`,
+      },
     };
 
     updateSimulatedVehicles([...simulatedVehicles, newUnit]);
     setIsAddModalOpen(false);
     setNewVehicleCode("");
     setNewName("");
+    setCustomCoachbuilder("");
+    setCustomChassis("");
+    setSeatingLayoutChoice("DEFAULT");
 
     // Persist new vehicle via POST /api/fleet/vehicles
     fetch("/api/fleet/vehicles", {
@@ -1491,7 +1548,18 @@ function FleetManagementContent() {
                         {opt.label}
                       </option>
                     ))}
+                    <option value="__CUSTOM__">+ Custom Karoseri / Coachbuilder Baru...</option>
                   </select>
+                  {newCoachbuilder === "__CUSTOM__" && (
+                    <input
+                      type="text"
+                      value={customCoachbuilder}
+                      onChange={(e) => setCustomCoachbuilder(e.target.value)}
+                      placeholder="e.g. Adiputro Jetbus 5 Dream Coach / Baze VIP"
+                      required
+                      className="w-full mt-1.5 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 min-h-[38px]"
+                    />
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label htmlFor="add-vehicle-chassis" className="text-xs font-semibold text-slate-300">{t.vehicleInspector.chassis}</label>
@@ -1506,8 +1574,40 @@ function FleetManagementContent() {
                         {opt.label}
                       </option>
                     ))}
+                    <option value="__CUSTOM__">+ Custom Chassis / Rangka Baru...</option>
                   </select>
+                  {newChassis === "__CUSTOM__" && (
+                    <input
+                      type="text"
+                      value={customChassis}
+                      onChange={(e) => setCustomChassis(e.target.value)}
+                      placeholder="e.g. Scania K410CB 6x2*4 / Mercedes-Benz O 500 RSD"
+                      required
+                      className="w-full mt-1.5 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 min-h-[38px]"
+                    />
+                  )}
                 </div>
+              </div>
+
+              {/* Cabin Seating Layout Selector (Inner SVG) */}
+              <div className="space-y-1.5">
+                <label htmlFor="add-vehicle-seating" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Cabin Seating Layout (Passenger Inner View)</span>
+                  <span className="text-[10px] text-cyan-400 font-mono">Dynamic SVG Diagram</span>
+                </label>
+                <select
+                  id="add-vehicle-seating"
+                  value={seatingLayoutChoice}
+                  onChange={(e) => setSeatingLayoutChoice(e.target.value)}
+                  className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
+                >
+                  <option value="DEFAULT">Auto-configure based on vehicle mode</option>
+                  <option value="SLEEPER_1_1_1">Sleeper Bus (1+1+1 Individual Capsule Suites)</option>
+                  <option value="SUPER_EXEC_2_1">Super Executive (2+1 Wide Recliner Seats)</option>
+                  <option value="EXEC_2_2">Executive Highway (2+2 High Deck Standard)</option>
+                  <option value="HIACE_VIP">Executive Travel Shuttle VIP (8 Captain Seats)</option>
+                  <option value="COMMUTER_LONGITUDINAL">Commuter / BRT (Longitudinal Benches + Standing Straps)</option>
+                </select>
               </div>
 
               {/* Initial Speed */}

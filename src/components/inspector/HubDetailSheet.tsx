@@ -47,6 +47,7 @@ import {
   Radio,
   ExternalLink,
   Moon,
+  Info,
 } from "lucide-react";
 import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle, TimetableRun } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
@@ -782,6 +783,21 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     JPM Skybridge
                   </span>
                 )}
+                {stop.stationType && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                      stop.stationType === "BUS_POLE"
+                        ? "bg-amber-950/80 border-amber-500/40 text-amber-300"
+                        : stop.stationType === "TOD"
+                        ? "bg-indigo-950/80 border-indigo-500/40 text-indigo-300"
+                        : "bg-slate-800/80 border-slate-700 text-slate-300"
+                    }`}
+                  >
+                    {stop.stationType === "BUS_POLE"
+                      ? "Rambu Bus Stop (Plang Tiang)"
+                      : stop.stationType.replace(/_/g, " ")}
+                  </span>
+                )}
               </div>
 
               <h2 className="text-base font-bold text-white tracking-tight leading-tight">
@@ -833,6 +849,16 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
               );
             })}
           </div>
+
+          {stop.stationType === "BUS_POLE" && (
+            <div className="mx-4 mt-3 p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-[11px] text-amber-200/90 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold text-amber-300">Pemberhentian Tipe Rambu Bus Stop (Plang Tiang):</span>{" "}
+                Pemberhentian tanpa fisik bangunan halte. Penumpang naik/turun di tepi jalan dan melakukan transaksi Tap-on-Bus (TOB) langsung pada mesin tap di dalam armada mikrobus / bus kecil.
+              </div>
+            </div>
+          )}
 
           {/* 2. TAB NAVIGATION BAR */}
           <div className="px-4 pt-2 border-b border-slate-800/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">

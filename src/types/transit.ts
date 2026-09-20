@@ -136,7 +136,8 @@ export type StationType =
   | "BUS_TERMINAL"
   | "AIRPORT_TERMINAL"
   | "HARBOR_PORT"
-  | "BUS_SHELTER";
+  | "BUS_SHELTER"
+  | "BUS_POLE";
 
 export type StationScale = "SMALL" | "MEDIUM" | "BIG";
 

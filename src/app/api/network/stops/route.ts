@@ -46,6 +46,15 @@ function inferStationType(s: { name: string; lineId: string; isInterchange?: boo
   ) {
     return "BUS_TERMINAL";
   }
+  if (
+    lineLower.includes("mikrotrans") ||
+    lineLower.includes("jaklingko") ||
+    nameLower.includes("bus stop") ||
+    nameLower.includes("rambu") ||
+    nameLower.includes("plang")
+  ) {
+    return "BUS_POLE";
+  }
   if (lineLower.includes("tj-cor") || lineLower.includes("transjakarta") || nameLower.includes("halte")) {
     return "BUS_SHELTER";
   }

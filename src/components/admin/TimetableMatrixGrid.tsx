@@ -54,6 +54,7 @@ interface TimetableMatrixGridProps {
   onShiftRun: (run: TimetableRun, deltaMinutes: number) => Promise<void>;
   onOpenBatchModal: () => void;
   onOpenCreateModal: () => void;
+  onEditRun?: (run: TimetableRun) => void;
 }
 
 type TimeWindowFilter = "ALL" | "PEAK_AM" | "OFF_PEAK" | "PEAK_PM" | "NIGHT";
@@ -79,6 +80,7 @@ export function TimetableMatrixGrid({
   onShiftRun,
   onOpenBatchModal,
   onOpenCreateModal,
+  onEditRun,
 }: TimetableMatrixGridProps) {
   const [timeWindow, setTimeWindow] = useState<TimeWindowFilter>("ALL");
   const [editingCell, setEditingCell] = useState<InCellEditState | null>(null);
@@ -441,6 +443,16 @@ export function TimetableMatrixGrid({
                             {run.tripCode}
                           </span>
                           <div className="flex items-center gap-1">
+                            {onEditRun && (
+                              <button
+                                type="button"
+                                onClick={() => onEditRun(run)}
+                                className="text-slate-400 hover:text-cyan-300 transition p-0.5 rounded hover:bg-cyan-950/50"
+                                title="Edit Run Metadata (Trip Code, Operator, Gate/Bay, Class, Notes)"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => handleOpenDivergenceModal(run)}

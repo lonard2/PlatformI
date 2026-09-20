@@ -21,8 +21,12 @@ import {
   RotateCcw,
   Eye,
   X,
+  GitBranch,
+  Zap,
+  CheckCheck,
+  Clock,
 } from "lucide-react";
-import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
+import { DisruptionAlert, DisruptionSeverity, Vehicle } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
@@ -44,6 +48,8 @@ export default function AdminAlertsPage() {
   const { t, currentLanguageMeta } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
+  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
+  const updateSingleVehicle = useTransitStore((state) => state.updateSingleVehicle);
 
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -52,6 +58,8 @@ export default function AdminAlertsPage() {
   const [broadcastToast, setBroadcastToast] = useState<string | null>(null);
   const [mutatingAlertId, setMutatingAlertId] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
+  const [linkToOperations, setLinkToOperations] = useState<boolean>(true);
+  const [linkedAlertIds, setLinkedAlertIds] = useState<Set<string>>(new Set());
 
   // Per-delete pending buffer state
   const [pendingDeletes, setPendingDeletes] = useState<Record<string, DisruptionAlert>>({});
@@ -316,6 +324,140 @@ export default function AdminAlertsPage() {
     }
   };
 
+  // Connect alert disruption directly with active vehicles and timetable runs
+  const handleLinkDisruptionToOperations = async (
+    lineId: string,
+    alertTitle: string,
+    alertSeverity: DisruptionSeverity,
+    alertId?: string
+  ) => {
+    // 1. Modulate vehicles on this line
+    const targetVehicles = simulatedVehicles.filter(
+      (v) => !lineId || lineId === "ALL" || v.lineId === lineId
+    );
+
+    const delayMinutes = alertSeverity === "CRITICAL" ? 25 : alertSeverity === "WARNING" ? 15 : 5;
+    const speedModifier = alertSeverity === "CRITICAL" ? 0.2 : alertSeverity === "WARNING" ? 0.5 : 0.8;
+    const status = alertSeverity === "CRITICAL" ? "CONGESTION_HOLD" : "IN_SERVICE";
+
+    targetVehicles.forEach((vehicle) => {
+      const updated: Vehicle = {
+        ...vehicle,
+        delayMinutes,
+        speedModifier,
+        status,
+      };
+      updateSingleVehicle(updated);
+
+      // Persist to SQLite fleet API
+      fetch("/api/fleet/vehicles", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: vehicle.id,
+          vehicleCode: vehicle.vehicleCode,
+          delayMinutes,
+          speedModifier,
+          status,
+        }),
+      }).catch(() => {});
+    });
+
+    // 2. Fetch and flag active timetable runs on this line as ROUTE_DIVERGENCE
+    try {
+      const url = lineId && lineId !== "ALL" ? `/api/network/timetables?lineId=${lineId}` : "/api/network/timetables";
+      const res = await fetch(url);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          for (const run of json.data.slice(0, 10)) {
+            fetch("/api/network/timetables", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...run,
+                tripType: "ROUTE_DIVERGENCE",
+                divergenceReason: "INCIDENT_DISRUPTION",
+                divergenceDescription: `Rekayasa Insiden: ${alertTitle}`,
+              }),
+            }).catch(() => {});
+          }
+        }
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    if (alertId) {
+      setLinkedAlertIds((prev) => new Set([...prev, alertId]));
+    }
+    notify(`Sinkronisasi Operasi: ${targetVehicles.length} armada diperlambat & jadwal dialihkan ke Rekayasa Insiden.`);
+  };
+
+  // Restore line operations back to normal
+  const handleNormalizeOperations = async (lineId: string, alertId?: string) => {
+    const targetVehicles = simulatedVehicles.filter(
+      (v) => !lineId || lineId === "ALL" || v.lineId === lineId
+    );
+
+    targetVehicles.forEach((vehicle) => {
+      const updated: Vehicle = {
+        ...vehicle,
+        delayMinutes: 0,
+        speedModifier: 1.0,
+        status: "IN_SERVICE",
+      };
+      updateSingleVehicle(updated);
+
+      fetch("/api/fleet/vehicles", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: vehicle.id,
+          vehicleCode: vehicle.vehicleCode,
+          delayMinutes: 0,
+          speedModifier: 1.0,
+          status: "IN_SERVICE",
+        }),
+      }).catch(() => {});
+    });
+
+    try {
+      const url = lineId && lineId !== "ALL" ? `/api/network/timetables?lineId=${lineId}` : "/api/network/timetables";
+      const res = await fetch(url);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          for (const run of json.data) {
+            if (run.tripType === "ROUTE_DIVERGENCE" && run.divergenceReason === "INCIDENT_DISRUPTION") {
+              fetch("/api/network/timetables", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...run,
+                  tripType: "REGULAR",
+                  divergenceReason: "NONE",
+                  divergenceDescription: null,
+                }),
+              }).catch(() => {});
+            }
+          }
+        }
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    if (alertId) {
+      setLinkedAlertIds((prev) => {
+        const next = new Set(prev);
+        next.delete(alertId);
+        return next;
+      });
+    }
+    notify(`Normalisasi Operasi: ${targetVehicles.length} armada dan jadwal dipulihkan ke pola operasi normal.`);
+  };
+
   const handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
@@ -347,6 +489,11 @@ export default function AdminAlertsPage() {
         const data = (await res.json()) as { success: boolean; data: DisruptionAlert };
         if (data.success && data.data) {
           setAlerts([data.data, ...alerts]);
+
+          if (linkToOperations) {
+            void handleLinkDisruptionToOperations(data.data.lineId, data.data.title, data.data.severity, data.data.id);
+          }
+
           setTitle("");
           setDescription("");
           setAffectedStops([]);
@@ -412,6 +559,9 @@ export default function AdminAlertsPage() {
             title: alert.title,
           },
         });
+        if (alert.lineId) {
+          void handleNormalizeOperations(alert.lineId, alert.id);
+        }
         notify(t.admin.resolved + (alert.title ? `: ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
@@ -959,6 +1109,27 @@ export default function AdminAlertsPage() {
               </div>
             </div>
 
+            {/* Operational Fleet & Timetable Linkage Checkbox */}
+            <div className="p-3 rounded-xl bg-slate-950/70 border border-amber-500/30 space-y-1.5">
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={linkToOperations}
+                  onChange={(e) => setLinkToOperations(e.target.checked)}
+                  className="rounded border-white/20 bg-slate-900 text-amber-500 focus:ring-amber-400 mt-0.5"
+                />
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Sinkronkan ke Armada & Jadwal Operasi</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Otomatis atur status perlambatan/antrian pada armada aktif line ini dan alihkan jadwal aktif ke pola REKAYASA INSIDEN pada papan keberangkatan penumpang.
+                  </p>
+                </div>
+              </label>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -1223,6 +1394,13 @@ export default function AdminAlertsPage() {
                       </span>
                     )}
 
+                    {linkedAlertIds.has(alert.id) && (
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border bg-indigo-950/80 border-indigo-500/50 text-indigo-300 flex items-center gap-1">
+                        <Zap className="w-2.5 h-2.5 text-indigo-400" />
+                        <span>ARMADA TERSINKRON</span>
+                      </span>
+                    )}
+
                     <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                       {alert.title}
                     </h4>
@@ -1304,6 +1482,46 @@ export default function AdminAlertsPage() {
                           <span>{t.admin.demoteAlert}</span>
                         </button>
                       )}
+
+                      {/* Link to Operations & Fleet Button */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          linkedAlertIds.has(alert.id)
+                            ? handleNormalizeOperations(alert.lineId, alert.id)
+                            : handleLinkDisruptionToOperations(
+                                alert.lineId,
+                                alert.title,
+                                alert.severity,
+                                alert.id
+                              )
+                        }
+                        title={
+                          linkedAlertIds.has(alert.id)
+                            ? "Normalisasi Operasi: Pulihkan armada dan jadwal ke reguler"
+                            : "Sinkronkan Gangguan: Perlambat armada dan alihkan jadwal ke Rekayasa Insiden"
+                        }
+                        className={`px-3 py-2 rounded-xl border text-xs font-semibold transition min-h-[40px] flex items-center gap-1.5 btn-tactile ${
+                          linkedAlertIds.has(alert.id)
+                            ? "bg-amber-950/80 border-amber-500/60 text-amber-300 hover:bg-amber-900"
+                            : "bg-indigo-950/80 border-indigo-500/40 text-indigo-300 hover:bg-indigo-900"
+                        }`}
+                      >
+                        {linkedAlertIds.has(alert.id) ? (
+                          <>
+                            <CheckCheck className="w-3.5 h-3.5 text-amber-400" />
+                            <span className="hidden sm:inline">Tersinkron (Pulihkan)</span>
+                            <span className="sm:hidden">Pulihkan</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3.5 h-3.5 text-indigo-400" />
+                            <span className="hidden sm:inline">Sinkron Armada</span>
+                            <span className="sm:hidden">Sinkron</span>
+                          </>
+                        )}
+                      </button>
+
                       <button
                         type="button"
                         ref={(el) => {

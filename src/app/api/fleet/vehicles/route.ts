@@ -224,6 +224,8 @@ export async function POST(request: NextRequest) {
       delayMinutes: delayMinutes !== undefined ? Number(delayMinutes) : undefined,
       speedModifier: speedModifier !== undefined ? Number(speedModifier) : undefined,
       detourCoordinates: Array.isArray(detourCoordinates) ? detourCoordinates : undefined,
+      technicalSpec: body.technicalSpec || undefined,
+      seatingDiagram: body.seatingDiagram || undefined,
     };
 
     try {
@@ -248,7 +250,7 @@ export async function POST(request: NextRequest) {
           currentSegmentIndex: createdVehicle.currentSegmentIndex,
           nextStopId: createdVehicle.nextStopId,
           nextStopEtaSeconds: createdVehicle.nextStopEtaSeconds,
-          seatingDiagramJson: null,
+          seatingDiagramJson: body.seatingDiagram ? JSON.stringify(body.seatingDiagram) : null,
         },
       });
     } catch {

@@ -1788,6 +1788,7 @@ export default function AdminNetworkStudioPage() {
                     <option value="AIRPORT_TERMINAL">AIRPORT_TERMINAL - Airport Passenger Terminal</option>
                     <option value="HARBOR_PORT">HARBOR_PORT - Maritime Passenger Port / Pier</option>
                     <option value="BUS_SHELTER">BUS_SHELTER - BRT Halte / Feeder Shelter</option>
+                    <option value="BUS_POLE">BUS_POLE - Rambu Bus Stop / Plang Tiang (MikroTrans & Feeder)</option>
                   </select>
                 </div>
 

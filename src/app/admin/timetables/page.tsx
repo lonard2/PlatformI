@@ -694,6 +694,7 @@ function TimetableStudioContent() {
               onShiftRun={handleShiftRun}
               onOpenBatchModal={() => setIsBatchModalOpen(true)}
               onOpenCreateModal={handleOpenCreateModal}
+              onEditRun={handleOpenEditModal}
             />
           )}
         </div>
