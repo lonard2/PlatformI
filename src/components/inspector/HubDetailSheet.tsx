@@ -46,6 +46,7 @@ import {
   Gauge,
   Radio,
   ExternalLink,
+  Moon,
 } from "lucide-react";
 import { Stop, Line, TransitMode, CrowdDensityLevel, DepartureBoardItem, Vehicle, TimetableRun } from "@/types/transit";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
@@ -529,8 +530,8 @@ export function generateDepartureBoard(
         run.lineId === stop.lineId;
 
       if (isLineConnected || isStationMatch) {
-        // If stop is explicitly bypassed by an express service, do not show on departure board or mark as express pass
-        if (matchingStopTime?.isBypass) {
+        // If stop is explicitly bypassed by an express service or if the trip terminated early before this stop, omit from departure board
+        if (matchingStopTime?.isBypass || matchingStopTime?.isTerminatedEarly) {
           return;
         }
 
@@ -572,6 +573,9 @@ export function generateDepartureBoard(
           notes: run.notes,
           transitStopsSummary: `${run.origin} -> ${run.destination}`,
           vehicleCode: run.tripCode,
+          tripType: run.tripType,
+          divergenceReason: run.divergenceReason,
+          divergenceDescription: run.divergenceDescription,
         });
       }
     });
@@ -1038,8 +1042,38 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                 )}
                               </div>
 
-                              {/* Badges/chips for gateOrBay, serviceClass, baggageBelt */}
+                              {/* Badges/chips for gateOrBay, serviceClass, baggageBelt, and operational divergence */}
                               <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                                {item.tripType === "NIGHT_DEPOT_STABLING" && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-950/90 border border-indigo-500/50 text-indigo-300">
+                                    <Moon className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+                                    <span>Dinas Masuk Dipo</span>
+                                  </span>
+                                )}
+                                {item.tripType === "SHORT_TURN" && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-950/90 border border-amber-500/50 text-amber-300">
+                                    <ArrowRight className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                                    <span>Relasi Pendek</span>
+                                  </span>
+                                )}
+                                {item.tripType === "ROUTE_DIVERGENCE" && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-950/90 border border-rose-500/50 text-rose-300">
+                                    <AlertTriangle className="w-2.5 h-2.5 text-rose-400 shrink-0" />
+                                    <span>
+                                      {item.divergenceReason === "INCIDENT_DISRUPTION"
+                                        ? "Rekayasa Insiden"
+                                        : item.divergenceReason === "NOCTURNAL_MAINTENANCE"
+                                        ? "Divergensi Malam"
+                                        : "Rekayasa Rute"}
+                                    </span>
+                                  </span>
+                                )}
+                                {item.tripType === "SPECIAL_KLB" && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-950/90 border border-yellow-500/50 text-yellow-300">
+                                    <Sparkles className="w-2.5 h-2.5 text-yellow-400 shrink-0" />
+                                    <span>KLB Luar Biasa</span>
+                                  </span>
+                                )}
                                 {item.gateOrBay && (
                                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-cyan-950/70 border border-cyan-500/30 text-cyan-300">
                                     <DoorOpen className="w-2.5 h-2.5 text-cyan-400 shrink-0" />
@@ -1085,6 +1119,21 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                               transition={{ duration: 0.2 }}
                               className="px-3.5 pb-3.5 pt-1 border-t border-white/10 bg-slate-950/90 space-y-2.5 text-xs font-mono"
                             >
+                              {/* Prominent Rekayasa Pola Operasi Alert Box */}
+                              {item.divergenceDescription && (
+                                <div className="p-2.5 rounded-xl bg-amber-950/50 border border-amber-500/50 backdrop-blur-md flex items-start gap-2.5 text-amber-200">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+                                  <div className="space-y-0.5 min-w-0">
+                                    <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300 block font-mono">
+                                      Pemberitahuan Rekayasa Pola Operasi
+                                    </span>
+                                    <p className="text-[11px] leading-relaxed text-amber-100">
+                                      {item.divergenceDescription}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
                               {/* Distinct, Sleek Subtle Operational Notes Box */}
                               {item.notes && (
                                 <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 backdrop-blur-md flex items-start gap-2.5 text-cyan-200">

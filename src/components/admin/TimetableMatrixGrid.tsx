@@ -26,8 +26,18 @@ import {
   SlidersHorizontal,
   ChevronRight,
   ShieldAlert,
+  Moon,
+  GitBranch,
+  AlertTriangle,
 } from "lucide-react";
-import { Line, Stop, TimetableRun, TimetableStopTime } from "@/types/transit";
+import {
+  Line,
+  Stop,
+  TimetableRun,
+  TimetableStopTime,
+  TripOperationalType,
+  DivergenceReason,
+} from "@/types/transit";
 import {
   cascadeStopTimes,
   timeStringToMinutes,
@@ -102,6 +112,13 @@ export function TimetableMatrixGrid({
     });
   }, [runs, selectedLine.id, timeWindow]);
 
+  // State for operational divergence modal
+  const [configuringRun, setConfiguringRun] = useState<TimetableRun | null>(null);
+  const [divergenceType, setDivergenceType] = useState<TripOperationalType>("REGULAR");
+  const [divergenceReason, setDivergenceReason] = useState<DivergenceReason>("NONE");
+  const [divergenceDesc, setDivergenceDesc] = useState<string>("");
+  const [terminatedStopId, setTerminatedStopId] = useState<string>("");
+
   // Ensure each run has populated stopTimes along the line stops
   const materializedRuns = useMemo(() => {
     return filteredRuns.map((run) => {
@@ -113,7 +130,8 @@ export function TimetableMatrixGrid({
         run.departureTime,
         lineStops,
         selectedLine.mode,
-        run.stopTimes
+        run.stopTimes,
+        run.terminatedEarlyStopId
       );
       return {
         ...run,
@@ -223,6 +241,73 @@ export function TimetableMatrixGrid({
   const handleToggleBypassInCell = () => {
     if (!editingCell) return;
     setEditingCell((prev) => (prev ? { ...prev, isBypass: !prev.isBypass } : null));
+  };
+
+  // Open operational divergence modal for a run
+  const handleOpenDivergenceModal = (run: TimetableRun) => {
+    setConfiguringRun(run);
+    setDivergenceType(run.tripType || "REGULAR");
+    setDivergenceReason(run.divergenceReason || "NONE");
+    setDivergenceDesc(run.divergenceDescription || run.notes || "");
+    setTerminatedStopId(run.terminatedEarlyStopId || "");
+  };
+
+  // Save divergence configuration and cascade stops
+  const handleSaveDivergence = async () => {
+    if (!configuringRun) return;
+
+    const termStop = lineStops.find((s) => s.id === terminatedStopId);
+    let newDest = configuringRun.destination;
+    let newNotes = divergenceDesc || configuringRun.notes;
+
+    if (divergenceType === "NIGHT_DEPOT_STABLING") {
+      newDest = termStop ? `${termStop.name} (Masuk Dipo)` : configuringRun.destination;
+      if (!divergenceDesc) {
+        newNotes = `Dinas Malam Masuk Dipo ${termStop?.name || "Depot"} - Berakhir Lebih Awal`;
+      }
+    } else if (divergenceType === "SHORT_TURN") {
+      newDest = termStop ? `${termStop.name} (Relasi Pendek)` : configuringRun.destination;
+      if (!divergenceDesc) {
+        newNotes = `Relasi Pendek Berakhir di ${termStop?.name || "Stasiun Akhir"}`;
+      }
+    } else if (divergenceType === "ROUTE_DIVERGENCE") {
+      if (!divergenceDesc) {
+        newNotes =
+          divergenceReason === "INCIDENT_DISRUPTION"
+            ? "Rekayasa Pola Operasi imbas kendala prasarana"
+            : "Rekayasa Pola Operasi pengalihan jalur perawatan malam";
+      }
+    } else if (divergenceType === "REGULAR") {
+      newDest = lineStops[lineStops.length - 1]?.name || configuringRun.destination;
+    }
+
+    const recomputedStopTimes = cascadeStopTimes(
+      configuringRun.departureTime,
+      lineStops,
+      selectedLine.mode,
+      configuringRun.stopTimes,
+      divergenceType !== "REGULAR" ? terminatedStopId || undefined : undefined
+    );
+
+    const activeStops = recomputedStopTimes.filter((st) => !st.isTerminatedEarly);
+    const newArrTime =
+      activeStops[activeStops.length - 1]?.arrivalTime || configuringRun.arrivalTime;
+
+    const updated: TimetableRun = {
+      ...configuringRun,
+      destination: newDest,
+      arrivalTime: newArrTime,
+      notes: newNotes,
+      tripType: divergenceType,
+      divergenceReason: divergenceType === "REGULAR" ? "NONE" : divergenceReason,
+      divergenceDescription: divergenceDesc,
+      terminatedEarlyStopId:
+        divergenceType !== "REGULAR" ? terminatedStopId || undefined : undefined,
+      stopTimes: recomputedStopTimes,
+    };
+
+    await onUpdateRun(updated);
+    setConfiguringRun(null);
   };
 
   return (
@@ -350,20 +435,62 @@ export function TimetableMatrixGrid({
                       key={run.id}
                       className="px-3 py-3 min-w-[150px] border-r border-white/5 bg-slate-950/40 text-center align-top"
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-center gap-1.5">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-1">
                           <span className="font-mono font-bold text-teal-400 text-xs">
                             {run.tripCode}
                           </span>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteRun(run.id)}
-                            className="text-slate-500 hover:text-rose-400 transition"
-                            title="Delete Trip"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDivergenceModal(run)}
+                              className="text-slate-400 hover:text-indigo-300 transition p-0.5 rounded hover:bg-indigo-950/50"
+                              title="Rekayasa Pola Operasi / Dinas Stabling Dipo"
+                            >
+                              <GitBranch className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteRun(run.id)}
+                              className="text-slate-500 hover:text-rose-400 transition p-0.5 rounded hover:bg-rose-950/50"
+                              title="Delete Trip"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
+
+                        {/* Operational Typology Badge */}
+                        {run.tripType === "NIGHT_DEPOT_STABLING" ? (
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-950/90 border border-indigo-500/50 text-indigo-300">
+                            <Moon className="w-2.5 h-2.5 text-indigo-400" />
+                            <span>Masuk Dipo</span>
+                          </div>
+                        ) : run.tripType === "SHORT_TURN" ? (
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-950/90 border border-amber-500/50 text-amber-300">
+                            <ArrowRight className="w-2.5 h-2.5 text-amber-400" />
+                            <span>Relasi Pendek</span>
+                          </div>
+                        ) : run.tripType === "ROUTE_DIVERGENCE" ? (
+                          <div
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-950/90 border border-rose-500/50 text-rose-300"
+                            title={run.divergenceDescription || "Rekayasa Pola Operasi"}
+                          >
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                            <span>
+                              {run.divergenceReason === "INCIDENT_DISRUPTION"
+                                ? "Rekayasa Insiden"
+                                : run.divergenceReason === "NOCTURNAL_MAINTENANCE"
+                                ? "Divergensi Malam"
+                                : "Rekayasa Rute"}
+                            </span>
+                          </div>
+                        ) : run.tripType === "SPECIAL_KLB" ? (
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-yellow-950/90 border border-yellow-500/50 text-yellow-300">
+                            <Sparkles className="w-2.5 h-2.5 text-yellow-400" />
+                            <span>KLB Luar Biasa</span>
+                          </div>
+                        ) : null}
 
                         <div className="text-[10px] text-slate-400 truncate">
                           {run.serviceClass || run.operatorName}
@@ -374,7 +501,7 @@ export function TimetableMatrixGrid({
                         </div>
 
                         {/* Quick Shift Timing Controls */}
-                        <div className="flex items-center justify-center gap-1 pt-1">
+                        <div className="flex items-center justify-center gap-1 pt-0.5">
                           <button
                             type="button"
                             onClick={() => onShiftRun(run, -5)}
@@ -478,6 +605,20 @@ export function TimetableMatrixGrid({
                                   {editingCell.isBypass ? "Express PASS (Active)" : "Mark as PASS / Bypass"}
                                 </button>
 
+                                {/* Set Early Terminus / Masuk Dipo shortcut */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleOpenDivergenceModal(run);
+                                    setTerminatedStopId(stop.id);
+                                    setEditingCell(null);
+                                  }}
+                                  className="w-full py-1 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/60"
+                                >
+                                  <GitBranch className="w-3 h-3" />
+                                  <span>Hentikan / Masuk Dipo di Sini</span>
+                                </button>
+
                                 {!editingCell.isBypass && (
                                   <div className="grid grid-cols-2 gap-1.5">
                                     <div>
@@ -552,6 +693,27 @@ export function TimetableMatrixGrid({
                           );
                         }
 
+                        // Check if this station is beyond early termination
+                        if (stopTime?.isTerminatedEarly) {
+                          return (
+                            <td
+                              key={run.id}
+                              onClick={() => handleOpenDivergenceModal(run)}
+                              className="px-3 py-3 border-r border-white/5 text-center bg-slate-950/60 cursor-pointer hover:bg-slate-900/80 transition select-none"
+                              title="Perjalanan tidak melayani stasiun ini (Berakhir Lebih Awal / Masuk Dipo). Klik untuk ubah rekayasa."
+                            >
+                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-500">
+                                <span>
+                                  --:--{" "}
+                                  {run.tripType === "NIGHT_DEPOT_STABLING"
+                                    ? "MASUK DIPO"
+                                    : "TDK MELAYANI"}
+                                </span>
+                              </div>
+                            </td>
+                          );
+                        }
+
                         return (
                           <td
                             key={run.id}
@@ -587,6 +749,163 @@ export function TimetableMatrixGrid({
           </div>
         )}
       </div>
+
+      {/* Operational Divergence & Rekayasa Pola Operasi Modal */}
+      {configuringRun && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-lg bg-[#0c1222] border border-indigo-500/40 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-400">
+                  <GitBranch className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>Rekayasa Operasi & Stabling</span>
+                    <span className="font-mono text-teal-400 text-xs">
+                      ({configuringRun.tripCode})
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Konfigurasi dinas malam masuk dipo, relasi pendek, atau rekayasa pengalihan rute.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfiguringRun(null)}
+                className="p-1.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Trip Typology */}
+              <div className="space-y-1.5">
+                <label className="block text-slate-400 font-semibold">
+                  Tipologi Operasional Perjalanan (Trip Typology)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "REGULAR", label: "Reguler (Full Line)", icon: Clock },
+                    { id: "NIGHT_DEPOT_STABLING", label: "Masuk Dipo (Night Stabling)", icon: Moon },
+                    { id: "SHORT_TURN", label: "Relasi Pendek (Short Turn)", icon: ArrowRight },
+                    {
+                      id: "ROUTE_DIVERGENCE",
+                      label: "Rekayasa Operasi (Divergence)",
+                      icon: AlertTriangle,
+                    },
+                    { id: "SPECIAL_KLB", label: "Kereta Luar Biasa (KLB)", icon: Sparkles },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const isSel = divergenceType === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setDivergenceType(item.id as TripOperationalType)}
+                        className={`p-2.5 rounded-xl border text-left transition flex items-center gap-2 ${
+                          isSel
+                            ? "bg-indigo-950/80 border-indigo-500 text-white font-bold"
+                            : "bg-slate-950/60 border-white/10 text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        <Icon
+                          className={`w-3.5 h-3.5 shrink-0 ${
+                            isSel ? "text-indigo-400" : "text-slate-500"
+                          }`}
+                        />
+                        <span className="text-[11px] leading-tight">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Divergence Reason (if not REGULAR) */}
+              {divergenceType !== "REGULAR" && (
+                <div className="space-y-1">
+                  <label className="block text-slate-400 font-semibold">
+                    Alasan Rekayasa / Divergensi
+                  </label>
+                  <select
+                    value={divergenceReason}
+                    onChange={(e) => setDivergenceReason(e.target.value as DivergenceReason)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-indigo-400"
+                  >
+                    <option value="NONE">Tanpa Alasan Spesifik</option>
+                    <option value="DEPOT_PULL_IN">Dinas Masuk Dipo / Stabling Malam</option>
+                    <option value="INCIDENT_DISRUPTION">
+                      Rekayasa Imbas Kendala Prasarana / Insiden
+                    </option>
+                    <option value="NOCTURNAL_MAINTENANCE">
+                      Pengalihan Jalur - Perawatan Rel Malam
+                    </option>
+                    <option value="EVENT_DETOUR">Pengalihan Jalur - Acara / Car Free Day</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Early Terminus Stop (if stabling or short-turn or divergence) */}
+              {divergenceType !== "REGULAR" && (
+                <div className="space-y-1">
+                  <label className="block text-slate-400 font-semibold">
+                    Stasiun Akhir Pelayanan / Titik Divergensi
+                  </label>
+                  <select
+                    value={terminatedStopId}
+                    onChange={(e) => setTerminatedStopId(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-indigo-400"
+                  >
+                    <option value="">-- Layani Sampai Stasiun Akhir --</option>
+                    {lineStops.map((s, idx) => (
+                      <option key={s.id} value={s.id}>
+                        {idx + 1}. {s.name} {s.stationType === "TOD" ? "(TOD)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-slate-500">
+                    Stasiun-stasiun setelah titik ini akan ditandai tidak melayani penumpang.
+                  </p>
+                </div>
+              )}
+
+              {/* Divergence Description / Notes */}
+              <div className="space-y-1">
+                <label className="block text-slate-400 font-semibold">
+                  Catatan Operasional / Pemberitahuan Penumpang
+                </label>
+                <textarea
+                  value={divergenceDesc}
+                  onChange={(e) => setDivergenceDesc(e.target.value)}
+                  rows={2}
+                  placeholder="e.g. Kereta Berakhir di Stasiun Depok untuk Masuk Dipo. Tidak melayani Cilebut & Bogor."
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-indigo-400"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setConfiguringRun(null)}
+                className="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs font-semibold hover:bg-slate-800"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveDivergence}
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-indigo-600/30"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Terapkan Rekayasa</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

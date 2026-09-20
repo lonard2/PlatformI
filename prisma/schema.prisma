@@ -182,8 +182,13 @@ model TimetableRun {
   gateOrBay      String?
   notes          String?
   baggageBelt    String?
-  daysOfWeekJson String?
-  stopTimesJson  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  daysOfWeekJson        String?
+  stopTimesJson         String?
+  tripType              String?  @default("REGULAR")
+  divergenceReason      String?  @default("NONE")
+  divergenceDescription String?
+  terminatedEarlyStopId String?
+  divergedFromStopId    String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }

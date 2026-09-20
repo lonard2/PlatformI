@@ -292,4 +292,124 @@ describe("Timetable Matrix & Stop-by-Trip Scheduling Suite", () => {
       expect(expressTrip).toBeUndefined();
     });
   });
+
+  describe("Late-Night Stabling, Short-Turn & Incident Divergence Suite", () => {
+    it("generates late-night depot stabling runs when includeLateNightStabling is enabled", () => {
+      const runs = generateBatchTimetableRuns({
+        lineId: "line-mrt-ns",
+        operatorName: "PT MRT Jakarta",
+        stops: dummyStops,
+        modeCategory: "MRT_JAKARTA",
+        startTime: "21:30",
+        endTime: "22:30",
+        headwayMinutes: 30,
+        runCodePrefix: "M-NIGHT",
+        startRunNumber: 1,
+        includeLateNightStabling: true,
+        stablingStopId: "stop-mrt-blm", // Stasiun Blok M BCA (Pocket Track / Stabling)
+        lateNightStartTime: "22:00",
+      });
+
+      // 21:30 (REGULAR), 22:00 (NIGHT_DEPOT_STABLING), 22:30 (NIGHT_DEPOT_STABLING) => 3 runs
+      expect(runs.length).toBe(3);
+
+      const regularRun = runs[0];
+      expect(regularRun.departureTime).toBe("21:30");
+      expect(regularRun.tripType).toBe("REGULAR");
+      expect(regularRun.destination).toBe("Stasiun Bundaran HI Bank DKI");
+
+      const stablingRun1 = runs[1];
+      expect(stablingRun1.departureTime).toBe("22:00");
+      expect(stablingRun1.tripType).toBe("NIGHT_DEPOT_STABLING");
+      expect(stablingRun1.divergenceReason).toBe("DEPOT_PULL_IN");
+      expect(stablingRun1.destination).toContain("Masuk Dipo");
+      expect(stablingRun1.terminatedEarlyStopId).toBe("stop-mrt-blm");
+
+      // Check stopTimes: stops up to Blok M (index 0..3) must be active, stop at Bundaran HI (index 4) must be terminated
+      expect(stablingRun1.stopTimes?.[3].stopId).toBe("stop-mrt-blm");
+      expect(stablingRun1.stopTimes?.[3].isTerminatedEarly).toBe(false);
+      expect(stablingRun1.stopTimes?.[4].stopId).toBe("stop-mrt-bhi");
+      expect(stablingRun1.stopTimes?.[4].isTerminatedEarly).toBe(true);
+      expect(stablingRun1.stopTimes?.[4].arrivalTime).toBe("--:--");
+    });
+
+    it("omits early-terminated runs from departure boards at stations beyond the early termination point", () => {
+      const runs = generateBatchTimetableRuns({
+        lineId: "line-mrt-ns",
+        operatorName: "PT MRT Jakarta",
+        stops: dummyStops,
+        modeCategory: "MRT_JAKARTA",
+        startTime: "22:00",
+        endTime: "22:00",
+        headwayMinutes: 10,
+        runCodePrefix: "M-STAB",
+        startRunNumber: 1,
+        includeLateNightStabling: true,
+        stablingStopId: "stop-mrt-blm", // Terminates at Blok M
+        lateNightStartTime: "22:00",
+      });
+
+      const stablingRun = runs[0];
+      expect(stablingRun.terminatedEarlyStopId).toBe("stop-mrt-blm");
+
+      // 1. Board at Lebak Bulus (Origin): Should display the stabling train heading to Blok M (Masuk Dipo)
+      const lebakBulusStop = dummyStops[0];
+      const originDepartures = generateDepartureBoard(lebakBulusStop, [dummyLine], idDictionary, [
+        stablingRun,
+      ]);
+      const boardItemAtOrigin = originDepartures.find((d) => d.runNumber === "M-STAB-001");
+      expect(boardItemAtOrigin).toBeDefined();
+      expect(boardItemAtOrigin?.tripType).toBe("NIGHT_DEPOT_STABLING");
+      expect(boardItemAtOrigin?.destination).toContain("Blok M BCA (Masuk Dipo)");
+
+      // 2. Board at Bundaran HI (Station past Blok M): Should NOT show the train since it terminated early!
+      const bundaranHiStop = dummyStops[4];
+      const downstreamDepartures = generateDepartureBoard(
+        bundaranHiStop,
+        [dummyLine],
+        idDictionary,
+        [stablingRun]
+      );
+      const boardItemDownstream = downstreamDepartures.find((d) => d.runNumber === "M-STAB-001");
+      expect(boardItemDownstream).toBeUndefined();
+    });
+
+    it("correctly models incident route divergence (Rekayasa Pola Operasi Akibat Kendala)", () => {
+      const baseRun: TimetableRun = {
+        id: "run-incident-01",
+        lineId: "line-mrt-ns",
+        tripCode: "M-DIV-999",
+        origin: dummyStops[0].name,
+        destination: "Stasiun Fatmawati Indomaret (Rekayasa)",
+        departureTime: "14:00",
+        arrivalTime: "14:08",
+        operatorName: "PT MRT Jakarta",
+        tripType: "ROUTE_DIVERGENCE",
+        divergenceReason: "INCIDENT_DISRUPTION",
+        divergenceDescription: "Rekayasa Pola Operasi imbas perbaikan wesel darurat di Stasiun Blok M",
+        terminatedEarlyStopId: "stop-mrt-ftm",
+        stopTimes: cascadeStopTimes("14:00", dummyStops, "MRT_JAKARTA", undefined, "stop-mrt-ftm"),
+      };
+
+      // Stations 0 and 1 are served
+      expect(baseRun.stopTimes?.[0].isTerminatedEarly).toBe(false);
+      expect(baseRun.stopTimes?.[1].isTerminatedEarly).toBe(false);
+
+      // Stations 2, 3, 4 are terminated early
+      expect(baseRun.stopTimes?.[2].isTerminatedEarly).toBe(true);
+      expect(baseRun.stopTimes?.[3].isTerminatedEarly).toBe(true);
+      expect(baseRun.stopTimes?.[4].isTerminatedEarly).toBe(true);
+
+      // Station at Fatmawati should display the departure with divergence reason
+      const fatmawatiStop = dummyStops[1];
+      const ftmDepartures = generateDepartureBoard(fatmawatiStop, [dummyLine], idDictionary, [
+        baseRun,
+      ]);
+      const ftmItem = ftmDepartures.find((d) => d.runNumber === "M-DIV-999");
+      expect(ftmItem).toBeDefined();
+      expect(ftmItem?.tripType).toBe("ROUTE_DIVERGENCE");
+      expect(ftmItem?.divergenceReason).toBe("INCIDENT_DISRUPTION");
+      expect(ftmItem?.divergenceDescription).toContain("perbaikan wesel darurat");
+    });
+  });
 });

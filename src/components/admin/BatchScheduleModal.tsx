@@ -55,6 +55,9 @@ export function BatchScheduleModal({
   const [serviceClass, setServiceClass] = useState<string>("Standard Metro Commuter");
   const [notes, setNotes] = useState<string>("Jam Sibuk Pagi - Regular Headway");
   const [replaceExisting, setReplaceExisting] = useState<boolean>(false);
+  const [includeLateNightStabling, setIncludeLateNightStabling] = useState<boolean>(false);
+  const [stablingStopId, setStablingStopId] = useState<string>("");
+  const [lateNightStartTime, setLateNightStartTime] = useState<string>("22:00");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -149,6 +152,10 @@ export function BatchScheduleModal({
         serviceClass,
         gateOrBay: selectedLine?.category === "BUS" ? "Bay 1" : "Peron 1",
         notes,
+        includeLateNightStabling,
+        stablingStopId: stablingStopId || undefined,
+        stablingStopName: lineStops.find((s) => s.id === stablingStopId)?.name,
+        lateNightStartTime,
       });
 
       if (generatedRuns.length === 0) {
@@ -382,6 +389,61 @@ export function BatchScheduleModal({
                 onChange={(e) => setReplaceExisting(e.target.checked)}
                 className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-teal-500"
               />
+            </div>
+
+            {/* 7. Late-Night Depot Stabling & Early Termination Toggle */}
+            <div className="p-3.5 rounded-xl bg-indigo-950/30 border border-indigo-500/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-indigo-200 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Dinas Malam Masuk Dipo (Late-Night Stabling Runs)</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    Trips departing at/after night cutoff terminate early at depot/pocket track.
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={includeLateNightStabling}
+                  onChange={(e) => setIncludeLateNightStabling(e.target.checked)}
+                  className="w-4 h-4 rounded border-indigo-700 bg-slate-900 text-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+
+              {includeLateNightStabling && (
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-indigo-500/20">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-indigo-300 font-medium">
+                      Night Cutoff Time (HH:mm)
+                    </label>
+                    <input
+                      type="text"
+                      value={lateNightStartTime}
+                      onChange={(e) => setLateNightStartTime(e.target.value)}
+                      placeholder="22:00"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-indigo-500/30 text-slate-200 font-mono text-xs focus:outline-none focus:border-indigo-400"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-indigo-300 font-medium">
+                      Stabling Depot / Pocket Station
+                    </label>
+                    <select
+                      value={stablingStopId}
+                      onChange={(e) => setStablingStopId(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-indigo-500/30 text-slate-200 text-xs focus:outline-none focus:border-indigo-400"
+                    >
+                      <option value="">Auto (Intermediate Depot ~65%)</option>
+                      {lineStops.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.sequence}. {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Synthesis Summary Box */}

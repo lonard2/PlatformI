@@ -7,7 +7,14 @@
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
 
-import { Stop, TimetableRun, TimetableStopTime, Coordinate } from "@/types/transit";
+import {
+  Stop,
+  TimetableRun,
+  TimetableStopTime,
+  Coordinate,
+  TripOperationalType,
+  DivergenceReason,
+} from "@/types/transit";
 
 /**
  * Calculates Great-Circle distance between two coordinates in kilometers using the Haversine formula.
@@ -80,13 +87,14 @@ export function getOperationalSpeedKmh(modeCategory: string): number {
 
 /**
  * Automatically computes and cascades arrival and departure times for each stop in sequence.
- * Respects any existing bypasses (`isBypass === true`) and custom dwell overrides.
+ * Respects any existing bypasses (`isBypass === true`), custom dwell overrides, and early terminations (`terminatedEarlyStopId`).
  */
 export function cascadeStopTimes(
   initialDepartureTime: string,
   stops: Stop[],
   modeCategory: string = "MRT_JAKARTA",
-  existingStopTimes?: TimetableStopTime[]
+  existingStopTimes?: TimetableStopTime[],
+  terminatedEarlyStopId?: string
 ): TimetableStopTime[] {
   if (!stops || stops.length === 0) return [];
 
@@ -99,6 +107,7 @@ export function cascadeStopTimes(
   }
 
   const result: TimetableStopTime[] = [];
+  let isPastTermination = false;
 
   for (let i = 0; i < stops.length; i++) {
     const stop = stops[i];
@@ -106,6 +115,22 @@ export function cascadeStopTimes(
     const existing = existingMap.get(stop.id);
 
     const isBypass = existing?.isBypass ?? false;
+
+    // Check if previous stop was the early termination stop
+    if (isPastTermination) {
+      result.push({
+        stopId: stop.id,
+        stopName: stop.name,
+        stopSequence: stop.sequence || i + 1,
+        arrivalTime: "--:--",
+        departureTime: "--:--",
+        isBypass: false,
+        isTerminatedEarly: true,
+        peronOrTrack: "-",
+        dwellSeconds: 0,
+      });
+      continue;
+    }
 
     if (i === 0) {
       // Origin Stop
@@ -117,6 +142,7 @@ export function cascadeStopTimes(
         arrivalTime: depTime,
         departureTime: depTime,
         isBypass: false,
+        isTerminatedEarly: false,
         peronOrTrack: existing?.peronOrTrack || "Peron 1",
         dwellSeconds: 0,
       });
@@ -129,7 +155,6 @@ export function cascadeStopTimes(
           { latitude: prevStop.latitude, longitude: prevStop.longitude },
           { latitude: stop.latitude, longitude: stop.longitude }
         );
-        // Add realistic acceleration/deceleration curve (minimum 1.5 min per km)
         const rawTravelMinutes = (distKm / Math.max(15, avgSpeed)) * 60;
         transitMinutes = Math.max(2, Math.round(rawTravelMinutes));
       }
@@ -137,11 +162,14 @@ export function cascadeStopTimes(
       const arrivalMinutes = currentClockMinutes + transitMinutes;
       const arrivalStr = minutesToTimeString(arrivalMinutes);
 
-      const isTerminus = i === stops.length - 1;
+      const isTerminationPoint = Boolean(
+        (terminatedEarlyStopId && stop.id === terminatedEarlyStopId) ||
+        (existing?.isTerminatedEarly === false && existingMap.get(stops[i + 1]?.id)?.isTerminatedEarly === true)
+      );
+      const isTerminus = isTerminationPoint || i === stops.length - 1;
       let dwellMinutes = 0;
 
       if (!isTerminus && !isBypass) {
-        // Transfer hubs and TODs have slightly longer dwell (2 mins), standard stations 1 min
         dwellMinutes = stop.isInterchange || stop.stationType === "TOD" ? 2 : 1;
       }
 
@@ -155,11 +183,16 @@ export function cascadeStopTimes(
         arrivalTime: arrivalStr,
         departureTime: departureStr,
         isBypass,
+        isTerminatedEarly: false,
         peronOrTrack: existing?.peronOrTrack || `Peron ${(i % 2) + 1}`,
         dwellSeconds: dwellMinutes * 60,
       });
 
       currentClockMinutes = departureMinutes;
+
+      if (isTerminationPoint) {
+        isPastTermination = true;
+      }
     }
   }
 
@@ -180,10 +213,15 @@ export interface BatchScheduleConfig {
   gateOrBay?: string;
   notes?: string;
   daysOfWeek?: number[];
+  includeLateNightStabling?: boolean;
+  stablingStopId?: string;
+  stablingStopName?: string;
+  lateNightStartTime?: string; // default "22:00"
 }
 
 /**
- * Generates an entire sequence of timetable runs based on an operational headway frequency pattern.
+ * Generates an entire sequence of timetable runs based on an operational headway frequency pattern,
+ * with authentic support for late-night depot stabling / short-turn runs.
  */
 export function generateBatchTimetableRuns(config: BatchScheduleConfig): TimetableRun[] {
   const {
@@ -200,6 +238,10 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
     gateOrBay = "Peron 1",
     notes = "Reguler Headway",
     daysOfWeek = [1, 2, 3, 4, 5, 6, 0],
+    includeLateNightStabling = false,
+    stablingStopId,
+    stablingStopName,
+    lateNightStartTime = "22:00",
   } = config;
 
   if (!stops || stops.length < 2) return [];
@@ -212,15 +254,53 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
 
   const originStop = stops[0];
   const destinationStop = stops[stops.length - 1];
+  const lateNightCutoffMinutes = timeStringToMinutes(lateNightStartTime);
 
   const runs: TimetableRun[] = [];
   let currentMinutes = startMinutes;
   let runIdx = startRunNumber;
 
   while (currentMinutes <= endMinutes) {
+    const isLateNight = Boolean(includeLateNightStabling) && currentMinutes >= lateNightCutoffMinutes;
+
+    let runTripType: TripOperationalType = "REGULAR";
+    let runDivergenceReason: DivergenceReason = "NONE";
+    let runDivergenceDesc: string | undefined = undefined;
+    let runTerminatedEarlyStopId: string | undefined = undefined;
+    let runDestination = destinationStop.name;
+    let runNotes = notes;
+    let runServiceClass = serviceClass;
+
+    if (isLateNight) {
+      runTripType = "NIGHT_DEPOT_STABLING";
+      runDivergenceReason = "DEPOT_PULL_IN";
+
+      // Select stabling stop: user-selected or ~60% down the line
+      const targetStablingStop =
+        (stablingStopId && stops.find((s) => s.id === stablingStopId)) ||
+        stops[Math.max(1, Math.floor(stops.length * 0.65))] ||
+        stops[1];
+
+      runTerminatedEarlyStopId = targetStablingStop.id;
+      const targetName = stablingStopName || targetStablingStop.name;
+      runDestination = `${targetName} (Masuk Dipo)`;
+      runNotes = `Dinas Malam Masuk Dipo ${targetName} - Kereta Berakhir Lebih Awal`;
+      runDivergenceDesc = `Perjalanan stabling/dinas masuk dipo di ${targetName}. Tidak melayani stasiun lanjutan.`;
+      runServiceClass = "Dinas Malam Masuk Dipo";
+    }
+
     const depTimeStr = minutesToTimeString(currentMinutes);
-    const stopTimes = cascadeStopTimes(depTimeStr, stops, modeCategory);
-    const arrTimeStr = stopTimes[stopTimes.length - 1]?.arrivalTime || depTimeStr;
+    const stopTimes = cascadeStopTimes(
+      depTimeStr,
+      stops,
+      modeCategory,
+      undefined,
+      runTerminatedEarlyStopId
+    );
+
+    // Compute arrival time at final served stop
+    const activeStopTimes = stopTimes.filter((st) => !st.isTerminatedEarly);
+    const arrTimeStr = activeStopTimes[activeStopTimes.length - 1]?.arrivalTime || depTimeStr;
 
     const formattedRunNumber = runIdx.toString().padStart(3, "0");
     const tripCode = `${runCodePrefix}-${formattedRunNumber}`;
@@ -230,15 +310,19 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
       lineId,
       tripCode,
       origin: originStop.name,
-      destination: destinationStop.name,
+      destination: runDestination,
       departureTime: depTimeStr,
       arrivalTime: arrTimeStr,
       operatorName,
-      serviceClass,
+      serviceClass: runServiceClass,
       gateOrBay,
-      notes,
+      notes: runNotes,
       daysOfWeek,
       stopTimes,
+      tripType: runTripType,
+      divergenceReason: runDivergenceReason,
+      divergenceDescription: runDivergenceDesc,
+      terminatedEarlyStopId: runTerminatedEarlyStopId,
     });
 
     currentMinutes += headwayMinutes;
@@ -246,6 +330,47 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
   }
 
   return runs;
+}
+
+/**
+ * Transforms a regular timetable run into an incident, maintenance, or detour divergence run (Rekayasa Pola Operasi).
+ */
+export function applyDivergenceToRun(
+  run: TimetableRun,
+  stops: Stop[],
+  modeCategory: string,
+  options: {
+    tripType: TripOperationalType;
+    divergenceReason: DivergenceReason;
+    divergenceDescription: string;
+    terminatedEarlyStopId?: string;
+    divergedFromStopId?: string;
+    newDestination?: string;
+  }
+): TimetableRun {
+  const newStopTimes = cascadeStopTimes(
+    run.departureTime,
+    stops,
+    modeCategory,
+    run.stopTimes,
+    options.terminatedEarlyStopId
+  );
+
+  const activeStops = newStopTimes.filter((st) => !st.isTerminatedEarly);
+  const arrTime = activeStops[activeStops.length - 1]?.arrivalTime || run.arrivalTime;
+
+  return {
+    ...run,
+    tripType: options.tripType,
+    divergenceReason: options.divergenceReason,
+    divergenceDescription: options.divergenceDescription,
+    terminatedEarlyStopId: options.terminatedEarlyStopId,
+    divergedFromStopId: options.divergedFromStopId,
+    destination: options.newDestination || run.destination,
+    arrivalTime: arrTime,
+    stopTimes: newStopTimes,
+    notes: options.divergenceDescription,
+  };
 }
 
 /**

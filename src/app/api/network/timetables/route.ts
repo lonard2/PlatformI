@@ -9,7 +9,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { TimetableRun, TimetableStopTime } from "@/types/transit";
+import {
+  TimetableRun,
+  TimetableStopTime,
+  TripOperationalType,
+  DivergenceReason,
+} from "@/types/transit";
 import { DEFAULT_TIMETABLE_RUNS } from "@/lib/data/defaultTimetables";
 
 // Runtime in-memory cache ensuring instant availability and offline resilience
@@ -35,8 +40,14 @@ export async function GET(request: NextRequest) {
         orderBy: { departureTime: "asc" },
       });
 
+      const dbMap = new Map<string, TimetableRun>();
+
+      // Base with runtime timetable runs
+      runtimeTimetableRuns.forEach((r) => dbMap.set(r.id, r));
+
+      // Overlay database runs
       if (dbRuns.length > 0) {
-        runs = dbRuns.map((r) => {
+        dbRuns.forEach((r) => {
           let daysOfWeek: number[] | undefined = undefined;
           if (r.daysOfWeekJson) {
             try {
@@ -55,7 +66,7 @@ export async function GET(request: NextRequest) {
             }
           }
 
-          return {
+          dbMap.set(r.id, {
             id: r.id,
             lineId: r.lineId,
             tripCode: r.tripCode,
@@ -70,11 +81,16 @@ export async function GET(request: NextRequest) {
             baggageBelt: r.baggageBelt ?? undefined,
             daysOfWeek,
             stopTimes,
-          };
+            tripType: (r.tripType as TripOperationalType) || "REGULAR",
+            divergenceReason: (r.divergenceReason as DivergenceReason) || "NONE",
+            divergenceDescription: r.divergenceDescription ?? undefined,
+            terminatedEarlyStopId: r.terminatedEarlyStopId ?? undefined,
+            divergedFromStopId: r.divergedFromStopId ?? undefined,
+          });
         });
-      } else {
-        runs = [...runtimeTimetableRuns];
       }
+
+      runs = Array.from(dbMap.values());
     } catch {
       runs = [...runtimeTimetableRuns];
     }
@@ -173,6 +189,11 @@ export async function POST(request: NextRequest) {
               baggageBelt: run.baggageBelt,
               daysOfWeekJson: run.daysOfWeek ? JSON.stringify(run.daysOfWeek) : null,
               stopTimesJson: run.stopTimes ? JSON.stringify(run.stopTimes) : null,
+              tripType: run.tripType ?? "REGULAR",
+              divergenceReason: run.divergenceReason ?? "NONE",
+              divergenceDescription: run.divergenceDescription,
+              terminatedEarlyStopId: run.terminatedEarlyStopId,
+              divergedFromStopId: run.divergedFromStopId,
             },
             create: {
               id: run.id,
@@ -189,6 +210,11 @@ export async function POST(request: NextRequest) {
               baggageBelt: run.baggageBelt,
               daysOfWeekJson: run.daysOfWeek ? JSON.stringify(run.daysOfWeek) : null,
               stopTimesJson: run.stopTimes ? JSON.stringify(run.stopTimes) : null,
+              tripType: run.tripType ?? "REGULAR",
+              divergenceReason: run.divergenceReason ?? "NONE",
+              divergenceDescription: run.divergenceDescription,
+              terminatedEarlyStopId: run.terminatedEarlyStopId,
+              divergedFromStopId: run.divergedFromStopId,
             },
           });
         } catch {
@@ -253,6 +279,11 @@ export async function POST(request: NextRequest) {
       baggageBelt: body.baggageBelt?.trim() || undefined,
       daysOfWeek: body.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
       stopTimes: body.stopTimes || undefined,
+      tripType: body.tripType || "REGULAR",
+      divergenceReason: body.divergenceReason || "NONE",
+      divergenceDescription: body.divergenceDescription?.trim() || undefined,
+      terminatedEarlyStopId: body.terminatedEarlyStopId || undefined,
+      divergedFromStopId: body.divergedFromStopId || undefined,
     };
 
     // Update in-memory cache
@@ -279,6 +310,11 @@ export async function POST(request: NextRequest) {
           baggageBelt: newRun.baggageBelt,
           daysOfWeekJson: newRun.daysOfWeek ? JSON.stringify(newRun.daysOfWeek) : null,
           stopTimesJson: newRun.stopTimes ? JSON.stringify(newRun.stopTimes) : null,
+          tripType: newRun.tripType ?? "REGULAR",
+          divergenceReason: newRun.divergenceReason ?? "NONE",
+          divergenceDescription: newRun.divergenceDescription,
+          terminatedEarlyStopId: newRun.terminatedEarlyStopId,
+          divergedFromStopId: newRun.divergedFromStopId,
         },
       });
     } catch {
@@ -356,6 +392,11 @@ export async function PUT(request: NextRequest) {
         ...(body.baggageBelt !== undefined ? { baggageBelt: body.baggageBelt.trim() } : {}),
         ...(body.daysOfWeek ? { daysOfWeek: body.daysOfWeek } : {}),
         ...(body.stopTimes !== undefined ? { stopTimes: body.stopTimes } : {}),
+        ...(body.tripType !== undefined ? { tripType: body.tripType } : {}),
+        ...(body.divergenceReason !== undefined ? { divergenceReason: body.divergenceReason } : {}),
+        ...(body.divergenceDescription !== undefined ? { divergenceDescription: body.divergenceDescription.trim() } : {}),
+        ...(body.terminatedEarlyStopId !== undefined ? { terminatedEarlyStopId: body.terminatedEarlyStopId } : {}),
+        ...(body.divergedFromStopId !== undefined ? { divergedFromStopId: body.divergedFromStopId } : {}),
       };
       runtimeTimetableRuns[existingIndex] = updatedRun;
     } else {
@@ -374,6 +415,11 @@ export async function PUT(request: NextRequest) {
         baggageBelt: body.baggageBelt,
         daysOfWeek: body.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
         stopTimes: body.stopTimes,
+        tripType: body.tripType || "REGULAR",
+        divergenceReason: body.divergenceReason || "NONE",
+        divergenceDescription: body.divergenceDescription,
+        terminatedEarlyStopId: body.terminatedEarlyStopId,
+        divergedFromStopId: body.divergedFromStopId,
       };
       runtimeTimetableRuns.push(updatedRun);
     }
@@ -396,6 +442,11 @@ export async function PUT(request: NextRequest) {
           baggageBelt: updatedRun.baggageBelt,
           daysOfWeekJson: updatedRun.daysOfWeek ? JSON.stringify(updatedRun.daysOfWeek) : null,
           stopTimesJson: updatedRun.stopTimes ? JSON.stringify(updatedRun.stopTimes) : null,
+          tripType: updatedRun.tripType ?? "REGULAR",
+          divergenceReason: updatedRun.divergenceReason ?? "NONE",
+          divergenceDescription: updatedRun.divergenceDescription,
+          terminatedEarlyStopId: updatedRun.terminatedEarlyStopId,
+          divergedFromStopId: updatedRun.divergedFromStopId,
         },
         create: {
           id: updatedRun.id,
@@ -412,6 +463,11 @@ export async function PUT(request: NextRequest) {
           baggageBelt: updatedRun.baggageBelt,
           daysOfWeekJson: updatedRun.daysOfWeek ? JSON.stringify(updatedRun.daysOfWeek) : null,
           stopTimesJson: updatedRun.stopTimes ? JSON.stringify(updatedRun.stopTimes) : null,
+          tripType: updatedRun.tripType ?? "REGULAR",
+          divergenceReason: updatedRun.divergenceReason ?? "NONE",
+          divergenceDescription: updatedRun.divergenceDescription,
+          terminatedEarlyStopId: updatedRun.terminatedEarlyStopId,
+          divergedFromStopId: updatedRun.divergedFromStopId,
         },
       });
     } catch {

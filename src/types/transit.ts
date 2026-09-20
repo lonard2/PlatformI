@@ -387,6 +387,20 @@ export interface Ticket {
   gateScannedAt?: string;
 }
 
+export type TripOperationalType =
+  | "REGULAR"
+  | "SHORT_TURN"
+  | "NIGHT_DEPOT_STABLING"
+  | "ROUTE_DIVERGENCE"
+  | "SPECIAL_KLB";
+
+export type DivergenceReason =
+  | "NONE"
+  | "DEPOT_PULL_IN"
+  | "NOCTURNAL_MAINTENANCE"
+  | "INCIDENT_DISRUPTION"
+  | "EVENT_DETOUR";
+
 export interface TimetableStopTime {
   stopId: string;
   stopName: string;
@@ -394,6 +408,7 @@ export interface TimetableStopTime {
   arrivalTime: string;   // HH:mm format
   departureTime: string; // HH:mm format
   isBypass?: boolean;    // true if express non-stop bypass
+  isTerminatedEarly?: boolean; // true if trip terminates or diverges before this station
   peronOrTrack?: string;
   dwellSeconds?: number;
 }
@@ -413,6 +428,11 @@ export interface TimetableRun {
   baggageBelt?: string;
   daysOfWeek?: number[];
   stopTimes?: TimetableStopTime[];
+  tripType?: TripOperationalType;
+  divergenceReason?: DivergenceReason;
+  divergenceDescription?: string;
+  terminatedEarlyStopId?: string;
+  divergedFromStopId?: string;
 }
 
 export interface DepartureBoardItem {
@@ -442,6 +462,10 @@ export interface DepartureBoardItem {
   notes?: string;
   baggageBelt?: string;
   transitStopsSummary?: string;
+  tripType?: TripOperationalType;
+  divergenceReason?: DivergenceReason;
+  divergenceDescription?: string;
+  isTerminatedEarly?: boolean;
 }
 
 export interface IntermodalSkybridgeTransfer {
