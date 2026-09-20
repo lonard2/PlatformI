@@ -1,15 +1,15 @@
 /**
  * PlatformI - Multimodal Transit Timetable Runs REST API
  *
- * Provides endpoints for retrieving, creating, updating, and deleting scheduled timetable runs
- * across rail, aviation, bus, shuttle, and maritime modes with authentic Jakarta/Jabodetabek metadata.
+ * Provides endpoints for retrieving, creating, updating, batch-generating, and deleting scheduled
+ * timetable runs across rail, aviation, bus, shuttle, and maritime modes with stop-by-stop matrix support.
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { TimetableRun } from "@/types/transit";
+import { TimetableRun, TimetableStopTime } from "@/types/transit";
 import { DEFAULT_TIMETABLE_RUNS } from "@/lib/data/defaultTimetables";
 
 // Runtime in-memory cache ensuring instant availability and offline resilience
@@ -45,6 +45,16 @@ export async function GET(request: NextRequest) {
               daysOfWeek = undefined;
             }
           }
+
+          let stopTimes: TimetableStopTime[] | undefined = undefined;
+          if (r.stopTimesJson) {
+            try {
+              stopTimes = JSON.parse(r.stopTimesJson) as TimetableStopTime[];
+            } catch {
+              stopTimes = undefined;
+            }
+          }
+
           return {
             id: r.id,
             lineId: r.lineId,
@@ -59,6 +69,7 @@ export async function GET(request: NextRequest) {
             notes: r.notes ?? undefined,
             baggageBelt: r.baggageBelt ?? undefined,
             daysOfWeek,
+            stopTimes,
           };
         });
       } else {
@@ -112,7 +123,90 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as Partial<TimetableRun>;
+    const rawBody = await request.json();
+
+    // Support batch insertion of multiple timetable runs (e.g. from Batch Pola Operasi generator)
+    if (Array.isArray(rawBody.batch)) {
+      const batchRuns = rawBody.batch as TimetableRun[];
+      const validatedRuns: TimetableRun[] = [];
+
+      for (const item of batchRuns) {
+        if (
+          item.tripCode &&
+          item.origin &&
+          item.destination &&
+          item.departureTime &&
+          item.arrivalTime &&
+          item.operatorName &&
+          item.lineId
+        ) {
+          validatedRuns.push({
+            ...item,
+            id: item.id || `run-custom-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+          });
+        }
+      }
+
+      // Update runtime cache
+      const newIds = new Set(validatedRuns.map((r) => r.id));
+      runtimeTimetableRuns = [
+        ...runtimeTimetableRuns.filter((r) => !newIds.has(r.id)),
+        ...validatedRuns,
+      ];
+
+      // Try database upsert for each run
+      for (const run of validatedRuns) {
+        try {
+          await db.timetableRun.upsert({
+            where: { id: run.id },
+            update: {
+              lineId: run.lineId,
+              tripCode: run.tripCode,
+              origin: run.origin,
+              destination: run.destination,
+              departureTime: run.departureTime,
+              arrivalTime: run.arrivalTime,
+              operatorName: run.operatorName,
+              serviceClass: run.serviceClass,
+              gateOrBay: run.gateOrBay,
+              notes: run.notes,
+              baggageBelt: run.baggageBelt,
+              daysOfWeekJson: run.daysOfWeek ? JSON.stringify(run.daysOfWeek) : null,
+              stopTimesJson: run.stopTimes ? JSON.stringify(run.stopTimes) : null,
+            },
+            create: {
+              id: run.id,
+              lineId: run.lineId,
+              tripCode: run.tripCode,
+              origin: run.origin,
+              destination: run.destination,
+              departureTime: run.departureTime,
+              arrivalTime: run.arrivalTime,
+              operatorName: run.operatorName,
+              serviceClass: run.serviceClass,
+              gateOrBay: run.gateOrBay,
+              notes: run.notes,
+              baggageBelt: run.baggageBelt,
+              daysOfWeekJson: run.daysOfWeek ? JSON.stringify(run.daysOfWeek) : null,
+              stopTimesJson: run.stopTimes ? JSON.stringify(run.stopTimes) : null,
+            },
+          });
+        } catch {
+          // Handled gracefully
+        }
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          count: validatedRuns.length,
+          data: validatedRuns,
+        },
+        { status: 201 }
+      );
+    }
+
+    const body = rawBody as Partial<TimetableRun>;
 
     if (
       !body.tripCode ||
@@ -158,6 +252,7 @@ export async function POST(request: NextRequest) {
       notes: body.notes?.trim() || undefined,
       baggageBelt: body.baggageBelt?.trim() || undefined,
       daysOfWeek: body.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
+      stopTimes: body.stopTimes || undefined,
     };
 
     // Update in-memory cache
@@ -183,6 +278,7 @@ export async function POST(request: NextRequest) {
           notes: newRun.notes,
           baggageBelt: newRun.baggageBelt,
           daysOfWeekJson: newRun.daysOfWeek ? JSON.stringify(newRun.daysOfWeek) : null,
+          stopTimesJson: newRun.stopTimes ? JSON.stringify(newRun.stopTimes) : null,
         },
       });
     } catch {
@@ -259,6 +355,7 @@ export async function PUT(request: NextRequest) {
         ...(body.notes !== undefined ? { notes: body.notes.trim() } : {}),
         ...(body.baggageBelt !== undefined ? { baggageBelt: body.baggageBelt.trim() } : {}),
         ...(body.daysOfWeek ? { daysOfWeek: body.daysOfWeek } : {}),
+        ...(body.stopTimes !== undefined ? { stopTimes: body.stopTimes } : {}),
       };
       runtimeTimetableRuns[existingIndex] = updatedRun;
     } else {
@@ -276,6 +373,7 @@ export async function PUT(request: NextRequest) {
         notes: body.notes,
         baggageBelt: body.baggageBelt,
         daysOfWeek: body.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
+        stopTimes: body.stopTimes,
       };
       runtimeTimetableRuns.push(updatedRun);
     }
@@ -297,6 +395,7 @@ export async function PUT(request: NextRequest) {
           notes: updatedRun.notes,
           baggageBelt: updatedRun.baggageBelt,
           daysOfWeekJson: updatedRun.daysOfWeek ? JSON.stringify(updatedRun.daysOfWeek) : null,
+          stopTimesJson: updatedRun.stopTimes ? JSON.stringify(updatedRun.stopTimes) : null,
         },
         create: {
           id: updatedRun.id,
@@ -312,6 +411,7 @@ export async function PUT(request: NextRequest) {
           notes: updatedRun.notes,
           baggageBelt: updatedRun.baggageBelt,
           daysOfWeekJson: updatedRun.daysOfWeek ? JSON.stringify(updatedRun.daysOfWeek) : null,
+          stopTimesJson: updatedRun.stopTimes ? JSON.stringify(updatedRun.stopTimes) : null,
         },
       });
     } catch {
@@ -337,12 +437,29 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const lineId = searchParams.get("lineId");
+
+    // Bulk deletion by lineId
+    if (lineId && !id) {
+      runtimeTimetableRuns = runtimeTimetableRuns.filter((r) => r.lineId !== lineId);
+      try {
+        await db.timetableRun.deleteMany({
+          where: { lineId },
+        });
+      } catch {
+        // Handled
+      }
+      return NextResponse.json({
+        success: true,
+        message: `All timetable runs for line ${lineId} deleted successfully`,
+      });
+    }
 
     if (!id) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required query parameter: id",
+          error: "Missing required query parameter: id or lineId",
         },
         { status: 400 }
       );

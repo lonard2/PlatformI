@@ -511,7 +511,17 @@ export function generateDepartureBoard(
       const runOriginLower = run.origin.toLowerCase();
       const runDestLower = run.destination.toLowerCase();
       const isLineConnected = stop.lineId === run.lineId || stop.connectedLineIds.includes(run.lineId);
+
+      // Check if run has structured stopTimes and current stop is an intermediate station
+      const matchingStopTime = run.stopTimes?.find(
+        (st) =>
+          st.stopId === stop.id ||
+          st.stopName.toLowerCase().includes(stopNameLower) ||
+          stopNameLower.includes(st.stopName.toLowerCase())
+      );
+
       const isStationMatch =
+        Boolean(matchingStopTime) ||
         runOriginLower.includes(stopNameLower) ||
         stopNameLower.includes(runOriginLower) ||
         runDestLower.includes(stopNameLower) ||
@@ -519,6 +529,11 @@ export function generateDepartureBoard(
         run.lineId === stop.lineId;
 
       if (isLineConnected || isStationMatch) {
+        // If stop is explicitly bypassed by an express service, do not show on departure board or mark as express pass
+        if (matchingStopTime?.isBypass) {
+          return;
+        }
+
         const line = lines.find((l) => l.id === run.lineId);
         const isAviation = line?.category === "AVIATION";
         const isMaritime = line?.category === "MARITIME";
@@ -531,6 +546,12 @@ export function generateDepartureBoard(
           ? `${t.hubInspector.platformBay} 1`
           : `${t.common.peron} 1`;
 
+        const scheduledTime = matchingStopTime
+          ? matchingStopTime.departureTime || matchingStopTime.arrivalTime
+          : run.departureTime;
+
+        const platform = matchingStopTime?.peronOrTrack || run.gateOrBay || defaultPlatformStr;
+
         departures.push({
           tripId: `run-${run.id}`,
           lineCode: line?.code || "TRIP",
@@ -538,10 +559,10 @@ export function generateDepartureBoard(
           destination: run.destination,
           origin: run.origin,
           mode: line?.mode || "KAI_INTERCITY",
-          scheduledTime: run.departureTime,
-          estimatedTime: run.departureTime,
+          scheduledTime,
+          estimatedTime: scheduledTime,
           status: "ON_TIME",
-          platform: run.gateOrBay || defaultPlatformStr,
+          platform,
           crowdLevel: "LEVEL_2_FEW_SEATS",
           runNumber: run.tripCode,
           operatorName: run.operatorName,

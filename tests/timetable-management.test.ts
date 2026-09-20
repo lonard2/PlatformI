@@ -223,7 +223,10 @@ describe("Timetable & Schedule Management Suite", () => {
           headwayMinutes: 30,
           firstDeparture: "06:00",
           lastDeparture: "22:00",
-          polylineCoordinates: [[-6.2443, 106.8858], [-6.9458, 107.6987]],
+          polylineCoordinates: [
+            { latitude: -6.2443, longitude: 106.8858 },
+            { latitude: -6.9458, longitude: 107.6987 },
+          ],
           stops: [dummyStop],
         },
       ];

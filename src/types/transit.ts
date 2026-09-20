@@ -387,6 +387,17 @@ export interface Ticket {
   gateScannedAt?: string;
 }
 
+export interface TimetableStopTime {
+  stopId: string;
+  stopName: string;
+  stopSequence: number;
+  arrivalTime: string;   // HH:mm format
+  departureTime: string; // HH:mm format
+  isBypass?: boolean;    // true if express non-stop bypass
+  peronOrTrack?: string;
+  dwellSeconds?: number;
+}
+
 export interface TimetableRun {
   id: string;
   lineId: string;
@@ -401,6 +412,7 @@ export interface TimetableRun {
   notes?: string;
   baggageBelt?: string;
   daysOfWeek?: number[];
+  stopTimes?: TimetableStopTime[];
 }
 
 export interface DepartureBoardItem {

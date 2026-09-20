@@ -2,7 +2,7 @@
  * PlatformI - Operator Control Portal: Timetable & Schedule Studio
  *
  * Provides comprehensive inspection, authoring, and lifecycle management of scheduled transit runs
- * across aviation, high-speed rail, intercity trains, commuter lines, BRT corridors, and maritime ports.
+ * across rail, aviation, bus, shuttle, and maritime networks with both master list and stop-by-trip matrix views.
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
@@ -32,11 +32,17 @@ import {
   AlertCircle,
   Building2,
   Luggage,
+  LayoutList,
+  Table2,
+  Wand2,
 } from "lucide-react";
-import { TimetableRun, TransitCategory } from "@/types/transit";
+import { TimetableRun, TransitCategory, Stop, Line } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+import { BatchScheduleModal } from "@/components/admin/BatchScheduleModal";
+import { TimetableMatrixGrid } from "@/components/admin/TimetableMatrixGrid";
+import { shiftRunSchedule } from "@/lib/simulation/timetableMatrix";
 
 interface QuickTemplate {
   label: string;
@@ -141,21 +147,29 @@ const DAYS_OF_WEEK = [
 function TimetableStudioContent() {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
+  const allStops = useTransitStore((state) => state.allStops);
 
   const [timetableRuns, setTimetableRuns] = useState<TimetableRun[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
+  // View Mode: Matrix Grid vs Master List
+  const [viewMode, setViewMode] = useState<"MATRIX" | "LIST">("MATRIX");
+  const [matrixLineId, setMatrixLineId] = useState<string>("line-mrt-ns");
+
+  // Filters for List View
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<TransitCategory | "ALL">("ALL");
   const [selectedLineId, setSelectedLineId] = useState<string>("ALL");
 
-  // Modal State
+  // Modal State for Single Run (Add/Edit)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingRunId, setEditingRunId] = useState<string | null>(null);
 
-  // Form State
+  // Modal State for Batch Schedule Generator
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState<boolean>(false);
+
+  // Form State for Single Run
   const [formLineId, setFormLineId] = useState<string>("");
   const [formTripCode, setFormTripCode] = useState<string>("");
   const [formOperatorName, setFormOperatorName] = useState<string>("");
@@ -222,7 +236,7 @@ function TimetableStudioContent() {
   // Open modal for Create
   const handleOpenCreateModal = () => {
     setEditingRunId(null);
-    const defaultLine = allLines[0]?.id || "line-whoosh-hsr";
+    const defaultLine = matrixLineId || allLines[0]?.id || "line-mrt-ns";
     setFormLineId(defaultLine);
     setFormTripCode("");
     setFormOperatorName("");
@@ -271,7 +285,7 @@ function TimetableStudioContent() {
     setFormError(null);
 
     if (!formTripCode.trim()) {
-      setFormError("Trip Code is required (e.g. G1012, GA-404).");
+      setFormError("Trip Code is required (e.g. G1012, GA-404, M-101).");
       return;
     }
     if (!formOrigin.trim() || !formDestination.trim()) {
@@ -343,8 +357,36 @@ function TimetableStudioContent() {
     }
   };
 
+  // Update Run from Matrix in-cell edits
+  const handleUpdateRun = async (updatedRun: TimetableRun) => {
+    try {
+      const res = await fetch("/api/network/timetables", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedRun),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setTimetableRuns((prev) =>
+          prev.map((r) => (r.id === updatedRun.id ? json.data : r))
+        );
+      }
+    } catch {
+      // Soft failure handled
+    }
+  };
+
+  // Shift Run Schedule forward/backward by deltaMinutes
+  const handleShiftRun = async (run: TimetableRun, deltaMinutes: number) => {
+    const shifted = shiftRunSchedule(run, deltaMinutes);
+    await handleUpdateRun(shifted);
+  };
+
   // Handle Delete with Undo
-  const handleDeleteRun = async (run: TimetableRun) => {
+  const handleDeleteRun = async (runId: string) => {
+    const run = timetableRuns.find((r) => r.id === runId);
+    if (!run) return;
+
     if (!window.confirm(`Are you sure you want to remove scheduled run ${run.tripCode} (${run.origin} -> ${run.destination})?`)) {
       return;
     }
@@ -382,21 +424,42 @@ function TimetableStudioContent() {
     }
   };
 
+  // Batch runs generated handler
+  const handleRunsGenerated = (newRuns: TimetableRun[]) => {
+    const lineId = newRuns[0]?.lineId;
+    if (lineId) {
+      setTimetableRuns((prev) => [
+        ...newRuns,
+        ...prev.filter((r) => r.lineId !== lineId),
+      ]);
+    } else {
+      setTimetableRuns((prev) => [...newRuns, ...prev]);
+    }
+  };
+
   // Helper map for line data
   const lineMap = useMemo(() => {
-    const map = new Map<string, { name: string; code: string; category: TransitCategory; colorHex: string }>();
+    const map = new Map<string, Line>();
     allLines.forEach((l) => {
-      map.set(l.id, {
-        name: l.name,
-        code: l.code,
-        category: l.category,
-        colorHex: l.colorHex,
-      });
+      map.set(l.id, l);
     });
     return map;
   }, [allLines]);
 
-  // Filtered timetable runs
+  // Selected Matrix Line
+  const currentMatrixLine = useMemo(() => {
+    return lineMap.get(matrixLineId) || allLines[0];
+  }, [lineMap, matrixLineId, allLines]);
+
+  // Stops for Matrix Line in sequential order
+  const currentMatrixStops = useMemo(() => {
+    if (!currentMatrixLine) return [];
+    return allStops
+      .filter((s) => s.lineId === currentMatrixLine.id || s.connectedLineIds.includes(currentMatrixLine.id))
+      .sort((a, b) => a.sequence - b.sequence);
+  }, [allStops, currentMatrixLine]);
+
+  // Filtered timetable runs for Master List View
   const filteredRuns = useMemo(() => {
     return timetableRuns.filter((run) => {
       const line = lineMap.get(run.lineId);
@@ -444,7 +507,7 @@ function TimetableStudioContent() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#070b14] overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* 1. Header & Quick Actions */}
+      {/* 1. Header & View Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
@@ -459,28 +522,47 @@ function TimetableStudioContent() {
             </span>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl">
-            Author, inspect, and synchronize multi-modal scheduled runs across Rail, Aviation, BRT, Shuttles, and Maritime networks.
+            Author, inspect, and synchronize multi-modal scheduled runs with real-time stop dwell matrix and Pola Operasi generator.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* View Mode Switcher Toggle */}
+          <div className="flex items-center p-1 rounded-xl bg-slate-950 border border-white/10">
+            <button
+              type="button"
+              onClick={() => setViewMode("MATRIX")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition btn-tactile ${
+                viewMode === "MATRIX"
+                  ? "bg-teal-500 text-teal-950 font-bold"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Table2 className="w-3.5 h-3.5" />
+              <span>Stop-by-Trip Matrix</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("LIST")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition btn-tactile ${
+                viewMode === "LIST"
+                  ? "bg-teal-500 text-teal-950 font-bold"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+              <span>Master List</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={fetchTimetables}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition btn-tactile"
+            className="px-3 py-2 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition btn-tactile"
             title="Refresh timetable data"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-teal-400" : ""}`} />
             <span className="hidden sm:inline">Refresh</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOpenCreateModal}
-            className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition btn-tactile"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Scheduled Run</span>
           </button>
         </div>
       </div>
@@ -572,253 +654,308 @@ function TimetableStudioContent() {
         </div>
       </div>
 
-      {/* 3. Filter Controls & Search */}
-      <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="search"
-              data-hotkey-search="true"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter by Trip Code (G1012), Operator, Origin, Gate, Service Class, or Notes..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 transition"
-            />
-          </div>
-
-          {/* Line Filter */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs text-slate-400 font-medium">Line:</span>
-            <select
-              value={selectedLineId}
-              onChange={(e) => setSelectedLineId(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-teal-500 transition max-w-[200px] truncate"
-            >
-              <option value="ALL">All Network Lines</option>
-              {allLines.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.code} - {l.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Category Pill Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
-          {(["ALL", "RAIL", "AVIATION", "BUS", "MARITIME"] as const).map((cat) => {
-            const isSelected = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition btn-tactile flex items-center gap-1.5 ${
-                  isSelected
-                    ? "bg-teal-500 text-teal-950 font-bold"
-                    : "bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-                }`}
+      {/* 3. CONDITIONAL VIEW: STOP-BY-TRIP MATRIX GRID VIEW */}
+      {viewMode === "MATRIX" && (
+        <div className="space-y-4">
+          {/* Matrix Line Selector Bar */}
+          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400 font-bold uppercase font-mono tracking-wider">
+                Corridor Line:
+              </span>
+              <select
+                value={matrixLineId}
+                onChange={(e) => setMatrixLineId(e.target.value)}
+                className="px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 transition"
               >
-                {cat === "ALL" && <Layers className="w-3.5 h-3.5" />}
-                {cat === "RAIL" && <Train className="w-3.5 h-3.5" />}
-                {cat === "AVIATION" && <Plane className="w-3.5 h-3.5" />}
-                {cat === "BUS" && <Bus className="w-3.5 h-3.5" />}
-                {cat === "MARITIME" && <Anchor className="w-3.5 h-3.5" />}
-                <span>{cat === "ALL" ? "All Modes" : cat}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                {allLines.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.code} &bull; {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* 4. Timetable Runs Listing */}
-      <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/40">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-white">Scheduled Timetable Registry</h2>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
-              {filteredRuns.length} Runs
-            </span>
+            <div className="text-xs text-slate-400 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Headway: <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} min</strong></span>
+              <span>&bull;</span>
+              <span>Span: <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
+            </div>
           </div>
-          {filteredRuns.length !== timetableRuns.length && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("ALL");
-                setSelectedLineId("ALL");
-              }}
-              className="text-xs text-teal-400 hover:text-teal-300 transition"
-            >
-              Reset Filters
-            </button>
+
+          {currentMatrixLine && (
+            <TimetableMatrixGrid
+              selectedLine={currentMatrixLine}
+              lineStops={currentMatrixStops}
+              runs={timetableRuns}
+              onUpdateRun={handleUpdateRun}
+              onDeleteRun={handleDeleteRun}
+              onShiftRun={handleShiftRun}
+              onOpenBatchModal={() => setIsBatchModalOpen(true)}
+              onOpenCreateModal={handleOpenCreateModal}
+            />
           )}
         </div>
+      )}
 
-        {loading ? (
-          <div className="p-12 text-center text-slate-400 text-xs">
-            <Clock className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-400" />
-            <span>Loading scheduled timetable runs...</span>
-          </div>
-        ) : filteredRuns.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-slate-950 border border-white/10 flex items-center justify-center mx-auto text-slate-500">
-              <Calendar className="w-6 h-6" />
-            </div>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              No scheduled runs found matching your search or filters. Click &quot;Add Scheduled Run&quot; to author a new timetable trip.
-            </p>
-            <button
-              type="button"
-              onClick={handleOpenCreateModal}
-              className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs inline-flex items-center gap-2 shadow transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create New Run</span>
-            </button>
-          </div>
-        ) : (
-          <div className="divide-y divide-white/5">
-            {filteredRuns.map((run) => {
-              const line = lineMap.get(run.lineId);
-              const colorHex = line?.colorHex || "#0d9488";
-              const lineCode = line?.code || "TRN";
+      {/* 4. CONDITIONAL VIEW: MASTER LIST REGISTRY VIEW */}
+      {viewMode === "LIST" && (
+        <div className="space-y-4">
+          {/* Filter Controls & Search */}
+          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 space-y-3">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="search"
+                  data-hotkey-search="true"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Filter by Trip Code (G1012), Operator, Origin, Gate, Service Class, or Notes..."
+                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 transition"
+                />
+              </div>
 
-              return (
-                <div
-                  key={run.id}
-                  className="p-4 hover:bg-slate-800/40 transition flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+              {/* Line Filter */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-slate-400 font-medium">Line:</span>
+                <select
+                  value={selectedLineId}
+                  onChange={(e) => setSelectedLineId(e.target.value)}
+                  className="px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-teal-500 transition max-w-[200px] truncate"
                 >
-                  {/* Left: Trip Code, Mode, Origin & Destination */}
-                  <div className="space-y-2 min-w-0 flex-1">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span
-                        style={{ backgroundColor: `${colorHex}25`, borderColor: `${colorHex}60`, color: colorHex }}
-                        className="px-2 py-0.5 rounded text-xs font-mono font-bold border"
-                      >
-                        {run.tripCode}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-300">
-                        {run.operatorName}
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-white/10 text-slate-400">
-                        Line {lineCode}
-                      </span>
-                      {run.serviceClass && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800/40 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-cyan-400" />
-                          <span>{run.serviceClass}</span>
-                        </span>
-                      )}
-                    </div>
+                  <option value="ALL">All Network Lines</option>
+                  {allLines.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.code} - {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-                    {/* Route Corridor */}
-                    <div className="flex items-center gap-2 text-xs text-slate-200">
-                      <div className="flex items-center gap-1.5 font-medium">
-                        <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                        <span>{run.origin}</span>
-                      </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                      <div className="flex items-center gap-1.5 font-medium">
-                        <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                        <span>{run.destination}</span>
-                      </div>
-                    </div>
-
-                    {/* Operational Notes */}
-                    {run.notes && (
-                      <p className="text-[11px] text-slate-400 italic bg-slate-950/40 p-2 rounded-lg border border-white/5 line-clamp-2">
-                        &ldquo;{run.notes}&rdquo;
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Middle: Timing, Platform & Baggage */}
-                  <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-xs">
-                    {/* Schedule */}
-                    <div className="space-y-0.5">
-                      <div className="text-[10px] uppercase font-mono text-slate-400">Schedule</div>
-                      <div className="font-mono font-bold text-white text-sm flex items-center gap-1.5">
-                        <span className="text-emerald-400">{run.departureTime}</span>
-                        <span className="text-slate-600">&rarr;</span>
-                        <span className="text-cyan-400">{run.arrivalTime}</span>
-                      </div>
-                    </div>
-
-                    {/* Gate / Bay / Peron */}
-                    {run.gateOrBay && (
-                      <div className="space-y-0.5">
-                        <div className="text-[10px] uppercase font-mono text-slate-400">Boarding</div>
-                        <div className="font-mono text-xs font-semibold text-amber-300 flex items-center gap-1">
-                          <DoorOpen className="w-3.5 h-3.5 text-amber-400" />
-                          <span>{run.gateOrBay}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Baggage Belt */}
-                    {run.baggageBelt && (
-                      <div className="space-y-0.5 hidden sm:block">
-                        <div className="text-[10px] uppercase font-mono text-slate-400">Baggage</div>
-                        <div className="font-mono text-xs font-semibold text-indigo-300 flex items-center gap-1">
-                          <Luggage className="w-3.5 h-3.5 text-indigo-400" />
-                          <span>{run.baggageBelt}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Days of Week */}
-                    <div className="space-y-0.5 hidden md:block">
-                      <div className="text-[10px] uppercase font-mono text-slate-400">Days</div>
-                      <div className="flex items-center gap-1">
-                        {DAYS_OF_WEEK.map((d) => {
-                          const isActive = run.daysOfWeek?.includes(d.day) ?? true;
-                          return (
-                            <span
-                              key={d.day}
-                              className={`w-4 h-4 rounded text-[9px] font-mono font-bold flex items-center justify-center ${
-                                isActive
-                                  ? "bg-teal-500/20 text-teal-300 border border-teal-500/40"
-                                  : "bg-slate-950 text-slate-600 border border-white/5"
-                              }`}
-                            >
-                              {d.shortLabel}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Actions */}
-                  <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/5">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEditModal(run)}
-                      className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition btn-tactile"
-                      title="Edit Scheduled Run"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteRun(run)}
-                      className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 hover:border-rose-500/40 transition btn-tactile"
-                      title="Delete Scheduled Run"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {/* Category Pill Filters */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+              {(["ALL", "RAIL", "AVIATION", "BUS", "MARITIME"] as const).map((cat) => {
+                const isSelected = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition btn-tactile flex items-center gap-1.5 ${
+                      isSelected
+                        ? "bg-teal-500 text-teal-950 font-bold"
+                        : "bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                    }`}
+                  >
+                    {cat === "ALL" && <Layers className="w-3.5 h-3.5" />}
+                    {cat === "RAIL" && <Train className="w-3.5 h-3.5" />}
+                    {cat === "AVIATION" && <Plane className="w-3.5 h-3.5" />}
+                    {cat === "BUS" && <Bus className="w-3.5 h-3.5" />}
+                    {cat === "MARITIME" && <Anchor className="w-3.5 h-3.5" />}
+                    <span>{cat === "ALL" ? "All Modes" : cat}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* 5. Authoring / Edit Modal */}
+          {/* Timetable Runs Listing */}
+          <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/40">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-white">Scheduled Timetable Registry</h2>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
+                  {filteredRuns.length} Runs
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBatchModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 text-xs font-semibold flex items-center gap-1.5 transition"
+                >
+                  <Wand2 className="w-3 h-3" />
+                  <span>Batch Generator</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenCreateModal}
+                  className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-teal-950 text-xs font-bold flex items-center gap-1.5 transition"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add Run</span>
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="p-12 text-center text-slate-400 text-xs">
+                <Clock className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-400" />
+                <span>Loading scheduled timetable runs...</span>
+              </div>
+            ) : filteredRuns.length === 0 ? (
+              <div className="p-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-slate-950 border border-white/10 flex items-center justify-center mx-auto text-slate-500">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  No scheduled runs found matching your search or filters. Click &quot;Add Scheduled Run&quot; to author a new timetable trip.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleOpenCreateModal}
+                  className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs inline-flex items-center gap-2 shadow transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create New Run</span>
+                </button>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {filteredRuns.map((run) => {
+                  const line = lineMap.get(run.lineId);
+                  const colorHex = line?.colorHex || "#0d9488";
+                  const lineCode = line?.code || "TRN";
+
+                  return (
+                    <div
+                      key={run.id}
+                      className="p-4 hover:bg-slate-800/40 transition flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    >
+                      {/* Left: Trip Code, Mode, Origin & Destination */}
+                      <div className="space-y-2 min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span
+                            style={{ backgroundColor: `${colorHex}25`, borderColor: `${colorHex}60`, color: colorHex }}
+                            className="px-2 py-0.5 rounded text-xs font-mono font-bold border"
+                          >
+                            {run.tripCode}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-300">
+                            {run.operatorName}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-white/10 text-slate-400">
+                            Line {lineCode}
+                          </span>
+                          {run.serviceClass && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800/40 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-cyan-400" />
+                              <span>{run.serviceClass}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Route Corridor */}
+                        <div className="flex items-center gap-2 text-xs text-slate-200">
+                          <div className="flex items-center gap-1.5 font-medium">
+                            <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                            <span>{run.origin}</span>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <div className="flex items-center gap-1.5 font-medium">
+                            <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                            <span>{run.destination}</span>
+                          </div>
+                        </div>
+
+                        {/* Operational Notes */}
+                        {run.notes && (
+                          <p className="text-[11px] text-slate-400 italic bg-slate-950/40 p-2 rounded-lg border border-white/5 line-clamp-2">
+                            &ldquo;{run.notes}&rdquo;
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Middle: Timing, Platform & Baggage */}
+                      <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-xs">
+                        {/* Schedule */}
+                        <div className="space-y-0.5">
+                          <div className="text-[10px] uppercase font-mono text-slate-400">Schedule</div>
+                          <div className="font-mono font-bold text-white text-sm flex items-center gap-1.5">
+                            <span className="text-emerald-400">{run.departureTime}</span>
+                            <span className="text-slate-600">&rarr;</span>
+                            <span className="text-cyan-400">{run.arrivalTime}</span>
+                          </div>
+                        </div>
+
+                        {/* Gate / Bay / Peron */}
+                        {run.gateOrBay && (
+                          <div className="space-y-0.5">
+                            <div className="text-[10px] uppercase font-mono text-slate-400">Boarding</div>
+                            <div className="font-mono text-xs font-semibold text-amber-300 flex items-center gap-1">
+                              <DoorOpen className="w-3.5 h-3.5 text-amber-400" />
+                              <span>{run.gateOrBay}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Baggage Belt */}
+                        {run.baggageBelt && (
+                          <div className="space-y-0.5 hidden sm:block">
+                            <div className="text-[10px] uppercase font-mono text-slate-400">Baggage</div>
+                            <div className="font-mono text-xs font-semibold text-indigo-300 flex items-center gap-1">
+                              <Luggage className="w-3.5 h-3.5 text-indigo-400" />
+                              <span>{run.baggageBelt}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Days of Week */}
+                        <div className="space-y-0.5 hidden md:block">
+                          <div className="text-[10px] uppercase font-mono text-slate-400">Days</div>
+                          <div className="flex items-center gap-1">
+                            {DAYS_OF_WEEK.map((d) => {
+                              const isActive = run.daysOfWeek?.includes(d.day) ?? true;
+                              return (
+                                <span
+                                  key={d.day}
+                                  className={`w-4 h-4 rounded text-[9px] font-mono font-bold flex items-center justify-center ${
+                                    isActive
+                                      ? "bg-teal-500/20 text-teal-300 border border-teal-500/40"
+                                      : "bg-slate-950 text-slate-600 border border-white/5"
+                                  }`}
+                                >
+                                  {d.shortLabel}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Actions */}
+                      <div className="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(run)}
+                          className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition btn-tactile"
+                          title="Edit Scheduled Run"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRun(run.id)}
+                          className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 hover:border-rose-500/40 transition btn-tactile"
+                          title="Delete Scheduled Run"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 5. Authoring / Edit Modal for Single Run */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div
@@ -920,7 +1057,7 @@ function TimetableStudioContent() {
                       type="text"
                       value={formTripCode}
                       onChange={(e) => setFormTripCode(e.target.value)}
-                      placeholder="e.g. G1012, GA-404, KA-01"
+                      placeholder="e.g. G1012, GA-404, KA-01, M-101"
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 font-mono uppercase focus:outline-none focus:border-teal-500"
                       required
                     />
@@ -1077,6 +1214,18 @@ function TimetableStudioContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 6. Batch Pola Operasi Generator Modal */}
+      {isBatchModalOpen && (
+        <BatchScheduleModal
+          isOpen={isBatchModalOpen}
+          onClose={() => setIsBatchModalOpen(false)}
+          lines={allLines}
+          allStops={allStops}
+          initialLineId={matrixLineId}
+          onRunsGenerated={handleRunsGenerated}
+        />
       )}
     </div>
   );
