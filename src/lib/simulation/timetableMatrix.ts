@@ -393,3 +393,112 @@ export function shiftRunSchedule(run: TimetableRun, deltaMinutes: number): Timet
     stopTimes: shiftedStopTimes,
   };
 }
+
+export interface StopTimeValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+/**
+ * Validates stop time chronology to strictly prevent:
+ * 1. Invalid time format (must match HH:mm).
+ * 2. Negative dwell time (departure preceding arrival at the same stop).
+ * 3. Backwards time travel against the preceding non-bypassed stop (arrival preceding previous stop's departure).
+ * 4. Downstream chronological conflict if cascadeDownstream is disabled.
+ */
+export function validateStopTimeChronology(params: {
+  arrivalTime: string;
+  departureTime: string;
+  isBypass?: boolean;
+  stopIndex: number;
+  allStopTimes: TimetableStopTime[];
+  cascadeDownstream?: boolean;
+}): StopTimeValidationResult {
+  const {
+    arrivalTime,
+    departureTime,
+    isBypass = false,
+    stopIndex,
+    allStopTimes,
+    cascadeDownstream = false,
+  } = params;
+
+  const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+  if (!timeRegex.test(arrivalTime) || !timeRegex.test(departureTime)) {
+    return {
+      isValid: false,
+      errorMessage: "Format waktu harus HH:mm (contoh: 08:30).",
+    };
+  }
+
+  const arrM = timeStringToMinutes(arrivalTime);
+  const depM = timeStringToMinutes(departureTime);
+
+  // 1. Dwell validation (departure cannot precede arrival unless crossing midnight)
+  if (!isBypass) {
+    let dwell = depM - arrM;
+    if (dwell < 0 && arrM > 22 * 60 && depM < 3 * 60) {
+      dwell = depM + 1440 - arrM;
+    }
+    if (dwell < 0) {
+      return {
+        isValid: false,
+        errorMessage: "Waktu keberangkatan tidak boleh mendahului kedatangan (dwell negatif).",
+      };
+    }
+  }
+
+  // 2. Preceding stop check (arrival cannot precede preceding stop departure)
+  if (stopIndex > 0) {
+    let prevStopTime: TimetableStopTime | undefined;
+    for (let i = stopIndex - 1; i >= 0; i--) {
+      const st = allStopTimes[i];
+      if (st && !st.isBypass && !st.isTerminatedEarly) {
+        prevStopTime = st;
+        break;
+      }
+    }
+
+    if (prevStopTime) {
+      const prevDepM = timeStringToMinutes(prevStopTime.departureTime);
+      let travelFromPrev = arrM - prevDepM;
+      if (travelFromPrev < 0 && prevDepM > 22 * 60 && arrM < 3 * 60) {
+        travelFromPrev = arrM + 1440 - prevDepM;
+      }
+      if (travelFromPrev < 0) {
+        return {
+          isValid: false,
+          errorMessage: `Waktu kedatangan (${arrivalTime}) tidak boleh mendahului waktu keberangkatan stasiun sebelumnya (${prevStopTime.stopName || "sebelumnya"} - ${prevStopTime.departureTime}).`,
+        };
+      }
+    }
+  }
+
+  // 3. Downstream stop check if NOT cascading (departure cannot exceed next stop arrival)
+  if (!cascadeDownstream && stopIndex < allStopTimes.length - 1) {
+    let nextStopTime: TimetableStopTime | undefined;
+    for (let i = stopIndex + 1; i < allStopTimes.length; i++) {
+      const st = allStopTimes[i];
+      if (st && !st.isBypass && !st.isTerminatedEarly) {
+        nextStopTime = st;
+        break;
+      }
+    }
+
+    if (nextStopTime) {
+      const nextArrM = timeStringToMinutes(nextStopTime.arrivalTime);
+      let travelToNext = nextArrM - depM;
+      if (travelToNext < 0 && depM > 22 * 60 && nextArrM < 3 * 60) {
+        travelToNext = nextArrM + 1440 - depM;
+      }
+      if (travelToNext < 0) {
+        return {
+          isValid: false,
+          errorMessage: `Waktu keberangkatan (${departureTime}) tidak boleh mendahului waktu kedatangan stasiun berikutnya (${nextStopTime.stopName || "berikutnya"} - ${nextStopTime.arrivalTime}). Aktifkan 'Cascade times' untuk menyesuaikan downstream otomatis.`,
+        };
+      }
+    }
+  }
+
+  return { isValid: true };
+}

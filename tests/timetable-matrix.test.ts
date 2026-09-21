@@ -6,6 +6,7 @@ import {
   shiftRunSchedule,
   timeStringToMinutes,
   minutesToTimeString,
+  validateStopTimeChronology,
 } from "../src/lib/simulation/timetableMatrix";
 import { generateDepartureBoard } from "../src/components/inspector/HubDetailSheet";
 import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
@@ -410,6 +411,169 @@ describe("Timetable Matrix & Stop-by-Trip Scheduling Suite", () => {
       expect(ftmItem?.tripType).toBe("ROUTE_DIVERGENCE");
       expect(ftmItem?.divergenceReason).toBe("INCIDENT_DISRUPTION");
       expect(ftmItem?.divergenceDescription).toContain("perbaikan wesel darurat");
+    });
+  });
+
+  describe("Chronological Dwell Sanity & Operational Error Prevention Guardrails", () => {
+    const sampleStopTimes = [
+      {
+        stopId: "stop-1",
+        stopName: "Stasiun Lebak Bulus",
+        stopSequence: 1,
+        arrivalTime: "08:00",
+        departureTime: "08:00",
+        dwellSeconds: 60,
+      },
+      {
+        stopId: "stop-2",
+        stopName: "Stasiun Fatmawati",
+        stopSequence: 2,
+        arrivalTime: "08:05",
+        departureTime: "08:06",
+        dwellSeconds: 60,
+      },
+      {
+        stopId: "stop-3",
+        stopName: "Stasiun Cipete Raya",
+        stopSequence: 3,
+        arrivalTime: "08:11",
+        departureTime: "08:12",
+        dwellSeconds: 60,
+      },
+      {
+        stopId: "stop-4",
+        stopName: "Stasiun Blok M",
+        stopSequence: 4,
+        arrivalTime: "08:18",
+        departureTime: "08:20",
+        dwellSeconds: 120,
+      },
+    ];
+
+    it("accepts valid chronological stop times with positive dwell", () => {
+      const result = validateStopTimeChronology({
+        arrivalTime: "08:05",
+        departureTime: "08:07",
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(true);
+      expect(result.errorMessage).toBeUndefined();
+    });
+
+    it("rejects invalid time formats", () => {
+      const result = validateStopTimeChronology({
+        arrivalTime: "8:5",
+        departureTime: "08:07",
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+      });
+
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain("Format waktu harus HH:mm");
+    });
+
+    it("strictly rejects negative dwell (departure preceding arrival at same stop)", () => {
+      const result = validateStopTimeChronology({
+        arrivalTime: "08:10",
+        departureTime: "08:08", // Departs 2 minutes BEFORE arriving!
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain("dwell negatif");
+    });
+
+    it("strictly rejects backwards time travel against preceding station departure", () => {
+      // Station 0 departs at 08:00. Trying to set Station 1 arrival to 07:55.
+      const result = validateStopTimeChronology({
+        arrivalTime: "07:55",
+        departureTime: "07:58",
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain("tidak boleh mendahului waktu keberangkatan stasiun sebelumnya");
+      expect(result.errorMessage).toContain("Lebak Bulus");
+    });
+
+    it("strictly rejects downstream collision when cascadeDownstream is false", () => {
+      // Station 3 (index 2) arrives at 08:11. Trying to set Station 2 (index 1) departure to 08:15 without cascading.
+      const result = validateStopTimeChronology({
+        arrivalTime: "08:05",
+        departureTime: "08:15", // Departs Fatmawati after already arriving at Cipete Raya!
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: false,
+      });
+
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain("tidak boleh mendahului waktu kedatangan stasiun berikutnya");
+      expect(result.errorMessage).toContain("Cipete Raya");
+    });
+
+    it("permits downstream changes when cascadeDownstream is enabled", () => {
+      // When cascadeDownstream is true, setting Fatmawati departure to 08:15 is valid because downstream will be shifted
+      const result = validateStopTimeChronology({
+        arrivalTime: "08:05",
+        departureTime: "08:15",
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(true);
+    });
+
+    it("correctly validates midnight-crossing overnight trips", () => {
+      const overnightStops = [
+        {
+          stopId: "stop-n1",
+          stopName: "Stasiun Gambir",
+          stopSequence: 1,
+          arrivalTime: "23:45",
+          departureTime: "23:50",
+          dwellSeconds: 300,
+        },
+        {
+          stopId: "stop-n2",
+          stopName: "Stasiun Cirebon",
+          stopSequence: 2,
+          arrivalTime: "02:15",
+          departureTime: "02:25",
+          dwellSeconds: 600,
+        },
+      ];
+
+      // Station 2 arrives at 02:15 after departure at 23:50 from Station 1
+      const result = validateStopTimeChronology({
+        arrivalTime: "02:15",
+        departureTime: "02:25",
+        stopIndex: 1,
+        allStopTimes: overnightStops,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(true);
+    });
+
+    it("allows express bypass stops without dwell constraints", () => {
+      const result = validateStopTimeChronology({
+        arrivalTime: "08:05",
+        departureTime: "08:05",
+        isBypass: true,
+        stopIndex: 1,
+        allStopTimes: sampleStopTimes,
+        cascadeDownstream: true,
+      });
+
+      expect(result.isValid).toBe(true);
     });
   });
 });

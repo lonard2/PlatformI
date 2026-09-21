@@ -43,7 +43,9 @@ import {
   timeStringToMinutes,
   minutesToTimeString,
   shiftRunSchedule,
+  validateStopTimeChronology,
 } from "@/lib/simulation/timetableMatrix";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
 interface TimetableMatrixGridProps {
   selectedLine: Line;
@@ -121,6 +123,12 @@ export function TimetableMatrixGrid({
   const [divergenceDesc, setDivergenceDesc] = useState<string>("");
   const [terminatedStopId, setTerminatedStopId] = useState<string>("");
 
+  const { containerRef: divergenceDialogRef, handleTrapKeyDown: handleDivergenceTrapKeyDown } =
+    useDialogFocusTrap<HTMLDivElement>({
+      isOpen: !!configuringRun,
+      onClose: () => setConfiguringRun(null),
+    });
+
   // Ensure each run has populated stopTimes along the line stops
   const materializedRuns = useMemo(() => {
     return filteredRuns.map((run) => {
@@ -168,24 +176,34 @@ export function TimetableMatrixGrid({
     setCellError(null);
   };
 
-  // Save in-cell edit with cascading recalculation
+  // Save in-cell edit with chronological validation and cascading recalculation
   const handleSaveCell = async () => {
     if (!editingCell) return;
     setCellError(null);
 
-    const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
-    if (!timeRegex.test(editingCell.arrivalTime) || !timeRegex.test(editingCell.departureTime)) {
-      setCellError("Time format must be HH:mm (e.g. 08:30).");
+    const targetRun = materializedRuns.find((r) => r.id === editingCell.runId);
+    if (!targetRun) return;
+
+    const currentStopTimes = [...(targetRun.stopTimes || [])];
+    const targetIndex = editingCell.stopIndex;
+
+    // Strict chronological validation: prevent negative dwell and inter-station time travel
+    const validation = validateStopTimeChronology({
+      arrivalTime: editingCell.arrivalTime,
+      departureTime: editingCell.departureTime,
+      isBypass: editingCell.isBypass,
+      stopIndex: targetIndex,
+      allStopTimes: currentStopTimes,
+      cascadeDownstream: editingCell.cascadeDownstream,
+    });
+
+    if (!validation.isValid) {
+      setCellError(validation.errorMessage || "Format atau urutan waktu tidak valid.");
       return;
     }
 
     try {
       setIsSavingCell(true);
-      const targetRun = materializedRuns.find((r) => r.id === editingCell.runId);
-      if (!targetRun) return;
-
-      const currentStopTimes = [...(targetRun.stopTimes || [])];
-      const targetIndex = editingCell.stopIndex;
 
       // Update the edited stop
       const updatedStopTime: TimetableStopTime = {
@@ -474,18 +492,18 @@ export function TimetableMatrixGrid({
 
                         {/* Operational Typology Badge */}
                         {run.tripType === "NIGHT_DEPOT_STABLING" ? (
-                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-950/90 border border-indigo-500/50 text-indigo-300">
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-950/90 border border-indigo-500/50 text-indigo-300">
                             <Moon className="w-2.5 h-2.5 text-indigo-400" />
                             <span>Masuk Dipo</span>
                           </div>
                         ) : run.tripType === "SHORT_TURN" ? (
-                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-950/90 border border-amber-500/50 text-amber-300">
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950/90 border border-amber-500/50 text-amber-300">
                             <ArrowRight className="w-2.5 h-2.5 text-amber-400" />
                             <span>Relasi Pendek</span>
                           </div>
                         ) : run.tripType === "ROUTE_DIVERGENCE" ? (
                           <div
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-950/90 border border-rose-500/50 text-rose-300"
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-950/90 border border-rose-500/50 text-rose-300"
                             title={run.divergenceDescription || "Rekayasa Pola Operasi"}
                           >
                             <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
@@ -498,7 +516,7 @@ export function TimetableMatrixGrid({
                             </span>
                           </div>
                         ) : run.tripType === "SPECIAL_KLB" ? (
-                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-yellow-950/90 border border-yellow-500/50 text-yellow-300">
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-950/90 border border-yellow-500/50 text-yellow-300">
                             <Sparkles className="w-2.5 h-2.5 text-yellow-400" />
                             <span>KLB Luar Biasa</span>
                           </div>
@@ -559,7 +577,7 @@ export function TimetableMatrixGrid({
                             <div className="text-white font-medium truncate flex items-center gap-1">
                               <span>{stop.name}</span>
                               {stop.stationType === "TOD" && (
-                                <span className="px-1 py-0.2 rounded text-[9px] font-mono bg-indigo-950 text-indigo-300 border border-indigo-500/40">
+                                <span className="px-1 py-0.2 rounded text-[10px] font-mono bg-indigo-950 text-indigo-300 border border-indigo-500/40">
                                   TOD
                                 </span>
                               )}
@@ -590,7 +608,15 @@ export function TimetableMatrixGrid({
                               key={run.id}
                               className="px-2 py-2 border-r border-white/5 bg-teal-950/40 align-middle"
                             >
-                              <div className="p-2 rounded-xl bg-slate-950 border border-teal-500/50 shadow-xl space-y-2 text-xs">
+                              <div
+                                onKeyDown={(e) => {
+                                  if (e.key === "Escape") {
+                                    e.stopPropagation();
+                                    setEditingCell(null);
+                                  }
+                                }}
+                                className="p-2 rounded-xl bg-slate-950 border border-teal-500/50 shadow-xl space-y-2 text-xs"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="text-[10px] font-bold text-teal-300">
                                     Edit Schedule
@@ -634,7 +660,7 @@ export function TimetableMatrixGrid({
                                 {!editingCell.isBypass && (
                                   <div className="grid grid-cols-2 gap-1.5">
                                     <div>
-                                      <span className="text-[9px] text-slate-400">Arr:</span>
+                                      <span className="text-[10px] text-slate-400">Arr:</span>
                                       <input
                                         type="text"
                                         value={editingCell.arrivalTime}
@@ -647,7 +673,7 @@ export function TimetableMatrixGrid({
                                       />
                                     </div>
                                     <div>
-                                      <span className="text-[9px] text-slate-400">Dep:</span>
+                                      <span className="text-[10px] text-slate-400">Dep:</span>
                                       <input
                                         type="text"
                                         value={editingCell.departureTime}
@@ -680,7 +706,7 @@ export function TimetableMatrixGrid({
                                 </label>
 
                                 {cellError && (
-                                  <div className="text-[9px] text-rose-400">{cellError}</div>
+                                  <div className="text-[10px] text-rose-400">{cellError}</div>
                                 )}
 
                                 <div className="flex items-center justify-end gap-1.5 pt-1">
@@ -714,7 +740,7 @@ export function TimetableMatrixGrid({
                               className="px-3 py-3 border-r border-white/5 text-center bg-slate-950/60 cursor-pointer hover:bg-slate-900/80 transition select-none"
                               title="Perjalanan tidak melayani stasiun ini (Berakhir Lebih Awal / Masuk Dipo). Klik untuk ubah rekayasa."
                             >
-                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-500">
+                              <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-500">
                                 <span>
                                   --:--{" "}
                                   {run.tripType === "NIGHT_DEPOT_STABLING"
@@ -745,7 +771,7 @@ export function TimetableMatrixGrid({
                                     ? stopTime?.arrivalTime || run.arrivalTime
                                     : `${stopTime?.arrivalTime || "--:--"} / ${stopTime?.departureTime || "--:--"}`}
                                 </div>
-                                <div className="text-[9px] font-mono text-slate-500">
+                                <div className="text-[10px] font-mono text-slate-500">
                                   {stopTime?.peronOrTrack || `Peron ${(stopIdx % 2) + 1}`}
                                 </div>
                               </div>
@@ -764,15 +790,30 @@ export function TimetableMatrixGrid({
 
       {/* Operational Divergence & Rekayasa Pola Operasi Modal */}
       {configuringRun && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg bg-[#0c1222] border border-indigo-500/40 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setConfiguringRun(null);
+            }
+          }}
+        >
+          <div
+            ref={divergenceDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="divergence-dialog-title"
+            onKeyDown={handleDivergenceTrapKeyDown}
+            tabIndex={-1}
+            className="w-full max-w-lg bg-[#0c1222] border border-indigo-500/40 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] outline-none"
+          >
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-400">
                   <GitBranch className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h3 id="divergence-dialog-title" className="text-sm font-bold text-white flex items-center gap-2">
                     <span>Rekayasa Operasi & Stabling</span>
                     <span className="font-mono text-teal-400 text-xs">
                       ({configuringRun.tripCode})

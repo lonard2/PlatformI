@@ -19,6 +19,7 @@ import {
   Sparkles,
   Calendar,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { Line, Stop, TimetableRun } from "@/types/transit";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
@@ -30,6 +31,7 @@ interface BatchScheduleModalProps {
   lines: Line[];
   allStops: Stop[];
   initialLineId?: string;
+  existingRuns?: TimetableRun[];
   onRunsGenerated: (runs: TimetableRun[]) => void;
 }
 
@@ -41,6 +43,7 @@ export function BatchScheduleModal({
   lines,
   allStops,
   initialLineId,
+  existingRuns,
   onRunsGenerated,
 }: BatchScheduleModalProps) {
   const defaultLine = initialLineId || lines[0]?.id || "line-mrt-ns";
@@ -55,6 +58,7 @@ export function BatchScheduleModal({
   const [serviceClass, setServiceClass] = useState<string>("Standard Metro Commuter");
   const [notes, setNotes] = useState<string>("Jam Sibuk Pagi - Regular Headway");
   const [replaceExisting, setReplaceExisting] = useState<boolean>(false);
+  const [confirmOverwrite, setConfirmOverwrite] = useState<boolean>(false);
   const [includeLateNightStabling, setIncludeLateNightStabling] = useState<boolean>(false);
   const [stablingStopId, setStablingStopId] = useState<string>("");
   const [lateNightStartTime, setLateNightStartTime] = useState<string>("22:00");
@@ -78,9 +82,16 @@ export function BatchScheduleModal({
       .sort((a, b) => a.sequence - b.sequence);
   }, [allStops, selectedLine]);
 
+  // Count existing runs on selected line
+  const existingLineRunsCount = useMemo(() => {
+    if (!existingRuns) return 0;
+    return existingRuns.filter((r) => r.lineId === selectedLineId).length;
+  }, [existingRuns, selectedLineId]);
+
   // Update defaults when line changes
   const handleLineChange = (lineId: string) => {
     setSelectedLineId(lineId);
+    setConfirmOverwrite(false);
     const line = lines.find((l) => l.id === lineId);
     if (!line) return;
 
@@ -132,6 +143,13 @@ export function BatchScheduleModal({
     if (lineStops.length < 2) {
       setErrorMessage(
         `Selected line (${selectedLine?.name}) requires at least 2 stops for full matrix timetable generation. Please add stops in Network Studio first.`
+      );
+      return;
+    }
+
+    if (replaceExisting && existingLineRunsCount > 0 && !confirmOverwrite) {
+      setErrorMessage(
+        `Harap centang konfirmasi penimpaan jadwal lama (${existingLineRunsCount} perjalanan pada koridor ini).`
       );
       return;
     }
@@ -376,19 +394,55 @@ export function BatchScheduleModal({
               />
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-950/60 border border-white/10 flex items-center justify-between">
-              <div className="space-y-0.5">
-                <div className="font-semibold text-slate-200">Replace Existing Line Runs</div>
-                <div className="text-[10px] text-slate-500">
-                  Deletes current runs on this line before publishing the new sequence.
+            <div className="space-y-2">
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-white/10 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-slate-200">Replace Existing Line Runs</div>
+                  <div className="text-[10px] text-slate-500">
+                    Deletes current runs on this line before publishing the new sequence.
+                  </div>
                 </div>
+                <input
+                  type="checkbox"
+                  checked={replaceExisting}
+                  onChange={(e) => {
+                    setReplaceExisting(e.target.checked);
+                    if (!e.target.checked) setConfirmOverwrite(false);
+                  }}
+                  className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-teal-500 cursor-pointer"
+                />
               </div>
-              <input
-                type="checkbox"
-                checked={replaceExisting}
-                onChange={(e) => setReplaceExisting(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-teal-500"
-              />
+
+              {/* Overwrite Safety Confirmation Gate */}
+              {replaceExisting && (
+                <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/40 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <div className="text-xs font-bold text-amber-200">
+                        Peringatan: Penimpaan Jadwal Koridor
+                      </div>
+                      <p className="text-[11px] text-amber-300/90 leading-relaxed">
+                        {existingLineRunsCount > 0
+                          ? `Tindakan ini akan menghapus permanen ${existingLineRunsCount} jadwal yang saat ini tersimpan pada koridor ${selectedLine?.name || selectedLineId} sebelum memublikasikan ${estimatedTripsCount} jadwal baru.`
+                          : `Belum ada jadwal tersimpan pada koridor ini. Mode penimpaan aktif dan aman.`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {existingLineRunsCount > 0 && (
+                    <label className="flex items-center gap-2 pt-2 border-t border-amber-500/20 text-[11px] font-semibold text-amber-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={confirmOverwrite}
+                        onChange={(e) => setConfirmOverwrite(e.target.checked)}
+                        className="w-4 h-4 rounded border-amber-600 bg-slate-900 text-amber-500 focus:ring-amber-500"
+                      />
+                      <span>Saya memahami dan mengonfirmasi penghapusan {existingLineRunsCount} jadwal lama.</span>
+                    </label>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 7. Late-Night Depot Stabling & Early Termination Toggle */}
@@ -482,15 +536,33 @@ export function BatchScheduleModal({
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            form="batch-generator-form"
-            disabled={isSubmitting || estimatedTripsCount <= 0}
-            className="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-teal-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition btn-tactile"
-          >
-            <Wand2 className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? "Generating..." : `Publish ${estimatedTripsCount} Runs`}</span>
-          </button>
+          {replaceExisting && existingLineRunsCount > 0 ? (
+            <button
+              type="submit"
+              form="batch-generator-form"
+              disabled={isSubmitting || estimatedTripsCount <= 0 || !confirmOverwrite}
+              className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-600/30 transition btn-tactile"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>
+                {isSubmitting
+                  ? "Menimpa & Membuat..."
+                  : `Konfirmasi Timpa & Buat ${estimatedTripsCount} Jadwal Baru`}
+              </span>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              form="batch-generator-form"
+              disabled={isSubmitting || estimatedTripsCount <= 0}
+              className="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-teal-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition btn-tactile"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span>
+                {isSubmitting ? "Generating..." : `Publish ${estimatedTripsCount} Runs`}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </div>

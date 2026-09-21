@@ -633,7 +633,7 @@ function TimetableStudioContent() {
               <DoorOpen className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-indigo-300">
+          <div className="text-2xl font-bold font-mono text-cyan-400">
             {assignedGatesCount}
           </div>
           <div className="text-[10px] text-slate-400">Direct platform departure assignments</div>
@@ -914,7 +914,7 @@ function TimetableStudioContent() {
                               return (
                                 <span
                                   key={d.day}
-                                  className={`w-4 h-4 rounded text-[9px] font-mono font-bold flex items-center justify-center ${
+                                  className={`w-4 h-4 rounded text-[10px] font-mono font-bold flex items-center justify-center ${
                                     isActive
                                       ? "bg-teal-500/20 text-teal-300 border border-teal-500/40"
                                       : "bg-slate-950 text-slate-600 border border-white/5"
@@ -1225,6 +1225,7 @@ function TimetableStudioContent() {
           lines={allLines}
           allStops={allStops}
           initialLineId={matrixLineId}
+          existingRuns={timetableRuns}
           onRunsGenerated={handleRunsGenerated}
         />
       )}
