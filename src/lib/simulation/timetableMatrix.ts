@@ -502,3 +502,204 @@ export function validateStopTimeChronology(params: {
 
   return { isValid: true };
 }
+
+export interface PlatformConflict {
+  stopId: string;
+  stopName: string;
+  peronOrTrack: string;
+  runIdA: string;
+  tripCodeA: string;
+  runIdB: string;
+  tripCodeB: string;
+  timeA: string; // Arrival / Occupancy window
+  timeB: string;
+  overlapMinutes: number;
+}
+
+/**
+ * Normalizes a platform string (e.g. "Peron 1", "peron 1", "Jalur 1") for conflict matching.
+ */
+export function normalizePlatformTrack(platform?: string): string {
+  if (!platform) return "PERON 1";
+  return platform.trim().toUpperCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Scans all materialized runs across a line to detect simultaneous platform/track occupancy conflicts.
+ * Two trips conflict at a stop if:
+ * 1. They are assigned to the exact same platform or track (case-insensitive normalized).
+ * 2. Neither is bypassed nor terminated before this stop.
+ * 3. Their station occupancy intervals [Arr, Dep] overlap, or have less than minHeadwayMinutes buffer (default 2 mins).
+ */
+export function detectPlatformConflicts(
+  runs: TimetableRun[],
+  stops: Stop[],
+  minHeadwayMinutes = 2
+): Map<string, PlatformConflict[]> {
+  // Key: `${stopId}::${runId}` -> Array of conflicts involving this run at this stop
+  const conflictMap = new Map<string, PlatformConflict[]>();
+
+  // Map each stop to all train occupancies at that stop
+  for (const stop of stops) {
+    interface Occupancy {
+      runId: string;
+      tripCode: string;
+      peronOrTrack: string;
+      arrMinutes: number;
+      depMinutes: number;
+      arrStr: string;
+      depStr: string;
+    }
+
+    const occupancies: Occupancy[] = [];
+
+    for (const run of runs) {
+      if (!run.stopTimes) continue;
+      const st = run.stopTimes.find((s) => s.stopId === stop.id);
+      if (!st || st.isBypass || st.isTerminatedEarly) continue;
+
+      let arrM = timeStringToMinutes(st.arrivalTime);
+      let depM = timeStringToMinutes(st.departureTime);
+
+      // Handle midnight crossing
+      if (depM < arrM && arrM > 22 * 60 && depM < 3 * 60) {
+        depM += 1440;
+      }
+
+      occupancies.push({
+        runId: run.id,
+        tripCode: run.tripCode,
+        peronOrTrack: normalizePlatformTrack(st.peronOrTrack),
+        arrMinutes: arrM,
+        depMinutes: depM,
+        arrStr: st.arrivalTime,
+        depStr: st.departureTime,
+      });
+    }
+
+    // Compare pairwise occupancies for same platform and headway collision
+    for (let i = 0; i < occupancies.length; i++) {
+      for (let j = i + 1; j < occupancies.length; j++) {
+        const occA = occupancies[i];
+        const occB = occupancies[j];
+
+        if (occA.peronOrTrack === occB.peronOrTrack) {
+          // Check temporal overlap: [arrA - buffer, depA + buffer] overlaps [arrB, depB]
+          const startA = occA.arrMinutes - minHeadwayMinutes;
+          const endA = occA.depMinutes + minHeadwayMinutes;
+          const startB = occB.arrMinutes;
+          const endB = occB.depMinutes;
+
+          const isOverlapping = Math.max(startA, startB) <= Math.min(endA, endB);
+
+          if (isOverlapping) {
+            const overlapM = Math.abs(occA.arrMinutes - occB.arrMinutes);
+            const conflictA: PlatformConflict = {
+              stopId: stop.id,
+              stopName: stop.name,
+              peronOrTrack: occA.peronOrTrack,
+              runIdA: occA.runId,
+              tripCodeA: occA.tripCode,
+              runIdB: occB.runId,
+              tripCodeB: occB.tripCode,
+              timeA: `${occA.arrStr}-${occA.depStr}`,
+              timeB: `${occB.arrStr}-${occB.depStr}`,
+              overlapMinutes: overlapM,
+            };
+
+            const keyA = `${stop.id}::${occA.runId}`;
+            const keyB = `${stop.id}::${occB.runId}`;
+
+            const listA = conflictMap.get(keyA) || [];
+            listA.push(conflictA);
+            conflictMap.set(keyA, listA);
+
+            const listB = conflictMap.get(keyB) || [];
+            listB.push({
+              ...conflictA,
+              runIdA: occB.runId,
+              tripCodeA: occB.tripCode,
+              runIdB: occA.runId,
+              tripCodeB: occA.tripCode,
+              timeA: `${occB.arrStr}-${occB.depStr}`,
+              timeB: `${occA.arrStr}-${occA.depStr}`,
+            });
+            conflictMap.set(keyB, listB);
+          }
+        }
+      }
+    }
+  }
+
+  return conflictMap;
+}
+
+/**
+ * Checks whether an updated stop time for a specific run causes a platform/track conflict
+ * against other existing runs on the line.
+ */
+export function checkPlatformOccupancyConflict(params: {
+  targetRunId: string;
+  stopId: string;
+  stopName: string;
+  peronOrTrack: string;
+  arrivalTime: string;
+  departureTime: string;
+  isBypass: boolean;
+  allRuns: TimetableRun[];
+  minHeadwayMinutes?: number;
+}): { hasConflict: boolean; conflictingTripCode?: string; conflictingWindow?: string; warningMessage?: string } {
+  const {
+    targetRunId,
+    stopId,
+    stopName,
+    peronOrTrack,
+    arrivalTime,
+    departureTime,
+    isBypass,
+    allRuns,
+    minHeadwayMinutes = 2,
+  } = params;
+
+  if (isBypass) return { hasConflict: false };
+
+  const normPlatform = normalizePlatformTrack(peronOrTrack);
+  const arrM = timeStringToMinutes(arrivalTime);
+  let depM = timeStringToMinutes(departureTime);
+  if (depM < arrM && arrM > 22 * 60 && depM < 3 * 60) {
+    depM += 1440;
+  }
+
+  const startA = arrM - minHeadwayMinutes;
+  const endA = depM + minHeadwayMinutes;
+
+  for (const otherRun of allRuns) {
+    if (otherRun.id === targetRunId || !otherRun.stopTimes) continue;
+
+    const otherSt = otherRun.stopTimes.find((s) => s.stopId === stopId);
+    if (!otherSt || otherSt.isBypass || otherSt.isTerminatedEarly) continue;
+
+    if (normalizePlatformTrack(otherSt.peronOrTrack) === normPlatform) {
+      let otherArrM = timeStringToMinutes(otherSt.arrivalTime);
+      let otherDepM = timeStringToMinutes(otherSt.departureTime);
+      if (otherDepM < otherArrM && otherArrM > 22 * 60 && otherDepM < 3 * 60) {
+        otherDepM += 1440;
+      }
+
+      const isOverlapping = Math.max(startA, otherArrM) <= Math.min(endA, otherDepM);
+
+      if (isOverlapping) {
+        return {
+          hasConflict: true,
+          conflictingTripCode: otherRun.tripCode,
+          conflictingWindow: `${otherSt.arrivalTime} - ${otherSt.departureTime}`,
+          warningMessage: `Peringatan Konflik Interlocking: ${normPlatform} di ${stopName} sudah dialokasikan untuk ${otherRun.tripCode} (${otherSt.arrivalTime} - ${otherSt.departureTime}) dalam toleransi ${minHeadwayMinutes} menit.`,
+        };
+      }
+    }
+  }
+
+  return { hasConflict: false };
+}
+
+

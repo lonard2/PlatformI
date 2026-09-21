@@ -7,6 +7,8 @@ import {
   timeStringToMinutes,
   minutesToTimeString,
   validateStopTimeChronology,
+  detectPlatformConflicts,
+  checkPlatformOccupancyConflict,
 } from "../src/lib/simulation/timetableMatrix";
 import { generateDepartureBoard } from "../src/components/inspector/HubDetailSheet";
 import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
@@ -576,4 +578,201 @@ describe("Timetable Matrix & Stop-by-Trip Scheduling Suite", () => {
       expect(result.isValid).toBe(true);
     });
   });
+
+  describe("Interlocking Platform & Track Headway Conflict Detection", () => {
+    const stops: Stop[] = [
+      {
+        id: "stop-1",
+        lineId: "line-mrt",
+        name: "Stasiun Dukuh Atas BNI",
+        code: "DKA",
+        latitude: -6.2008,
+        longitude: 106.8227,
+        sequence: 1,
+        isInterchange: true,
+        connectedLineIds: [],
+        facilities: [],
+        accessibleElevator: true,
+        tactilePaving: true,
+        wheelchairRamp: true,
+      },
+      {
+        id: "stop-2",
+        lineId: "line-mrt",
+        name: "Stasiun Bundaran HI",
+        code: "BHI",
+        latitude: -6.1931,
+        longitude: 106.823,
+        sequence: 2,
+        isInterchange: true,
+        connectedLineIds: [],
+        facilities: [],
+        accessibleElevator: true,
+        tactilePaving: true,
+        wheelchairRamp: true,
+      },
+    ];
+
+    it("flags collision when two runs occupy Peron 1 at the same station simultaneously", () => {
+      const runA: TimetableRun = {
+        id: "run-A",
+        lineId: "line-mrt",
+        tripCode: "M-101",
+        origin: "Dukuh Atas BNI",
+        destination: "Bundaran HI",
+        departureTime: "08:00",
+        arrivalTime: "08:05",
+        operatorName: "MRT Jakarta",
+        stopTimes: [
+          {
+            stopId: "stop-1",
+            stopName: "Stasiun Dukuh Atas BNI",
+            stopSequence: 1,
+            arrivalTime: "08:00",
+            departureTime: "08:01",
+            peronOrTrack: "Peron 1",
+          },
+          {
+            stopId: "stop-2",
+            stopName: "Stasiun Bundaran HI",
+            stopSequence: 2,
+            arrivalTime: "08:05",
+            departureTime: "08:06",
+            peronOrTrack: "Peron 1",
+          },
+        ],
+      };
+
+      const runB: TimetableRun = {
+        id: "run-B",
+        lineId: "line-mrt",
+        tripCode: "M-102",
+        origin: "Dukuh Atas BNI",
+        destination: "Bundaran HI",
+        departureTime: "08:01",
+        arrivalTime: "08:06",
+        operatorName: "MRT Jakarta",
+        stopTimes: [
+          {
+            stopId: "stop-1",
+            stopName: "Stasiun Dukuh Atas BNI",
+            stopSequence: 1,
+            arrivalTime: "08:01", // Collides with Run A at stop-1 on Peron 1
+            departureTime: "08:02",
+            peronOrTrack: "Peron 1",
+          },
+          {
+            stopId: "stop-2",
+            stopName: "Stasiun Bundaran HI",
+            stopSequence: 2,
+            arrivalTime: "08:06",
+            departureTime: "08:07",
+            peronOrTrack: "Peron 1",
+          },
+        ],
+      };
+
+      const conflicts = detectPlatformConflicts([runA, runB], stops, 2);
+      expect(conflicts.size).toBeGreaterThan(0);
+
+      const conflictA = conflicts.get("stop-1::run-A");
+      expect(conflictA).toBeDefined();
+      expect(conflictA?.[0].tripCodeB).toBe("M-102");
+      expect(conflictA?.[0].peronOrTrack).toBe("PERON 1");
+
+      const conflictB = conflicts.get("stop-1::run-B");
+      expect(conflictB).toBeDefined();
+      expect(conflictB?.[0].tripCodeB).toBe("M-101");
+    });
+
+    it("clears conflict when runs are assigned to distinct platforms", () => {
+      const runA: TimetableRun = {
+        id: "run-A",
+        lineId: "line-mrt",
+        tripCode: "M-101",
+        origin: "Dukuh Atas BNI",
+        destination: "Bundaran HI",
+        departureTime: "08:00",
+        arrivalTime: "08:05",
+        operatorName: "MRT Jakarta",
+        stopTimes: [
+          {
+            stopId: "stop-1",
+            stopName: "Stasiun Dukuh Atas BNI",
+            stopSequence: 1,
+            arrivalTime: "08:00",
+            departureTime: "08:01",
+            peronOrTrack: "Peron 1",
+          },
+        ],
+      };
+
+      const runB: TimetableRun = {
+        id: "run-B",
+        lineId: "line-mrt",
+        tripCode: "M-102",
+        origin: "Dukuh Atas BNI",
+        destination: "Bundaran HI",
+        departureTime: "08:00",
+        arrivalTime: "08:05",
+        operatorName: "MRT Jakarta",
+        stopTimes: [
+          {
+            stopId: "stop-1",
+            stopName: "Stasiun Dukuh Atas BNI",
+            stopSequence: 1,
+            arrivalTime: "08:00",
+            departureTime: "08:01",
+            peronOrTrack: "Peron 2", // Different platform!
+          },
+        ],
+      };
+
+      const conflicts = detectPlatformConflicts([runA, runB], stops, 2);
+      expect(conflicts.size).toBe(0);
+    });
+
+    it("validates single-cell pre-save check against other runs", () => {
+      const existingRuns: TimetableRun[] = [
+        {
+          id: "run-101",
+          lineId: "line-mrt",
+          tripCode: "M-101",
+          origin: "Dukuh Atas BNI",
+          destination: "Bundaran HI",
+          departureTime: "08:00",
+          arrivalTime: "08:05",
+          operatorName: "MRT Jakarta",
+          stopTimes: [
+            {
+              stopId: "stop-1",
+              stopName: "Stasiun Dukuh Atas BNI",
+              stopSequence: 1,
+              arrivalTime: "08:00",
+              departureTime: "08:02",
+              peronOrTrack: "Peron 1",
+            },
+          ],
+        },
+      ];
+
+      // Trying to edit run-102 to arrive at Peron 1 at 08:01
+      const conflictCheck = checkPlatformOccupancyConflict({
+        targetRunId: "run-102",
+        stopId: "stop-1",
+        stopName: "Stasiun Dukuh Atas BNI",
+        peronOrTrack: "Peron 1",
+        arrivalTime: "08:01",
+        departureTime: "08:03",
+        isBypass: false,
+        allRuns: existingRuns,
+        minHeadwayMinutes: 2,
+      });
+
+      expect(conflictCheck.hasConflict).toBe(true);
+      expect(conflictCheck.conflictingTripCode).toBe("M-101");
+      expect(conflictCheck.warningMessage).toContain("Konflik Interlocking");
+    });
+  });
 });
+

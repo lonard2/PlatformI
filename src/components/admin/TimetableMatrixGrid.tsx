@@ -44,6 +44,9 @@ import {
   minutesToTimeString,
   shiftRunSchedule,
   validateStopTimeChronology,
+  detectPlatformConflicts,
+  checkPlatformOccupancyConflict,
+  PlatformConflict,
 } from "@/lib/simulation/timetableMatrix";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
@@ -88,6 +91,8 @@ export function TimetableMatrixGrid({
   const [editingCell, setEditingCell] = useState<InCellEditState | null>(null);
   const [isSavingCell, setIsSavingCell] = useState<boolean>(false);
   const [cellError, setCellError] = useState<string | null>(null);
+  const [cellWarning, setCellWarning] = useState<string | null>(null);
+  const [cellWarningOverride, setCellWarningOverride] = useState<boolean>(false);
 
   // Filter runs by selected time window
   const filteredRuns = useMemo(() => {
@@ -149,6 +154,27 @@ export function TimetableMatrixGrid({
       };
     });
   }, [filteredRuns, lineStops, selectedLine.mode]);
+
+  // Real-time Platform & Track Headway Conflict Detection (Interlocking Safety)
+  const platformConflicts = useMemo(() => {
+    return detectPlatformConflicts(materializedRuns, lineStops, 2);
+  }, [materializedRuns, lineStops]);
+
+  // Aggregate total unique conflicts across entire line
+  const totalConflictCount = useMemo(() => {
+    let count = 0;
+    const countedPairs = new Set<string>();
+    platformConflicts.forEach((conflicts) => {
+      for (const c of conflicts) {
+        const pairKey = [c.stopId, c.runIdA, c.runIdB].sort().join("::");
+        if (!countedPairs.has(pairKey)) {
+          countedPairs.add(pairKey);
+          count++;
+        }
+      }
+    });
+    return count;
+  }, [platformConflicts]);
 
   // WAI-ARIA roving keyboard navigation for transit dispatchers
   const [activeGridCell, setActiveGridCell] = useState<{ stopIdx: number; runIdx: number } | null>(
@@ -227,12 +253,17 @@ export function TimetableMatrixGrid({
       cascadeDownstream: true,
     });
     setCellError(null);
+    setCellWarning(null);
+    setCellWarningOverride(false);
   };
 
   // Save in-cell edit with chronological validation and cascading recalculation
-  const handleSaveCell = async () => {
+  const handleSaveCell = async (overrideWarning = false) => {
     if (!editingCell) return;
     setCellError(null);
+    if (!overrideWarning) {
+      setCellWarning(null);
+    }
 
     const targetRun = materializedRuns.find((r) => r.id === editingCell.runId);
     if (!targetRun) return;
@@ -252,6 +283,27 @@ export function TimetableMatrixGrid({
 
     if (!validation.isValid) {
       setCellError(validation.errorMessage || "Format atau urutan waktu tidak valid.");
+      return;
+    }
+
+    // Interlocking Platform / Track Collision Check against other trips
+    const conflictCheck = checkPlatformOccupancyConflict({
+      targetRunId: targetRun.id,
+      stopId: editingCell.stopId,
+      stopName: editingCell.stopName,
+      peronOrTrack: editingCell.peronOrTrack,
+      arrivalTime: editingCell.arrivalTime,
+      departureTime: editingCell.departureTime,
+      isBypass: editingCell.isBypass,
+      allRuns: materializedRuns,
+      minHeadwayMinutes: 2,
+    });
+
+    if (conflictCheck.hasConflict && !overrideWarning && !cellWarningOverride) {
+      setCellWarning(
+        conflictCheck.warningMessage ||
+          `Konflik Peron: Jalur/Peron ini sudah dialokasikan untuk ${conflictCheck.conflictingTripCode} (${conflictCheck.conflictingWindow}). Klik 'Tetap Terapkan' jika disengaja.`
+      );
       return;
     }
 
@@ -460,6 +512,17 @@ export function TimetableMatrixGrid({
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
               {lineStops.length} Stations &bull; {materializedRuns.length} Trips
             </span>
+            {totalConflictCount > 0 ? (
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-500/50 flex items-center gap-1 animate-pulse">
+                <AlertTriangle className="w-3 h-3 text-rose-400" />
+                <span>{totalConflictCount} Konflik Peron</span>
+              </span>
+            ) : (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span>Interlocking Aman</span>
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-400">
             <div className="hidden md:flex items-center gap-1.5 font-mono bg-slate-950/80 px-2.5 py-1 rounded-lg border border-white/10">
@@ -686,6 +749,10 @@ export function TimetableMatrixGrid({
                         const isFocused =
                           activeGridCell?.stopIdx === stopIdx && activeGridCell?.runIdx === runIdx;
 
+                        const cellConflictKey = `${stop.id}::${run.id}`;
+                        const cellConflicts = platformConflicts.get(cellConflictKey);
+                        const hasPlatformConflict = Boolean(cellConflicts && cellConflicts.length > 0);
+
                         return (
                           <td
                             key={run.id}
@@ -715,12 +782,16 @@ export function TimetableMatrixGrid({
                                 ? "bg-teal-950/60 ring-2 ring-teal-400 ring-inset z-20"
                                 : isFocused
                                 ? "ring-2 ring-teal-400/80 ring-inset bg-teal-500/15"
+                                : hasPlatformConflict
+                                ? "bg-rose-950/40 border-b border-rose-500/40 hover:bg-rose-900/40"
                                 : isTerminated
                                 ? "bg-slate-950/60 hover:bg-slate-900/80"
                                 : "hover:bg-teal-500/10 group"
                             }`}
                             title={
-                              isTerminated
+                              hasPlatformConflict
+                                ? `KONFLIK PERON: ${cellConflicts?.map((c) => `${c.peronOrTrack} bentrok dengan ${c.tripCodeB} (${c.timeB})`).join("; ")}`
+                                : isTerminated
                                 ? "Perjalanan tidak melayani stasiun ini (Berakhir Lebih Awal / Masuk Dipo). Klik untuk ubah rekayasa."
                                 : "Klik atau tekan Enter untuk edit waktu stasiun"
                             }
@@ -741,15 +812,27 @@ export function TimetableMatrixGrid({
                               </div>
                             ) : (
                               <div className="space-y-0.5">
-                                <div className="font-mono text-xs font-semibold text-white group-hover:text-teal-300 transition">
-                                  {isOrigin
-                                    ? stopTime?.departureTime || run.departureTime
-                                    : isTerminus
-                                    ? stopTime?.arrivalTime || run.arrivalTime
-                                    : `${stopTime?.arrivalTime || "--:--"} / ${stopTime?.departureTime || "--:--"}`}
+                                <div className="font-mono text-xs font-semibold text-white group-hover:text-teal-300 transition flex items-center justify-center gap-1">
+                                  {hasPlatformConflict && (
+                                    <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0 animate-pulse" />
+                                  )}
+                                  <span>
+                                    {isOrigin
+                                      ? stopTime?.departureTime || run.departureTime
+                                      : isTerminus
+                                      ? stopTime?.arrivalTime || run.arrivalTime
+                                      : `${stopTime?.arrivalTime || "--:--"} / ${stopTime?.departureTime || "--:--"}`}
+                                  </span>
                                 </div>
-                                <div className="text-[10px] font-mono text-slate-400">
-                                  {stopTime?.peronOrTrack || `Peron ${(stopIdx % 2) + 1}`}
+                                <div className="text-[10px] font-mono flex items-center justify-center gap-1">
+                                  <span className={hasPlatformConflict ? "text-rose-300 font-bold" : "text-slate-400"}>
+                                    {stopTime?.peronOrTrack || `Peron ${(stopIdx % 2) + 1}`}
+                                  </span>
+                                  {hasPlatformConflict && (
+                                    <span className="px-1 rounded text-[9px] bg-rose-900/80 text-rose-200 border border-rose-500/60 font-bold uppercase">
+                                      Bentrok
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -833,19 +916,69 @@ export function TimetableMatrixGrid({
                                   </button>
 
                                   {!editingCell.isBypass && (
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                                            Kedatangan (Arr)
+                                          </label>
+                                          <input
+                                            type="text"
+                                            autoFocus
+                                            value={editingCell.arrivalTime}
+                                            onChange={(e) =>
+                                              setEditingCell((prev) =>
+                                                prev
+                                                  ? { ...prev, arrivalTime: e.target.value }
+                                                  : null
+                                              )
+                                            }
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleSaveCell();
+                                              }
+                                            }}
+                                            className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                                            Keberangkatan (Dep)
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={editingCell.departureTime}
+                                            onChange={(e) =>
+                                              setEditingCell((prev) =>
+                                                prev
+                                                  ? { ...prev, departureTime: e.target.value }
+                                                  : null
+                                              )
+                                            }
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleSaveCell();
+                                              }
+                                            }}
+                                            className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
+                                          />
+                                        </div>
+                                      </div>
+
                                       <div>
                                         <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
-                                          Kedatangan (Arr)
+                                          Alokasi Jalur / Peron
                                         </label>
                                         <input
                                           type="text"
-                                          autoFocus
-                                          value={editingCell.arrivalTime}
+                                          value={editingCell.peronOrTrack}
+                                          placeholder="Contoh: Peron 1 / Jalur 2"
                                           onChange={(e) =>
                                             setEditingCell((prev) =>
                                               prev
-                                                ? { ...prev, arrivalTime: e.target.value }
+                                                ? { ...prev, peronOrTrack: e.target.value }
                                                 : null
                                             )
                                           }
@@ -858,30 +991,7 @@ export function TimetableMatrixGrid({
                                           className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
                                         />
                                       </div>
-                                      <div>
-                                        <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
-                                          Keberangkatan (Dep)
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={editingCell.departureTime}
-                                          onChange={(e) =>
-                                            setEditingCell((prev) =>
-                                              prev
-                                                ? { ...prev, departureTime: e.target.value }
-                                                : null
-                                            )
-                                          }
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                              e.preventDefault();
-                                              handleSaveCell();
-                                            }
-                                          }}
-                                          className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
-                                        />
-                                      </div>
-                                    </div>
+                                    </>
                                   )}
 
                                   {/* Cascade checkbox */}
@@ -907,6 +1017,27 @@ export function TimetableMatrixGrid({
                                     </div>
                                   )}
 
+                                  {cellWarning && (
+                                    <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-500/60 text-[10px] text-amber-200 space-y-1.5">
+                                      <div className="flex items-start gap-1.5">
+                                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                                        <span className="font-semibold leading-tight">{cellWarning}</span>
+                                      </div>
+                                      <div className="flex justify-end">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setCellWarningOverride(true);
+                                            handleSaveCell(true);
+                                          }}
+                                          className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-[10px] transition"
+                                        >
+                                          Tetap Terapkan (Override)
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+
                                   <div className="flex items-center justify-end gap-2 pt-1 border-t border-white/10">
                                     <button
                                       type="button"
@@ -917,7 +1048,7 @@ export function TimetableMatrixGrid({
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={handleSaveCell}
+                                      onClick={() => handleSaveCell(false)}
                                       disabled={isSavingCell}
                                       className="px-3 py-1 rounded-lg bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-[10px] transition shadow-md shadow-teal-500/20"
                                     >
