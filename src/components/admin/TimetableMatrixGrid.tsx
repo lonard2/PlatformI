@@ -840,6 +840,7 @@ export function TimetableMatrixGrid({
                                         </label>
                                         <input
                                           type="text"
+                                          autoFocus
                                           value={editingCell.arrivalTime}
                                           onChange={(e) =>
                                             setEditingCell((prev) =>
@@ -848,6 +849,12 @@ export function TimetableMatrixGrid({
                                                 : null
                                             )
                                           }
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              e.preventDefault();
+                                              handleSaveCell();
+                                            }
+                                          }}
                                           className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
                                         />
                                       </div>
@@ -865,6 +872,12 @@ export function TimetableMatrixGrid({
                                                 : null
                                             )
                                           }
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              e.preventDefault();
+                                              handleSaveCell();
+                                            }
+                                          }}
                                           className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
                                         />
                                       </div>
