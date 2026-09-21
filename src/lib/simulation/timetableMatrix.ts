@@ -717,4 +717,32 @@ export function getOrderedLineStops(stops: Stop[], direction: CorridorDirection 
   return [...stops];
 }
 
+/**
+ * Computes boundary-safe placement alignment for in-cell matrix popovers:
+ * - Vertical: pops upward near bottom rows (when safe from colliding with header), downward otherwise.
+ * - Horizontal: flushes left on column 0, flushes right on final columns, centers on intermediate columns.
+ */
+export function getMatrixPopoverPlacement(params: {
+  stopIdx: number;
+  totalStops: number;
+  runIdx: number;
+  totalRuns: number;
+}): {
+  vertical: "TOP" | "BOTTOM";
+  horizontal: "LEFT" | "CENTER" | "RIGHT";
+} {
+  const isUpward = params.totalStops > 2 && params.stopIdx >= Math.max(2, params.totalStops - 2);
+  const horizontal =
+    params.runIdx === 0
+      ? "LEFT"
+      : params.runIdx >= Math.max(1, params.totalRuns - 2)
+      ? "RIGHT"
+      : "CENTER";
+
+  return {
+    vertical: isUpward ? "TOP" : "BOTTOM",
+    horizontal,
+  };
+}
+
 

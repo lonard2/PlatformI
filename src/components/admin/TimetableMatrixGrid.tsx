@@ -51,6 +51,7 @@ import {
   PlatformConflict,
   getOrderedLineStops,
   CorridorDirection,
+  getMatrixPopoverPlacement,
 } from "@/lib/simulation/timetableMatrix";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
@@ -658,7 +659,11 @@ export function TimetableMatrixGrid({
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto relative">
+          <div
+            className={`overflow-x-auto relative transition-[padding] duration-150 ${
+              editingCell ? "pb-36" : "pb-4"
+            }`}
+          >
             <table
               role="grid"
               aria-label="Stop-by-Trip Timetable Matrix"
@@ -852,6 +857,13 @@ export function TimetableMatrixGrid({
                         const cellConflicts = platformConflicts.get(cellConflictKey);
                         const hasPlatformConflict = Boolean(cellConflicts && cellConflicts.length > 0);
 
+                        const placement = getMatrixPopoverPlacement({
+                          stopIdx,
+                          totalStops: orderedStops.length,
+                          runIdx,
+                          totalRuns: materializedRuns.length,
+                        });
+
                         return (
                           <td
                             key={run.id}
@@ -936,11 +948,11 @@ export function TimetableMatrixGrid({
                               </div>
                             )}
 
-                            {/* Floating Anchored Popover for In-Cell Edit (Zero CLS Layout Shift) */}
+                            {/* Floating Anchored Popover for In-Cell Edit (Zero CLS Layout Shift, Boundary-Safe) */}
                             {isEditingThisCell && (
                               <>
                                 <div
-                                  className="fixed inset-0 z-40"
+                                  className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setEditingCell(null);
@@ -956,14 +968,22 @@ export function TimetableMatrixGrid({
                                       setEditingCell(null);
                                     }
                                   }}
-                                  className={`absolute z-50 w-64 p-3 rounded-2xl bg-slate-950 border border-teal-500 shadow-2xl space-y-2.5 text-xs text-left backdrop-blur-xl ${
-                                    stopIdx >= orderedStops.length - 2
-                                      ? "bottom-full mb-2"
-                                      : "top-full mt-2"
+                                  className={`z-50 p-3 rounded-2xl bg-slate-950 border border-teal-500 shadow-2xl space-y-2.5 text-xs text-left backdrop-blur-xl ${
+                                    /* Compact mobile screens: fixed bottom dock prevents horizontal table scroll clipping */
+                                    "max-sm:fixed max-sm:bottom-4 max-sm:inset-x-4 max-sm:w-auto max-sm:max-w-sm max-sm:mx-auto max-sm:translate-x-0"
                                   } ${
-                                    runIdx >= materializedRuns.length - 2
-                                      ? "right-0"
-                                      : "left-1/2 -translate-x-1/2"
+                                    /* Tablet & Desktop: precisely anchored popover with zero CLS */
+                                    "sm:absolute sm:w-64"
+                                  } ${
+                                    placement.vertical === "TOP"
+                                      ? "sm:bottom-full sm:mb-2"
+                                      : "sm:top-full sm:mt-2"
+                                  } ${
+                                    placement.horizontal === "LEFT"
+                                      ? "sm:left-0 sm:right-auto sm:translate-x-0"
+                                      : placement.horizontal === "RIGHT"
+                                      ? "sm:right-0 sm:left-auto sm:translate-x-0"
+                                      : "sm:left-1/2 sm:-translate-x-1/2"
                                   }`}
                                 >
                                   <div className="flex items-center justify-between border-b border-white/10 pb-1.5">

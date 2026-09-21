@@ -10,6 +10,7 @@ import {
   detectPlatformConflicts,
   checkPlatformOccupancyConflict,
   getOrderedLineStops,
+  getMatrixPopoverPlacement,
 } from "../src/lib/simulation/timetableMatrix";
 import { generateDepartureBoard } from "../src/components/inspector/HubDetailSheet";
 import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
@@ -798,6 +799,83 @@ describe("Timetable Matrix & Stop-by-Trip Scheduling Suite", () => {
       expect(getOrderedLineStops([], "INBOUND")).toEqual([]);
       const single = [dummyStops[0]];
       expect(getOrderedLineStops(single, "INBOUND")).toEqual(single);
+    });
+  });
+
+  describe("Boundary-Aware In-Cell Popover Placement (Ergonomics & Anti-Clipping)", () => {
+    it("flushes popover leftward for the first trip column to avoid sticky header collision", () => {
+      const placement = getMatrixPopoverPlacement({
+        stopIdx: 1,
+        totalStops: 10,
+        runIdx: 0,
+        totalRuns: 8,
+      });
+      expect(placement.horizontal).toBe("LEFT");
+      expect(placement.vertical).toBe("BOTTOM");
+    });
+
+    it("flushes popover rightward for final trip columns to avoid right edge clipping", () => {
+      const placementNearEnd = getMatrixPopoverPlacement({
+        stopIdx: 1,
+        totalStops: 10,
+        runIdx: 6,
+        totalRuns: 8,
+      });
+      expect(placementNearEnd.horizontal).toBe("RIGHT");
+
+      const placementLast = getMatrixPopoverPlacement({
+        stopIdx: 1,
+        totalStops: 10,
+        runIdx: 7,
+        totalRuns: 8,
+      });
+      expect(placementLast.horizontal).toBe("RIGHT");
+    });
+
+    it("centers popover for intermediate trip columns", () => {
+      const placement = getMatrixPopoverPlacement({
+        stopIdx: 2,
+        totalStops: 10,
+        runIdx: 3,
+        totalRuns: 8,
+      });
+      expect(placement.horizontal).toBe("CENTER");
+    });
+
+    it("pops upward near terminus stations and downward near origin stations", () => {
+      const originPlacement = getMatrixPopoverPlacement({
+        stopIdx: 0,
+        totalStops: 13,
+        runIdx: 2,
+        totalRuns: 6,
+      });
+      expect(originPlacement.vertical).toBe("BOTTOM");
+
+      const terminusPlacement = getMatrixPopoverPlacement({
+        stopIdx: 12,
+        totalStops: 13,
+        runIdx: 2,
+        totalRuns: 6,
+      });
+      expect(terminusPlacement.vertical).toBe("TOP");
+    });
+
+    it("safely pops downward for short 2-stop lines to avoid crashing into table thead", () => {
+      const placementFirst = getMatrixPopoverPlacement({
+        stopIdx: 0,
+        totalStops: 2,
+        runIdx: 0,
+        totalRuns: 4,
+      });
+      expect(placementFirst.vertical).toBe("BOTTOM");
+
+      const placementSecond = getMatrixPopoverPlacement({
+        stopIdx: 1,
+        totalStops: 2,
+        runIdx: 0,
+        totalRuns: 4,
+      });
+      expect(placementSecond.vertical).toBe("BOTTOM");
     });
   });
 });
