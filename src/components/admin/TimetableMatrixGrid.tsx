@@ -29,6 +29,8 @@ import {
   Moon,
   GitBranch,
   AlertTriangle,
+  ArrowLeftRight,
+  Undo2,
 } from "lucide-react";
 import {
   Line,
@@ -47,6 +49,8 @@ import {
   detectPlatformConflicts,
   checkPlatformOccupancyConflict,
   PlatformConflict,
+  getOrderedLineStops,
+  CorridorDirection,
 } from "@/lib/simulation/timetableMatrix";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
@@ -88,11 +92,18 @@ export function TimetableMatrixGrid({
   onEditRun,
 }: TimetableMatrixGridProps) {
   const [timeWindow, setTimeWindow] = useState<TimeWindowFilter>("ALL");
+  const [direction, setDirection] = useState<CorridorDirection>("OUTBOUND");
   const [editingCell, setEditingCell] = useState<InCellEditState | null>(null);
   const [isSavingCell, setIsSavingCell] = useState<boolean>(false);
   const [cellError, setCellError] = useState<string | null>(null);
   const [cellWarning, setCellWarning] = useState<string | null>(null);
   const [cellWarningOverride, setCellWarningOverride] = useState<boolean>(false);
+
+  // 1-step undo buffer for run edits
+  const [undoRunStack, setUndoRunStack] = useState<{
+    previousRun: TimetableRun;
+    description: string;
+  } | null>(null);
 
   // Filter runs by selected time window
   const filteredRuns = useMemo(() => {
@@ -134,6 +145,11 @@ export function TimetableMatrixGrid({
       onClose: () => setConfiguringRun(null),
     });
 
+  // Directional sequential stops ordering (Outbound = Origin -> Terminus, Inbound = Terminus -> Origin)
+  const orderedStops = useMemo(() => {
+    return getOrderedLineStops(lineStops, direction);
+  }, [lineStops, direction]);
+
   // Ensure each run has populated stopTimes along the line stops
   const materializedRuns = useMemo(() => {
     return filteredRuns.map((run) => {
@@ -157,8 +173,8 @@ export function TimetableMatrixGrid({
 
   // Real-time Platform & Track Headway Conflict Detection (Interlocking Safety)
   const platformConflicts = useMemo(() => {
-    return detectPlatformConflicts(materializedRuns, lineStops, 2);
-  }, [materializedRuns, lineStops]);
+    return detectPlatformConflicts(materializedRuns, orderedStops, 2);
+  }, [materializedRuns, orderedStops]);
 
   // Aggregate total unique conflicts across entire line
   const totalConflictCount = useMemo(() => {
@@ -200,7 +216,7 @@ export function TimetableMatrixGrid({
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (stopIdx < lineStops.length - 1) {
+      if (stopIdx < orderedStops.length - 1) {
         const nextStop = stopIdx + 1;
         setActiveGridCell({ stopIdx: nextStop, runIdx });
         document.getElementById(`matrix-cell-${nextStop}-${runIdx}`)?.focus();
@@ -221,10 +237,12 @@ export function TimetableMatrixGrid({
       }
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
+      const canonicalStopIdx = lineStops.findIndex((s) => s.id === stop.id);
+      const effectiveCanonicalIdx = canonicalStopIdx >= 0 ? canonicalStopIdx : stopIdx;
       if (stopTime?.isTerminatedEarly) {
         handleOpenDivergenceModal(run);
       } else {
-        handleStartCellEdit(run, stop, stopIdx, stopTime);
+        handleStartCellEdit(run, stop, effectiveCanonicalIdx, stopTime);
       }
     }
   };
@@ -257,6 +275,26 @@ export function TimetableMatrixGrid({
     setCellWarningOverride(false);
   };
 
+  // 1-step undo handler to rollback the last edited run
+  const handleUndoLastEdit = async () => {
+    if (!undoRunStack) return;
+    try {
+      await onUpdateRun(undoRunStack.previousRun);
+      setUndoRunStack(null);
+    } catch (err) {
+      setCellError(err instanceof Error ? err.message : "Gagal membatalkan perubahan");
+    }
+  };
+
+  // Wrapped shift run handler with undo history capture
+  const handleShiftWithUndo = async (run: TimetableRun, deltaMinutes: number) => {
+    setUndoRunStack({
+      previousRun: JSON.parse(JSON.stringify(run)),
+      description: `Pergeseran ${deltaMinutes > 0 ? "+" : ""}${deltaMinutes}m pada ${run.tripCode}`,
+    });
+    await onShiftRun(run, deltaMinutes);
+  };
+
   // Save in-cell edit with chronological validation and cascading recalculation
   const handleSaveCell = async (overrideWarning = false) => {
     if (!editingCell) return;
@@ -267,6 +305,9 @@ export function TimetableMatrixGrid({
 
     const targetRun = materializedRuns.find((r) => r.id === editingCell.runId);
     if (!targetRun) return;
+
+    // Snapshot pristine run state into undo buffer before modifications
+    const runSnapshot: TimetableRun = JSON.parse(JSON.stringify(targetRun));
 
     const currentStopTimes = [...(targetRun.stopTimes || [])];
     const targetIndex = editingCell.stopIndex;
@@ -353,6 +394,12 @@ export function TimetableMatrixGrid({
         stopTimes: currentStopTimes,
       };
 
+      // Push snapshot to undo stack
+      setUndoRunStack({
+        previousRun: runSnapshot,
+        description: `Edit jadwal stasiun ${editingCell.stopName} pada ${targetRun.tripCode}`,
+      });
+
       await onUpdateRun(updatedRun);
       setEditingCell(null);
     } catch (err) {
@@ -380,6 +427,9 @@ export function TimetableMatrixGrid({
   // Save divergence configuration and cascade stops
   const handleSaveDivergence = async () => {
     if (!configuringRun) return;
+
+    // Capture snapshot for undo before modifying divergence
+    const runSnapshot: TimetableRun = JSON.parse(JSON.stringify(configuringRun));
 
     const termStop = lineStops.find((s) => s.id === terminatedStopId);
     let newDest = configuringRun.destination;
@@ -431,6 +481,11 @@ export function TimetableMatrixGrid({
       stopTimes: recomputedStopTimes,
     };
 
+    setUndoRunStack({
+      previousRun: runSnapshot,
+      description: `Rekayasa rute pada ${configuringRun.tripCode}`,
+    });
+
     await onUpdateRun(updated);
     setConfiguringRun(null);
   };
@@ -469,8 +524,50 @@ export function TimetableMatrixGrid({
           })}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        {/* Action Buttons & Direction Toggle & Undo Button */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {/* Direction Segmented Control */}
+          <div className="flex items-center bg-slate-950/80 p-1 rounded-xl border border-white/10 text-xs">
+            <button
+              type="button"
+              onClick={() => setDirection("OUTBOUND")}
+              className={`px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition ${
+                direction === "OUTBOUND"
+                  ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Arah Hilir / Outbound Departure (Stasiun Awal -> Akhir)"
+            >
+              <span>Arah Hilir</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDirection("INBOUND")}
+              className={`px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition ${
+                direction === "INBOUND"
+                  ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Arah Mudik / Inbound Return (Stasiun Akhir -> Awal)"
+            >
+              <ArrowLeftRight className="w-3 h-3" />
+              <span>Arah Mudik</span>
+            </button>
+          </div>
+
+          {/* 1-Step Undo Button */}
+          {undoRunStack && (
+            <button
+              type="button"
+              onClick={handleUndoLastEdit}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition btn-tactile animate-pulse"
+              title={`Batalkan: ${undoRunStack.description}`}
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Batalkan Edit</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenBatchModal}
@@ -582,7 +679,7 @@ export function TimetableMatrixGrid({
                       Sequential Stations
                     </div>
                     <div className="text-[10px] text-slate-400 font-normal">
-                      Origin &rarr; Destination
+                      {direction === "OUTBOUND" ? "Arah Hilir (Asal → Akhir)" : "Arah Mudik (Akhir → Asal)"}
                     </div>
                   </th>
 
@@ -673,7 +770,7 @@ export function TimetableMatrixGrid({
                         <div className="flex items-center justify-center gap-1 pt-0.5">
                           <button
                             type="button"
-                            onClick={() => onShiftRun(run, -5)}
+                            onClick={() => handleShiftWithUndo(run, -5)}
                             className="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-mono text-slate-300 border border-white/5 transition"
                             title="Shift entire trip -5 minutes earlier"
                           >
@@ -681,7 +778,7 @@ export function TimetableMatrixGrid({
                           </button>
                           <button
                             type="button"
-                            onClick={() => onShiftRun(run, 5)}
+                            onClick={() => handleShiftWithUndo(run, 5)}
                             className="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-mono text-slate-300 border border-white/5 transition"
                             title="Shift entire trip +5 minutes later"
                           >
@@ -695,9 +792,11 @@ export function TimetableMatrixGrid({
               </thead>
 
               <tbody className="divide-y divide-white/5 text-xs">
-                {lineStops.map((stop, stopIdx) => {
+                {orderedStops.map((stop, stopIdx) => {
                   const isOrigin = stopIdx === 0;
-                  const isTerminus = stopIdx === lineStops.length - 1;
+                  const isTerminus = stopIdx === orderedStops.length - 1;
+                  const canonicalStopIdx = lineStops.findIndex((s) => s.id === stop.id);
+                  const effectiveCanonicalIdx = canonicalStopIdx >= 0 ? canonicalStopIdx : stopIdx;
 
                   return (
                     <tr
@@ -715,7 +814,7 @@ export function TimetableMatrixGrid({
                       >
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-slate-900 border border-white/10 text-[10px] font-mono flex items-center justify-center text-slate-400 shrink-0">
-                            {stop.sequence || stopIdx + 1}
+                            {direction === "OUTBOUND" ? (stop.sequence || stopIdx + 1) : (orderedStops.length - stopIdx)}
                           </span>
                           <div className="min-w-0">
                             <div className="text-white font-medium truncate flex items-center gap-1">
@@ -741,7 +840,7 @@ export function TimetableMatrixGrid({
 
                       {/* Station Timing Cells for each Trip */}
                       {materializedRuns.map((run, runIdx) => {
-                        const stopTime = run.stopTimes?.[stopIdx];
+                        const stopTime = run.stopTimes?.find((st) => st.stopId === stop.id) || run.stopTimes?.[effectiveCanonicalIdx];
                         const isBypass = stopTime?.isBypass ?? false;
                         const isTerminated = !!stopTime?.isTerminatedEarly;
                         const isEditingThisCell =
@@ -774,7 +873,7 @@ export function TimetableMatrixGrid({
                               if (isTerminated) {
                                 handleOpenDivergenceModal(run);
                               } else {
-                                handleStartCellEdit(run, stop, stopIdx, stopTime);
+                                handleStartCellEdit(run, stop, effectiveCanonicalIdx, stopTime);
                               }
                             }}
                             className={`relative px-3 py-3 border-r border-white/5 text-center cursor-pointer transition select-none outline-none ${
@@ -858,7 +957,7 @@ export function TimetableMatrixGrid({
                                     }
                                   }}
                                   className={`absolute z-50 w-64 p-3 rounded-2xl bg-slate-950 border border-teal-500 shadow-2xl space-y-2.5 text-xs text-left backdrop-blur-xl ${
-                                    stopIdx >= lineStops.length - 2
+                                    stopIdx >= orderedStops.length - 2
                                       ? "bottom-full mb-2"
                                       : "top-full mt-2"
                                   } ${

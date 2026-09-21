@@ -9,6 +9,7 @@ import {
   validateStopTimeChronology,
   detectPlatformConflicts,
   checkPlatformOccupancyConflict,
+  getOrderedLineStops,
 } from "../src/lib/simulation/timetableMatrix";
 import { generateDepartureBoard } from "../src/components/inspector/HubDetailSheet";
 import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
@@ -772,6 +773,31 @@ describe("Timetable Matrix & Stop-by-Trip Scheduling Suite", () => {
       expect(conflictCheck.hasConflict).toBe(true);
       expect(conflictCheck.conflictingTripCode).toBe("M-101");
       expect(conflictCheck.warningMessage).toContain("Konflik Interlocking");
+    });
+  });
+
+  describe("Bi-Directional Corridor Sequencing (Arah Hilir vs Arah Mudik)", () => {
+    it("preserves original sequential station order in OUTBOUND direction", () => {
+      const outbound = getOrderedLineStops(dummyStops, "OUTBOUND");
+      expect(outbound).toHaveLength(dummyStops.length);
+      expect(outbound[0].id).toBe("stop-mrt-lbk");
+      expect(outbound[outbound.length - 1].id).toBe("stop-mrt-bhi");
+      expect(outbound).not.toBe(dummyStops);
+    });
+
+    it("reverses station order in INBOUND direction", () => {
+      const inbound = getOrderedLineStops(dummyStops, "INBOUND");
+      expect(inbound).toHaveLength(dummyStops.length);
+      expect(inbound[0].id).toBe("stop-mrt-bhi");
+      expect(inbound[1].id).toBe("stop-mrt-blm");
+      expect(inbound[inbound.length - 1].id).toBe("stop-mrt-lbk");
+      expect(dummyStops[0].id).toBe("stop-mrt-lbk");
+    });
+
+    it("handles single-stop or empty arrays gracefully", () => {
+      expect(getOrderedLineStops([], "INBOUND")).toEqual([]);
+      const single = [dummyStops[0]];
+      expect(getOrderedLineStops(single, "INBOUND")).toEqual(single);
     });
   });
 });

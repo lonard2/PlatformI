@@ -702,4 +702,19 @@ export function checkPlatformOccupancyConflict(params: {
   return { hasConflict: false };
 }
 
+export type CorridorDirection = "OUTBOUND" | "INBOUND";
+
+/**
+ * Returns line stops ordered according to corridor direction:
+ * - OUTBOUND (Arah Hilir / Departure): original sequence (Stop 1 -> Stop N)
+ * - INBOUND (Arah Mudik / Return): reversed sequence (Stop N -> Stop 1)
+ */
+export function getOrderedLineStops(stops: Stop[], direction: CorridorDirection = "OUTBOUND"): Stop[] {
+  if (!stops || stops.length <= 1) return stops;
+  if (direction === "INBOUND") {
+    return [...stops].reverse();
+  }
+  return [...stops];
+}
+
 
