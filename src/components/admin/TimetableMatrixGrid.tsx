@@ -150,6 +150,59 @@ export function TimetableMatrixGrid({
     });
   }, [filteredRuns, lineStops, selectedLine.mode]);
 
+  // WAI-ARIA roving keyboard navigation for transit dispatchers
+  const [activeGridCell, setActiveGridCell] = useState<{ stopIdx: number; runIdx: number } | null>(
+    null
+  );
+
+  const handleCellKeyDown = (
+    e: React.KeyboardEvent,
+    stopIdx: number,
+    runIdx: number,
+    run: TimetableRun,
+    stop: Stop,
+    stopTime?: TimetableStopTime
+  ) => {
+    if (editingCell) return;
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (stopIdx > 0) {
+        const nextStop = stopIdx - 1;
+        setActiveGridCell({ stopIdx: nextStop, runIdx });
+        document.getElementById(`matrix-cell-${nextStop}-${runIdx}`)?.focus();
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (stopIdx < lineStops.length - 1) {
+        const nextStop = stopIdx + 1;
+        setActiveGridCell({ stopIdx: nextStop, runIdx });
+        document.getElementById(`matrix-cell-${nextStop}-${runIdx}`)?.focus();
+      }
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      if (runIdx > 0) {
+        const nextRun = runIdx - 1;
+        setActiveGridCell({ stopIdx, runIdx: nextRun });
+        document.getElementById(`matrix-cell-${stopIdx}-${nextRun}`)?.focus();
+      }
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      if (runIdx < materializedRuns.length - 1) {
+        const nextRun = runIdx + 1;
+        setActiveGridCell({ stopIdx, runIdx: nextRun });
+        document.getElementById(`matrix-cell-${stopIdx}-${nextRun}`)?.focus();
+      }
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (stopTime?.isTerminatedEarly) {
+        handleOpenDivergenceModal(run);
+      } else {
+        handleStartCellEdit(run, stop, stopIdx, stopTime);
+      }
+    }
+  };
+
   // Open in-cell editor
   const handleStartCellEdit = (
     run: TimetableRun,
@@ -408,8 +461,18 @@ export function TimetableMatrixGrid({
               {lineStops.length} Stations &bull; {materializedRuns.length} Trips
             </span>
           </div>
-          <div className="text-[11px] text-slate-400 hidden sm:block">
-            Click any cell to edit arrival/departure dwell or toggle express bypass.
+          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <div className="hidden md:flex items-center gap-1.5 font-mono bg-slate-950/80 px-2.5 py-1 rounded-lg border border-white/10">
+              <span className="text-teal-400 font-bold">OCC Keyboard:</span>
+              <span className="text-slate-300">↑ ↓ ← →</span>
+              <span className="text-slate-600">&bull;</span>
+              <span className="text-slate-300">[Enter] Edit</span>
+              <span className="text-slate-600">&bull;</span>
+              <span className="text-slate-300">[Esc] Batal</span>
+            </div>
+            <span className="hidden sm:inline text-slate-500">
+              Klik sel untuk edit
+            </span>
           </div>
         </div>
 
@@ -436,11 +499,22 @@ export function TimetableMatrixGrid({
           </div>
         ) : (
           <div className="overflow-x-auto relative">
-            <table className="w-full text-left border-collapse select-none">
+            <table
+              role="grid"
+              aria-label="Stop-by-Trip Timetable Matrix"
+              className="w-full text-left border-collapse select-none"
+            >
               <thead>
-                <tr className="border-b border-white/10 bg-slate-950/90 text-xs text-slate-300">
+                <tr
+                  role="row"
+                  className="border-b border-white/10 bg-slate-950/90 text-xs text-slate-300"
+                >
                   {/* Sticky Stations Header Column */}
-                  <th className="sticky left-0 z-20 bg-[#070b14] border-r border-white/10 px-4 py-3 min-w-[220px] shadow-lg">
+                  <th
+                    role="columnheader"
+                    scope="col"
+                    className="sticky left-0 z-20 bg-[#070b14] border-r border-white/10 px-4 py-3 min-w-[220px] shadow-lg"
+                  >
                     <div className="font-bold text-white uppercase text-[10px] font-mono tracking-wider">
                       Sequential Stations
                     </div>
@@ -453,6 +527,8 @@ export function TimetableMatrixGrid({
                   {materializedRuns.map((run) => (
                     <th
                       key={run.id}
+                      role="columnheader"
+                      scope="col"
                       className="px-3 py-3 min-w-[150px] border-r border-white/5 bg-slate-950/40 text-center align-top"
                     >
                       <div className="space-y-1.5">
@@ -563,12 +639,17 @@ export function TimetableMatrixGrid({
                   return (
                     <tr
                       key={stop.id}
+                      role="row"
                       className={`hover:bg-slate-800/30 transition ${
                         isOrigin || isTerminus ? "bg-slate-950/30 font-medium" : ""
                       }`}
                     >
                       {/* Sticky Station Label */}
-                      <td className="sticky left-0 z-10 bg-[#070b14] border-r border-white/10 px-4 py-3 shadow-lg">
+                      <td
+                        role="rowheader"
+                        scope="row"
+                        className="sticky left-0 z-10 bg-[#070b14] border-r border-white/10 px-4 py-3 shadow-lg"
+                      >
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-slate-900 border border-white/10 text-[10px] font-mono flex items-center justify-center text-slate-400 shrink-0">
                             {stop.sequence || stopIdx + 1}
@@ -596,150 +677,56 @@ export function TimetableMatrixGrid({
                       </td>
 
                       {/* Station Timing Cells for each Trip */}
-                      {materializedRuns.map((run) => {
+                      {materializedRuns.map((run, runIdx) => {
                         const stopTime = run.stopTimes?.[stopIdx];
                         const isBypass = stopTime?.isBypass ?? false;
+                        const isTerminated = !!stopTime?.isTerminatedEarly;
                         const isEditingThisCell =
                           editingCell?.runId === run.id && editingCell?.stopId === stop.id;
+                        const isFocused =
+                          activeGridCell?.stopIdx === stopIdx && activeGridCell?.runIdx === runIdx;
 
-                        if (isEditingThisCell) {
-                          return (
-                            <td
-                              key={run.id}
-                              className="px-2 py-2 border-r border-white/5 bg-teal-950/40 align-middle"
-                            >
-                              <div
-                                onKeyDown={(e) => {
-                                  if (e.key === "Escape") {
-                                    e.stopPropagation();
-                                    setEditingCell(null);
-                                  }
-                                }}
-                                className="p-2 rounded-xl bg-slate-950 border border-teal-500/50 shadow-xl space-y-2 text-xs"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-bold text-teal-300">
-                                    Edit Schedule
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => setEditingCell(null)}
-                                    className="text-slate-400 hover:text-white"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-
-                                {/* Bypass Toggle */}
-                                <button
-                                  type="button"
-                                  onClick={handleToggleBypassInCell}
-                                  className={`w-full py-1 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 ${
-                                    editingCell.isBypass
-                                      ? "bg-amber-500 text-amber-950"
-                                      : "bg-slate-900 text-slate-300 border border-white/10"
-                                  }`}
-                                >
-                                  {editingCell.isBypass ? "Express PASS (Active)" : "Mark as PASS / Bypass"}
-                                </button>
-
-                                {/* Set Early Terminus / Masuk Dipo shortcut */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    handleOpenDivergenceModal(run);
-                                    setTerminatedStopId(stop.id);
-                                    setEditingCell(null);
-                                  }}
-                                  className="w-full py-1 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/60"
-                                >
-                                  <GitBranch className="w-3 h-3" />
-                                  <span>Hentikan / Masuk Dipo di Sini</span>
-                                </button>
-
-                                {!editingCell.isBypass && (
-                                  <div className="grid grid-cols-2 gap-1.5">
-                                    <div>
-                                      <span className="text-[10px] text-slate-400">Arr:</span>
-                                      <input
-                                        type="text"
-                                        value={editingCell.arrivalTime}
-                                        onChange={(e) =>
-                                          setEditingCell((prev) =>
-                                            prev ? { ...prev, arrivalTime: e.target.value } : null
-                                          )
-                                        }
-                                        className="w-full px-1.5 py-1 rounded bg-slate-900 border border-white/10 text-white font-mono text-[11px]"
-                                      />
-                                    </div>
-                                    <div>
-                                      <span className="text-[10px] text-slate-400">Dep:</span>
-                                      <input
-                                        type="text"
-                                        value={editingCell.departureTime}
-                                        onChange={(e) =>
-                                          setEditingCell((prev) =>
-                                            prev ? { ...prev, departureTime: e.target.value } : null
-                                          )
-                                        }
-                                        className="w-full px-1.5 py-1 rounded bg-slate-900 border border-white/10 text-white font-mono text-[11px]"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Cascade checkbox */}
-                                <label className="flex items-center gap-1.5 text-[10px] text-slate-300 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={editingCell.cascadeDownstream}
-                                    onChange={(e) =>
-                                      setEditingCell((prev) =>
-                                        prev
-                                          ? { ...prev, cascadeDownstream: e.target.checked }
-                                          : null
-                                      )
-                                    }
-                                    className="rounded border-slate-700 bg-slate-900 text-teal-500"
-                                  />
-                                  <span>Cascade times</span>
-                                </label>
-
-                                {cellError && (
-                                  <div className="text-[10px] text-rose-400">{cellError}</div>
-                                )}
-
-                                <div className="flex items-center justify-end gap-1.5 pt-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => setEditingCell(null)}
-                                    className="px-2 py-0.5 rounded bg-slate-900 text-[10px] text-slate-400"
-                                  >
-                                    Cancel
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={handleSaveCell}
-                                    disabled={isSavingCell}
-                                    className="px-2.5 py-0.5 rounded bg-teal-500 text-teal-950 font-bold text-[10px]"
-                                  >
-                                    {isSavingCell ? "Saving..." : "Apply"}
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                          );
-                        }
-
-                        // Check if this station is beyond early termination
-                        if (stopTime?.isTerminatedEarly) {
-                          return (
-                            <td
-                              key={run.id}
-                              onClick={() => handleOpenDivergenceModal(run)}
-                              className="px-3 py-3 border-r border-white/5 text-center bg-slate-950/60 cursor-pointer hover:bg-slate-900/80 transition select-none"
-                              title="Perjalanan tidak melayani stasiun ini (Berakhir Lebih Awal / Masuk Dipo). Klik untuk ubah rekayasa."
-                            >
+                        return (
+                          <td
+                            key={run.id}
+                            id={`matrix-cell-${stopIdx}-${runIdx}`}
+                            tabIndex={
+                              isFocused ||
+                              (activeGridCell === null && stopIdx === 0 && runIdx === 0)
+                                ? 0
+                                : -1
+                            }
+                            role="gridcell"
+                            aria-selected={isFocused}
+                            onFocus={() => setActiveGridCell({ stopIdx, runIdx })}
+                            onKeyDown={(e) =>
+                              handleCellKeyDown(e, stopIdx, runIdx, run, stop, stopTime)
+                            }
+                            onClick={() => {
+                              setActiveGridCell({ stopIdx, runIdx });
+                              if (isTerminated) {
+                                handleOpenDivergenceModal(run);
+                              } else {
+                                handleStartCellEdit(run, stop, stopIdx, stopTime);
+                              }
+                            }}
+                            className={`relative px-3 py-3 border-r border-white/5 text-center cursor-pointer transition select-none outline-none ${
+                              isEditingThisCell
+                                ? "bg-teal-950/60 ring-2 ring-teal-400 ring-inset z-20"
+                                : isFocused
+                                ? "ring-2 ring-teal-400/80 ring-inset bg-teal-500/15"
+                                : isTerminated
+                                ? "bg-slate-950/60 hover:bg-slate-900/80"
+                                : "hover:bg-teal-500/10 group"
+                            }`}
+                            title={
+                              isTerminated
+                                ? "Perjalanan tidak melayani stasiun ini (Berakhir Lebih Awal / Masuk Dipo). Klik untuk ubah rekayasa."
+                                : "Klik atau tekan Enter untuk edit waktu stasiun"
+                            }
+                          >
+                            {/* Standard Static Timing Display (Guarantees zero layout shift) */}
+                            {isTerminated ? (
                               <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-500">
                                 <span>
                                   --:--{" "}
@@ -748,17 +735,7 @@ export function TimetableMatrixGrid({
                                     : "TDK MELAYANI"}
                                 </span>
                               </div>
-                            </td>
-                          );
-                        }
-
-                        return (
-                          <td
-                            key={run.id}
-                            onClick={() => handleStartCellEdit(run, stop, stopIdx, stopTime)}
-                            className="px-3 py-3 border-r border-white/5 text-center cursor-pointer hover:bg-teal-500/10 transition group"
-                          >
-                            {isBypass ? (
+                            ) : isBypass ? (
                               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-950/40 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold">
                                 <span>--:-- PASS</span>
                               </div>
@@ -771,10 +748,171 @@ export function TimetableMatrixGrid({
                                     ? stopTime?.arrivalTime || run.arrivalTime
                                     : `${stopTime?.arrivalTime || "--:--"} / ${stopTime?.departureTime || "--:--"}`}
                                 </div>
-                                <div className="text-[10px] font-mono text-slate-500">
+                                <div className="text-[10px] font-mono text-slate-400">
                                   {stopTime?.peronOrTrack || `Peron ${(stopIdx % 2) + 1}`}
                                 </div>
                               </div>
+                            )}
+
+                            {/* Floating Anchored Popover for In-Cell Edit (Zero CLS Layout Shift) */}
+                            {isEditingThisCell && (
+                              <>
+                                <div
+                                  className="fixed inset-0 z-40"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingCell(null);
+                                  }}
+                                />
+                                <div
+                                  role="dialog"
+                                  aria-label="Edit Stop Time"
+                                  onClick={(e) => e.stopPropagation()}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Escape") {
+                                      e.stopPropagation();
+                                      setEditingCell(null);
+                                    }
+                                  }}
+                                  className={`absolute z-50 w-64 p-3 rounded-2xl bg-slate-950 border border-teal-500 shadow-2xl space-y-2.5 text-xs text-left backdrop-blur-xl ${
+                                    stopIdx >= lineStops.length - 2
+                                      ? "bottom-full mb-2"
+                                      : "top-full mt-2"
+                                  } ${
+                                    runIdx >= materializedRuns.length - 2
+                                      ? "right-0"
+                                      : "left-1/2 -translate-x-1/2"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                                    <div className="space-y-0.5">
+                                      <span className="text-[11px] font-bold text-teal-300 block">
+                                        Edit Jadwal Stasiun
+                                      </span>
+                                      <span className="text-[10px] text-slate-400 block font-mono truncate max-w-[170px]">
+                                        {stop.name} &bull; {run.tripCode}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingCell(null)}
+                                      className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-900"
+                                      aria-label="Tutup editor sel"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+
+                                  {/* Bypass Toggle */}
+                                  <button
+                                    type="button"
+                                    onClick={handleToggleBypassInCell}
+                                    className={`w-full py-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1.5 ${
+                                      editingCell.isBypass
+                                        ? "bg-amber-500 text-amber-950"
+                                        : "bg-slate-900 text-slate-300 border border-white/10 hover:bg-slate-800"
+                                    }`}
+                                  >
+                                    {editingCell.isBypass
+                                      ? "Express PASS (Aktif)"
+                                      : "Tandai Langsung / PASS"}
+                                  </button>
+
+                                  {/* Set Early Terminus / Masuk Dipo shortcut */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleOpenDivergenceModal(run);
+                                      setTerminatedStopId(stop.id);
+                                      setEditingCell(null);
+                                    }}
+                                    className="w-full py-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1.5 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/60"
+                                  >
+                                    <GitBranch className="w-3 h-3" />
+                                    <span>Hentikan / Masuk Dipo di Sini</span>
+                                  </button>
+
+                                  {!editingCell.isBypass && (
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                                          Kedatangan (Arr)
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={editingCell.arrivalTime}
+                                          onChange={(e) =>
+                                            setEditingCell((prev) =>
+                                              prev
+                                                ? { ...prev, arrivalTime: e.target.value }
+                                                : null
+                                            )
+                                          }
+                                          className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                                          Keberangkatan (Dep)
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={editingCell.departureTime}
+                                          onChange={(e) =>
+                                            setEditingCell((prev) =>
+                                              prev
+                                                ? { ...prev, departureTime: e.target.value }
+                                                : null
+                                            )
+                                          }
+                                          className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-teal-400"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Cascade checkbox */}
+                                  <label className="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer pt-0.5">
+                                    <input
+                                      type="checkbox"
+                                      checked={editingCell.cascadeDownstream}
+                                      onChange={(e) =>
+                                        setEditingCell((prev) =>
+                                          prev
+                                            ? { ...prev, cascadeDownstream: e.target.checked }
+                                            : null
+                                        )
+                                      }
+                                      className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-teal-500"
+                                    />
+                                    <span>Geser stasiun downstream</span>
+                                  </label>
+
+                                  {cellError && (
+                                    <div className="p-1.5 rounded bg-rose-950/60 border border-rose-500/40 text-[10px] text-rose-300">
+                                      {cellError}
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-white/10">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingCell(null)}
+                                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 transition"
+                                    >
+                                      Batal
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={handleSaveCell}
+                                      disabled={isSavingCell}
+                                      className="px-3 py-1 rounded-lg bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-[10px] transition shadow-md shadow-teal-500/20"
+                                    >
+                                      {isSavingCell ? "Menyimpan..." : "Terapkan"}
+                                    </button>
+                                  </div>
+                                </div>
+                              </>
                             )}
                           </td>
                         );
