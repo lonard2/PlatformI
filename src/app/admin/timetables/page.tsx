@@ -35,6 +35,7 @@ import {
   LayoutList,
   Table2,
   Wand2,
+  TrendingUp,
 } from "lucide-react";
 import { TimetableRun, TransitCategory, Stop, Line } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -42,6 +43,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { BatchScheduleModal } from "@/components/admin/BatchScheduleModal";
 import { TimetableMatrixGrid } from "@/components/admin/TimetableMatrixGrid";
+import { TimetableStringlineChart } from "@/components/admin/TimetableStringlineChart";
 import { shiftRunSchedule } from "@/lib/simulation/timetableMatrix";
 
 interface QuickTemplate {
@@ -153,8 +155,8 @@ function TimetableStudioContent() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // View Mode: Matrix Grid vs Master List
-  const [viewMode, setViewMode] = useState<"MATRIX" | "LIST">("MATRIX");
+  // View Mode: Matrix Grid vs Stringline Diagram vs Master List
+  const [viewMode, setViewMode] = useState<"MATRIX" | "STRINGLINE" | "LIST">("MATRIX");
   const [matrixLineId, setMatrixLineId] = useState<string>("line-mrt-ns");
 
   // Filters for List View
@@ -543,6 +545,18 @@ function TimetableStudioContent() {
             </button>
             <button
               type="button"
+              onClick={() => setViewMode("STRINGLINE")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition btn-tactile ${
+                viewMode === "STRINGLINE"
+                  ? "bg-teal-500 text-teal-950 font-bold"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Grafik Stringline</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setViewMode("LIST")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition btn-tactile ${
                 viewMode === "LIST"
@@ -695,6 +709,67 @@ function TimetableStudioContent() {
               onOpenBatchModal={() => setIsBatchModalOpen(true)}
               onOpenCreateModal={handleOpenCreateModal}
               onEditRun={handleOpenEditModal}
+            />
+          )}
+        </div>
+      )}
+
+      {/* 3B. CONDITIONAL VIEW: GRAPHICAL TRAIN STRINGLINE (MAREY CHART / GAPEKA ZUGDIAGRAMM) */}
+      {viewMode === "STRINGLINE" && (
+        <div className="space-y-4">
+          {/* Corridor Line Selector Bar */}
+          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400 font-bold uppercase font-mono tracking-wider">
+                Corridor Line:
+              </span>
+              <select
+                value={matrixLineId}
+                onChange={(e) => setMatrixLineId(e.target.value)}
+                className="px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 transition"
+              >
+                {allLines.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.code} &bull; {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 pr-2 border-r border-white/10">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Headway: <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} min</strong></span>
+                <span>&bull;</span>
+                <span>Span: <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsBatchModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:bg-teal-500/20 text-xs font-semibold flex items-center gap-1.5 transition btn-tactile"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>Pola Operasi Batch</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenCreateModal}
+                className="px-3 py-1.5 rounded-xl bg-teal-500 text-teal-950 hover:bg-teal-400 text-xs font-bold flex items-center gap-1.5 transition btn-tactile"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Tambah Perjalanan</span>
+              </button>
+            </div>
+          </div>
+
+          {currentMatrixLine && (
+            <TimetableStringlineChart
+              selectedLine={currentMatrixLine}
+              lineStops={currentMatrixStops}
+              runs={timetableRuns}
+              onSelectRun={(run) => handleOpenEditModal(run)}
+              onEditRun={(run) => handleOpenEditModal(run)}
             />
           )}
         </div>

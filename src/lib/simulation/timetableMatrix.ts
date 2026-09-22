@@ -745,4 +745,428 @@ export function getMatrixPopoverPlacement(params: {
   };
 }
 
+export interface StationDistance {
+  stopId: string;
+  stopName: string;
+  code: string;
+  distanceKm: number;
+  cumulativeKm: number;
+  fraction: number; // 0 (origin) to 1 (terminus)
+  sequence: number;
+  isInterchange: boolean;
+  stationType?: string;
+}
+
+/**
+ * Computes progressive and cumulative distances along sequential line stops.
+ * Supports both Geographic Haversine Distance (KM) and Uniform Station Intervals.
+ */
+export function computeStationDistances(
+  stops: Stop[],
+  useRealDistance: boolean = true
+): StationDistance[] {
+  if (!stops || stops.length === 0) return [];
+
+  const distances: StationDistance[] = [];
+  let runningKm = 0;
+
+  for (let i = 0; i < stops.length; i++) {
+    const stop = stops[i];
+    let legKm = 0;
+    if (i > 0) {
+      legKm = calculateDistanceKm(
+        { latitude: stops[i - 1].latitude, longitude: stops[i - 1].longitude },
+        { latitude: stop.latitude, longitude: stop.longitude }
+      );
+      runningKm += legKm;
+    }
+
+    distances.push({
+      stopId: stop.id,
+      stopName: stop.name,
+      code: stop.code || `S${i + 1}`,
+      distanceKm: Math.round(legKm * 100) / 100,
+      cumulativeKm: Math.round(runningKm * 100) / 100,
+      fraction: 0,
+      sequence: stop.sequence || i + 1,
+      isInterchange: stop.isInterchange ?? false,
+      stationType: stop.stationType,
+    });
+  }
+
+  const totalKm = distances[distances.length - 1]?.cumulativeKm || runningKm;
+  for (let i = 0; i < distances.length; i++) {
+    if (i === 0) {
+      distances[i].fraction = 0;
+    } else if (i === distances.length - 1) {
+      distances[i].fraction = 1.0;
+    } else if (useRealDistance && totalKm > 0.05) {
+      distances[i].fraction = distances[i].cumulativeKm / totalKm;
+    } else {
+      distances[i].fraction = stops.length > 1 ? i / (stops.length - 1) : 0;
+    }
+  }
+
+  return distances;
+}
+
+export interface StringlineVertex {
+  timeMinutes: number;
+  fraction: number;
+  stopId: string;
+  stopName: string;
+  timeString: string;
+  isDwellEnd?: boolean;
+}
+
+export type StringlineLineStyle = "SOLID" | "DASHED_INDIGO" | "DASHED_ROSE" | "AMBER" | "GOLD";
+
+export interface StringlineTrajectory {
+  runId: string;
+  tripCode: string;
+  run: TimetableRun;
+  direction: "OUTBOUND" | "INBOUND";
+  vertices: StringlineVertex[];
+  startTimeMinutes: number;
+  endTimeMinutes: number;
+  color: string;
+  lineStyle: StringlineLineStyle;
+  originName: string;
+  destinationName: string;
+  averageSpeedKmh: number;
+  totalDurationMinutes: number;
+}
+
+/**
+ * Computes vertices for a single run along the station distance axis.
+ * Captures station dwell periods as horizontal flat plateaus and running sections as diagonal slopes.
+ */
+export function computeRunStringlineTrajectory(params: {
+  run: TimetableRun;
+  stops: Stop[];
+  distances: StationDistance[];
+  lineColor?: string;
+}): StringlineTrajectory | null {
+  const { run, stops, distances, lineColor = "#14b8a6" } = params;
+  if (!stops || stops.length === 0 || !distances || distances.length === 0) return null;
+
+  // Determine direction: Outbound (Origin -> Terminus) vs Inbound (Terminus -> Origin)
+  const isFirstStopTerminus =
+    run.origin === stops[stops.length - 1]?.name ||
+    run.destination === stops[0]?.name ||
+    (run.stopTimes &&
+      run.stopTimes.length > 1 &&
+      run.stopTimes[0].stopId === stops[stops.length - 1]?.id);
+
+  const direction: "OUTBOUND" | "INBOUND" = isFirstStopTerminus ? "INBOUND" : "OUTBOUND";
+
+  const effectiveStops = direction === "INBOUND" ? [...stops].reverse() : stops;
+  const vertices: StringlineVertex[] = [];
+
+  let previousDepMinutes = -1;
+
+  for (let i = 0; i < effectiveStops.length; i++) {
+    const stop = effectiveStops[i];
+    const distInfo = distances.find((d) => d.stopId === stop.id);
+    if (!distInfo) continue;
+
+    const stopTime = run.stopTimes?.find((st) => st.stopId === stop.id);
+    if (stopTime?.isTerminatedEarly) {
+      break;
+    }
+
+    const arrStr = stopTime?.arrivalTime || (i === 0 ? run.departureTime : run.arrivalTime);
+    const depStr =
+      stopTime?.departureTime || (i === effectiveStops.length - 1 ? run.arrivalTime : run.departureTime);
+
+    let arrMinutes = timeStringToMinutes(arrStr);
+    let depMinutes = timeStringToMinutes(depStr);
+
+    // Midnight crossing adjustment
+    if (previousDepMinutes > 0 && arrMinutes < previousDepMinutes && previousDepMinutes > 20 * 60) {
+      arrMinutes += 1440;
+    }
+    if (depMinutes < arrMinutes && arrMinutes > 20 * 60) {
+      depMinutes += 1440;
+    }
+
+    const isOrigin = i === 0;
+    const isTerminus = i === effectiveStops.length - 1;
+
+    if (isOrigin) {
+      vertices.push({
+        timeMinutes: depMinutes,
+        fraction: distInfo.fraction,
+        stopId: stop.id,
+        stopName: stop.name,
+        timeString: depStr,
+      });
+      previousDepMinutes = depMinutes;
+    } else if (isTerminus) {
+      vertices.push({
+        timeMinutes: arrMinutes,
+        fraction: distInfo.fraction,
+        stopId: stop.id,
+        stopName: stop.name,
+        timeString: arrStr,
+      });
+      previousDepMinutes = arrMinutes;
+    } else {
+      // Intermediate station with dwell
+      if (arrMinutes !== depMinutes && !stopTime?.isBypass) {
+        vertices.push({
+          timeMinutes: arrMinutes,
+          fraction: distInfo.fraction,
+          stopId: stop.id,
+          stopName: stop.name,
+          timeString: arrStr,
+        });
+        vertices.push({
+          timeMinutes: depMinutes,
+          fraction: distInfo.fraction,
+          stopId: stop.id,
+          stopName: stop.name,
+          timeString: depStr,
+          isDwellEnd: true,
+        });
+      } else {
+        // Express non-stop pass or instant departure
+        vertices.push({
+          timeMinutes: depMinutes,
+          fraction: distInfo.fraction,
+          stopId: stop.id,
+          stopName: stop.name,
+          timeString: depStr,
+        });
+      }
+      previousDepMinutes = depMinutes;
+    }
+  }
+
+  if (vertices.length < 2) return null;
+
+  const startTimeMinutes = vertices[0].timeMinutes;
+  const endTimeMinutes = vertices[vertices.length - 1].timeMinutes;
+  const totalDurationMinutes = Math.max(1, endTimeMinutes - startTimeMinutes);
+
+  const totalDistKm = distances[distances.length - 1]?.cumulativeKm || 10;
+  const averageSpeedKmh = Math.round((totalDistKm / (totalDurationMinutes / 60)) * 10) / 10;
+
+  // Determine line style and accent color
+  let lineStyle: StringlineLineStyle = "SOLID";
+  let color = lineColor;
+
+  if (run.tripType === "NIGHT_DEPOT_STABLING") {
+    lineStyle = "DASHED_INDIGO";
+    color = "#818cf8";
+  } else if (run.tripType === "ROUTE_DIVERGENCE") {
+    lineStyle = "DASHED_ROSE";
+    color = "#fb7185";
+  } else if (run.tripType === "SHORT_TURN") {
+    lineStyle = "AMBER";
+    color = "#fbbf24";
+  } else if (run.tripType === "SPECIAL_KLB") {
+    lineStyle = "GOLD";
+    color = "#facc15";
+  }
+
+  return {
+    runId: run.id,
+    tripCode: run.tripCode,
+    run,
+    direction,
+    vertices,
+    startTimeMinutes,
+    endTimeMinutes,
+    color,
+    lineStyle,
+    originName: run.origin,
+    destinationName: run.destination,
+    averageSpeedKmh,
+    totalDurationMinutes,
+  };
+}
+
+export interface TrajectoryIntersection {
+  id: string;
+  type: "OVERTAKE" | "CROSSING_MEET";
+  runA: TimetableRun;
+  runB: TimetableRun;
+  timeMinutes: number;
+  timeString: string;
+  fraction: number;
+  approxKm: number;
+  approxLocationDescription: string;
+}
+
+/**
+ * Detects trajectory line crossings between trains:
+ * - Opposite directions: Crossing Meet (Persilangan Kereta Api)
+ * - Same direction: Overtake (Penyusulan Kereta Api)
+ */
+export function detectTrajectoryIntersections(
+  trajectories: StringlineTrajectory[],
+  distances: StationDistance[]
+): TrajectoryIntersection[] {
+  if (!trajectories || trajectories.length < 2) return [];
+
+  const intersections: TrajectoryIntersection[] = [];
+  const maxKm = distances[distances.length - 1]?.cumulativeKm || 1;
+
+  for (let a = 0; a < trajectories.length; a++) {
+    const trajA = trajectories[a];
+    for (let b = a + 1; b < trajectories.length; b++) {
+      const trajB = trajectories[b];
+
+      // Quick bounding box prune on time
+      if (
+        trajA.endTimeMinutes < trajB.startTimeMinutes ||
+        trajB.endTimeMinutes < trajA.startTimeMinutes
+      ) {
+        continue;
+      }
+
+      // Test segment pairs
+      for (let i = 0; i < trajA.vertices.length - 1; i++) {
+        const p1 = trajA.vertices[i];
+        const p2 = trajA.vertices[i + 1];
+        const isADwell = Math.abs(p1.fraction - p2.fraction) < 1e-6;
+
+        for (let j = 0; j < trajB.vertices.length - 1; j++) {
+          const p3 = trajB.vertices[j];
+          const p4 = trajB.vertices[j + 1];
+          const isBDwell = Math.abs(p3.fraction - p4.fraction) < 1e-6;
+
+          if (isADwell && isBDwell) continue;
+
+          // Case 1: Traj A is dwelling at station while Traj B passes through
+          if (isADwell && !isBDwell) {
+            const yStation = p1.fraction;
+            const minY_B = Math.min(p3.fraction, p4.fraction);
+            const maxY_B = Math.max(p3.fraction, p4.fraction);
+            if (yStation >= minY_B && yStation <= maxY_B && Math.abs(p4.fraction - p3.fraction) > 1e-6) {
+              const fracB = (yStation - p3.fraction) / (p4.fraction - p3.fraction);
+              const timeBAtStation = p3.timeMinutes + fracB * (p4.timeMinutes - p3.timeMinutes);
+              const minA = Math.min(p1.timeMinutes, p2.timeMinutes);
+              const maxA = Math.max(p1.timeMinutes, p2.timeMinutes);
+              if (timeBAtStation >= minA && timeBAtStation <= maxA) {
+                const timeCross = Math.round(timeBAtStation);
+                const isSameDir = trajA.direction === trajB.direction;
+                intersections.push({
+                  id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
+                  type: isSameDir ? "OVERTAKE" : "CROSSING_MEET",
+                  runA: trajA.run,
+                  runB: trajB.run,
+                  timeMinutes: timeCross,
+                  timeString: minutesToTimeString(timeCross),
+                  fraction: yStation,
+                  approxKm: Math.round(yStation * maxKm * 10) / 10,
+                  approxLocationDescription: p1.stopName,
+                });
+              }
+            }
+            continue;
+          }
+
+          // Case 2: Traj B is dwelling at station while Traj A passes through
+          if (isBDwell && !isADwell) {
+            const yStation = p3.fraction;
+            const minY_A = Math.min(p1.fraction, p2.fraction);
+            const maxY_A = Math.max(p1.fraction, p2.fraction);
+            if (yStation >= minY_A && yStation <= maxY_A && Math.abs(p2.fraction - p1.fraction) > 1e-6) {
+              const fracA = (yStation - p1.fraction) / (p2.fraction - p1.fraction);
+              const timeAAtStation = p1.timeMinutes + fracA * (p2.timeMinutes - p1.timeMinutes);
+              const minB = Math.min(p3.timeMinutes, p4.timeMinutes);
+              const maxB = Math.max(p3.timeMinutes, p4.timeMinutes);
+              if (timeAAtStation >= minB && timeAAtStation <= maxB) {
+                const timeCross = Math.round(timeAAtStation);
+                const isSameDir = trajA.direction === trajB.direction;
+                intersections.push({
+                  id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
+                  type: isSameDir ? "OVERTAKE" : "CROSSING_MEET",
+                  runA: trajA.run,
+                  runB: trajB.run,
+                  timeMinutes: timeCross,
+                  timeString: minutesToTimeString(timeCross),
+                  fraction: yStation,
+                  approxKm: Math.round(yStation * maxKm * 10) / 10,
+                  approxLocationDescription: p3.stopName,
+                });
+              }
+            }
+            continue;
+          }
+
+          // Case 3: Both are running track segments
+          const minA = Math.min(p1.timeMinutes, p2.timeMinutes);
+          const maxA = Math.max(p1.timeMinutes, p2.timeMinutes);
+          const minB = Math.min(p3.timeMinutes, p4.timeMinutes);
+          const maxB = Math.max(p3.timeMinutes, p4.timeMinutes);
+          if (maxA < minB || maxB < minA) continue;
+
+          const x1 = p1.timeMinutes;
+          const y1 = p1.fraction;
+          const x2 = p2.timeMinutes;
+          const y2 = p2.fraction;
+
+          const x3 = p3.timeMinutes;
+          const y3 = p3.fraction;
+          const x4 = p4.timeMinutes;
+          const y4 = p4.fraction;
+
+          const dxA = x2 - x1;
+          const dyA = y2 - y1;
+          const dxB = x4 - x3;
+          const dyB = y4 - y3;
+
+          const det = -dxA * dyB + dxB * dyA;
+          if (Math.abs(det) < 1e-6) continue;
+
+          const dxStart = x3 - x1;
+          const dyStart = y3 - y1;
+
+          const ta = (-dxStart * dyB + dyStart * dxB) / det;
+          const tb = (dxA * dyStart - dyA * dxStart) / det;
+
+          if (ta >= 0.001 && ta <= 0.999 && tb >= 0.001 && tb <= 0.999) {
+            const timeCross = Math.round(x1 + ta * dxA);
+            const fracCross = y1 + ta * dyA;
+            const kmCross = Math.round(fracCross * maxKm * 10) / 10;
+
+            // Find closest bounding stations
+            let stBefore = distances[0]?.stopName || "Stasiun Awal";
+            let stAfter = distances[distances.length - 1]?.stopName || "Stasiun Akhir";
+            for (let k = 0; k < distances.length - 1; k++) {
+              if (distances[k].fraction <= fracCross && distances[k + 1].fraction >= fracCross) {
+                stBefore = distances[k].stopName;
+                stAfter = distances[k + 1].stopName;
+                break;
+              }
+            }
+
+            const isSameDir = trajA.direction === trajB.direction;
+            const type = isSameDir ? "OVERTAKE" : "CROSSING_MEET";
+
+            intersections.push({
+              id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
+              type,
+              runA: trajA.run,
+              runB: trajB.run,
+              timeMinutes: timeCross,
+              timeString: minutesToTimeString(timeCross),
+              fraction: fracCross,
+              approxKm: kmCross,
+              approxLocationDescription:
+                stBefore === stAfter ? stBefore : `Antara ${stBefore} - ${stAfter}`,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return intersections;
+}
+
+
 
