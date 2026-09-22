@@ -784,7 +784,7 @@ export function TimetableStringlineChart({
             left: `${Math.min(window.innerWidth - 320, tooltip.x + 16)}px`,
             top: `${tooltip.y + 16}px`,
           }}
-          className="absolute z-30 w-72 p-3.5 rounded-2xl bg-slate-900/95 border border-teal-500/40 shadow-2xl backdrop-blur-md pointer-events-none text-xs space-y-2.5 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute z-30 w-72 p-3.5 rounded-2xl bg-slate-900/95 border border-teal-500/40 shadow-2xl shadow-black/80 backdrop-blur-md pointer-events-none text-xs space-y-2.5 animate-in fade-in zoom-in-95 duration-100"
         >
           {tooltip.trajectory && (
             <>

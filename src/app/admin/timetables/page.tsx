@@ -620,62 +620,62 @@ function TimetableStudioContent() {
         </div>
       )}
 
-      {/* 2. Executive KPI Summary Cards */}
+      {/* 2. Executive KPI Summary Cards (Bento Hierarchy) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total Runs */}
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1">
+        {/* Total Runs (Primary Bento Anchor) */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900/95 to-slate-950/90 border border-teal-500/30 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono">Total Runs</span>
-            <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">
+            <span className="text-[11px] uppercase font-bold text-teal-400 font-mono tracking-wider">Total Runs</span>
+            <div className="p-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/20">
               <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-white">
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-white tabular-nums tracking-tight">
             {timetableRuns.length}
           </div>
-          <div className="text-[10px] text-slate-400">Scheduled trips across all modes</div>
+          <div className="text-[10px] text-slate-400 text-pretty">Scheduled trips across all modes</div>
         </div>
 
         {/* Unique Operators */}
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono">Operators & Airlines</span>
-            <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Operators & Airlines</span>
+            <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               <Building2 className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-cyan-300">
+          <div className="text-2xl font-bold font-mono text-cyan-300 tabular-nums">
             {uniqueOperatorsCount}
           </div>
-          <div className="text-[10px] text-slate-400">Active transit entities</div>
+          <div className="text-[10px] text-slate-400 text-pretty">Active transit entities</div>
         </div>
 
         {/* Gate & Peron Coverage */}
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono">Assigned Gates/Bays</span>
-            <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Assigned Gates/Bays</span>
+            <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <DoorOpen className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-cyan-400">
+          <div className="text-2xl font-bold font-mono text-cyan-400 tabular-nums">
             {assignedGatesCount}
           </div>
-          <div className="text-[10px] text-slate-400">Direct platform departure assignments</div>
+          <div className="text-[10px] text-slate-400 text-pretty">Direct platform assignments</div>
         </div>
 
         {/* Line Network Coverage */}
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1">
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono">Lines Covered</span>
-            <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Lines Covered</span>
+            <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-emerald-300">
+          <div className="text-2xl font-bold font-mono text-emerald-300 tabular-nums">
             {uniqueLinesCovered} <span className="text-xs text-slate-500 font-normal">of {allLines.length}</span>
           </div>
-          <div className="text-[10px] text-slate-400">Multi-modal network coverage</div>
+          <div className="text-[10px] text-slate-400 text-pretty">Multi-modal network coverage</div>
         </div>
       </div>
 
