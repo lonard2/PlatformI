@@ -243,7 +243,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "alerts"}
             aria-label={t.navigation.serviceStatus}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile hover-glass-glow transition"
           >
             <Activity
               className={`w-3.5 h-3.5 ${
@@ -254,7 +254,7 @@ export default function Home() {
                   : "text-emerald-400"
               }`}
             />
-            <span className="hidden sm:inline">
+            <span className="hidden sm:inline font-medium">
               {t.navigation.serviceStatus}
               {activeAlerts.length > 0 ? ` (${activeAlerts.length})` : ""}
             </span>
@@ -264,7 +264,7 @@ export default function Home() {
             onClick={() => setActiveDrawer(activeDrawer === "ai" ? null : "ai")}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "ai"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile transition"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile hover-glass-glow transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.navigation.aiAdvisor}</span>
@@ -277,7 +277,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "crowdsource"}
             aria-pressed={activeDrawer === "crowdsource"}
-            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
+            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
               activeDrawer === "crowdsource"
                 ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -294,7 +294,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "tickets"}
             aria-pressed={activeDrawer === "tickets"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
               activeDrawer === "tickets"
                 ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -309,7 +309,7 @@ export default function Home() {
             aria-label={t.navigation.settings}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "settings"}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile transition"
+            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile hover-glass-glow transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />
           </button>
@@ -348,12 +348,12 @@ export default function Home() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={springTransition}
-                className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] shadow-2xl shadow-black/60 space-y-3 border border-white/15 focus-visible:outline-none"
+                className="glass-panel rounded-2xl p-3.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] shadow-2xl shadow-black/70 space-y-3 border border-white/15 focus-visible:outline-none"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="text-xs font-bold text-white tracking-tight">{t.common.findRoute}</span>
+                    <span className="text-xs font-semibold text-white tracking-tight text-balance">{t.common.findRoute}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {(journeyOrigin || journeyDest) && (
@@ -614,19 +614,19 @@ export default function Home() {
                   }
                 }}
                 onClick={() => setIsJourneyExpanded(true)}
-                className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/40 btn-tactile transition-all cursor-pointer ${
+                className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/50 btn-tactile hover-glass-glow transition-all cursor-pointer ${
                   plannedJourney ? "border-cyan-500/50 bg-slate-900/90" : "hover:border-cyan-500/40"
                 }`}
               >
                 {plannedJourney ? (
                   <div className="flex items-center gap-2 text-xs">
                     <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
-                    <span className="font-semibold text-white truncate max-w-[90px] sm:max-w-[120px]">
+                    <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
                       {plannedJourney.originStop.name}
                     </span>
                     <ArrowRight className="w-3 h-3 text-slate-500 shrink-0" />
                     <div className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]" />
-                    <span className="font-semibold text-white truncate max-w-[90px] sm:max-w-[120px]">
+                    <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
                       {plannedJourney.destinationStop.name}
                     </span>
                     <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hidden sm:inline">
