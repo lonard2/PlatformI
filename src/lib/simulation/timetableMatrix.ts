@@ -217,13 +217,21 @@ export interface BatchScheduleConfig {
   stablingStopId?: string;
   stablingStopName?: string;
   lateNightStartTime?: string; // default "22:00"
+  direction?: "OUTBOUND" | "INBOUND" | "BOTH";
+  asymmetricInboundHeadwayMinutes?: number;
 }
 
 /**
- * Generates an entire sequence of timetable runs based on an operational headway frequency pattern,
- * with authentic support for late-night depot stabling / short-turn runs.
+ * Internal generator for a single direction of travel.
  */
-export function generateBatchTimetableRuns(config: BatchScheduleConfig): TimetableRun[] {
+function generateSingleDirectionBatch(params: {
+  config: BatchScheduleConfig;
+  targetDirection: "OUTBOUND" | "INBOUND";
+  headway: number;
+  startRunNum: number;
+  stepRunNum: number;
+}): TimetableRun[] {
+  const { config, targetDirection, headway, startRunNum, stepRunNum } = params;
   const {
     lineId,
     operatorName,
@@ -231,9 +239,7 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
     modeCategory,
     startTime,
     endTime,
-    headwayMinutes,
     runCodePrefix,
-    startRunNumber = 1,
     serviceClass = "Standard Regular",
     gateOrBay = "Peron 1",
     notes = "Reguler Headway",
@@ -246,19 +252,22 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
 
   if (!stops || stops.length < 2) return [];
 
+  // Determine active stops order based on target direction
+  const effectiveStops = targetDirection === "INBOUND" ? [...stops].reverse() : stops;
+
   const startMinutes = timeStringToMinutes(startTime);
   let endMinutes = timeStringToMinutes(endTime);
   if (endMinutes < startMinutes) {
     endMinutes += 1440; // overnight window
   }
 
-  const originStop = stops[0];
-  const destinationStop = stops[stops.length - 1];
+  const originStop = effectiveStops[0];
+  const destinationStop = effectiveStops[effectiveStops.length - 1];
   const lateNightCutoffMinutes = timeStringToMinutes(lateNightStartTime);
 
   const runs: TimetableRun[] = [];
   let currentMinutes = startMinutes;
-  let runIdx = startRunNumber;
+  let runIdx = startRunNum;
 
   while (currentMinutes <= endMinutes) {
     const isLateNight = Boolean(includeLateNightStabling) && currentMinutes >= lateNightCutoffMinutes;
@@ -277,9 +286,9 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
 
       // Select stabling stop: user-selected or ~60% down the line
       const targetStablingStop =
-        (stablingStopId && stops.find((s) => s.id === stablingStopId)) ||
-        stops[Math.max(1, Math.floor(stops.length * 0.65))] ||
-        stops[1];
+        (stablingStopId && effectiveStops.find((s) => s.id === stablingStopId)) ||
+        effectiveStops[Math.max(1, Math.floor(effectiveStops.length * 0.65))] ||
+        effectiveStops[1];
 
       runTerminatedEarlyStopId = targetStablingStop.id;
       const targetName = stablingStopName || targetStablingStop.name;
@@ -292,7 +301,7 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
     const depTimeStr = minutesToTimeString(currentMinutes);
     const stopTimes = cascadeStopTimes(
       depTimeStr,
-      stops,
+      effectiveStops,
       modeCategory,
       undefined,
       runTerminatedEarlyStopId
@@ -323,13 +332,75 @@ export function generateBatchTimetableRuns(config: BatchScheduleConfig): Timetab
       divergenceReason: runDivergenceReason,
       divergenceDescription: runDivergenceDesc,
       terminatedEarlyStopId: runTerminatedEarlyStopId,
+      direction: targetDirection,
     });
 
-    currentMinutes += headwayMinutes;
-    runIdx++;
+    currentMinutes += headway;
+    runIdx += stepRunNum;
   }
 
   return runs;
+}
+
+/**
+ * Generates an entire sequence of timetable runs based on an operational headway frequency pattern,
+ * with authentic support for bi-directional corridors, asymmetric headways, and late-night depot stabling.
+ */
+export function generateBatchTimetableRuns(config: BatchScheduleConfig): TimetableRun[] {
+  const {
+    direction = "OUTBOUND",
+    headwayMinutes,
+    asymmetricInboundHeadwayMinutes,
+    startRunNumber = 101,
+  } = config;
+
+  if (direction === "OUTBOUND") {
+    return generateSingleDirectionBatch({
+      config,
+      targetDirection: "OUTBOUND",
+      headway: headwayMinutes,
+      startRunNum: startRunNumber,
+      stepRunNum: 1,
+    });
+  }
+
+  if (direction === "INBOUND") {
+    return generateSingleDirectionBatch({
+      config,
+      targetDirection: "INBOUND",
+      headway: headwayMinutes,
+      startRunNum: startRunNumber,
+      stepRunNum: 1,
+    });
+  }
+
+  // BOTH directions with asymmetric headways
+  const inboundHeadway = asymmetricInboundHeadwayMinutes ?? headwayMinutes;
+
+  // Authentic railway numbering: Odd numbers for Outbound (down), Even for Inbound (up)
+  const outboundStart = startRunNumber % 2 === 1 ? startRunNumber : startRunNumber + 1;
+  const inboundStart = startRunNumber % 2 === 0 ? startRunNumber : startRunNumber + 1;
+
+  const outboundRuns = generateSingleDirectionBatch({
+    config,
+    targetDirection: "OUTBOUND",
+    headway: headwayMinutes,
+    startRunNum: outboundStart,
+    stepRunNum: 2,
+  });
+
+  const inboundRuns = generateSingleDirectionBatch({
+    config,
+    targetDirection: "INBOUND",
+    headway: inboundHeadway,
+    startRunNum: inboundStart,
+    stepRunNum: 2,
+  });
+
+  // Merge and sort chronologically by departure time
+  return [...outboundRuns, ...inboundRuns].sort(
+    (a, b) => timeStringToMinutes(a.departureTime) - timeStringToMinutes(b.departureTime)
+  );
 }
 
 /**
@@ -718,6 +789,115 @@ export function getOrderedLineStops(stops: Stop[], direction: CorridorDirection 
 }
 
 /**
+ * Accurately determines a run's corridor direction (Arah Hilir vs Arah Mudik):
+ * - If run.direction is explicitly stored, returns it.
+ * - Otherwise inspects stopTimes or origin/destination matching against line stops.
+ */
+export function determineRunDirection(run: TimetableRun, lineStops: Stop[]): CorridorDirection {
+  if (run.direction) {
+    return run.direction;
+  }
+  if (!lineStops || lineStops.length < 2) return "OUTBOUND";
+
+  const originTerminus = lineStops[0];
+  const finalTerminus = lineStops[lineStops.length - 1];
+
+  // 1. Check stopTimes if populated
+  if (run.stopTimes && run.stopTimes.length > 0) {
+    const firstNonBypass =
+      run.stopTimes.find((s) => !s.isBypass && !s.isTerminatedEarly) || run.stopTimes[0];
+    const lastNonBypass =
+      [...run.stopTimes].reverse().find((s) => !s.isBypass && !s.isTerminatedEarly) ||
+      run.stopTimes[run.stopTimes.length - 1];
+
+    if (firstNonBypass.stopId === finalTerminus.id || lastNonBypass.stopId === originTerminus.id) {
+      return "INBOUND";
+    }
+    if (firstNonBypass.stopId === originTerminus.id || lastNonBypass.stopId === finalTerminus.id) {
+      return "OUTBOUND";
+    }
+  }
+
+  // 2. Check origin / destination string
+  if (run.origin === finalTerminus.name || run.destination === originTerminus.name) {
+    return "INBOUND";
+  }
+
+  return "OUTBOUND";
+}
+
+export interface CorridorHeadwayStats {
+  outboundCount: number;
+  inboundCount: number;
+  averageHeadwayOutboundMinutes: number | null;
+  averageHeadwayInboundMinutes: number | null;
+  isAsymmetric: boolean; // true if difference between outbound and inbound headway >= 1.5 mins
+  minHeadwayOutboundMinutes: number | null;
+  minHeadwayInboundMinutes: number | null;
+}
+
+/**
+ * Computes bi-directional headway metrics and detects directional asymmetry across corridor runs.
+ */
+export function computeCorridorHeadwayStats(
+  runs: TimetableRun[],
+  lineStops: Stop[]
+): CorridorHeadwayStats {
+  const outboundRuns: TimetableRun[] = [];
+  const inboundRuns: TimetableRun[] = [];
+
+  for (const r of runs) {
+    const dir = determineRunDirection(r, lineStops);
+    if (dir === "OUTBOUND") {
+      outboundRuns.push(r);
+    } else {
+      inboundRuns.push(r);
+    }
+  }
+
+  const computeStats = (list: TimetableRun[]) => {
+    if (list.length < 2) {
+      return { avg: null, min: null };
+    }
+    const sorted = [...list].sort(
+      (a, b) => timeStringToMinutes(a.departureTime) - timeStringToMinutes(b.departureTime)
+    );
+    const intervals: number[] = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = timeStringToMinutes(sorted[i - 1].departureTime);
+      let curr = timeStringToMinutes(sorted[i].departureTime);
+      if (curr < prev && prev > 20 * 60) curr += 1440;
+      const diff = curr - prev;
+      if (diff > 0 && diff <= 180) {
+        intervals.push(diff);
+      }
+    }
+    if (intervals.length === 0) return { avg: null, min: null };
+    const avg = Math.round((intervals.reduce((a, b) => a + b, 0) / intervals.length) * 10) / 10;
+    const min = Math.min(...intervals);
+    return { avg, min };
+  };
+
+  const ob = computeStats(outboundRuns);
+  const ib = computeStats(inboundRuns);
+
+  const isAsymmetric =
+    ob.avg !== null &&
+    ib.avg !== null &&
+    Math.abs(ob.avg - ib.avg) >= 1.5;
+
+  return {
+    outboundCount: outboundRuns.length,
+    inboundCount: inboundRuns.length,
+    averageHeadwayOutboundMinutes: ob.avg,
+    averageHeadwayInboundMinutes: ib.avg,
+    isAsymmetric,
+    minHeadwayOutboundMinutes: ob.min,
+    minHeadwayInboundMinutes: ib.min,
+  };
+}
+
+/**
  * Computes boundary-safe placement alignment for in-cell matrix popovers:
  * - Vertical: pops upward near bottom rows (when safe from colliding with header), downward otherwise.
  * - Horizontal: flushes left on column 0, flushes right on final columns, centers on intermediate columns.
@@ -851,14 +1031,7 @@ export function computeRunStringlineTrajectory(params: {
   if (!stops || stops.length === 0 || !distances || distances.length === 0) return null;
 
   // Determine direction: Outbound (Origin -> Terminus) vs Inbound (Terminus -> Origin)
-  const isFirstStopTerminus =
-    run.origin === stops[stops.length - 1]?.name ||
-    run.destination === stops[0]?.name ||
-    (run.stopTimes &&
-      run.stopTimes.length > 1 &&
-      run.stopTimes[0].stopId === stops[stops.length - 1]?.id);
-
-  const direction: "OUTBOUND" | "INBOUND" = isFirstStopTerminus ? "INBOUND" : "OUTBOUND";
+  const direction: "OUTBOUND" | "INBOUND" = determineRunDirection(run, stops);
 
   const effectiveStops = direction === "INBOUND" ? [...stops].reverse() : stops;
   const vertices: StringlineVertex[] = [];

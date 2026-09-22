@@ -50,7 +50,10 @@ import {
   checkPlatformOccupancyConflict,
   PlatformConflict,
   getOrderedLineStops,
+  determineRunDirection,
+  computeCorridorHeadwayStats,
   CorridorDirection,
+  CorridorHeadwayStats,
   getMatrixPopoverPlacement,
 } from "@/lib/simulation/timetableMatrix";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
@@ -93,7 +96,7 @@ export function TimetableMatrixGrid({
   onEditRun,
 }: TimetableMatrixGridProps) {
   const [timeWindow, setTimeWindow] = useState<TimeWindowFilter>("ALL");
-  const [direction, setDirection] = useState<CorridorDirection>("OUTBOUND");
+  const [direction, setDirection] = useState<CorridorDirection | "ALL">("OUTBOUND");
   const [editingCell, setEditingCell] = useState<InCellEditState | null>(null);
   const [isSavingCell, setIsSavingCell] = useState<boolean>(false);
   const [cellError, setCellError] = useState<string | null>(null);
@@ -106,9 +109,24 @@ export function TimetableMatrixGrid({
     description: string;
   } | null>(null);
 
-  // Filter runs by selected time window
+  // Runs on this specific corridor
+  const corridorLineRuns = useMemo(() => {
+    return runs.filter((r) => r.lineId === selectedLine.id);
+  }, [runs, selectedLine.id]);
+
+  // Bi-directional headway and asymmetry analytics
+  const headwayStats = useMemo(() => {
+    return computeCorridorHeadwayStats(corridorLineRuns, lineStops);
+  }, [corridorLineRuns, lineStops]);
+
+  // Filter runs by selected corridor direction and time window
   const filteredRuns = useMemo(() => {
-    let list = runs.filter((r) => r.lineId === selectedLine.id);
+    let list = corridorLineRuns;
+
+    // Filter by direction
+    if (direction !== "ALL") {
+      list = list.filter((r) => determineRunDirection(r, lineStops) === direction);
+    }
 
     // Sort by departure time
     list = list.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
@@ -131,7 +149,7 @@ export function TimetableMatrixGrid({
       }
       return true;
     });
-  }, [runs, selectedLine.id, timeWindow]);
+  }, [corridorLineRuns, lineStops, direction, timeWindow]);
 
   // State for operational divergence modal
   const [configuringRun, setConfiguringRun] = useState<TimetableRun | null>(null);
@@ -148,25 +166,32 @@ export function TimetableMatrixGrid({
 
   // Directional sequential stops ordering (Outbound = Origin -> Terminus, Inbound = Terminus -> Origin)
   const orderedStops = useMemo(() => {
-    return getOrderedLineStops(lineStops, direction);
+    return getOrderedLineStops(lineStops, direction === "INBOUND" ? "INBOUND" : "OUTBOUND");
   }, [lineStops, direction]);
 
-  // Ensure each run has populated stopTimes along the line stops
+  // Ensure each run has populated stopTimes along the line stops in its direction of travel
   const materializedRuns = useMemo(() => {
     return filteredRuns.map((run) => {
+      const runDir = determineRunDirection(run, lineStops);
+      const effectiveStops = runDir === "INBOUND" ? [...lineStops].reverse() : lineStops;
+
       if (run.stopTimes && run.stopTimes.length === lineStops.length) {
-        return run;
+        return {
+          ...run,
+          direction: runDir,
+        };
       }
-      // Auto-compute cascading stop times if not yet populated
+      // Auto-compute cascading stop times along run's trajectory
       const autoStopTimes = cascadeStopTimes(
         run.departureTime,
-        lineStops,
+        effectiveStops,
         selectedLine.mode,
         run.stopTimes,
         run.terminatedEarlyStopId
       );
       return {
         ...run,
+        direction: runDir,
         stopTimes: autoStopTimes,
       };
     });
@@ -368,7 +393,9 @@ export function TimetableMatrixGrid({
 
       // Cascade downstream if requested
       if (editingCell.cascadeDownstream && targetIndex < lineStops.length - 1) {
-        const remainingStops = lineStops.slice(targetIndex);
+        const runDir = determineRunDirection(targetRun, lineStops);
+        const effectiveLineStops = runDir === "INBOUND" ? [...lineStops].reverse() : lineStops;
+        const remainingStops = effectiveLineStops.slice(targetIndex);
         const cascadedTail = cascadeStopTimes(
           editingCell.departureTime,
           remainingStops,
@@ -554,6 +581,18 @@ export function TimetableMatrixGrid({
               <ArrowLeftRight className="w-3 h-3" />
               <span>Arah Mudik</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setDirection("ALL")}
+              className={`px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition ${
+                direction === "ALL"
+                  ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title="Tampilkan semua perjalanan dua arah"
+            >
+              <span>Dua Arah</span>
+            </button>
           </div>
 
           {/* 1-Step Undo Button */}
@@ -593,7 +632,7 @@ export function TimetableMatrixGrid({
       <div className="rounded-2xl bg-slate-900/80 border border-white/10 shadow-2xl overflow-hidden flex flex-col">
         {/* Table Sub-header */}
         <div className="p-4 border-b border-white/10 bg-slate-950/40 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span
               style={{
                 backgroundColor: `${selectedLine.colorHex}25`,
@@ -608,8 +647,32 @@ export function TimetableMatrixGrid({
               {selectedLine.name}
             </h3>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
-              {lineStops.length} Stations &bull; {materializedRuns.length} Trips
+              {lineStops.length} Stn &bull; {materializedRuns.length} KA ({direction === "OUTBOUND" ? "Arah Hilir" : direction === "INBOUND" ? "Arah Mudik" : "Dua Arah"})
             </span>
+
+            {/* Headway & Asymmetry Metrics */}
+            {direction === "OUTBOUND" && headwayStats.averageHeadwayOutboundMinutes && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-teal-950/60 text-teal-300 border border-teal-500/30">
+                <Clock className="w-3 h-3 text-teal-400" />
+                <span>Headway Hilir: ~{headwayStats.averageHeadwayOutboundMinutes} min</span>
+              </span>
+            )}
+            {direction === "INBOUND" && headwayStats.averageHeadwayInboundMinutes && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-teal-950/60 text-teal-300 border border-teal-500/30">
+                <Clock className="w-3 h-3 text-teal-400" />
+                <span>Headway Mudik: ~{headwayStats.averageHeadwayInboundMinutes} min</span>
+              </span>
+            )}
+            {headwayStats.isAsymmetric && (
+              <span
+                className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-amber-950/60 text-amber-300 border border-amber-500/40"
+                title={`Headway Asimetris: Hilir ~${headwayStats.averageHeadwayOutboundMinutes}m vs Mudik ~${headwayStats.averageHeadwayInboundMinutes}m`}
+              >
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Asimetris: H ~{headwayStats.averageHeadwayOutboundMinutes}m / M ~{headwayStats.averageHeadwayInboundMinutes}m</span>
+              </span>
+            )}
+
             {totalConflictCount > 0 ? (
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-500/50 flex items-center gap-1 animate-pulse">
                 <AlertTriangle className="w-3 h-3 text-rose-400" />

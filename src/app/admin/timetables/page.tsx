@@ -44,7 +44,7 @@ import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { BatchScheduleModal } from "@/components/admin/BatchScheduleModal";
 import { TimetableMatrixGrid } from "@/components/admin/TimetableMatrixGrid";
 import { TimetableStringlineChart } from "@/components/admin/TimetableStringlineChart";
-import { shiftRunSchedule } from "@/lib/simulation/timetableMatrix";
+import { shiftRunSchedule, determineRunDirection } from "@/lib/simulation/timetableMatrix";
 
 interface QuickTemplate {
   label: string;
@@ -163,6 +163,7 @@ function TimetableStudioContent() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<TransitCategory | "ALL">("ALL");
   const [selectedLineId, setSelectedLineId] = useState<string>("ALL");
+  const [selectedDirection, setSelectedDirection] = useState<"ALL" | "OUTBOUND" | "INBOUND">("ALL");
 
   // Modal State for Single Run (Add/Edit)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -475,6 +476,16 @@ function TimetableStudioContent() {
         return false;
       }
 
+      if (selectedDirection !== "ALL") {
+        const stopsForLine = allStops
+          .filter((s) => s.lineId === run.lineId || s.connectedLineIds.includes(run.lineId))
+          .sort((a, b) => a.sequence - b.sequence);
+        const dir = determineRunDirection(run, stopsForLine);
+        if (dir !== selectedDirection) {
+          return false;
+        }
+      }
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matches =
@@ -490,7 +501,7 @@ function TimetableStudioContent() {
 
       return true;
     });
-  }, [timetableRuns, selectedCategory, selectedLineId, searchQuery, lineMap]);
+  }, [timetableRuns, selectedCategory, selectedLineId, selectedDirection, searchQuery, lineMap, allStops]);
 
   // Statistics
   const uniqueOperatorsCount = useMemo(() => {
@@ -810,6 +821,20 @@ function TimetableStudioContent() {
                   ))}
                 </select>
               </div>
+
+              {/* Direction Filter */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-slate-400 font-medium">Direction:</span>
+                <select
+                  value={selectedDirection}
+                  onChange={(e) => setSelectedDirection(e.target.value as "ALL" | "OUTBOUND" | "INBOUND")}
+                  className="px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-teal-500 transition"
+                >
+                  <option value="ALL">Semua Arah</option>
+                  <option value="OUTBOUND">Arah Hilir (Outbound)</option>
+                  <option value="INBOUND">Arah Mudik (Inbound)</option>
+                </select>
+              </div>
             </div>
 
             {/* Category Pill Filters */}
@@ -896,6 +921,10 @@ function TimetableStudioContent() {
                   const line = lineMap.get(run.lineId);
                   const colorHex = line?.colorHex || "#0d9488";
                   const lineCode = line?.code || "TRN";
+                  const lineStopsForRun = allStops
+                    .filter((s) => s.lineId === run.lineId || s.connectedLineIds.includes(run.lineId))
+                    .sort((a, b) => a.sequence - b.sequence);
+                  const runDirection = determineRunDirection(run, lineStopsForRun);
 
                   return (
                     <div
@@ -910,6 +939,15 @@ function TimetableStudioContent() {
                             className="px-2 py-0.5 rounded text-xs font-mono font-bold border"
                           >
                             {run.tripCode}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                              runDirection === "OUTBOUND"
+                                ? "bg-teal-500/10 text-teal-300 border-teal-500/30"
+                                : "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
+                            }`}
+                          >
+                            {runDirection === "OUTBOUND" ? "Arah Hilir" : "Arah Mudik"}
                           </span>
                           <span className="text-xs font-semibold text-slate-300">
                             {run.operatorName}

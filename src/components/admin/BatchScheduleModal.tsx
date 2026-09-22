@@ -51,7 +51,9 @@ export function BatchScheduleModal({
   const [selectedLineId, setSelectedLineId] = useState<string>(defaultLine);
   const [startTime, setStartTime] = useState<string>("06:00");
   const [endTime, setEndTime] = useState<string>("09:00");
+  const [direction, setDirection] = useState<"OUTBOUND" | "INBOUND" | "BOTH">("OUTBOUND");
   const [headwayMinutes, setHeadwayMinutes] = useState<number>(5);
+  const [asymmetricInboundHeadway, setAsymmetricInboundHeadway] = useState<number>(10);
   const [runCodePrefix, setRunCodePrefix] = useState<string>("M-1");
   const [startRunNumber, setStartRunNumber] = useState<number>(101);
   const [operatorName, setOperatorName] = useState<string>("PT MRT Jakarta");
@@ -124,11 +126,18 @@ export function BatchScheduleModal({
     const [endH, endM] = endTime.split(":").map(Number);
     if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return 0;
 
-    let totalDurationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+    let totalDurationMinutes = endH * 60 + endM - (startH * 60 + startM);
     if (totalDurationMinutes < 0) totalDurationMinutes += 1440;
     if (headwayMinutes <= 0) return 0;
-    return Math.floor(totalDurationMinutes / headwayMinutes) + 1;
-  }, [startTime, endTime, headwayMinutes]);
+
+    const outboundCount = Math.floor(totalDurationMinutes / headwayMinutes) + 1;
+    if (direction === "OUTBOUND" || direction === "INBOUND") return outboundCount;
+
+    // BOTH directions with asymmetric headway
+    const inboundHeadway = asymmetricInboundHeadway > 0 ? asymmetricInboundHeadway : headwayMinutes;
+    const inboundCount = Math.floor(totalDurationMinutes / inboundHeadway) + 1;
+    return outboundCount + inboundCount;
+  }, [startTime, endTime, headwayMinutes, direction, asymmetricInboundHeadway]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,6 +174,9 @@ export function BatchScheduleModal({
         startTime,
         endTime,
         headwayMinutes,
+        direction,
+        asymmetricInboundHeadwayMinutes:
+          direction === "BOTH" ? asymmetricInboundHeadway : undefined,
         runCodePrefix,
         startRunNumber,
         serviceClass,
@@ -305,11 +317,58 @@ export function BatchScheduleModal({
               </div>
             </div>
 
-            {/* 3. Headway / Frequency Selector */}
+            {/* 2B. Direction Selector */}
             <div className="space-y-1.5">
+              <label className="block text-slate-400 font-medium">Arah Lintasan Operasi (Corridor Direction) *</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDirection("OUTBOUND")}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border transition text-left ${
+                    direction === "OUTBOUND"
+                      ? "bg-teal-500 text-teal-950 font-bold border-teal-400 shadow-sm"
+                      : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <div className="font-bold">Arah Hilir</div>
+                  <div className="text-[10px] opacity-80 truncate">
+                    {lineStops[0]?.name || "Awal"} &rarr; {lineStops[lineStops.length - 1]?.name || "Akhir"}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDirection("INBOUND")}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border transition text-left ${
+                    direction === "INBOUND"
+                      ? "bg-teal-500 text-teal-950 font-bold border-teal-400 shadow-sm"
+                      : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <div className="font-bold">Arah Mudik</div>
+                  <div className="text-[10px] opacity-80 truncate">
+                    {lineStops[lineStops.length - 1]?.name || "Akhir"} &rarr; {lineStops[0]?.name || "Awal"}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDirection("BOTH")}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border transition text-left ${
+                    direction === "BOTH"
+                      ? "bg-cyan-500 text-cyan-950 font-bold border-cyan-400 shadow-sm"
+                      : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <div className="font-bold">Dua Arah</div>
+                  <div className="text-[10px] opacity-80">Headway Asimetris</div>
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Headway / Frequency Selector */}
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="block text-slate-400 font-medium">
-                  Headway Interval (minutes) *
+                  {direction === "BOTH" ? "Headway Arah Hilir (Outbound) *" : "Headway Interval (menit) *"}
                 </label>
                 <span className="font-mono text-teal-400 font-bold">{headwayMinutes} min</span>
               </div>
@@ -329,6 +388,41 @@ export function BatchScheduleModal({
                   </button>
                 ))}
               </div>
+
+              {direction === "BOTH" && (
+                <div className="pt-2 border-t border-white/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-cyan-300 font-medium text-xs">
+                      Headway Arah Mudik (Inbound Return) *
+                    </label>
+                    <span className="font-mono text-cyan-400 font-bold">{asymmetricInboundHeadway} min</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {COMMON_HEADWAYS.map((h) => (
+                      <button
+                        key={h}
+                        type="button"
+                        onClick={() => setAsymmetricInboundHeadway(h)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                          asymmetricInboundHeadway === h
+                            ? "bg-cyan-500 text-cyan-950 font-bold"
+                            : "bg-slate-950 text-slate-400 border border-white/10 hover:bg-slate-900"
+                        }`}
+                      >
+                        {h} min
+                      </button>
+                    ))}
+                  </div>
+                  {headwayMinutes !== asymmetricInboundHeadway && (
+                    <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-[11px] text-cyan-300 flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <span>
+                        Pola Aliran Asimetris aktif: Frekuensi Hilir ({headwayMinutes} min) vs Mudik ({asymmetricInboundHeadway} min).
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 4. Run Code Pattern */}

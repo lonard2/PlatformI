@@ -434,6 +434,7 @@ export interface TimetableRun {
   divergenceDescription?: string;
   terminatedEarlyStopId?: string;
   divergedFromStopId?: string;
+  direction?: "OUTBOUND" | "INBOUND";
 }
 
 export interface DepartureBoardItem {
