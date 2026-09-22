@@ -735,7 +735,7 @@ export function TimetableStringlineChart({
             })}
 
             {/* E. Trajectory Intersection Diamonds (Crossing Meets & Overtakes) */}
-            {visibleIntersections.map((int) => {
+            {visibleIntersections.map((int, idx) => {
               const x = timeToX(int.timeMinutes);
               const y = fractionToY(int.fraction);
               if (x < 0 || x > totalSvgWidth) return null;
@@ -746,7 +746,7 @@ export function TimetableStringlineChart({
 
               return (
                 <g
-                  key={int.id}
+                  key={`${int.id}-${idx}`}
                   className="cursor-pointer group"
                   onMouseEnter={(e) => handleIntersectionMouseEnter(int, e)}
                   onClick={() => {

@@ -359,5 +359,67 @@ describe("Graphical Stringline / Marey Chart Engine (GAPEKA Zugdiagramm)", () =>
       expect(intersections.length).toBeGreaterThanOrEqual(1);
       expect(intersections[0].type).toBe("OVERTAKE");
     });
+
+    it("smoothly interpolates intermediate stops when stopTimes is undefined, avoiding saw-tooth zig-zags", () => {
+      const runWithoutStopTimes: TimetableRun = {
+        id: "run-no-stops",
+        lineId: "line-mrt",
+        tripCode: "M-NO-STOP",
+        origin: "Stasiun Lebak Bulus Grab",
+        destination: "Stasiun Bundaran HI Bank DKI",
+        departureTime: "06:00",
+        arrivalTime: "06:30",
+        operatorName: "MRT Jakarta",
+      };
+
+      const traj = computeRunStringlineTrajectory({
+        run: runWithoutStopTimes,
+        stops: sampleStops,
+        distances,
+      });
+
+      expect(traj).not.toBeNull();
+      expect(traj?.vertices).toHaveLength(4);
+      // Vertices must have strictly non-decreasing time
+      for (let i = 1; i < traj!.vertices.length; i++) {
+        expect(traj!.vertices[i].timeMinutes).toBeGreaterThanOrEqual(traj!.vertices[i - 1].timeMinutes);
+      }
+    });
+
+    it("guarantees zero duplicate intersection IDs between opposing runs without explicit stopTimes", () => {
+      const runA: TimetableRun = {
+        id: "run-mrt-101",
+        lineId: "line-mrt",
+        tripCode: "M-101",
+        origin: "Stasiun Lebak Bulus Grab",
+        destination: "Stasiun Bundaran HI Bank DKI",
+        departureTime: "06:00",
+        arrivalTime: "06:30",
+        operatorName: "MRT Jakarta",
+      };
+
+      const runB: TimetableRun = {
+        id: "run-batch-line-mrt-ns-M-1-102-1789871604059-102",
+        lineId: "line-mrt",
+        tripCode: "M-102",
+        origin: "Stasiun Bundaran HI Bank DKI",
+        destination: "Stasiun Lebak Bulus Grab",
+        departureTime: "06:10",
+        arrivalTime: "06:40",
+        operatorName: "MRT Jakarta",
+      };
+
+      const trajA = computeRunStringlineTrajectory({ run: runA, stops: sampleStops, distances })!;
+      const trajB = computeRunStringlineTrajectory({ run: runB, stops: sampleStops, distances })!;
+
+      const intersections = detectTrajectoryIntersections([trajA, trajB], distances);
+      expect(intersections.length).toBeGreaterThan(0);
+
+      // Verify all IDs are completely unique
+      const ids = intersections.map((int) => int.id);
+      const uniqueIds = new Set(ids);
+      expect(uniqueIds.size).toBe(ids.length);
+    });
   });
 });
+

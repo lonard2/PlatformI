@@ -1038,6 +1038,18 @@ export function computeRunStringlineTrajectory(params: {
 
   let previousDepMinutes = -1;
 
+  const rawStartMinutes = timeStringToMinutes(run.departureTime);
+  let rawEndMinutes = timeStringToMinutes(run.arrivalTime);
+  if (rawEndMinutes < rawStartMinutes && rawStartMinutes > 20 * 60) {
+    rawEndMinutes += 1440;
+  }
+  const rawDurationMinutes = Math.max(1, rawEndMinutes - rawStartMinutes);
+
+  const startDist = distances.find((d) => d.stopId === effectiveStops[0].id)?.cumulativeKm ?? 0;
+  const endDist =
+    distances.find((d) => d.stopId === effectiveStops[effectiveStops.length - 1].id)?.cumulativeKm ?? 1;
+  const spanKm = Math.abs(endDist - startDist);
+
   for (let i = 0; i < effectiveStops.length; i++) {
     const stop = effectiveStops[i];
     const distInfo = distances.find((d) => d.stopId === stop.id);
@@ -1048,9 +1060,20 @@ export function computeRunStringlineTrajectory(params: {
       break;
     }
 
-    const arrStr = stopTime?.arrivalTime || (i === 0 ? run.departureTime : run.arrivalTime);
+    const currDist = distInfo.cumulativeKm;
+    const journeyFraction =
+      spanKm > 1e-4
+        ? Math.min(1, Math.max(0, Math.abs(currDist - startDist) / spanKm))
+        : (effectiveStops.length > 1 ? i / (effectiveStops.length - 1) : 0);
+    const interpolatedMinutes = Math.round(rawStartMinutes + journeyFraction * rawDurationMinutes);
+    const interpolatedTimeStr = minutesToTimeString(interpolatedMinutes % 1440);
+
+    const arrStr =
+      stopTime?.arrivalTime ||
+      (i === 0 ? run.departureTime : (i === effectiveStops.length - 1 ? run.arrivalTime : interpolatedTimeStr));
     const depStr =
-      stopTime?.departureTime || (i === effectiveStops.length - 1 ? run.arrivalTime : run.departureTime);
+      stopTime?.departureTime ||
+      (i === effectiveStops.length - 1 ? run.arrivalTime : (i === 0 ? run.departureTime : interpolatedTimeStr));
 
     let arrMinutes = timeStringToMinutes(arrStr);
     let depMinutes = timeStringToMinutes(depStr);
@@ -1199,6 +1222,36 @@ export function detectTrajectoryIntersections(
         continue;
       }
 
+      const addIntersection = (
+        type: "OVERTAKE" | "CROSSING_MEET",
+        timeCross: number,
+        fracCross: number,
+        approxKm: number,
+        approxLocationDescription: string
+      ) => {
+        const fracKey = Math.round(fracCross * 1000);
+        const alreadyExists = intersections.some(
+          (existing) =>
+            ((existing.runA.id === trajA.runId && existing.runB.id === trajB.runId) ||
+              (existing.runA.id === trajB.runId && existing.runB.id === trajA.runId)) &&
+            Math.abs(existing.timeMinutes - timeCross) <= 1 &&
+            Math.abs(existing.fraction - fracCross) <= 0.02
+        );
+        if (alreadyExists) return;
+
+        intersections.push({
+          id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}-${fracKey}`,
+          type,
+          runA: trajA.run,
+          runB: trajB.run,
+          timeMinutes: timeCross,
+          timeString: minutesToTimeString(timeCross),
+          fraction: fracCross,
+          approxKm,
+          approxLocationDescription,
+        });
+      };
+
       // Test segment pairs
       for (let i = 0; i < trajA.vertices.length - 1; i++) {
         const p1 = trajA.vertices[i];
@@ -1225,17 +1278,13 @@ export function detectTrajectoryIntersections(
               if (timeBAtStation >= minA && timeBAtStation <= maxA) {
                 const timeCross = Math.round(timeBAtStation);
                 const isSameDir = trajA.direction === trajB.direction;
-                intersections.push({
-                  id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
-                  type: isSameDir ? "OVERTAKE" : "CROSSING_MEET",
-                  runA: trajA.run,
-                  runB: trajB.run,
-                  timeMinutes: timeCross,
-                  timeString: minutesToTimeString(timeCross),
-                  fraction: yStation,
-                  approxKm: Math.round(yStation * maxKm * 10) / 10,
-                  approxLocationDescription: p1.stopName,
-                });
+                addIntersection(
+                  isSameDir ? "OVERTAKE" : "CROSSING_MEET",
+                  timeCross,
+                  yStation,
+                  Math.round(yStation * maxKm * 10) / 10,
+                  p1.stopName
+                );
               }
             }
             continue;
@@ -1254,17 +1303,13 @@ export function detectTrajectoryIntersections(
               if (timeAAtStation >= minB && timeAAtStation <= maxB) {
                 const timeCross = Math.round(timeAAtStation);
                 const isSameDir = trajA.direction === trajB.direction;
-                intersections.push({
-                  id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
-                  type: isSameDir ? "OVERTAKE" : "CROSSING_MEET",
-                  runA: trajA.run,
-                  runB: trajB.run,
-                  timeMinutes: timeCross,
-                  timeString: minutesToTimeString(timeCross),
-                  fraction: yStation,
-                  approxKm: Math.round(yStation * maxKm * 10) / 10,
-                  approxLocationDescription: p3.stopName,
-                });
+                addIntersection(
+                  isSameDir ? "OVERTAKE" : "CROSSING_MEET",
+                  timeCross,
+                  yStation,
+                  Math.round(yStation * maxKm * 10) / 10,
+                  p3.stopName
+                );
               }
             }
             continue;
@@ -1320,18 +1365,13 @@ export function detectTrajectoryIntersections(
             const isSameDir = trajA.direction === trajB.direction;
             const type = isSameDir ? "OVERTAKE" : "CROSSING_MEET";
 
-            intersections.push({
-              id: `cross-${trajA.runId}-${trajB.runId}-${timeCross}`,
+            addIntersection(
               type,
-              runA: trajA.run,
-              runB: trajB.run,
-              timeMinutes: timeCross,
-              timeString: minutesToTimeString(timeCross),
-              fraction: fracCross,
-              approxKm: kmCross,
-              approxLocationDescription:
-                stBefore === stAfter ? stBefore : `Antara ${stBefore} - ${stAfter}`,
-            });
+              timeCross,
+              fracCross,
+              kmCross,
+              stBefore === stAfter ? stBefore : `Antara ${stBefore} - ${stAfter}`
+            );
           }
         }
       }
