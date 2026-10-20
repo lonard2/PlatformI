@@ -308,11 +308,11 @@ function VehicleDetailSheetContent({
           transition={
             prefersReducedMotion
               ? { duration: 0 }
-              : { type: "spring", damping: 25, stiffness: 220 }
+              : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 }
           }
           drag={prefersReducedMotion || isDockedViewport ? false : "y"}
           dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={{ top: 0, bottom: 0.5 }}
+          dragElastic={{ top: 0, bottom: 0.2 }}
           onDragEnd={(_, info) => {
             if (info.offset.y > 140 || info.velocity.y > 400) {
               handleClose();
@@ -402,10 +402,10 @@ function VehicleDetailSheetContent({
               aria-controls="vehicle-panel-overview"
               tabIndex={activeTab === "overview" ? 0 : -1}
               onClick={() => setActiveTab("overview")}
-              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "overview"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                  ? "shadow-[inset_0_-2px_0_0_#22d3ee] text-cyan-300 bg-cyan-950/30 font-bold"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
@@ -419,10 +419,10 @@ function VehicleDetailSheetContent({
               aria-controls="vehicle-panel-specs"
               tabIndex={activeTab === "specs" ? 0 : -1}
               onClick={() => setActiveTab("specs")}
-              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "specs"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                  ? "shadow-[inset_0_-2px_0_0_#22d3ee] text-cyan-300 bg-cyan-950/30 font-bold"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
@@ -436,10 +436,10 @@ function VehicleDetailSheetContent({
               aria-controls="vehicle-panel-seating"
               tabIndex={activeTab === "seating" ? 0 : -1}
               onClick={() => setActiveTab("seating")}
-              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
                 activeTab === "seating"
-                  ? "border-cyan-400 text-cyan-300 bg-cyan-950/30 font-bold"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                  ? "shadow-[inset_0_-2px_0_0_#22d3ee] text-cyan-300 bg-cyan-950/30 font-bold"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
               <Armchair className="w-3.5 h-3.5" />

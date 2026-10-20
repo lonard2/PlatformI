@@ -126,7 +126,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
                     right: -4px;
                     background: #0284c7;
                     color: #ffffff;
-                    font-size: 8px;
+                    font-size: 10px;
                     font-weight: 800;
                     font-family: monospace;
                     width: 14px;
@@ -167,13 +167,11 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
               transition: transform 0.2s ease;
               pointer-events: none;
             ">
-              <div style="
-                width: 7px;
-                height: 7px;
-                border-radius: 50%;
-                background: ${primaryColor};
-                pointer-events: none;
-              "></div>
+              ${getStationTypeSvg(
+                stationType,
+                isSelected ? "#38bdf8" : primaryColor,
+                10
+              )}
             </div>
             ${
               stop.connectedLineIds && stop.connectedLineIds.length > 0
@@ -183,7 +181,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
                     right: -3px;
                     background: #0284c7;
                     color: #ffffff;
-                    font-size: 8px;
+                    font-size: 10px;
                     font-weight: 800;
                     font-family: monospace;
                     width: 13px;
@@ -231,13 +229,14 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
       const marker = L.marker([stop.latitude, stop.longitude], {
         icon: customIcon,
         zIndexOffset: zIndex,
+        title: stop.name,
       });
 
       const typeLabel = stationType.replace("_", " ");
       marker.bindTooltip(
         `<div style="font-family: ui-sans-serif, system-ui; font-size: 11px; padding: 2px 4px;">
           <div style="font-weight: 700; color: #ffffff;">${stop.name}</div>
-          <div style="font-size: 9px; color: #94a3b8; font-family: monospace; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+          <div style="font-size: 10px; color: #94a3b8; font-family: monospace; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
             <span>[${stop.code}]</span>
             <span>&bull;</span>
             <span style="color: ${primaryColor}; font-weight: 600;">${typeLabel}</span>
@@ -268,14 +267,6 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
       });
 
       marker.addTo(layerGroup);
-
-      const el = marker.getElement();
-      if (el) {
-        el.addEventListener("click", (e) => {
-          e.stopPropagation();
-          selectStop(stop.id);
-        });
-      }
     }
   }, [
     map,

@@ -46,8 +46,6 @@ describe("Milestone 6: Multi-Language (i18n) & Historical Analytics", () => {
         expect(dict.common.entries).toBeTruthy();
 
         // Navigation keys
-        expect(dict.navigation.systemStatus).toBeTruthy();
-        expect(dict.navigation.liveFleet).toBeTruthy();
         expect(dict.navigation.allModes).toBeTruthy();
         expect(dict.navigation.railModes).toBeTruthy();
         expect(dict.navigation.busModes).toBeTruthy();

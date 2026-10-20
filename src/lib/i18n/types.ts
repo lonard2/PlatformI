@@ -115,9 +115,6 @@ export interface TranslationDictionary {
     tabTickets: string;
     tabCommunity: string;
     tabAI: string;
-    systemStatus: string;
-    liveFleet: string;
-    stationsAndHubs: string;
     ticketing: string;
     crowdsource: string;
     aiAdvisor: string;
@@ -682,7 +679,6 @@ export interface TranslationDictionary {
   settings: {
     title: string;
     subtitle: string;
-    appearanceTheme: string;
     basemapStyle: string;
     darkMatter: string;
     positronLight: string;
@@ -697,7 +693,6 @@ export interface TranslationDictionary {
     adminPortal: string;
     adminPortalDesc: string;
     networkDiagnostics: string;
-    themeAndAppearance: string;
     mapTileLayer: string;
     simulationEngineSpeed: string;
     defaultAiModel: string;
@@ -706,8 +701,6 @@ export interface TranslationDictionary {
     highContrastDesc: string;
     reducedMotion: string;
     reducedMotionDesc: string;
-    audioFeedback: string;
-    audioFeedbackDesc: string;
     resetDefaults: string;
     tileDarkDesc: string;
     tileLightDesc: string;
@@ -719,7 +712,6 @@ export interface TranslationDictionary {
     speedRealtimeDesc: string;
     speedFastDesc: string;
     speedHyperDesc: string;
-    nightOptimized: string;
   };
   preferences: {
     title: string;

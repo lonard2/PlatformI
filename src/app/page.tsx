@@ -506,7 +506,7 @@ export default function Home() {
                                 >
                                   {plannedJourney.transferOption.firstLine.code}
                                 </span>
-                                <span className="text-slate-400 text-[10px]">&rarr;</span>
+                                <span className="text-slate-400 text-[10px]">→</span>
                                 <span className="text-amber-300 font-semibold truncate">
                                   {plannedJourney.transferOption.transferStop.name}
                                 </span>
@@ -613,7 +613,7 @@ export default function Home() {
                         <span>{t.journey.journeyNoTransfer}</span>
                       </div>
                       <p className="text-[10px] font-mono text-slate-400 text-center truncate">
-                        {plannedJourney.originStop.name} &rarr;{" "}
+                        {plannedJourney.originStop.name} →{" "}
                         {plannedJourney.destinationStop.name}
                       </p>
                     </div>
@@ -845,8 +845,6 @@ export default function Home() {
         isOpen={activeDrawer === "settings"}
         onClose={() => setActiveDrawer(null)}
       />
-
-
 
       {/* 6. BOTTOM TELEMETRY STRIP */}
       <TelemetryFooter

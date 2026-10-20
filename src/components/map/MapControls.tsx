@@ -77,6 +77,33 @@ export function MapControls({ map }: MapControlsProps) {
     resetViewport();
   };
 
+  /** APG menu keyboard support: arrows move between items, Home/End jump. */
+  const handleMenuKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (
+      e.key !== "ArrowDown" &&
+      e.key !== "ArrowUp" &&
+      e.key !== "Home" &&
+      e.key !== "End"
+    ) {
+      return;
+    }
+    e.preventDefault();
+    const items = Array.from(
+      menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? []
+    );
+    if (items.length === 0) return;
+
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    let next = current;
+    if (e.key === "ArrowDown") next = current < 0 ? 0 : (current + 1) % items.length;
+    else if (e.key === "ArrowUp")
+      next = current < 0 ? items.length - 1 : (current - 1 + items.length) % items.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = items.length - 1;
+
+    items[next]?.focus();
+  };
+
   return (
     <>
       {/* 1. TOP-RIGHT: Basemap Tile Switcher Dropdown */}
@@ -97,41 +124,47 @@ export function MapControls({ map }: MapControlsProps) {
           </button>
 
           {tileMenuOpen && (
-            <div
-              id="basemap-tile-menu"
-              role="menu"
-              aria-label={t.settings.mapTileLayer}
-              className="absolute right-0 mt-2 w-48 glass-dropdown rounded-xl p-1.5 shadow-2xl border border-white/15 space-y-1 z-50 animate-in fade-in zoom-in-95 duration-100"
-            >
-              <div className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
+            <div className="absolute right-0 mt-2 w-48 glass-dropdown rounded-xl p-1.5 shadow-2xl border border-white/15 z-50">
+              <div
+                id="basemap-tile-menu-label"
+                className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-white/10"
+              >
                 {t.settings.mapTileLayer}
               </div>
-              {(Object.keys(TILE_LAYERS) as TileLayerId[]).map((tileId) => {
-                const isCurrent = activeTileLayer === tileId;
-                const tile = TILE_LAYERS[tileId];
+              <div
+                id="basemap-tile-menu"
+                role="menu"
+                aria-labelledby="basemap-tile-menu-label"
+                onKeyDown={handleMenuKeyDown}
+                className="space-y-1 pt-1"
+              >
+                {(Object.keys(TILE_LAYERS) as TileLayerId[]).map((tileId) => {
+                  const isCurrent = activeTileLayer === tileId;
+                  const tile = TILE_LAYERS[tileId];
 
-                return (
-                  <button
-                    key={tileId}
-                    role="menuitemradio"
-                    aria-checked={isCurrent}
-                    type="button"
-                    onClick={() => {
-                      setTileLayer(tileId);
-                      setTileMenuOpen(false);
-                      tileTriggerRef.current?.focus();
-                    }}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
-                      isCurrent
-                        ? "bg-cyan-950/70 text-cyan-300 font-semibold border border-cyan-500/30"
-                        : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
-                    }`}
-                  >
-                    <span>{tile.name}</span>
-                    {isCurrent && <Check className="w-3.5 h-3.5 text-cyan-400" />}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={tileId}
+                      role="menuitemradio"
+                      aria-checked={isCurrent}
+                      type="button"
+                      onClick={() => {
+                        setTileLayer(tileId);
+                        setTileMenuOpen(false);
+                        tileTriggerRef.current?.focus();
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                        isCurrent
+                          ? "bg-cyan-950/70 text-cyan-300 font-semibold border border-cyan-500/30"
+                          : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
+                      }`}
+                    >
+                      <span>{tile.name}</span>
+                      {isCurrent && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -140,7 +173,11 @@ export function MapControls({ map }: MapControlsProps) {
       {/* 3. BOTTOM-RIGHT: Simulation Speed Controller & Viewport Navigation */}
       <div className="absolute bottom-6 right-4 z-30 flex flex-col items-end gap-3">
         {/* Simulation Speed Multiplier Controls */}
-        <div className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-2xl shadow-black/50 border border-white/15">
+        <div
+          role="radiogroup"
+          aria-label={t.navigation.simulationSpeed}
+          className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-2xl shadow-black/50 border border-white/15"
+        >
           <span className="hidden sm:inline-block px-2 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
             {t.navigation.simulationSpeed}
           </span>
@@ -149,6 +186,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(0)}
+            role="radio"
+            aria-checked={simulationSpeed === 0}
             aria-label={t.navigation.paused}
             className={`touch-target p-2 rounded-lg text-xs font-mono font-bold transition-all ${
               simulationSpeed === 0
@@ -163,6 +202,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(1)}
+            role="radio"
+            aria-checked={simulationSpeed === 1}
             aria-label={t.journey.simSpeedRealtime}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 1
@@ -178,6 +219,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(2)}
+            role="radio"
+            aria-checked={simulationSpeed === 2}
             aria-label={t.journey.simSpeedAccelerated}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 2
@@ -193,6 +236,8 @@ export function MapControls({ map }: MapControlsProps) {
           <button
             type="button"
             onClick={() => setSimulationSpeed(5)}
+            role="radio"
+            aria-checked={simulationSpeed === 5}
             aria-label={t.journey.simSpeedPreview}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 5

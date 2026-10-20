@@ -13,6 +13,10 @@ colors:
   accent-amber: "#f59e0b"
   accent-rose: "#f43f5e"
   muted-text: "#94a3b8"
+  selection: "#38bdf8"
+  interchange-badge: "#0284c7"
+  marker-shadow: "rgba(0, 0, 0, 0.8)"
+  marker-shadow-soft: "rgba(0, 0, 0, 0.6)"
 typography:
   body:
     fontFamily: "Geist, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans Arabic, Helvetica Neue, Arial, sans-serif"

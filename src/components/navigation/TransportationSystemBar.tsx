@@ -1199,7 +1199,7 @@ export function TransportationSystemBar() {
                               <span
                                 role="img"
                                 aria-label={getLocalizedStatusPhrase(item.status, t)}
-                                title={`Status: ${getLocalizedStatusPhrase(item.status, t)}`}
+                                title={getLocalizedStatusPhrase(item.status, t)}
                                 className={`w-2 h-2 rounded-full shrink-0 ${item.status === "NORMAL" || item.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
                                 style={{
                                   backgroundColor: STATUS_COLORS[item.status].color,

@@ -313,7 +313,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   type="button"
                   onClick={handleOpenDrawer}
                   aria-label={t.common.viewStatus}
-                  title="View Complete Network Status"
+                  title={t.common.viewStatus}
                   className="touch-target hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <span>{t.common.viewStatus}</span>
