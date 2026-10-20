@@ -18,11 +18,21 @@ Rules: minimal diff (ponytail), no emoji, no `any`, no stubs, verify before ever
 | 9 | JourneyLayer: dark-theme token fills, 11px ramp, pin accessible names | d93b419 | DONE |
 | 10 | DESIGN.md: Geist typography sync + expressive-chrome allowance + touch rule | 5ad71be | DONE |
 | 11 | P3 sweep: hardcoded strings, dead classes, menu a11y, sim-speed radios, marker layer, spring, glyph drift, arrows, dead keys | 648e8b2 | DONE |
-| 12 | Re-critique + final push | pending | IN PROGRESS |
+| 12 | Re-critique (cycle 10) | 2026-10-20T12-06-18Z snapshot | DONE (28/40) |
+| 13 | Cycle 10 P0: map controls clipped off phones | 03cb466 | DONE |
+| 14 | Cycle 10 P1: no-route next step + shared AI entry point | b3a7234 | DONE |
+| 15 | Cycle 10 P1: touch targets where commuters tap | 6c6fa07 | DONE |
+| 16 | Cycle 10 P2: settings honesty, focus trap, ARIA consistency, dead theme API | 26fcc88 | DONE |
 
 Verification after every commit: `npx tsc --noEmit` (clean), `npm test` (373 passing),
 `impeccable detect --json` over the nine homepage files (0 findings, was 8),
 `git diff --check` (clean).
+
+Still open from cycle 10 (capability or larger design work):
+- the boarding plan (platform, next departure, wait, crowd band) and the share
+  control: the distance to 35+, needs stop coverage for platform data
+- map legend, chip-filter reset, coverage caveat placement
+- station type and scale tooltips still print the raw enum
 
 Not done on purpose (ponytail / honest scoping):
 - Light theme and audio chimes: the toggles were fiction, so they were removed
