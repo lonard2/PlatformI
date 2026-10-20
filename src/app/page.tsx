@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { resolvePlannedJourney, findMatchingStop } from "@/lib/services/journeyPlanner";
+import { resolvePlannedJourney, findMatchingStop, journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { CheckInModal } from "@/components/crowdsource/CheckInModal";
 import { CommunityLiveFeed } from "@/components/crowdsource/CommunityLiveFeed";
 import { DigitalPassWallet } from "@/components/ticketing/DigitalPassWallet";
@@ -71,6 +71,10 @@ export default function Home() {
     : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 };
 
   const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
+
+  // A planned journey only counts as a route when the planner actually found
+  // candidate lines. Without them there is no ETA, no fare, and no map trace.
+  const hasRoute = journeyHasRoute(plannedJourney);
 
   // Modal / drawer trigger state
   const [isCheckInOpen, setIsCheckInOpen] = useState<boolean>(false);
@@ -452,7 +456,7 @@ export default function Home() {
 
                 {/* Deterministic Route Answer Bound to Map */}
                 <div aria-live="polite" aria-atomic="true" className="space-y-2 pt-1">
-                  {plannedJourney ? (
+                  {plannedJourney && hasRoute ? (
                     <div className="space-y-2">
                       <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-cyan-500/40 space-y-2.5 shadow-2xl shadow-black/40">
                         {/* Wayfinding Stepper Flow */}
@@ -581,6 +585,17 @@ export default function Home() {
                         <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
                       </button>
                     </div>
+                  ) : plannedJourney ? (
+                    <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 space-y-1 shadow-inner">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>{t.journey.journeyNoTransfer}</span>
+                      </div>
+                      <p className="text-[10px] font-mono text-slate-400 text-center truncate">
+                        {plannedJourney.originStop.name} &rarr;{" "}
+                        {plannedJourney.destinationStop.name}
+                      </p>
+                    </div>
                   ) : isSameStop ? (
                     <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -620,18 +635,32 @@ export default function Home() {
               >
                 {plannedJourney ? (
                   <div className="flex items-center gap-2 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        hasRoute
+                          ? "bg-emerald-400 shadow-[0_0_8px_#10b981]"
+                          : "bg-amber-400 shadow-[0_0_8px_#f59e0b]"
+                      }`}
+                    />
                     <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
                       {plannedJourney.originStop.name}
                     </span>
                     <ArrowRight className="w-3 h-3 text-slate-500 shrink-0" />
-                    <div className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_#f43f5e]" />
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        hasRoute
+                          ? "bg-rose-400 shadow-[0_0_8px_#f43f5e]"
+                          : "bg-amber-400 shadow-[0_0_8px_#f59e0b]"
+                      }`}
+                    />
                     <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
                       {plannedJourney.destinationStop.name}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hidden sm:inline">
-                      {plannedJourney.distanceKm} km
-                    </span>
+                    {hasRoute && (
+                      <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hidden sm:inline">
+                        {plannedJourney.distanceKm} km
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <>

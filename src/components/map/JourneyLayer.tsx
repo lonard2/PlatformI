@@ -13,6 +13,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 
 interface JourneyLayerProps {
   map: L.Map | null;
@@ -43,6 +44,10 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
     layerGroup.clearLayers();
 
     if (!plannedJourney) return;
+
+    // No candidate lines means no route: draw no polyline, no pins, and do not
+    // fly the camera. The planner panel states the truth in text instead.
+    if (!journeyHasRoute(plannedJourney)) return;
 
     const { originStop, destinationStop, candidateLines, transferOption } = plannedJourney;
 

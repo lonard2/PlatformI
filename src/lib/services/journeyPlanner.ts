@@ -47,6 +47,15 @@ export function findMatchingStop(input: string, allStops: Stop[]): Stop | null {
 }
 
 /**
+ * Truth contract: a planned journey only counts as a route when the planner
+ * found candidate lines. A no-route result still carries the resolved stops so
+ * the UI can name them, but it must not claim an ETA, a fare, or a plotted route.
+ */
+export function journeyHasRoute(journey: PlannedJourney | null): boolean {
+  return !!journey && journey.candidateLines.length > 0;
+}
+
+/**
  * Resolves planned journey deterministically from user-entered stop names.
  */
 export function resolvePlannedJourney(

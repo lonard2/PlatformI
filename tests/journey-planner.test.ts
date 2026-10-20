@@ -11,7 +11,11 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { resolvePlannedJourney, findMatchingStop } from "../src/lib/services/journeyPlanner";
+import {
+  resolvePlannedJourney,
+  findMatchingStop,
+  journeyHasRoute,
+} from "../src/lib/services/journeyPlanner";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { TRANSIT_STOPS, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
 
@@ -126,5 +130,28 @@ describe("Deterministic Journey Planning & Map Binding", () => {
     expect(journey.transferOption).toBeUndefined();
     expect(journey.candidateLines).toHaveLength(0);
     expect(journey.estimatedFareRp).toBe(0);
+  });
+
+  it("reports a route only when candidate lines exist", () => {
+    // Routable pair: the planner found candidate lines, so the UI may claim a route
+    const routed = resolvePlannedJourney(
+      "Lebak Bulus Grab",
+      "Bundaran HI Bank DKI",
+      TRANSIT_STOPS,
+      TRANSIT_LINES
+    );
+    expect(journeyHasRoute(routed)).toBe(true);
+
+    // Unroutable pair: resolved stops exist, but there is no route to claim
+    const unrouted = resolvePlannedJourney(
+      "Stasiun Lebak Bulus Grab",
+      "Stasiun Kereta Cepat Padalarang",
+      TRANSIT_STOPS,
+      TRANSIT_LINES
+    );
+    expect(journeyHasRoute(unrouted)).toBe(false);
+
+    // No journey at all is never a route
+    expect(journeyHasRoute(null)).toBe(false);
   });
 });
