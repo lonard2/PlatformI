@@ -164,6 +164,20 @@ export default function Home() {
     setActiveDrawer("ai");
   };
 
+  // One AI entry point for both platforms: with journey endpoints entered the
+  // advisor receives that context, otherwise it opens as a general assistant.
+  const handleOpenAI = () => {
+    if (activeDrawer === "ai") {
+      setActiveDrawer(null);
+      return;
+    }
+    if (journeyOrigin.trim() && journeyDest.trim()) {
+      handleRefineWithAI();
+      return;
+    }
+    setActiveDrawer("ai");
+  };
+
   const handleSwapStops = () => {
     setJourneyOrigin(journeyDest);
     setJourneyDest(journeyOrigin);
@@ -276,7 +290,7 @@ export default function Home() {
           </button>
 
           <button
-            onClick={() => setActiveDrawer(activeDrawer === "ai" ? null : "ai")}
+            onClick={handleOpenAI}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "ai"}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile hover-glass-glow transition"
@@ -616,6 +630,14 @@ export default function Home() {
                         {plannedJourney.originStop.name} →{" "}
                         {plannedJourney.destinationStop.name}
                       </p>
+                      <button
+                        type="button"
+                        onClick={handleRefineWithAI}
+                        className="touch-target w-full mt-1 py-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 btn-tactile transition"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>{t.navigation.aiAdvisor}</span>
+                      </button>
                     </div>
                   ) : isSameStop ? (
                     <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
@@ -854,15 +876,7 @@ export default function Home() {
 
       {/* 7. DEDICATED MOBILE & TABLET BOTTOM NAVIGATION BAR */}
       <MobileBottomNav
-        onOpenAI={() => {
-          if (activeDrawer === "ai") {
-            setActiveDrawer(null);
-          } else if (plannedJourney) {
-            handleRefineWithAI();
-          } else {
-            setActiveDrawer("ai");
-          }
-        }}
+        onOpenAI={handleOpenAI}
         onCloseAI={() => {
           if (activeDrawer === "ai") setActiveDrawer(null);
         }}
