@@ -235,7 +235,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
               type="button"
               onClick={handleUndoDismiss}
               aria-label={t.common.undo}
-              className="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+              className="touch-target px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-semibold hover:bg-cyan-900/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
             >
               {t.common.undo}
             </button>
@@ -264,7 +264,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                 onClick={() => setIsExpanded(!isExpanded)}
                 aria-expanded={isExpanded}
                 aria-controls="disruption-banner-details"
-                className="flex items-center gap-2 min-w-0 flex-1 text-left cursor-pointer hover:opacity-90 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                className="touch-target flex items-center gap-2 min-w-0 flex-1 text-left cursor-pointer hover:opacity-90 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
               >
                 <div className="relative flex items-center justify-center">
                   <span
@@ -283,7 +283,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
               </button>
 
               {/* Right: Actions (Siblings) */}
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex flex-wrap items-center justify-end gap-1 shrink-0">
                 {fetchFailed && (
                   <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300">
                     {t.common.stale}
@@ -294,7 +294,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                     type="button"
                     onClick={handleNextAlert}
                     aria-label={t.common.nextAlert}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                    className="touch-target text-[10px] px-1.5 py-0.5 rounded bg-black/40 hover:bg-black/60 border border-white/10 text-slate-300 font-mono transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                   >
                     {currentIndex + 1}/{activeAlerts.length}
                   </button>
@@ -304,7 +304,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                     type="button"
                     onClick={() => fetchAlerts()}
                     aria-label={t.common.refresh}
-                    className="p-0.5 rounded hover:bg-white/10 text-amber-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                    className="touch-target p-0.5 rounded hover:bg-white/10 text-amber-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                   >
                     <RefreshCw className="w-2.5 h-2.5" />
                   </button>
@@ -314,7 +314,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   onClick={handleOpenDrawer}
                   aria-label={t.common.viewStatus}
                   title="View Complete Network Status"
-                  className="hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                  className="touch-target hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <span>{t.common.viewStatus}</span>
                   <ArrowRight className="w-2.5 h-2.5" />
@@ -324,7 +324,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   onClick={handleDismiss}
                   aria-label={t.common.dismissAlert}
                   title={t.common.dismissAlert}
-                  className="p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                  className="touch-target p-0.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
@@ -371,7 +371,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                         <button
                           type="button"
                           onClick={handleHighlightLine}
-                          className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                          className="touch-target flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                         >
                           <Layers className="w-2.5 h-2.5" />
                           <span>{t.common.viewOnMap}</span>
@@ -380,7 +380,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                       <button
                         type="button"
                         onClick={handleOpenDrawer}
-                        className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                        className="touch-target flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-white/15 text-slate-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                       >
                         <span>{t.statusCenter.title}</span>
                         <ArrowRight className="w-2.5 h-2.5" />

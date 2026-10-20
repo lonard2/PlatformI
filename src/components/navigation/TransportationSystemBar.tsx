@@ -1028,7 +1028,7 @@ export function TransportationSystemBar() {
                         setLanguage(lang.code);
                         setShowLangMenu(false);
                       }}
-                      className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 w-full px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center justify-between transition ${
+                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 w-full px-2 py-1 rounded-lg text-[11px] font-semibold flex items-center justify-between transition ${
                         language === lang.code
                           ? "bg-cyan-950 text-cyan-300 border border-cyan-500/40"
                           : "text-slate-300 hover:bg-slate-800"

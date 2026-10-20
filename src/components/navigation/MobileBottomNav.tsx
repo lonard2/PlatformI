@@ -1,14 +1,14 @@
 /**
  * PlatformI - Mobile & Tablet Bottom Navigation Bar
  * High-precision thumb-friendly touch navigation for mobile (< 640px) and tablet (< 1024px).
- * 5 equal-weight buttons: Map, Services, Journey, Tickets, Community.
+ * 6 equal-weight buttons: Map, Status, Route, Tickets, Community, AI Advisor.
  *
  * Rules: Zero raw emojis, strict Lucide SVG icons, strict TypeScript typing (no 'any').
  */
 
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { getHighestSeverity } from "@/lib/services/severityRollup";
 import {
   MapPin,
@@ -46,6 +46,31 @@ export function MobileBottomNav({
 
   const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
 
+  const navRef = useRef<HTMLElement | null>(null);
+
+  // Publish the real navigation height so the cockpit footer and the vehicle
+  // sheet reserve exactly what the nav occupies (it grows with the safe area).
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const publishHeight = () => {
+      const height = nav.offsetHeight;
+      if (height > 0) {
+        document.documentElement.style.setProperty("--bottom-nav-h", `${height}px`);
+      }
+    };
+
+    publishHeight();
+    const observer = new ResizeObserver(publishHeight);
+    observer.observe(nav);
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--bottom-nav-h");
+    };
+  }, []);
+
   const isWalletActive = activeDrawer === "tickets";
   const isCrowdsourceActive = activeDrawer === "crowdsource";
   const isStatusActive = activeDrawer === "alerts";
@@ -69,6 +94,7 @@ export function MobileBottomNav({
 
   return (
     <nav
+      ref={navRef}
       aria-label={t.navigation.mainNavigation}
       className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--glass-chrome)] backdrop-blur-2xl border-t border-white/15 px-2 py-1.5 flex items-center justify-around shadow-2xl shadow-black safe-area-pb"
     >

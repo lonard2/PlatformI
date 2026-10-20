@@ -227,7 +227,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden pb-14 lg:pb-0">
+    <main className="main-shell flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden lg:pb-0">
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
       <header className="hidden sm:flex h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
         {/* Left Brand */}
@@ -366,7 +366,7 @@ export default function Home() {
                         onClick={handleClearJourney}
                         aria-label={t.journey.clearRoute}
                         title={t.journey.clearRoute}
-                        className="p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-rose-400 transition"
+                        className="touch-target p-1 rounded-md hover:bg-white/10 text-slate-400 hover:text-rose-400 transition"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                       </button>
@@ -423,7 +423,7 @@ export default function Home() {
                       onClick={handleSwapStops}
                       aria-label={t.journey.swapStops}
                       title={t.journey.swapStops}
-                      className="p-1 rounded-md bg-slate-900 border border-slate-700/80 text-slate-400 hover:text-cyan-400 btn-tactile transition"
+                      className="touch-target p-1 rounded-md bg-slate-900 border border-slate-700/80 text-slate-400 hover:text-cyan-400 btn-tactile transition"
                     >
                       <ArrowUpDown className="w-3 h-3" />
                     </button>

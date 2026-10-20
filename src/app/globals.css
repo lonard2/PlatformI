@@ -369,6 +369,27 @@ html[data-contrast="high"] .text-slate-300 {
   }
 }
 
+/* Reserve the real bottom navigation height.
+   MobileBottomNav publishes --bottom-nav-h (it grows with the device safe
+   area), so the cockpit footer and the vehicle sheet never hide underneath it. */
+.main-shell {
+  padding-bottom: var(--bottom-nav-h, 56px);
+}
+
+.sheet-safe-bottom {
+  padding-bottom: var(--bottom-nav-h, 56px);
+}
+
+@media (min-width: 1024px) {
+  .main-shell {
+    padding-bottom: 0;
+  }
+
+  .sheet-safe-bottom {
+    padding-bottom: 1rem;
+  }
+}
+
 /* Touch Target Minimum Size */
 @media (pointer: coarse) {
   .touch-target {

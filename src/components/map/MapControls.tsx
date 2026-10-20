@@ -90,7 +90,7 @@ export function MapControls({ map }: MapControlsProps) {
             aria-haspopup="menu"
             aria-expanded={tileMenuOpen}
             aria-controls="basemap-tile-menu"
-            className="glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+            className="touch-target glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
             <span className="hidden sm:inline font-mono capitalize">{activeTileLayer}</span>
@@ -150,7 +150,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={() => setSimulationSpeed(0)}
             aria-label={t.navigation.paused}
-            className={`p-2 rounded-lg text-xs font-mono font-bold transition-all ${
+            className={`touch-target p-2 rounded-lg text-xs font-mono font-bold transition-all ${
               simulationSpeed === 0
                 ? "bg-amber-950/80 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -164,7 +164,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={() => setSimulationSpeed(1)}
             aria-label={t.journey.simSpeedRealtime}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 1
                 ? "bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -179,7 +179,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={() => setSimulationSpeed(2)}
             aria-label={t.journey.simSpeedAccelerated}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 2
                 ? "bg-blue-950/80 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -194,7 +194,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={() => setSimulationSpeed(5)}
             aria-label={t.journey.simSpeedPreview}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 5
                 ? "bg-rose-950/80 text-rose-300 border border-rose-500/40 shadow-lg shadow-rose-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
