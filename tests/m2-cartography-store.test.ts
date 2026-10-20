@@ -252,4 +252,18 @@ describe("Milestone 2: Zustand useTransitStore Reactive State", () => {
     useTransitStore.getState().toggleTheme();
     expect(useTransitStore.getState().theme).toBe("light");
   });
+
+  it("restores every sector and its modes together", () => {
+    const store = useTransitStore.getState();
+
+    store.toggleCategory("RAIL");
+    expect(useTransitStore.getState().selectedCategories).not.toContain("RAIL");
+    expect(useTransitStore.getState().selectedModes).not.toContain("MRT_JAKARTA");
+
+    // Restoring the map must bring back the sector flags too, otherwise the
+    // eye icons keep claiming a sector is hidden while it is drawn.
+    useTransitStore.getState().selectAllCategories();
+    expect(useTransitStore.getState().selectedCategories).toContain("RAIL");
+    expect(useTransitStore.getState().selectedModes).toContain("MRT_JAKARTA");
+  });
 });

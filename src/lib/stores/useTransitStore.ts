@@ -46,6 +46,7 @@ export interface TransitStoreState {
   toggleMode: (mode: TransitMode) => void;
   setModes: (modes: TransitMode[]) => void;
   selectAllModes: () => void;
+  selectAllCategories: () => void;
   clearAllModes: () => void;
   isModeActive: (mode: TransitMode) => boolean;
   toggleCategory: (category: TransitCategory) => void;
@@ -157,6 +158,8 @@ export const useTransitStore = create<TransitStoreState>((set, get) => ({
   },
   setModes: (modes) => set({ selectedModes: modes }),
   selectAllModes: () => set({ selectedModes: [...ALL_MODES] }),
+  selectAllCategories: () =>
+    set({ selectedCategories: [...ALL_CATEGORIES], selectedModes: [...ALL_MODES] }),
   clearAllModes: () => set({ selectedModes: [] }),
   isModeActive: (mode) => get().selectedModes.includes(mode),
   toggleCategory: (category) => {

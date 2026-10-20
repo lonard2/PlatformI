@@ -778,8 +778,7 @@ export function TransportationSystemBar() {
   const toggleMode = useTransitStore((state) => state.toggleMode);
   const toggleCategory = useTransitStore((state) => state.toggleCategory);
   const isCategoryActive = useTransitStore((state) => state.isCategoryActive);
-  const selectAllModes = useTransitStore((state) => state.selectAllModes);
-  const clearAllModes = useTransitStore((state) => state.clearAllModes);
+  const selectAllCategories = useTransitStore((state) => state.selectAllCategories);
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);
@@ -840,16 +839,11 @@ export function TransportationSystemBar() {
     }));
   };
 
-  // Merged semantics: a category tab filters the bar AND toggles that sector's
-  // map visibility in one control, so identical labels can never mean two
-  // different things 40px apart. "ALL" resets the filter and restores the map.
+  // The chip row scopes which sectors the bar shows. Map visibility is a
+  // separate state with its own control (the eye beside each sector header),
+  // so the same word never means two things 40px apart.
   const handleCategoryTab = (cat: "ALL" | TransitCategory) => {
     setActiveCategoryFilter(cat);
-    if (cat === "ALL") {
-      selectAllModes();
-    } else {
-      toggleCategory(cat);
-    }
   };
 
   const handleItemToggle = (item: TransitSystemItem, e: React.MouseEvent) => {
@@ -935,7 +929,7 @@ export function TransportationSystemBar() {
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
           <button
             onClick={() => handleCategoryTab("ALL")}
-            aria-pressed={SYSTEM_GROUPS.every((g) => isCategoryActive(g.category))}
+            aria-pressed={activeCategoryFilter === "ALL"}
             className={`relative px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               activeCategoryFilter === "ALL"
                 ? "bg-cyan-950/90 border border-cyan-400/60 text-cyan-300 shadow-sm"
@@ -953,7 +947,7 @@ export function TransportationSystemBar() {
               <button
                 key={g.category}
                 onClick={() => handleCategoryTab(g.category)}
-                aria-pressed={isCatActiveOnMap}
+                aria-pressed={isFilterActive}
                 className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
                   isFilterActive
                     ? "bg-slate-800 border border-cyan-500/50 text-white shadow-sm ring-1 ring-cyan-500/30"
@@ -961,6 +955,12 @@ export function TransportationSystemBar() {
                 }`}
               >
                 <span
+                  aria-hidden="true"
+                  title={
+                    isCatActiveOnMap
+                      ? t.common.activeOnMap
+                      : t.common.hiddenOnMap
+                  }
                   className="w-2 h-2 rounded-full transition-colors duration-200"
                   style={{
                     backgroundColor: isCatActiveOnMap ? g.accentColor : "#475569",
@@ -984,7 +984,7 @@ export function TransportationSystemBar() {
           </button>
           <div className="hidden sm:flex items-center gap-1">
             <button
-              onClick={clearAllModes}
+              onClick={selectAllCategories}
               aria-label={t.navigation.resetMap}
               className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 text-slate-400 hover:text-rose-400 transition"
             >
@@ -1080,27 +1080,38 @@ export function TransportationSystemBar() {
                   transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2 }}
                   className="flex items-center gap-1.5 sm:gap-2 shrink-0 pr-2 sm:pr-3 border-r border-white/10 last:border-r-0"
                 >
-                  {/* Group Category Header Badge with Toggle and Collapse */}
+                  {/* Sector label (plain text) + explicit map visibility toggle */}
                   <div className="flex items-center rounded-xl bg-slate-950/70 border border-white/10 p-0.5 shrink-0 transition-all">
-                    <button
-                      onClick={() => toggleCategory(group.category)}
-                      title={t.navigation.toggleSectorMap}
-                      aria-label={t.navigation.toggleSectorMap}
-                      aria-pressed={isCatActive}
-                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
-                        isCatActive
-                          ? "bg-slate-900/90 text-white shadow-md hover:bg-slate-800"
-                          : "text-slate-400 hover:text-slate-200 bg-slate-950/80 hover:bg-slate-900 border border-transparent hover:border-white/10 opacity-70 hover:opacity-100"
-                      }`}
+                    <span
+                      className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold"
                       style={{
                         borderLeftColor: isCatActive ? group.accentColor : undefined,
                         borderLeftWidth: isCatActive ? "3.5px" : undefined,
                       }}
                     >
-                      <GroupIcon className="w-4 h-4" style={{ color: isCatActive ? group.accentColor : "#64748b" }} />
+                      <GroupIcon
+                        className="w-4 h-4"
+                        style={{ color: isCatActive ? group.accentColor : "#64748b" }}
+                      />
                       <span className="text-[11px] uppercase tracking-wider font-mono">
                         {getSectorShortTitle(group.category, t)}
                       </span>
+                    </span>
+                    <button
+                      onClick={() => toggleCategory(group.category)}
+                      title={
+                        isCatActive
+                          ? t.common.hiddenOnMap
+                          : t.common.activeOnMap
+                      }
+                      aria-label={t.navigation.toggleSectorMap}
+                      aria-pressed={isCatActive}
+                      className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center px-1.5 py-1 rounded-lg transition-all duration-200 ${
+                        isCatActive
+                          ? "bg-slate-900/90 text-white shadow-md hover:bg-slate-800"
+                          : "text-slate-500 hover:text-slate-200 bg-slate-950/80 hover:bg-slate-900 border border-transparent hover:border-white/10"
+                      }`}
+                    >
                       {isCatActive ? (
                         <Eye className="w-3 h-3 text-cyan-400" />
                       ) : (
@@ -1113,7 +1124,6 @@ export function TransportationSystemBar() {
                       onClick={(e) => toggleCategoryCollapse(group.category, e)}
                       title={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
                       aria-label={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
-                      aria-expanded={!isCollapsed}
                       className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-md transition"
                     >
                       <ChevronDown
