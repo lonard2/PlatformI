@@ -986,7 +986,7 @@ export function TransportationSystemBar() {
             <button
               onClick={selectAllCategories}
               aria-label={t.navigation.resetMap}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 text-slate-400 hover:text-rose-400 transition"
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 text-slate-400 hover:text-rose-400 transition"
             >
               {t.navigation.resetMap}
             </button>

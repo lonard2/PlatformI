@@ -142,7 +142,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <button
             onClick={onClose}
             aria-label={t.common.close}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white btn-tactile transition"
+            className="touch-target p-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white btn-tactile transition"
           >
             <X className="w-4 h-4" />
           </button>
@@ -254,13 +254,15 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                     <div className="text-[10px] text-slate-400">{t.settings.highContrastDesc}</div>
                   </div>
                 </div>
-                <input
-                  type="checkbox"
-                  aria-label={t.settings.highContrast}
-                  checked={highContrast}
-                  onChange={(e) => setHighContrast(e.target.checked)}
-                  className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
-                />
+                <label className="touch-target flex items-center justify-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    aria-label={t.settings.highContrast}
+                    checked={highContrast}
+                    onChange={(e) => setHighContrast(e.target.checked)}
+                    className="w-5 h-5 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
+                  />
+                </label>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
@@ -271,13 +273,15 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                     <div className="text-[10px] text-slate-400">{t.settings.reducedMotionDesc}</div>
                   </div>
                 </div>
-                <input
-                  type="checkbox"
-                  aria-label={t.settings.reducedMotion}
-                  checked={reducedMotion}
-                  onChange={(e) => setReducedMotion(e.target.checked)}
-                  className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
-                />
+                <label className="touch-target flex items-center justify-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    aria-label={t.settings.reducedMotion}
+                    checked={reducedMotion}
+                    onChange={(e) => setReducedMotion(e.target.checked)}
+                    className="w-5 h-5 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
+                  />
+                </label>
               </div>
             </div>
           </div>
@@ -315,7 +319,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               </div>
               <a
                 href="/admin"
-                className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
+                className="touch-target px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
               >
                 {t.navigation.adminPanel}
               </a>
@@ -327,7 +331,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
         <div className="px-5 py-3.5 bg-slate-950/90 border-t border-white/10 flex items-center justify-between shrink-0">
           <button
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white btn-tactile transition font-medium"
+            className="touch-target flex items-center gap-1.5 text-xs text-slate-400 hover:text-white btn-tactile transition font-medium"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.settings.resetDefaults}</span>
@@ -336,13 +340,13 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 btn-tactile transition"
+              className="touch-target px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 btn-tactile transition"
             >
               {t.common.cancel}
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-slate-950 shadow-md flex items-center gap-1.5 btn-tactile transition"
+              className="touch-target px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-slate-950 shadow-md flex items-center gap-1.5 btn-tactile transition"
             >
               {saveToast ? (
                 <>

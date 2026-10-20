@@ -155,7 +155,7 @@ export function MapControls({ map }: MapControlsProps) {
                         setTileMenuOpen(false);
                         tileTriggerRef.current?.focus();
                       }}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                      className={`touch-target w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
                         isCurrent
                           ? "bg-cyan-950/70 text-cyan-300 font-semibold border border-cyan-500/30"
                           : "text-slate-300 hover:bg-slate-800/70 hover:text-white"

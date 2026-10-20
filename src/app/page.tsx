@@ -272,7 +272,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "alerts"}
             aria-label={t.navigation.serviceStatus}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile hover-glass-glow transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile hover-glass-glow transition"
           >
             <Activity
               className={`w-3.5 h-3.5 ${
@@ -293,7 +293,7 @@ export default function Home() {
             onClick={handleOpenAI}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "ai"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile hover-glass-glow transition"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile hover-glass-glow transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.navigation.aiAdvisor}</span>
@@ -306,7 +306,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "crowdsource"}
             aria-pressed={activeDrawer === "crowdsource"}
-            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
+            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
               activeDrawer === "crowdsource"
                 ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -323,7 +323,7 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "tickets"}
             aria-pressed={activeDrawer === "tickets"}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
               activeDrawer === "tickets"
                 ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
@@ -338,7 +338,7 @@ export default function Home() {
             aria-label={t.navigation.settings}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "settings"}
-            className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile hover-glass-glow transition"
+            className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile hover-glass-glow transition"
           >
             <Settings className="w-4 h-4 text-slate-300" />
           </button>
@@ -433,7 +433,7 @@ export default function Home() {
                       placeholder={t.common.origin}
                       value={journeyOrigin}
                       onChange={(e) => setJourneyOrigin(e.target.value)}
-                      className={`w-full bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
+                      className={`w-full min-h-[44px] bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
                         originMismatch
                           ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
                           : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
@@ -470,7 +470,7 @@ export default function Home() {
                       placeholder={t.common.destination}
                       value={journeyDest}
                       onChange={(e) => setJourneyDest(e.target.value)}
-                      className={`w-full bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
+                      className={`w-full min-h-[44px] bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
                         destMismatch
                           ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
                           : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
@@ -614,7 +614,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={handleRefineWithAI}
-                        className="w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
+                        className="touch-target w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                         <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
