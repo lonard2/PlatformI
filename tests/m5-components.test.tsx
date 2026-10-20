@@ -37,7 +37,6 @@ describe("Milestone 5: React UI Components Integration", () => {
       selectedModes: ["MRT_JAKARTA", "TRANSJAKARTA_BRT", "AKAP_INTERCITY_BUS"],
       selectedStopId: null,
       selectedLineId: null,
-      theme: "dark",
       activeTileLayer: "dark",
       simulationSpeed: 1,
     });
@@ -278,7 +277,8 @@ describe("Milestone 5: React UI Components Integration", () => {
       );
 
       const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
-      expect(aiBtn).toHaveAttribute("aria-pressed", "true");
+      // The slot opens a dialog, so its state is exposed as expanded, not pressed
+      expect(aiBtn).toHaveAttribute("aria-expanded", "true");
 
       const mapBtn = screen.getByRole("button", { name: /Track on Map|Lacak di Peta|Live Map|Peta|Map/i });
       fireEvent.click(mapBtn);

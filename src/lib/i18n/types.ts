@@ -696,7 +696,7 @@ export interface TranslationDictionary {
     mapTileLayer: string;
     simulationEngineSpeed: string;
     defaultAiModel: string;
-    accessibilityAndSound: string;
+    accessibility: string;
     highContrast: string;
     highContrastDesc: string;
     reducedMotion: string;

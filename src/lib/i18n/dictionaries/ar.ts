@@ -686,7 +686,7 @@ export const ar: TranslationDictionary = {
     mapTileLayer: "طبقة بلاطات الخريطة الجغرافية",
     simulationEngineSpeed: "مضاعف سرعة محاكاة المتجهات",
     defaultAiModel: "نموذج الذكاء الاصطناعي الافتراضي",
-    accessibilityAndSound: "إمكانية الوصول والمؤثرات الصوتية",
+    accessibility: "إمكانية الوصول",
     highContrast: "عناصر عالية التباين",
     highContrastDesc: "زيادة وضوح شارات الخطوط ونصوص أسماء المحطات",
     reducedMotion: "تقليل الحركة والانتقالات",

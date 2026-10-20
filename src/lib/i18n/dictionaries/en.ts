@@ -686,7 +686,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     mapTileLayer: "Cartography Basemap Tile",
     simulationEngineSpeed: "Vector Simulation Clock Multiplier",
     defaultAiModel: "Default AI Advisor Model",
-    accessibilityAndSound: "Accessibility & Sound",
+    accessibility: "Accessibility",
     highContrast: "High Contrast Elements",
     highContrastDesc: "Sharpen line badges and cartography text",
     reducedMotion: "Reduced Motion",

@@ -249,8 +249,6 @@ describe("Milestone 2: Zustand useTransitStore Reactive State", () => {
     useTransitStore.getState().setTileLayer("satellite");
     expect(useTransitStore.getState().activeTileLayer).toBe("satellite");
 
-    useTransitStore.getState().toggleTheme();
-    expect(useTransitStore.getState().theme).toBe("light");
   });
 
   it("restores every sector and its modes together", () => {

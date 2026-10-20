@@ -686,7 +686,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     mapTileLayer: "Lapisan Basemap Peta Kartografi",
     simulationEngineSpeed: "Pengganda Kecepatan Jam Simulasi Vektor",
     defaultAiModel: "Model Kecerdasan Buatan Default",
-    accessibilityAndSound: "Aksesibilitas & Suara Gate",
+    accessibility: "Aksesibilitas",
     highContrast: "Elemen Kontras Tinggi",
     highContrastDesc: "Pertajam garis rute dan teks nama halte di peta",
     reducedMotion: "Kurangi Animasi Gerak",

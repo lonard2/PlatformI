@@ -22,13 +22,16 @@ import {
   Navigation,
   Check,
 } from "lucide-react";
-import { useTransitStore, TileLayerId } from "@/lib/stores/useTransitStore";
+import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
 import { useTranslation } from "@/lib/i18n";
 
 interface MapControlsProps {
   map: L.Map | null;
 }
+
+/** Simulation clock multipliers, in the order the radiogroup presents them. */
+const SIMULATION_SPEEDS: SimulationSpeed[] = [0, 1, 2, 5];
 
 export function MapControls({ map }: MapControlsProps) {
   const { t } = useTranslation();
@@ -70,6 +73,24 @@ export function MapControls({ map }: MapControlsProps) {
 
   const handleZoomOut = () => {
     if (map) map.zoomOut();
+  };
+
+  /** APG radiogroup behaviour: arrows move and select, one tab stop only. */
+  const handleSpeedKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (
+      e.key !== "ArrowRight" &&
+      e.key !== "ArrowDown" &&
+      e.key !== "ArrowLeft" &&
+      e.key !== "ArrowUp"
+    ) {
+      return;
+    }
+    e.preventDefault();
+    const index = SIMULATION_SPEEDS.indexOf(simulationSpeed);
+    const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+    const next =
+      SIMULATION_SPEEDS[(index + delta + SIMULATION_SPEEDS.length) % SIMULATION_SPEEDS.length];
+    setSimulationSpeed(next);
   };
 
   const handleRecenter = () => {
@@ -178,6 +199,7 @@ export function MapControls({ map }: MapControlsProps) {
         <div
           role="radiogroup"
           aria-label={t.navigation.simulationSpeed}
+          onKeyDown={handleSpeedKeyDown}
           className="glass-panel rounded-xl p-1.5 flex items-center gap-1 shadow-2xl shadow-black/50 border border-white/15"
         >
           <span className="hidden sm:inline-block px-2 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
@@ -190,6 +212,7 @@ export function MapControls({ map }: MapControlsProps) {
             onClick={() => setSimulationSpeed(0)}
             role="radio"
             aria-checked={simulationSpeed === 0}
+            tabIndex={simulationSpeed === 0 ? 0 : -1}
             aria-label={t.navigation.paused}
             className={`touch-target p-2 rounded-lg text-xs font-mono font-bold transition-all ${
               simulationSpeed === 0
@@ -206,6 +229,7 @@ export function MapControls({ map }: MapControlsProps) {
             onClick={() => setSimulationSpeed(1)}
             role="radio"
             aria-checked={simulationSpeed === 1}
+            tabIndex={simulationSpeed === 1 ? 0 : -1}
             aria-label={t.journey.simSpeedRealtime}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 1
@@ -223,6 +247,7 @@ export function MapControls({ map }: MapControlsProps) {
             onClick={() => setSimulationSpeed(2)}
             role="radio"
             aria-checked={simulationSpeed === 2}
+            tabIndex={simulationSpeed === 2 ? 0 : -1}
             aria-label={t.journey.simSpeedAccelerated}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 2
@@ -240,6 +265,7 @@ export function MapControls({ map }: MapControlsProps) {
             onClick={() => setSimulationSpeed(5)}
             role="radio"
             aria-checked={simulationSpeed === 5}
+            tabIndex={simulationSpeed === 5 ? 0 : -1}
             aria-label={t.journey.simSpeedPreview}
             className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
               simulationSpeed === 5

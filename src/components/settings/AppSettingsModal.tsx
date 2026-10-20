@@ -1,21 +1,20 @@
 /**
  * PlatformI - Application Settings Modal
  *
- * Controls theme styling, cartography basemap tiles, simulation speed,
- * default AI advisor models, motion reduction, and audio cues.
+ * Controls cartography basemap tiles, simulation speed, and the
+ * accessibility preferences that are actually applied to the app.
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
  */
 
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
   Layers,
   Gauge,
-  Bot,
   Sparkles,
   Eye,
   Sliders,
@@ -25,7 +24,7 @@ import {
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { useAccessibilityStore } from "@/lib/stores/useAccessibilityStore";
-import { SUPPORTED_AI_MODELS, DEFAULT_AI_MODEL_ID } from "@/lib/services/aiTransitService";
+import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 
 export interface AppSettingsModalProps {
@@ -46,7 +45,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   const resetAccessibility = useAccessibilityStore((state) => state.resetAccessibility);
 
   // Local state for app-level toggles
-  const [selectedAIModel, setSelectedAIModel] = useState<string>(DEFAULT_AI_MODEL_ID);
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
   const tileOptions: { id: TileLayerId; label: string; desc: string }[] = [
@@ -64,18 +62,11 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   ];
 
   const modalRef = useRef<HTMLDivElement>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
   const modalTitleId = "settings-modal-title";
 
-  useEffect(() => {
-    if (isOpen) {
-      previousFocusRef.current = document.activeElement as HTMLElement;
-      setTimeout(() => modalRef.current?.focus(), 100);
-    } else if (previousFocusRef.current) {
-      previousFocusRef.current.focus();
-      previousFocusRef.current = null;
-    }
-  }, [isOpen]);
+  // Dialog grammar: focus is trapped while the modal is open and restored to
+  // the trigger on close.
+  useDialogFocusTrap<HTMLDivElement>({ isOpen, onClose });
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -98,7 +89,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   const handleReset = () => {
     setTileLayer("dark");
     setSimulationSpeed(1);
-    setSelectedAIModel(DEFAULT_AI_MODEL_ID);
     resetAccessibility();
   };
 
@@ -160,6 +150,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               {tileOptions.map((tile) => (
                 <button
                   key={tile.id}
+                  aria-pressed={activeTileLayer === tile.id}
                   onClick={() => setTileLayer(tile.id)}
                   className={`p-3 rounded-xl border flex items-start gap-2.5 transition text-left ${
                     activeTileLayer === tile.id
@@ -193,6 +184,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               {speedOptions.map((opt) => (
                 <button
                   key={opt.speed}
+                  aria-pressed={simulationSpeed === opt.speed}
                   onClick={() => setSimulationSpeed(opt.speed)}
                   className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition ${
                     simulationSpeed === opt.speed
@@ -207,43 +199,11 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          {/* Section D: Default AI Reasoning Model */}
-          <div className="space-y-2.5">
-            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
-              <Bot className="w-3.5 h-3.5 text-purple-400" />
-              {t.settings.defaultAiModel}
-            </label>
-            <div className="space-y-1.5">
-              {SUPPORTED_AI_MODELS.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => setSelectedAIModel(model.id)}
-                  className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition text-left ${
-                    selectedAIModel === model.id
-                      ? "bg-purple-950/50 border-purple-500/50 text-purple-200"
-                      : "bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-700"
-                  }`}
-                >
-                  <div>
-                    <div className="font-semibold text-white text-xs flex items-center gap-2">
-                      {model.name}
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">
-                        {model.provider}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-slate-400">{model.recommendedFor}</div>
-                  </div>
-                  {selectedAIModel === model.id && <Check className="w-4 h-4 text-purple-400" />}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Section E: Accessibility & Audio Toggles */}
+          {/* Section: Accessibility Toggles */}
           <div className="space-y-3 pt-1">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-              {t.settings.accessibilityAndSound}
+              {t.settings.accessibility}
             </label>
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
@@ -296,6 +256,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
               {supportedLanguages.map((lang) => (
                 <button
                   key={lang.code}
+                  aria-pressed={language === lang.code}
                   onClick={() => setLanguage(lang.code)}
                   className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between transition ${
                     language === lang.code

@@ -102,7 +102,6 @@ export function MobileBottomNav({
       <button
         onClick={handleMapClick}
         aria-current={isMapActive ? "page" : undefined}
-        aria-pressed={isMapActive}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isMapActive
             ? "text-cyan-400 font-bold"
@@ -119,7 +118,6 @@ export function MobileBottomNav({
         onClick={onOpenStatus}
         aria-haspopup="dialog"
         aria-expanded={isStatusActive}
-        aria-pressed={isStatusActive}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isStatusActive
             ? "text-cyan-400 font-bold"
@@ -146,7 +144,6 @@ export function MobileBottomNav({
       <button
         onClick={onOpenJourney}
         aria-expanded={isJourneyOpen}
-        aria-pressed={isJourneyOpen}
         className="flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
       >
         <Navigation className="w-5 h-5" />
@@ -159,7 +156,6 @@ export function MobileBottomNav({
         onClick={handleWalletClick}
         aria-haspopup="dialog"
         aria-expanded={isWalletActive}
-        aria-pressed={isWalletActive}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isWalletActive
             ? "text-cyan-400 font-bold"
@@ -176,7 +172,6 @@ export function MobileBottomNav({
         onClick={handleCrowdsourceClick}
         aria-haspopup="dialog"
         aria-expanded={isCrowdsourceActive}
-        aria-pressed={isCrowdsourceActive}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isCrowdsourceActive
             ? "text-cyan-400 font-bold"
@@ -195,7 +190,6 @@ export function MobileBottomNav({
         title={t.navigation.aiAdvisor}
         aria-haspopup="dialog"
         aria-expanded={isAIOpen}
-        aria-pressed={isAIOpen}
         className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isAIOpen
             ? "text-cyan-400 font-bold"

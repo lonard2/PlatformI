@@ -686,7 +686,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     mapTileLayer: "地図背景レイヤー",
     simulationEngineSpeed: "シミュレーション速度倍率",
     defaultAiModel: "デフォルトAIモデル",
-    accessibilityAndSound: "アクセシビリティ & サウンド",
+    accessibility: "アクセシビリティ",
     highContrast: "ハイコントラスト表示",
     highContrastDesc: "路線アイコンおよび駅名テキストの視認性を強調",
     reducedMotion: "視覚効果・アニメーション低減",

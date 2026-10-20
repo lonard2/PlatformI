@@ -399,7 +399,7 @@ function VehicleDetailSheetContent({
               role="tab"
               id="vehicle-tab-overview"
               aria-selected={activeTab === "overview"}
-              aria-controls="vehicle-panel-overview"
+              aria-controls={activeTab === "overview" ? "vehicle-panel-overview" : undefined}
               tabIndex={activeTab === "overview" ? 0 : -1}
               onClick={() => setActiveTab("overview")}
               className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
@@ -416,7 +416,7 @@ function VehicleDetailSheetContent({
               role="tab"
               id="vehicle-tab-specs"
               aria-selected={activeTab === "specs"}
-              aria-controls="vehicle-panel-specs"
+              aria-controls={activeTab === "specs" ? "vehicle-panel-specs" : undefined}
               tabIndex={activeTab === "specs" ? 0 : -1}
               onClick={() => setActiveTab("specs")}
               className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
@@ -433,7 +433,7 @@ function VehicleDetailSheetContent({
               role="tab"
               id="vehicle-tab-seating"
               aria-selected={activeTab === "seating"}
-              aria-controls="vehicle-panel-seating"
+              aria-controls={activeTab === "seating" ? "vehicle-panel-seating" : undefined}
               tabIndex={activeTab === "seating" ? 0 : -1}
               onClick={() => setActiveTab("seating")}
               className={`touch-target flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${

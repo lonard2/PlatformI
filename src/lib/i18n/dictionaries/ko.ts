@@ -686,7 +686,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     mapTileLayer: "지도 배경 레이어",
     simulationEngineSpeed: "벡터 시뮬레이션 속도 배율",
     defaultAiModel: "기본 AI 어드바이저 모델",
-    accessibilityAndSound: "접근성 & 사운드",
+    accessibility: "접근성",
     highContrast: "고대비 시각 요소",
     highContrastDesc: "노선 뱃지 및 역명 텍스트 시인성 강화",
     reducedMotion: "동작 줄이기",

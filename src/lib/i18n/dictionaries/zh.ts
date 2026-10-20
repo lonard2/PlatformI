@@ -686,7 +686,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     mapTileLayer: "制图底图图层",
     simulationEngineSpeed: "向量模拟时钟倍率",
     defaultAiModel: "默认AI顾问推理模型",
-    accessibilityAndSound: "无障碍辅助与音效",
+    accessibility: "无障碍辅助",
     highContrast: "高对比度视觉增强",
     highContrastDesc: "增强线路徽标与地图地名标签的清晰度",
     reducedMotion: "减弱动态特效",
