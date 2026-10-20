@@ -23,6 +23,7 @@ import { TransportationSystemBar } from "../src/components/navigation/Transporta
 import { MobileBottomNav } from "../src/components/navigation/MobileBottomNav";
 import { AdminHelpModal } from "../src/components/admin/AdminHelpModal";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
+import { useAccessibilityStore } from "../src/lib/stores/useAccessibilityStore";
 import { useLanguageStore } from "../src/lib/i18n";
 import { TRANSIT_LINES, TRANSIT_STOPS, TRANSIT_VEHICLES, DISRUPTION_ALERTS } from "../src/lib/data/jakarta-dataset";
 
@@ -104,11 +105,11 @@ describe("Milestone 5: React UI Components Integration", () => {
   });
 
   describe("4. AppSettingsModal Component", () => {
-    it("renders display theme, cartography basemaps, and simulation clock toggles", () => {
+    it("renders cartography basemaps, simulation clock toggles, and accessibility switches", () => {
       const onClose = vi.fn();
       render(<AppSettingsModal isOpen={true} onClose={onClose} />);
 
-      expect(screen.getAllByText(/Cockpit|Application Settings|Pengaturan/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Settings & Display Options|Pengaturan/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Dark Matter/i)).toBeInTheDocument();
       expect(screen.getByText(/Positron Light/i)).toBeInTheDocument();
       expect(screen.getByText(/Satellite/i)).toBeInTheDocument();
@@ -117,6 +118,17 @@ describe("Milestone 5: React UI Components Integration", () => {
       const lightTileBtn = screen.getByText(/Positron Light/i);
       fireEvent.click(lightTileBtn);
       expect(useTransitStore.getState().activeTileLayer).toBe("light");
+    });
+
+    it("persists the accessibility switches through the accessibility store", () => {
+      const onClose = vi.fn();
+      render(<AppSettingsModal isOpen={true} onClose={onClose} />);
+
+      const highContrast = screen.getByRole("checkbox", {
+        name: /High Contrast|High Contrast Elements|Kontras/i,
+      });
+      fireEvent.click(highContrast);
+      expect(useAccessibilityStore.getState().highContrast).toBe(true);
     });
   });
 

@@ -256,6 +256,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 </div>
                 <input
                   type="checkbox"
+                  aria-label={t.settings.highContrast}
                   checked={highContrast}
                   onChange={(e) => setHighContrast(e.target.checked)}
                   className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
@@ -272,6 +273,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 </div>
                 <input
                   type="checkbox"
+                  aria-label={t.settings.reducedMotion}
                   checked={reducedMotion}
                   onChange={(e) => setReducedMotion(e.target.checked)}
                   className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"

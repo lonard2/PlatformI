@@ -852,7 +852,7 @@ export interface TranslationDictionary {
     loginAuthorizing: string;
     loginAccessDashboard: string;
     loginDemoCredentials: string;
-    loginReturnCockpit: string;
+    loginReturnPassengerView: string;
     loginLoading: string;
     loginErrorRequired: string;
     loginErrorInvalid: string;

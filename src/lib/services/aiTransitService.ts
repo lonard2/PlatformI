@@ -493,7 +493,7 @@ Based on your inquiry regarding transit across the Greater Jakarta & Bodetabek n
 1. **Optimize with JakLingko**: When combining **MRT Jakarta**, **LRT Jakarta**, and **TransJakarta BRT/Feeder**, ensure you use a single card or digital pass to trigger the **Rp 10,000 3-hour maximum integrated tariff cap**.
 2. **Avoid Peak Hour Road Congestion**: For east-west and north-south arterial journeys, prioritize dedicated grade-separated rail corridors (MRT, LRT, KRL) or elevated busway flyovers (TransJakarta Corridor 13).
 3. **Intermodal Skybridges**: Use the modern enclosed skybridges at **Dukuh Atas**, **CSW-ASEAN**, **Velbak-Kebayoran**, and **Cikoko-Cawang** for seamless, climate-controlled, accessible walking transfers.
-4. **Live Disruption Check**: Real-time vehicle telemetries and route diversions are continuously updated on your PlatformI cockpit radar.
+4. **Live Disruption Check**: Real-time vehicle telemetries and route diversions are continuously updated on your PlatformI live network view.
 
 *Would you like to pinpoint a specific station on the map, inspect vehicle specifications, or check live departure boards?*`;
   }
@@ -545,7 +545,7 @@ export async function queryTransitAdvisor(
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
         "HTTP-Referer": "https://platformi.id",
-        "X-Title": "PlatformI Transit Cockpit",
+        "X-Title": "PlatformI Transit Network",
       },
       body: JSON.stringify({
         model: selectedModelId,

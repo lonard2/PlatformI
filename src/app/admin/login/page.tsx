@@ -272,7 +272,7 @@ function AdminLoginForm() {
           className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-300 transition"
         >
           <Compass className="w-3.5 h-3.5" />
-          <span>{t.admin.loginReturnCockpit}</span>
+          <span>{t.admin.loginReturnPassengerView}</span>
         </Link>
       </div>
     </div>

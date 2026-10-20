@@ -9,7 +9,7 @@
 
 ## 1. Executive System Overview & Architecture
 
-**PlatformI** is a unified public transportation platform and glass-cockpit cartography dashboard designed for the Special Capital Region of Jakarta and the Greater Jakarta metropolitan area (Jabodetabek: Jakarta, Bogor, Depok, Tangerang, South Tangerang, Bekasi), engineered with nationwide architectural scalability.
+**PlatformI** is a unified public transportation platform and glass transit network view designed for the Special Capital Region of Jakarta and the Greater Jakarta metropolitan area (Jabodetabek: Jakarta, Bogor, Depok, Tangerang, South Tangerang, Bekasi), engineered with nationwide architectural scalability.
 
 The system unifies four distinct transport dimensions into a single reactive operational picture:
 1. **Land Rail**: MRT Jakarta (North-South & East-West lines), LRT Jabodebek (Cibubur & Bekasi lines), LRT Jakarta (Phase 1 & 1B), KRL Commuter Line (Bogor, Cikarang Loop, Rangkasbitung, Tangerang, Tanjung Priok), Whoosh High-Speed Rail (Halim - Tegalluar), KAI Bandara (Soekarno-Hatta Airport Rail Link), and KAI Jarak Jauh (Gambir & Pasar Senen intercity hubs).

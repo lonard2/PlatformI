@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PlatformI - Multimodal Regional Transit Cockpit",
+  title: "PlatformI - Multimodal Regional Transit Network",
   description:
-    "Unified regional transit intelligence cockpit for Jakarta, Greater Jabodetabek, and Intercity networks.",
+    "Unified regional transit intelligence for Jakarta, Greater Jabodetabek, and Intercity networks.",
   icons: {
     icon: "/favicon.ico",
   },
