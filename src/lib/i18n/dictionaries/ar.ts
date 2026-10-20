@@ -613,6 +613,7 @@ export const ar: TranslationDictionary = {
     journeyNoMatch: "لم يتم العثور على محطة مطابقة لـ {field}. تحقق من صحة الاسم أو اختر من القائمة.",
     journeySameStop: "محطة المغادرة ومحطة الوصول متطابقتان. يرجى اختيار محطات مختلفة.",
     journeyNoTransfer: "لم يتم العثور على مسار مباشر أو بتبديل واحد. استخدم مستشار الذكاء الاصطناعي للإرشاد متعدد التبديلات.",
+    coverage: "يغطي تخطيط المسارات {routable} من {total} خطًا. الباقي يظهر على الخريطة فقط.",
     journeyRefinePrompt: "تحسين الرحلة من {origin} إلى {dest} عبر {lineSummary}. احسب الحد الأقصى لأجرة JakLingko، وإرشادات التحويل، وتوصيات الازدحام.",
     transitLines: "خطوط النقل",
     clearRoute: "مسح المسار",

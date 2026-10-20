@@ -613,6 +613,7 @@ export const id: TranslationDictionary = {
     journeyNoMatch: "Stasiun tidak ditemukan untuk {field}. Periksa ejaan atau pilih dari daftar.",
     journeySameStop: "Stasiun asal dan tujuan sama. Silakan pilih stasiun yang berbeda.",
     journeyNoTransfer: "Tidak ditemukan rute langsung atau 1-transit. Gunakan Penasihat AI untuk panduan transfer multi-koridor.",
+    coverage: "Perencanaan rute mencakup {routable} dari {total} garis. Sisanya hanya tampil di peta.",
     journeyRefinePrompt: "Optimalkan perjalanan dari {origin} ke {dest} melalui {lineSummary}. Hitung tarif integrasi JakLingko, panduan transfer, dan rekomendasi kepadatan.",
     transitLines: "jalur transit",
     clearRoute: "Hapus rute",

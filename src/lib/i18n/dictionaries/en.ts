@@ -613,6 +613,7 @@ export const en: TranslationDictionary = {
     journeyNoMatch: "No matching station found for {field}. Check spelling or pick from the list.",
     journeySameStop: "Origin and destination are the same station. Select different stops.",
     journeyNoTransfer: "No direct or 1-transfer route found. Use AI Advisor for multi-leg guidance.",
+    coverage: "Route planning covers {routable} of {total} lines. The rest are map-only.",
     journeyRefinePrompt: "Refine journey from {origin} to {dest} via {lineSummary}. Calculate JakLingko fare cap, transfer guidance, and crowd recommendations.",
     transitLines: "transit lines",
     clearRoute: "Clear route",

@@ -613,6 +613,7 @@ export const ko: TranslationDictionary = {
     journeyNoMatch: "{field}에 해당하는 역을 찾을 수 없습니다. 철자를 확인하거나 목록에서 선택하세요.",
     journeySameStop: "출발역과 도착역이 동일합니다. 다른 역을 선택해 주세요.",
     journeyNoTransfer: "직통 또는 1회 환승 경로를 찾을 수 없습니다. AI 어드바이저를 통해 다구간 환승 안내를 확인하세요.",
+    coverage: "경로 계획은 {total}개 노선 중 {routable}개를 지원하며, 나머지는 지도에만 표시됩니다.",
     journeyRefinePrompt: "{origin}에서 {dest}까지({lineSummary} 경유) 여정을 최적화해 주세요. JakLingko 통합 요금 상한, 환승 안내 및 혼잡도 권장 사항을 계산하세요.",
     transitLines: "대중교통 노선",
     clearRoute: "경로 지우기",

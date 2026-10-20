@@ -637,6 +637,7 @@ export interface TranslationDictionary {
     journeyNoMatch: string;
     journeySameStop: string;
     journeyNoTransfer: string;
+    coverage: string;
     journeyRefinePrompt: string;
     transitLines: string;
     clearRoute: string;

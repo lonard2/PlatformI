@@ -175,11 +175,22 @@ export default function Home() {
     clearPlannedJourney();
   };
 
-  // Stop universe for the journey autocomplete (deduplicated, A-Z)
-  const stopNames = useMemo(
-    () => Array.from(new Set(allStops.map((s) => s.name))).sort(),
-    [allStops]
-  );
+  // Stop universe for the journey autocomplete: only stops that belong to a
+  // known line, deduplicated, A-Z. Stops without a line are map-only.
+  const stopNames = useMemo(() => {
+    const knownLineIds = new Set(allLines.map((l) => l.id));
+    const names = allStops
+      .filter((s) => knownLineIds.has(s.lineId))
+      .map((s) => s.name);
+    return Array.from(new Set(names)).sort();
+  }, [allStops, allLines]);
+
+  // Honest coverage: how many of the advertised lines actually carry stop
+  // data the planner can route between.
+  const routableLineCount = useMemo(() => {
+    const linesWithStops = new Set(allStops.map((s) => s.lineId).filter(Boolean));
+    return allLines.filter((l) => linesWithStops.has(l.id)).length;
+  }, [allLines, allStops]);
 
   const originMismatch = useMemo(() => {
     const trimmedOrigin = journeyOrigin.trim();
@@ -453,6 +464,16 @@ export default function Home() {
                     />
                   </div>
                 </div>
+
+                {/* Coverage disclosure: the bar advertises more lines than the
+                    planner can route between, so the panel says so. */}
+                {routableLineCount < allLines.length && (
+                  <p className="text-[10px] font-mono text-slate-500 px-0.5 leading-tight">
+                    {t.journey.coverage
+                      .replace("{routable}", String(routableLineCount))
+                      .replace("{total}", String(allLines.length))}
+                  </p>
+                )}
 
                 {/* Deterministic Route Answer Bound to Map */}
                 <div aria-live="polite" aria-atomic="true" className="space-y-2 pt-1">
