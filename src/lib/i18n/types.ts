@@ -169,6 +169,7 @@ export interface TranslationDictionary {
     sectorSea: string;
     showSectorItems: string;
     hideSectorItems: string;
+    noLiveGeometry: string;
   };
   modes: {
     mrt: string;

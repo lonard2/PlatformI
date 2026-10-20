@@ -145,6 +145,7 @@ export const zh: TranslationDictionary = {
     sectorSea: "航运",
     showSectorItems: "显示该板块的项目",
     hideSectorItems: "隐藏该板块的项目",
+    noLiveGeometry: "该路线暂无地图线形数据",
   },
   modes: {
     mrt: "雅加达地铁 (MRT Jakarta)",

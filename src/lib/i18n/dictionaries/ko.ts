@@ -145,6 +145,7 @@ export const ko: TranslationDictionary = {
     sectorSea: "해양",
     showSectorItems: "이 부문 항목 표시",
     hideSectorItems: "이 부문 항목 숨기기",
+    noLiveGeometry: "이 경로에 지도 선형 데이터가 없습니다",
   },
   modes: {
     mrt: "자카르타 지하철 (MRT Jakarta)",

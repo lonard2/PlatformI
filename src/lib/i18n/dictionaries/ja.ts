@@ -145,6 +145,7 @@ export const ja: TranslationDictionary = {
     sectorSea: "海路",
     showSectorItems: "この分野の項目を表示",
     hideSectorItems: "この分野の項目を非表示",
+    noLiveGeometry: "このルートに地図上の路線データがありません",
   },
   modes: {
     mrt: "MRTジャカルタ (Ratangga)",

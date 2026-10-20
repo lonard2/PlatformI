@@ -145,6 +145,7 @@ export const id: TranslationDictionary = {
     sectorSea: "Laut",
     showSectorItems: "Tampilkan item sektor ini",
     hideSectorItems: "Sembunyikan item sektor ini",
+    noLiveGeometry: "Tidak ada geometri peta langsung untuk rute ini",
   },
   modes: {
     mrt: "MRT Jakarta (Ratangga)",

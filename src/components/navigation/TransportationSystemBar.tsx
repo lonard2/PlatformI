@@ -783,7 +783,6 @@ export function TransportationSystemBar() {
   const selectStop = useTransitStore((state) => state.selectStop);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setViewport = useTransitStore((state) => state.setViewport);
-  const allLines = useTransitStore((state) => state.allLines);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
 
@@ -900,22 +899,9 @@ export function TransportationSystemBar() {
     } else if (detail.lineId) {
       selectLine(detail.lineId);
       setActiveItemId(null);
-    } else if (activeItem) {
-      // No-op guard: fall through to the parent system's own map target so
-      // every corridor card produces a visible map response.
-      if (activeItem.targetStopId) {
-        if (activeItem.targetCoordinates) {
-          setViewport(activeItem.targetCoordinates, 14);
-        }
-        selectStop(activeItem.targetStopId);
-      } else if (activeItem.mode) {
-        const parentLine = allLines.find((l) => l.mode === activeItem.mode);
-        if (parentLine) {
-          selectLine(parentLine.id);
-        }
-      }
-      setActiveItemId(null);
     }
+    // Corridors without live geometry stay put: the card says so, and the map is
+    // never pointed at an unrelated line just to look responsive.
   };
 
   const activeItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
@@ -1483,6 +1469,11 @@ export function TransportationSystemBar() {
                   )}
                   {filteredCorridors.map((corridor, idx) => {
                     const badgeColor = corridor.badgeColor || activeItem.brandColor;
+                    const hasMapTarget = !!(
+                      corridor.stopId ||
+                      corridor.coordinates ||
+                      corridor.lineId
+                    );
 
                     return (
                       <button
@@ -1531,9 +1522,26 @@ export function TransportationSystemBar() {
                               </span>
                             </div>
                           </div>
+
+                          {!hasMapTarget && (
+                            <div className="text-[10px] font-mono text-slate-500">
+                              {t.navigation.noLiveGeometry}
+                            </div>
+                          )}
                         </div>
 
-                        <div className="shrink-0 p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-cyan-400 group-hover:border-cyan-500/40 transition">
+                        <div
+                          className={`shrink-0 p-1.5 rounded-lg bg-slate-950 border border-slate-800 transition ${
+                            hasMapTarget
+                              ? "text-slate-500 group-hover:text-cyan-400 group-hover:border-cyan-500/40"
+                              : "text-slate-700"
+                          }`}
+                          title={
+                            hasMapTarget
+                              ? undefined
+                              : t.navigation.noLiveGeometry
+                          }
+                        >
                           <MapPin className="w-4 h-4" />
                         </div>
                       </button>

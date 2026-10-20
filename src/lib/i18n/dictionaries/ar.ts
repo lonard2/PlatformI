@@ -145,6 +145,7 @@ export const ar: TranslationDictionary = {
     sectorSea: "بحري",
     showSectorItems: "إظهار عناصر هذا القطاع",
     hideSectorItems: "إخفاء عناصر هذا القطاع",
+    noLiveGeometry: "لا توجد بيانات مسار على الخريطة لهذا المسار",
   },
   modes: {
     mrt: "مترو جاكرتا (MRT Jakarta)",
