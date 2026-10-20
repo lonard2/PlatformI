@@ -15,7 +15,7 @@ PlatformI serves two co-primary audiences in Jakarta and the Greater Jakarta met
 
 ## Product Purpose
 
-PlatformI unifies public transportation intelligence across rail, bus, aviation, and maritime networks in a single interactive regional transit cockpit. It exists to make complex multimodal travel easier to understand and to make the underlying network useful to people who care about its operational and vehicle detail.
+PlatformI unifies public transportation intelligence across rail, bus, aviation, and maritime networks in a single interactive regional transit view. It exists to make complex multimodal travel easier to understand and to make the underlying network useful to people who care about its operational and vehicle detail.
 
 Success means users can understand the current network, inspect relevant transit detail, make better journey decisions, and use the platform confidently across desktop, tablet, and mobile web.
 
@@ -46,7 +46,7 @@ Users interact with PlatformI while planning or monitoring journeys across Jakar
 ## Evidence on Hand
 
 - Transit network and fleet dataset: `src/lib/data/jakarta-dataset.ts` and `prisma/seed.ts`.
-- Main interactive cockpit: `src/app/page.tsx`.
+- Main interactive view: `src/app/page.tsx`.
 - Technical architecture and feature inventory: `README.md`, `PROJECT.md`, and `docs/walkthrough.md`.
 - Phase lessons and trade-off analysis: `docs/phase_critiques.md`.
 - Automated verification: `tests/` and `npm test`.

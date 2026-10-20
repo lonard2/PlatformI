@@ -1,6 +1,6 @@
 ---
 name: PlatformI
-description: Multimodal regional transit intelligence in a glass cockpit.
+description: Multimodal regional transit intelligence in a glass transit view.
 colors:
   background: "#090d16"
   foreground: "#f1f5f9"
@@ -15,23 +15,23 @@ colors:
   muted-text: "#94a3b8"
 typography:
   body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans Arabic, Helvetica Neue, Arial, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.5
   title:
-    fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans Arabic, Helvetica Neue, Arial, sans-serif"
     fontSize: "1rem"
     fontWeight: 700
     lineHeight: 1.25
   label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans JP, Noto Sans KR, Noto Sans SC, Noto Sans Arabic, Helvetica Neue, Arial, sans-serif"
     fontSize: "0.625rem"
     fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "0.04em"
   mono:
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace"
+    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace"
     fontSize: "0.6875rem"
     fontWeight: 500
     lineHeight: 1.25
@@ -122,11 +122,13 @@ The palette is an electric transit spectrum: a deep blue-black foundation carrie
 
 ## Typography
 
-**Display Font:** System sans stack with Segoe UI and Roboto fallbacks.
+**Display Font:** Geist, with Noto Sans JP/KR/SC/Arabic and the system sans stack as fallbacks for the CJK and Arabic locales.
 
-**Body Font:** System sans stack with Segoe UI and Roboto fallbacks.
+**Body Font:** Geist, with the same Noto and system fallbacks.
 
-**Label/Mono Font:** UI monospace stack for codes, counters, fares, and telemetry values.
+**Label/Mono Font:** Geist Mono for codes, counters, fares, and telemetry values, with a UI monospace stack behind it.
+
+**Type ramp:** 10px (label), 11px (mono), 14px (body), 16px (title). Nothing sits between these steps.
 
 **Character:** The type system is compact, neutral, and highly legible. Sans text carries the passenger-facing interface; mono text signals operational data and machine-readable identifiers.
 
@@ -143,7 +145,7 @@ The palette is an electric transit spectrum: a deep blue-black foundation carrie
 
 ## Layout
 
-The primary shell is a full-viewport map cockpit. A compact header and transportation system bar sit above the cartography viewport; alerts occupy a pinned strip; drawers and sheets float over the map; telemetry remains in a narrow footer on larger screens.
+The primary shell is a full-viewport map view. A compact header and transportation system bar sit above the cartography viewport; alerts occupy a pinned strip; drawers and sheets float over the map; telemetry remains in a narrow footer on larger screens.
 
 Desktop uses a wide map-first composition with floating right-side controls and docked detail drawers. Tablet retains the map as the primary canvas while shifting navigation and actions toward the bottom edge. Mobile uses a full-height map with a fixed bottom navigation bar, slide-up or full-width drawers, safe-area padding, and compact touch-friendly controls.
 
@@ -223,13 +225,14 @@ Map controls float above the lower or upper map edge in grouped glass panels. La
 - **Do** keep map, alert, drawer, and telemetry layers visually distinct.
 - **Do** use Lucide SVG icons with visible labels or accessible names.
 - **Do** preserve responsive drawer, sheet, safe-area, and reduced-motion behavior.
-- **Do** use the system sans stack for passenger text and mono text for telemetry.
+- **Do** use Geist for passenger text and Geist Mono for telemetry, with the documented fallbacks for CJK and Arabic.
+- **Do** keep interactive controls at a 44px minimum touch target on coarse pointers.
 
 ### Don't:
 
 - **Don't** turn the interface into a generic SaaS dashboard of interchangeable cards and KPI tiles.
 - **Don't** reduce PlatformI to a plain map utility with undifferentiated pins.
-- **Don't** use gradients, pulses, glow, or blur as decoration when they do not communicate state or hierarchy.
+- **Don't** use gradients, pulses, glow, or blur as decoration when they do not communicate state or hierarchy. The glass chrome itself is permitted: blur, depth, and edge light are how the cockpit reads as one surface over the map, provided a solid fallback ships for reduced transparency and no accent glow replaces a state signal.
 - **Don't** make compact type the only way to communicate essential journey information.
 - **Don't** rely on hover, color alone, or icon-only controls for essential meaning.
 - **Don't** obscure the cartographic canvas with opaque or excessively nested surfaces.

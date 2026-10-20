@@ -5,7 +5,7 @@ Welcome to the **PlatformI** codebase. This document outlines mandatory architec
 ---
 
 ## 1. Core Mission & Scope
-PlatformI is an all-in-one, regionalized public transportation platform that unifies urban, commuter, intercity, maritime, and aviation transit networks into an interactive glass cockpit.
+PlatformI is an all-in-one, regionalized public transportation platform that unifies urban, commuter, intercity, maritime, and aviation transit networks into an interactive glass transit view.
 
 ### Supported Modes:
 - **Land - Rail**: MRT Jakarta, LRT Jabodebek, LRT Jakarta, KRL Commuter Line, Whoosh High-Speed Rail, KAI Bandara, KAI Jarak Jauh.
