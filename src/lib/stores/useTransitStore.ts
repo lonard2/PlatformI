@@ -76,7 +76,8 @@ export interface TransitStoreState {
   setActiveDrawer: (drawer: DrawerType) => void;
   setDrawerSnap: (snap: DrawerSnapState) => void;
 
-  // 7. Theme
+  // 7. Theme (the cockpit renders dark; the light palette tokens remain the
+  // documented surface palette for surfaces that opt into them)
   theme: "dark" | "light";
   setTheme: (theme: "dark" | "light") => void;
   toggleTheme: () => void;

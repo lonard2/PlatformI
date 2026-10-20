@@ -13,14 +13,10 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
-  Moon,
-  Sun,
   Layers,
   Gauge,
   Bot,
   Sparkles,
-  Volume2,
-  VolumeX,
   Eye,
   Sliders,
   X,
@@ -28,6 +24,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
+import { useAccessibilityStore } from "@/lib/stores/useAccessibilityStore";
 import { SUPPORTED_AI_MODELS, DEFAULT_AI_MODEL_ID } from "@/lib/services/aiTransitService";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 
@@ -38,18 +35,18 @@ export interface AppSettingsModalProps {
 
 export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onClose }) => {
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
-  const theme = useTransitStore((state) => state.theme);
-  const setTheme = useTransitStore((state) => state.setTheme);
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
   const setTileLayer = useTransitStore((state) => state.setTileLayer);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const setSimulationSpeed = useTransitStore((state) => state.setSimulationSpeed);
+  const reducedMotion = useAccessibilityStore((state) => state.reducedMotion);
+  const setReducedMotion = useAccessibilityStore((state) => state.setReducedMotion);
+  const highContrast = useAccessibilityStore((state) => state.highContrast);
+  const setHighContrast = useAccessibilityStore((state) => state.setHighContrast);
+  const resetAccessibility = useAccessibilityStore((state) => state.resetAccessibility);
 
   // Local state for app-level toggles
   const [selectedAIModel, setSelectedAIModel] = useState<string>(DEFAULT_AI_MODEL_ID);
-  const [isHighContrast, setIsHighContrast] = useState<boolean>(false);
-  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false);
-  const [isAudioFeedbackEnabled, setIsAudioFeedbackEnabled] = useState<boolean>(true);
   const [saveToast, setSaveToast] = useState<boolean>(false);
 
   const tileOptions: { id: TileLayerId; label: string; desc: string }[] = [
@@ -99,13 +96,10 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   };
 
   const handleReset = () => {
-    setTheme("dark");
     setTileLayer("dark");
     setSimulationSpeed(1);
     setSelectedAIModel(DEFAULT_AI_MODEL_ID);
-    setIsHighContrast(false);
-    setIsReducedMotion(false);
-    setIsAudioFeedbackEnabled(true);
+    resetAccessibility();
   };
 
   return (
@@ -156,45 +150,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
 
         {/* 2. SETTINGS CONTENT BODY */}
         <div className="flex-1 p-5 overflow-y-auto space-y-6 text-xs sm:text-sm">
-          {/* Section A: Theme & Appearance */}
-          <div className="space-y-2.5">
-            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              {t.settings.themeAndAppearance}
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setTheme("dark")}
-                className={`p-3 rounded-xl border flex items-center gap-2.5 transition text-left ${
-                  theme === "dark"
-                    ? "bg-cyan-950/70 border-cyan-500/60 text-cyan-200 shadow-md"
-                    : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700"
-                }`}
-              >
-                <Moon className="w-4 h-4 text-cyan-400 shrink-0" />
-                <div>
-                  <div className="font-semibold text-white">Dark Cockpit</div>
-                  <div className="text-[10px] text-slate-400">{t.settings.nightOptimized}</div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setTheme("light")}
-                className={`p-3 rounded-xl border flex items-center gap-2.5 transition text-left ${
-                  theme === "light"
-                    ? "bg-cyan-950/70 border-cyan-500/60 text-cyan-200 shadow-md"
-                    : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700"
-                }`}
-              >
-                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
-                <div>
-                  <div className="font-semibold text-white">Light Daylight</div>
-                  <div className="text-[10px] text-slate-400">High-contrast daytime view</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Section B: Basemap Tile Selector */}
           <div className="space-y-2.5">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
@@ -246,7 +201,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                   }`}
                 >
                   <span className="font-mono text-sm">{opt.label}</span>
-                  <span className="text-[9px] text-slate-400 leading-tight mt-0.5">{opt.desc}</span>
+                  <span className="text-[10px] text-slate-400 leading-tight mt-0.5">{opt.desc}</span>
                 </button>
               ))}
             </div>
@@ -301,8 +256,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 </div>
                 <input
                   type="checkbox"
-                  checked={isHighContrast}
-                  onChange={(e) => setIsHighContrast(e.target.checked)}
+                  checked={highContrast}
+                  onChange={(e) => setHighContrast(e.target.checked)}
                   className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
                 />
               </div>
@@ -317,28 +272,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 </div>
                 <input
                   type="checkbox"
-                  checked={isReducedMotion}
-                  onChange={(e) => setIsReducedMotion(e.target.checked)}
-                  className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  {isAudioFeedbackEnabled ? (
-                    <Volume2 className="w-4 h-4 text-emerald-400" />
-                  ) : (
-                    <VolumeX className="w-4 h-4 text-slate-500" />
-                  )}
-                  <div>
-                    <div className="font-semibold text-white">{t.settings.audioFeedback}</div>
-                    <div className="text-[10px] text-slate-400">{t.settings.audioFeedbackDesc}</div>
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={isAudioFeedbackEnabled}
-                  onChange={(e) => setIsAudioFeedbackEnabled(e.target.checked)}
+                  checked={reducedMotion}
+                  onChange={(e) => setReducedMotion(e.target.checked)}
                   className="w-4 h-4 rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-cyan-500"
                 />
               </div>

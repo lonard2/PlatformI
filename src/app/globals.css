@@ -280,6 +280,16 @@ code, kbd, samp, pre, .font-mono {
 
 /* Low-Power & Reduced Motion Accessibility */
 @media (prefers-reduced-motion: reduce) {
+  /* Honour the OS preference for every animated surface, not just the
+     named keyframe animations: transitions and keyframes both stop. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
   .hub-pulse-ring,
   .beacon-pulse,
   .radar-scan,
@@ -303,6 +313,57 @@ code, kbd, samp, pre, .font-mono {
 /* Safe Area Padding for Modern Phones */
 .safe-area-pb {
   padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
+}
+
+/* Forced Reduced Motion (in-app accessibility switch) */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High Contrast (in-app accessibility switch): lift muted text and seal glass */
+html[data-contrast="high"] {
+  --glass-bg: rgba(4, 8, 16, 0.98);
+  --glass-border: rgba(255, 255, 255, 0.32);
+  --glass-card: rgba(8, 14, 26, 0.96);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+}
+
+html[data-contrast="high"] .text-slate-500 {
+  color: #e5e7eb !important;
+}
+
+html[data-contrast="high"] .text-slate-400 {
+  color: #d1d5db !important;
+}
+
+html[data-contrast="high"] .text-slate-300 {
+  color: #e5e7eb !important;
+}
+
+/* Reduced Transparency: solid fallbacks for the translucent glass surfaces */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-panel {
+    background: rgba(6, 10, 18, 0.98) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-card {
+    background: rgba(9, 14, 26, 0.98) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-dropdown {
+    background: rgba(6, 10, 18, 0.99) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* Touch Target Minimum Size */
