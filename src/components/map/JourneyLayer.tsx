@@ -102,7 +102,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
               width: 22px;
               height: 22px;
               border-radius: 50%;
-              background: #d97706;
+              background: #f59e0b;
               border: 2px solid #ffffff;
               box-shadow: 0 0 12px #f59e0b;
               display: flex;
@@ -120,10 +120,11 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
       const transferMarker = L.marker([transferStop.latitude, transferStop.longitude], {
         icon: transferIcon,
         zIndexOffset: 1500,
+        title: transferStop.name,
       });
 
       transferMarker.bindTooltip(
-        `<div style="font-family: sans-serif; font-weight: 600; font-size: 11px;">Transit: ${transferStop.name}<br/><span style="font-size: 10px; color: #f59e0b;">${firstLine.code} &rarr; ${secondLine.code}</span></div>`,
+        `<div style="font-family: sans-serif; font-weight: 600; font-size: 11px;">${transferStop.name}<br/><span style="font-size: 10px; color: #f59e0b;">${firstLine.code} &rarr; ${secondLine.code}</span></div>`,
         { permanent: true, direction: "top", offset: [0, -14], className: "custom-transit-tooltip" }
       );
       transferMarker.addTo(layerGroup);
@@ -141,7 +142,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
             width: 26px;
             height: 26px;
             border-radius: 50%;
-            background: #059669;
+            background: #10b981;
             border: 2.5px solid #ffffff;
             box-shadow: 0 0 16px #10b981, 0 4px 8px rgba(0,0,0,0.6);
             display: flex;
@@ -149,7 +150,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
             justify-content: center;
             color: #ffffff;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 11px;
             font-family: monospace;
           ">A</div>
         </div>
@@ -159,6 +160,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
     const originMarker = L.marker([originStop.latitude, originStop.longitude], {
       icon: originIcon,
       zIndexOffset: 2000,
+      title: `A: ${originStop.name}`,
     });
     originMarker.bindTooltip(
       `<div style="font-family: monospace; font-weight: 700; font-size: 11px; color: #10b981;">A: ${originStop.name}</div>`,
@@ -178,7 +180,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
             width: 26px;
             height: 26px;
             border-radius: 50%;
-            background: #e11d48;
+            background: #f43f5e;
             border: 2.5px solid #ffffff;
             box-shadow: 0 0 16px #f43f5e, 0 4px 8px rgba(0,0,0,0.6);
             display: flex;
@@ -186,7 +188,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
             justify-content: center;
             color: #ffffff;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 11px;
             font-family: monospace;
           ">B</div>
         </div>
@@ -196,6 +198,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
     const destMarker = L.marker([destinationStop.latitude, destinationStop.longitude], {
       icon: destIcon,
       zIndexOffset: 2000,
+      title: `B: ${destinationStop.name}`,
     });
     destMarker.bindTooltip(
       `<div style="font-family: monospace; font-weight: 700; font-size: 11px; color: #f43f5e;">B: ${destinationStop.name}</div>`,
