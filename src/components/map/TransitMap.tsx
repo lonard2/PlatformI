@@ -10,6 +10,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { useReducedMotion } from "framer-motion";
 import { useTransitStore, TileLayerId } from "@/lib/stores/useTransitStore";
 import { useTransitSimulation } from "@/lib/hooks/useTransitSimulation";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
@@ -25,6 +26,7 @@ function SimulationDriver() {
 }
 
 export function TransitMap() {
+  const shouldReduceMotion = useReducedMotion();
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
   const viewportCenter = useTransitStore((state) => state.viewportCenter);
   const viewportZoom = useTransitStore((state) => state.viewportZoom);
@@ -47,6 +49,10 @@ export function TransitMap() {
       attributionControl: false,
       minZoom: 8,
       maxZoom: 18,
+      // Reduced motion applies to the cartography too, not only to the chrome.
+      zoomAnimation: !shouldReduceMotion,
+      fadeAnimation: !shouldReduceMotion,
+      markerZoomAnimation: !shouldReduceMotion,
     });
 
     // Default Basemap Tile Layer
@@ -70,7 +76,15 @@ export function TransitMap() {
 
     map.on("moveend", handleMoveEnd);
 
+    // The map box follows the shell (the bottom navigation height is dynamic),
+    // so Leaflet has to be told when the container changed size.
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false });
+    });
+    resizeObserver.observe(mapContainerRef.current);
+
     return () => {
+      resizeObserver.disconnect();
       map.off("moveend", handleMoveEnd);
       map.remove();
       mapInstanceRef.current = null;
@@ -101,7 +115,7 @@ export function TransitMap() {
   }, [activeTileLayer]);
 
   return (
-    <div className="relative w-full h-full min-h-[500px] flex-1 bg-[#090d16] overflow-hidden select-none">
+    <div className="relative w-full h-full min-h-0 flex-1 bg-[#090d16] overflow-hidden select-none">
       {/* Map Container DOM element */}
       <div ref={mapContainerRef} className="w-full h-full leaflet-container" />
 

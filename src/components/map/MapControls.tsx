@@ -10,6 +10,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import L from "leaflet";
+import { useReducedMotion } from "framer-motion";
 import {
   Layers,
   Pause,
@@ -31,6 +32,7 @@ interface MapControlsProps {
 
 export function MapControls({ map }: MapControlsProps) {
   const { t } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const setSimulationSpeed = useTransitStore((state) => state.setSimulationSpeed);
   const activeTileLayer = useTransitStore((state) => state.activeTileLayer);
@@ -72,7 +74,7 @@ export function MapControls({ map }: MapControlsProps) {
 
   const handleRecenter = () => {
     if (map) {
-      map.setView(JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM, { animate: true });
+      map.setView(JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM, { animate: !shouldReduceMotion });
     }
     resetViewport();
   };

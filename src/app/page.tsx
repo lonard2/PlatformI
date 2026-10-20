@@ -338,7 +338,7 @@ export default function Home() {
       <DisruptionAlertBanner onOpenStatusDrawer={() => setActiveDrawer("alerts")} />
 
       {/* 4. MAIN CARTOGRAPHY VIEWPORT & FLOATING DRAWERS */}
-      <div className="flex-1 relative overflow-hidden flex">
+      <div className="flex-1 min-h-0 relative overflow-hidden flex">
         <DynamicMap />
 
         {/* Floating Journey Pill (above map, left side) */}

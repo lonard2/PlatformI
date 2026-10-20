@@ -12,6 +12,7 @@
 
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import { useReducedMotion } from "framer-motion";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 
@@ -20,6 +21,7 @@ interface JourneyLayerProps {
 }
 
 export function JourneyLayer({ map }: JourneyLayerProps) {
+  const shouldReduceMotion = useReducedMotion();
   const plannedJourney = useTransitStore((state) => state.plannedJourney);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
 
@@ -224,10 +226,10 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
       map.fitBounds(bounds, {
         padding: [90, 90],
         maxZoom: 15,
-        animate: true,
+        animate: !shouldReduceMotion,
       });
     }
-  }, [map, plannedJourney]);
+  }, [map, plannedJourney, shouldReduceMotion]);
 
   return null;
 }
