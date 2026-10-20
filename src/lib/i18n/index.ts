@@ -31,23 +31,31 @@ interface LanguageStoreState {
   setLanguage: (lang: SupportedLanguage) => void;
 }
 
+/** Applies the language and writing direction to the document root. */
+function applyDocumentLanguage(lang: SupportedLanguage): void {
+  if (typeof document === "undefined") return;
+  const meta = SUPPORTED_LANGUAGES.find((l) => l.code === lang);
+  if (!meta) return;
+  document.documentElement.dir = meta.dir;
+  document.documentElement.lang = meta.code;
+}
+
 export const useLanguageStore = create<LanguageStoreState>()(
   persist(
     (set) => ({
       language: "id",
       setLanguage: (lang: SupportedLanguage) => {
-        if (typeof document !== "undefined") {
-          const meta = SUPPORTED_LANGUAGES.find((l) => l.code === lang);
-          if (meta) {
-            document.documentElement.dir = meta.dir;
-            document.documentElement.lang = meta.code;
-          }
-        }
+        applyDocumentLanguage(lang);
         set({ language: lang });
       },
     }),
     {
       name: "platformi_preferred_language",
+      // Rehydrating a persisted language must re-apply the document language
+      // and direction, otherwise a reload keeps the previous document locale.
+      onRehydrateStorage: () => (state) => {
+        if (state) applyDocumentLanguage(state.language);
+      },
     }
   )
 );

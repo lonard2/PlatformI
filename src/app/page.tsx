@@ -43,7 +43,7 @@ import { useTranslation } from "@/lib/i18n";
 import { getHighestSeverity } from "@/lib/services/severityRollup";
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, formatCurrencyRp } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
@@ -551,7 +551,7 @@ export default function Home() {
                             <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.estFare}</div>
                             <div className="text-xs font-bold text-emerald-300 tabular-nums">
                               {plannedJourney.estimatedFareRp > 0
-                                ? `Rp ${plannedJourney.estimatedFareRp.toLocaleString("id-ID")}`
+                                ? formatCurrencyRp(plannedJourney.estimatedFareRp)
                                 : "-"}
                             </div>
                           </div>
