@@ -1195,26 +1195,22 @@ export function TransportationSystemBar() {
                                 {item.badgeLabel}
                               </span>
 
-                              {/* Live Operational Status Dot */}
+                              {/* Live Operational Status Dot + Label: the label always
+                                  renders so state is never carried by colour alone */}
                               <span
-                                role="img"
-                                aria-label={getLocalizedStatusPhrase(item.status, t)}
-                                title={getLocalizedStatusPhrase(item.status, t)}
+                                aria-hidden="true"
                                 className={`w-2 h-2 rounded-full shrink-0 ${item.status === "NORMAL" || item.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
                                 style={{
                                   backgroundColor: STATUS_COLORS[item.status].color,
                                   boxShadow: STATUS_COLORS[item.status].glow,
                                 }}
                               />
-                              {item.status !== "NORMAL" && (
-                                <span
-                                  aria-hidden="true"
-                                  className="text-[10px] font-mono font-bold shrink-0 whitespace-nowrap"
-                                  style={{ color: STATUS_COLORS[item.status].color }}
-                                >
-                                  {getShortStatusLabel(item.status, t)}
-                                </span>
-                              )}
+                              <span
+                                className="text-[10px] font-mono font-bold shrink-0 whitespace-nowrap"
+                                style={{ color: STATUS_COLORS[item.status].color }}
+                              >
+                                {getShortStatusLabel(item.status, t)}
+                              </span>
 
                               {item.type === "building_hub" ? (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
