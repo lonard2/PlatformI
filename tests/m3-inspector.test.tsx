@@ -246,7 +246,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       fireEvent.click(skybridgeTab);
 
       expect(screen.getByText(/CSW - ASEAN 5-Story Circular Skybridge/i)).toBeInTheDocument();
-      expect(screen.getByText(/Elevation: \+18.0 meters/i)).toBeInTheDocument();
+      expect(screen.getByText(/Elevasi: \+18,0 meter/i)).toBeInTheDocument();
     });
   });
 
@@ -259,7 +259,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
 
       render(<SkybridgeTransferGuide initialHubId="csw-asean" />);
       expect(screen.getByText(/CSW - ASEAN 5-Story Circular Skybridge/i)).toBeInTheDocument();
-      expect(screen.getByText(/MRT ASEAN Concourse to Skybridge North Gate/i)).toBeInTheDocument();
+      expect(screen.getByText(/Concourse MRT ASEAN ke Gerbang Utara Skybridge/i)).toBeInTheDocument();
     });
   });
 

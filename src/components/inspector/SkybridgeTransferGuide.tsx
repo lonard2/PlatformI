@@ -31,6 +31,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { localizeSkybridgeText } from "@/lib/transit/skybridgeTexts";
 
 export interface SkybridgeStep {
   stepNumber: number;
@@ -394,7 +395,7 @@ export function SkybridgeTransferGuide({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>{data.hubName.split(" ")[0]} Hub</span>
+              <span>{data.hubName.split(" ")[0]} {t.sky.sbHubWord}</span>
             </button>
           );
         })}
@@ -406,7 +407,7 @@ export function SkybridgeTransferGuide({
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 flex items-center gap-1">
               <Navigation className="w-3 h-3 text-cyan-400" />
-              Skybridge Vector Guide
+              {t.sky.sbVectorGuide}
             </span>
           </div>
           <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
@@ -414,7 +415,7 @@ export function SkybridgeTransferGuide({
           </h3>
           <p
             className="text-xs text-slate-400 font-mono"
-            dangerouslySetInnerHTML={{ __html: hubData.subtitle }}
+            dangerouslySetInnerHTML={{ __html: localizeSkybridgeText(hubData.subtitle, t) }}
           />
         </div>
 
@@ -423,24 +424,24 @@ export function SkybridgeTransferGuide({
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <Footprints className="w-4 h-4 text-cyan-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-slate-400 block">Distance</span>
-              <strong className="text-white">{hubData.totalDistanceMeters} meters</strong>
+              <span className="text-[10px] text-slate-400 block">{t.sky.sbDistance}</span>
+              <strong className="text-white">{t.sky.sbMeters.replace("{n}", String(hubData.totalDistanceMeters))}</strong>
             </div>
           </div>
 
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-slate-400 block">Est. Walk</span>
-              <strong className="text-emerald-400">{hubData.totalDurationMinutes} mins</strong>
+              <span className="text-[10px] text-slate-400 block">{t.sky.sbEstWalk}</span>
+              <strong className="text-emerald-400">{t.sky.sbMinutes.replace("{n}", String(hubData.totalDurationMinutes))}</strong>
             </div>
           </div>
 
           <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 col-span-2 sm:col-span-1 flex items-center gap-2">
             <Accessibility className="w-4 h-4 text-purple-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-slate-400 block">Access</span>
-              <strong className="text-purple-300">100% Barrier-Free</strong>
+              <span className="text-[10px] text-slate-400 block">{t.sky.sbAccess}</span>
+              <strong className="text-purple-300">{t.sky.sbBarrierFree}</strong>
             </div>
           </div>
         </div>
@@ -448,7 +449,7 @@ export function SkybridgeTransferGuide({
         {/* Connected Mode Badges */}
         <div className="space-y-1 pt-1">
           <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-            Connected Transit Lines:
+            {t.sky.sbConnectedLines}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {hubData.connectedModes.map((mode, idx) => (
@@ -467,7 +468,7 @@ export function SkybridgeTransferGuide({
         </div>
 
         <p className="text-xs text-slate-300 leading-relaxed pt-1 border-t border-slate-800/80">
-          {hubData.overviewDescription}
+          {localizeSkybridgeText(hubData.overviewDescription, t)}
         </p>
       </div>
 
@@ -475,7 +476,7 @@ export function SkybridgeTransferGuide({
       <div className="space-y-2.5">
         <h4 className="text-xs font-bold font-mono text-slate-300 uppercase tracking-wider flex items-center gap-2 px-1">
           <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Step-by-Step Walking Route ({hubData.steps.length} Nodes)</span>
+          <span>{t.sky.sbStepRoute.replace("{n}", String(hubData.steps.length))}</span>
         </h4>
 
         {hubData.steps.map((step) => {
@@ -509,7 +510,7 @@ export function SkybridgeTransferGuide({
 
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold text-white tracking-tight flex items-center gap-2">
-                      <span>{step.title}</span>
+                      <span>{localizeSkybridgeText(step.title, t)}</span>
                       {step.transitConnection && (
                         <span
                           className="px-1.5 py-0.2 rounded text-[10px] font-mono font-normal"
@@ -542,13 +543,13 @@ export function SkybridgeTransferGuide({
               {isExpanded && (
                 <div className="px-3.5 pb-3.5 pt-1 space-y-3 text-xs border-t border-slate-800/60 animate-fadeIn">
                   <p className="text-slate-300 leading-relaxed">
-                    {step.instructions}
+                    {localizeSkybridgeText(step.instructions, t)}
                   </p>
 
                   {/* Amenities on this step */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-                      Wayfinding Equipment & Amenities:
+                      {t.sky.sbWayfinding}
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {step.facilities.map((fac, idx) => (
@@ -557,7 +558,7 @@ export function SkybridgeTransferGuide({
                           className="px-2 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-[10px] text-slate-300 flex items-center gap-1"
                         >
                           <Sparkles className="w-2.5 h-2.5 text-cyan-400" />
-                          {fac}
+                          {localizeSkybridgeText(fac, t)}
                         </span>
                       ))}
                     </div>
@@ -573,13 +574,13 @@ export function SkybridgeTransferGuide({
       <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-1.5">
         <div className="flex items-center gap-2 text-xs font-semibold text-purple-300">
           <Accessibility className="w-4 h-4 text-purple-400" />
-          <span>Accessibility Guarantee & ADA Standards</span>
+          <span>{t.sky.sbGuarantee}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px] text-slate-300">
           {hubData.accessibilityFeatures.map((feat, idx) => (
             <div key={idx} className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>{feat}</span>
+              <span>{localizeSkybridgeText(feat, t)}</span>
             </div>
           ))}
         </div>
