@@ -9,7 +9,7 @@
 
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
-const PRESET_NOTE_KEY_BY_TRIP_CODE: Record<string, keyof TranslationDictionary["admin"]["runs"]> = {
+const PRESET_NOTE_KEY_BY_TRIP_CODE: Record<string, keyof TranslationDictionary["runs"]> = {
   G1012: "runNoteG1012",
   G1018: "runNoteG1018",
   "GA-404": "runNoteGA404",
@@ -28,7 +28,7 @@ export function getPresetRunNote(
   t: TranslationDictionary
 ): string | undefined {
   const key = PRESET_NOTE_KEY_BY_TRIP_CODE[tripCode];
-  return key ? t.admin.runs[key] : undefined;
+  return key ? t.runs[key] : undefined;
 }
 
 /**
@@ -43,40 +43,40 @@ export function localizeRunField(
   if (value === undefined) return undefined;
   switch (value) {
     case "Standard Regular":
-      return t.admin.runs.runClassStandard;
+      return t.runs.runClassStandard;
     case "Reguler Headway":
-      return t.admin.runs.runNotesRegular;
+      return t.runs.runNotesRegular;
     case "Dinas Malam Masuk Dipo":
-      return t.admin.runs.runClassNightDepot;
+      return t.runs.runClassNightDepot;
     case "Stasiun Awal":
-      return t.admin.runs.runStationFirst;
+      return t.runs.runStationFirst;
     case "Stasiun Akhir":
-      return t.admin.runs.runStationLast;
+      return t.runs.runStationLast;
     default:
       break;
   }
-  if (value === "Peron 1") return t.admin.runs.runBayPeron.replace("{n}", "1");
+  if (value === "Peron 1") return t.runs.runBayPeron.replace("{n}", "1");
 
   const between = value.match(/^Antara (.+) - (.+)$/);
   if (between) {
-    return t.admin.runs.runBetween.replace("{a}", between[1]).replace("{b}", between[2]);
+    return t.runs.runBetween.replace("{a}", between[1]).replace("{b}", between[2]);
   }
 
   const depotEntry = value.match(/^(.+) \(Masuk Dipo\)$/);
   if (depotEntry) {
-    return t.admin.runs.runDepotEntry.replace("{n}", depotEntry[1]);
+    return t.runs.runDepotEntry.replace("{n}", depotEntry[1]);
   }
 
   const nightNotes = value.match(/^Dinas Malam Masuk Dipo (.+) - Kereta Berakhir Lebih Awal$/);
   if (nightNotes) {
-    return t.admin.runs.runNightNotes.replace("{n}", nightNotes[1]);
+    return t.runs.runNightNotes.replace("{n}", nightNotes[1]);
   }
 
   const nightDesc = value.match(
     /^Perjalanan stabling\/dinas masuk dipo di (.+)\. Tidak melayani stasiun lanjutan\.$/
   );
   if (nightDesc) {
-    return t.admin.runs.runNightDesc.replace("{n}", nightDesc[1]);
+    return t.runs.runNightDesc.replace("{n}", nightDesc[1]);
   }
 
   return value;

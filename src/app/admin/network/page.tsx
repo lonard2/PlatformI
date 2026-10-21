@@ -317,7 +317,7 @@ export default function AdminNetworkStudioPage() {
       upsertLine(updatedLine);
       setStatusMessage({
         type: "success",
-        text: t.admin.netToastVertexMoved.replace("{n}", String(vertexIndex + 1)),
+        text: t.admin.netToastVertexMoved.replace("{n}", String(vertexIndex + 1)).replace("{save}", t.admin.netSaveDb).replace("{revert}", t.admin.netRevert),
       });
     },
     [selectedLine, upsertLine]
@@ -473,7 +473,7 @@ export default function AdminNetworkStudioPage() {
     upsertLine(updatedLine);
     setStatusMessage({
       type: "success",
-      text: t.admin.netToastSimplified.replace("{a}", String(initialCount)).replace("{b}", String(simplified.length)),
+      text: t.admin.netToastSimplified.replace("{a}", String(initialCount)).replace("{b}", String(simplified.length)).replace("{save}", t.admin.netSaveDb),
     });
   };
 
@@ -533,7 +533,7 @@ export default function AdminNetworkStudioPage() {
     setPreviewSmoothedLine(true);
     setStatusMessage({
       type: "success",
-      text: t.admin.netToastGenerated.replace("{count}", String(lineStops.length)),
+      text: t.admin.netToastGenerated.replace("{count}", String(lineStops.length)).replace("{apply}", t.admin.netApplyDb),
     });
   };
 
@@ -557,7 +557,7 @@ export default function AdminNetworkStudioPage() {
       setPreviewSmoothedLine(true);
       setStatusMessage({
         type: "success",
-        text: t.admin.netToastSnapped.replace("{n}", String(snapped.length)),
+        text: t.admin.netToastSnapped.replace("{n}", String(snapped.length)).replace("{apply}", t.admin.netApplyDb),
       });
     } catch {
       setStatusMessage({
