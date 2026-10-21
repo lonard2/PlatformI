@@ -368,6 +368,7 @@ export const en: TranslationDictionary = {
     boardEmpty: "No schedules match your search filter.",
     earlierDepartures: "Earlier departures",
     fullTimetable: "Full timetable",
+    scheduleAttribution: "Schedule data: PT Transportasi Jakarta",
     estPrefix: "Est:",
     totalFleetOnLine: "Fleet on Line:",
     trainsetUnit: "Trainset",

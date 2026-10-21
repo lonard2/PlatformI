@@ -368,6 +368,7 @@ export const ko: TranslationDictionary = {
     boardEmpty: "검색 필터와 일치하는 시간표가 없습니다.",
     earlierDepartures: "이전 출발",
     fullTimetable: "전체 시간표",
+    scheduleAttribution: "시간표 데이터: PT Transportasi Jakarta",
     estPrefix: "예정:",
     totalFleetOnLine: "노선 차량 총수:",
     trainsetUnit: "편성",

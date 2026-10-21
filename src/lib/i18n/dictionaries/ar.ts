@@ -368,6 +368,7 @@ export const ar: TranslationDictionary = {
     boardEmpty: "لا توجد جداول مطابقة لمرشح البحث.",
     earlierDepartures: "مغادرات سابقة",
     fullTimetable: "الجدول الكامل",
+    scheduleAttribution: "بيانات الجدول: PT Transportasi Jakarta",
     estPrefix: "التقديري:",
     totalFleetOnLine: "إجمالي أسطول الخط:",
     trainsetUnit: "قطار",

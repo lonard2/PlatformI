@@ -368,6 +368,7 @@ export const ja: TranslationDictionary = {
     boardEmpty: "検索フィルターに一致する時刻表はありません。",
     earlierDepartures: "出発済み",
     fullTimetable: "全時刻表",
+    scheduleAttribution: "ダイヤデータ: PT Transportasi Jakarta",
     estPrefix: "予想:",
     totalFleetOnLine: "路線の総車両数:",
     trainsetUnit: "編成",

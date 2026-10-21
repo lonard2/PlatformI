@@ -392,6 +392,7 @@ export interface TranslationDictionary {
     boardEmpty: string;
     earlierDepartures: string;
     fullTimetable: string;
+    scheduleAttribution: string;
     estPrefix: string;
     totalFleetOnLine: string;
     trainsetUnit: string;

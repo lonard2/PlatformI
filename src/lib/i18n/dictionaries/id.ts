@@ -368,6 +368,7 @@ export const id: TranslationDictionary = {
     boardEmpty: "Tidak ada jadwal yang sesuai dengan filter pencarian.",
     earlierDepartures: "Keberangkatan sebelumnya",
     fullTimetable: "Jadwal lengkap",
+    scheduleAttribution: "Data jadwal: PT Transportasi Jakarta",
     estPrefix: "Est:",
     totalFleetOnLine: "Total Armada Jalur:",
     trainsetUnit: "Trainset",

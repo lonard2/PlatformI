@@ -375,6 +375,7 @@ describe("Timetable overflow dialog grouping", () => {
     } = await import("../src/components/inspector/TimetableDialog");
     const { en } = await import("../src/lib/i18n/dictionaries/en");
     expect(en.hubInspector.fullTimetable).toBe("Full timetable");
+    expect(en.hubInspector.scheduleAttribution).toBe("Schedule data: PT Transportasi Jakarta");
 
     const mk = (tripId: string, lineCode: string, lineName: string) => ({
       tripId,

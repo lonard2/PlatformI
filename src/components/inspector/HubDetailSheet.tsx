@@ -1035,6 +1035,9 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     <span>{t.hubInspector.liveTelemetry}</span>
                   </span>
                 </div>
+                <div className="text-[10px] font-mono text-slate-500 px-1 -mt-0.5">
+                  {t.hubInspector.scheduleAttribution}
+                </div>
 
                 {pastDepartures.length > 0 && (
                   <button

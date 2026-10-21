@@ -368,6 +368,7 @@ export const zh: TranslationDictionary = {
     boardEmpty: "没有符合搜索筛选条件的时刻表。",
     earlierDepartures: "已发车班次",
     fullTimetable: "完整时刻表",
+    scheduleAttribution: "时刻表数据: PT Transportasi Jakarta",
     estPrefix: "预计:",
     totalFleetOnLine: "线路车队总数:",
     trainsetUnit: "列车组",
