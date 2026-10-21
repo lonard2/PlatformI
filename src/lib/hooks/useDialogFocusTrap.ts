@@ -16,12 +16,19 @@ interface UseDialogFocusTrapOptions {
   isOpen: boolean;
   onClose: () => void;
   autoFocus?: boolean;
+  /**
+   * Temporarily detaches Escape dismissal, autofocus, and the document-level
+   * Tab guard (e.g. while a nested dialog layered above owns the keyboard).
+   * The container-level Tab cycler stays available to its own onKeyDown.
+   */
+  paused?: boolean;
 }
 
 export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
   isOpen,
   onClose,
   autoFocus = true,
+  paused = false,
 }: UseDialogFocusTrapOptions) {
   const containerRef = useRef<T | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -47,7 +54,7 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
 
   // 2. Escape key dismissal
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || paused) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -58,7 +65,7 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, paused]);
 
   // 3. Focus cycling trap (Tab & Shift+Tab)
   const handleTrapKeyDown = useCallback((e: React.KeyboardEvent | KeyboardEvent) => {
@@ -94,7 +101,7 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
 
   // 3b. Document-level Tab listener to prevent focus leak outside container
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || paused) return;
 
     const handleDocumentTab = (e: KeyboardEvent) => {
       if (e.key === "Tab") {
@@ -108,7 +115,7 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
 
   // 4. Initial autofocus
   useEffect(() => {
-    if (!isOpen || !autoFocus || !containerRef.current) return;
+    if (!isOpen || paused || !autoFocus || !containerRef.current) return;
 
     const focusables = containerRef.current.querySelectorAll<HTMLElement>(
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -119,7 +126,7 @@ export function useDialogFocusTrap<T extends HTMLElement = HTMLDivElement>({
     } else {
       containerRef.current.focus();
     }
-  }, [isOpen, autoFocus]);
+  }, [isOpen, paused, autoFocus]);
 
   return {
     containerRef,

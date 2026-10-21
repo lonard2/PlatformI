@@ -367,6 +367,7 @@ export const en: TranslationDictionary = {
     liveTelemetry: "Live GPS Telemetry",
     boardEmpty: "No schedules match your search filter.",
     earlierDepartures: "Earlier departures",
+    fullTimetable: "Full timetable",
     estPrefix: "Est:",
     totalFleetOnLine: "Fleet on Line:",
     trainsetUnit: "Trainset",

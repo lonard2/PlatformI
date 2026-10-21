@@ -55,6 +55,7 @@ import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
+import { TimetableDialog, TIMETABLE_OVERFLOW_THRESHOLD } from "./TimetableDialog";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
@@ -678,6 +679,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const [departureSearch, setDepartureSearch] = useState<string>("");
   const [expandedTripId, setExpandedTripId] = useState<string | null>(null);
   const [showEarlier, setShowEarlier] = useState(false);
+  const [timetableOpen, setTimetableOpen] = useState(false);
 
   const destinationGroups = stop ? HUB_DESTINATIONS_DATA[stop.id] || null : null;
   const [selectedGroupId, setSelectedGroupId] = useState<string>(
@@ -760,10 +762,21 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
     }
   }, [onClose, clearSelection]);
 
+  const handleSheetDismiss = useCallback(() => {
+    // The overflow dialog attaches its own Escape/trap handlers after the
+    // sheet's; Escape must close the topmost layer only, never the sheet.
+    if (timetableOpen) {
+      setTimetableOpen(false);
+      return;
+    }
+    handleClose();
+  }, [timetableOpen, handleClose]);
+
   const { containerRef, handleTrapKeyDown } = useDialogFocusTrap<HTMLElement>({
     isOpen: Boolean(stop),
-    onClose: handleClose,
+    onClose: handleSheetDismiss,
     autoFocus: false,
+    paused: timetableOpen,
   });
 
   const handleTrackVehicle = (item: DepartureBoardItem) => {
@@ -1031,6 +1044,15 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                   >
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showEarlier ? "rotate-180" : ""}`} />
                     <span>{t.hubInspector.earlierDepartures} ({pastDepartures.length})</span>
+                  </button>
+                )}
+
+                {filteredDepartures.length > TIMETABLE_OVERFLOW_THRESHOLD && (
+                  <button
+                    onClick={() => setTimetableOpen(true)}
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-cyan-500/40 bg-cyan-950/40 text-[11px] font-mono text-cyan-300 hover:text-cyan-100 hover:border-cyan-400/60 transition"
+                  >
+                    <span>{t.hubInspector.fullTimetable} ({filteredDepartures.length})</span>
                   </button>
                 )}
 
@@ -1515,6 +1537,13 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           </div>
         </motion.aside>
       </div>
+      <TimetableDialog
+        open={timetableOpen}
+        onClose={() => setTimetableOpen(false)}
+        departures={filteredDepartures}
+        lines={allLines}
+        t={t}
+      />
     </AnimatePresence>
   );
 }

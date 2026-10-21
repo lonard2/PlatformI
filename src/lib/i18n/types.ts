@@ -391,6 +391,7 @@ export interface TranslationDictionary {
     liveTelemetry: string;
     boardEmpty: string;
     earlierDepartures: string;
+    fullTimetable: string;
     estPrefix: string;
     totalFleetOnLine: string;
     trainsetUnit: string;

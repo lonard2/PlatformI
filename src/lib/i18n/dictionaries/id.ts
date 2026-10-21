@@ -367,6 +367,7 @@ export const id: TranslationDictionary = {
     liveTelemetry: "Telemetri GPS Langsung",
     boardEmpty: "Tidak ada jadwal yang sesuai dengan filter pencarian.",
     earlierDepartures: "Keberangkatan sebelumnya",
+    fullTimetable: "Jadwal lengkap",
     estPrefix: "Est:",
     totalFleetOnLine: "Total Armada Jalur:",
     trainsetUnit: "Trainset",

@@ -365,3 +365,45 @@ describe("Adaptive departure board (scale, past rows, window clipping)", () => {
     expect(idDictionary.hubInspector.earlierDepartures).toBeTruthy();
   });
 });
+
+describe("Timetable overflow dialog grouping", () => {
+  it("groups capped rows by line in first-appearance order", async () => {
+    const {
+      groupTimetableByLine,
+      TIMETABLE_DIALOG_ROW_CAP,
+      TIMETABLE_OVERFLOW_THRESHOLD,
+    } = await import("../src/components/inspector/TimetableDialog");
+    const { en } = await import("../src/lib/i18n/dictionaries/en");
+    expect(en.hubInspector.fullTimetable).toBe("Full timetable");
+
+    const mk = (tripId: string, lineCode: string, lineName: string) => ({
+      tripId,
+      lineCode,
+      lineName,
+      destination: `${lineCode} dest`,
+      mode: "TRANSJAKARTA_BRT",
+      scheduledTime: "10.00",
+      estimatedTime: "10.00",
+      status: "ON_TIME",
+      platform: "Bay 1",
+      crowdLevel: "LEVEL_2_FEW_SEATS",
+    });
+
+    const rows = [mk("t1", "1", "Koridor 1"), mk("t2", "2", "Koridor 2"), mk("t3", "1", "Koridor 1")];
+    const groups = groupTimetableByLine(rows as never, [
+      { code: "1", colorHex: "#FF0000" },
+      { code: "2", colorHex: "#00FF00" },
+    ] as never);
+    expect(groups.map((g) => g.lineCode)).toEqual(["1", "2"]);
+    expect(groups[0].items.map((i) => i.tripId)).toEqual(["t1", "t3"]);
+    expect(groups[0].colorHex).toBe("#FF0000");
+
+    const many = Array.from({ length: TIMETABLE_DIALOG_ROW_CAP + 15 }, (_, i) =>
+      mk(`t${i}`, "1", "Koridor 1")
+    );
+    expect(groupTimetableByLine(many as never, [] as never)[0].items.length).toBe(
+      TIMETABLE_DIALOG_ROW_CAP
+    );
+    expect(TIMETABLE_OVERFLOW_THRESHOLD).toBe(20);
+  });
+});
