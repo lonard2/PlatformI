@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Vehicle, PhotoGalleryItem, TransitMode } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
+import { getPhotoTagLabel } from "@/lib/transit/vehicleLabels";
 
 interface VehiclePhotoGalleryProps {
   vehicle: Vehicle;
@@ -263,14 +264,14 @@ export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
           <>
             <button
               onClick={handlePrev}
-              aria-label="Previous photo"
+              aria-label={t.vehicle.photoPrev}
               className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-950/70 border border-white/20 text-white flex items-center justify-center hover:bg-cyan-600 transition-colors backdrop-blur-md z-10"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleNext}
-              aria-label="Next photo"
+              aria-label={t.vehicle.photoNext}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-950/70 border border-white/20 text-white flex items-center justify-center hover:bg-cyan-600 transition-colors backdrop-blur-md z-10"
             >
               <ChevronRight className="w-4 h-4" />
@@ -282,7 +283,7 @@ export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
           <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-950/80 border border-cyan-500/40 text-cyan-300 backdrop-blur-md flex items-center gap-1.5">
             <Tag className="w-3 h-3 text-cyan-400" />
-            {activePhoto.tag.replace(/_/g, " ")}
+            {getPhotoTagLabel(activePhoto.tag, t)}
           </span>
 
           <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-950/80 border border-slate-700 text-slate-300 backdrop-blur-md">
@@ -298,7 +299,7 @@ export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
           <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
             <div className="flex items-center gap-1.5 text-slate-300">
               <Camera className="w-3 h-3 text-amber-400" />
-              <span>Photo by <strong className="text-white">{activePhoto.photographer}</strong></span>
+              <span>{t.vehicle.photoBy} <strong className="text-white">{activePhoto.photographer}</strong></span>
               <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
             </div>
             <div className="flex items-center gap-1 text-slate-400">

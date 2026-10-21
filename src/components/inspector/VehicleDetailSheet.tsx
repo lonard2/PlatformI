@@ -34,6 +34,7 @@ import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
+import { getFareFallbackLabel } from "@/lib/transit/vehicleLabels";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
@@ -164,7 +165,7 @@ function getFareStructureLabel(fareType: FareStructureType, t: TranslationDictio
     case "DYNAMIC_TIERED":
       return t.vehicleInspector.fareDynamicTiered;
     default:
-      return fareType;
+      return getFareFallbackLabel(fareType, t);
   }
 }
 

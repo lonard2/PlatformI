@@ -41,6 +41,7 @@ import {
   TransitMode,
 } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
+import { getSeatTypeLabel, getFeatureLabel } from "@/lib/transit/vehicleLabels";
 import {
   generateSleeper111Seats,
   generateSuperExec21Seats,
@@ -423,7 +424,7 @@ export function VehicleSeatingDiagram({
       <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-xs font-mono">
           <div>
-            <span className="text-slate-400 block text-[10px]">{t.vehicleInspector.totalPrefix} {t.vehicleInspector.seatsLabel}</span>
+            <span className="text-slate-400 block text-[10px]">{t.vehicle.seatsTotal}</span>
             <strong className="text-white">{totalSeatsCount} {t.vehicleInspector.seatsUnit}</strong>
           </div>
           <div>
@@ -505,7 +506,7 @@ export function VehicleSeatingDiagram({
                   aria-disabled="true"
                   aria-pressed="false"
                   aria-label={`${t.vehicleInspector.seat} ${seat.id} - ${t.vehicleInspector.occupied}`}
-                  title={`${t.vehicleInspector.seat} ${seat.id} - ${seat.type}`}
+                  title={`${t.vehicleInspector.seat} ${seat.id} - ${getSeatTypeLabel(seat.type, t)}`}
                   style={{
                     position: "absolute",
                     left: `${seat.x}%`,
@@ -569,7 +570,7 @@ export function VehicleSeatingDiagram({
                 {t.vehicleInspector.seat} #{selectedSeat.id}
               </span>
               <span className="text-xs text-cyan-300 font-medium">
-                {selectedSeat.type.replace(/_/g, " ")}
+                {getSeatTypeLabel(selectedSeat.type, t)}
               </span>
             </div>
             <span
@@ -589,7 +590,7 @@ export function VehicleSeatingDiagram({
                 key={fIdx}
                 className="px-2 py-0.5 rounded bg-slate-950 text-[10px] text-slate-300 font-mono border border-slate-800"
               >
-                {feature.replace(/_/g, " ")}
+                {getFeatureLabel(feature, t)}
               </span>
             ))}
           </div>

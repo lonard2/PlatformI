@@ -155,14 +155,14 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       };
       render(<VehiclePhotoGallery vehicle={multiPhotoVehicle} />);
 
-      expect(screen.getByText(/Photo by/i)).toBeInTheDocument();
+      expect(screen.getByText(/Foto oleh|Photo by/i)).toBeInTheDocument();
 
       // Test next/prev photo buttons
-      const nextBtn = screen.getByLabelText(/Next photo/i);
+      const nextBtn = screen.getByLabelText(/Foto berikutnya|Next photo/i);
       expect(nextBtn).toBeInTheDocument();
       fireEvent.click(nextBtn);
 
-      const prevBtn = screen.getByLabelText(/Previous photo/i);
+      const prevBtn = screen.getByLabelText(/Foto sebelumnya|Previous photo/i);
       expect(prevBtn).toBeInTheDocument();
       fireEvent.click(prevBtn);
     });

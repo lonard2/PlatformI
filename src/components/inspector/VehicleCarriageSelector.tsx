@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { Vehicle, VehicleCarriageTelemetry } from "@/types/transit";
 import { getOccupancyColor, OCCUPANCY_BANDS } from "@/lib/vehicle/occupancy";
+import { getAcStatusLabel } from "@/lib/transit/vehicleLabels";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
@@ -1112,7 +1113,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
               {t.vehicleInspector.acComfort}
             </span>
             <strong className="text-emerald-300 font-bold">
-              {selectedCar.acTemperatureC.toFixed(1)}&deg;C ({selectedCar.acStatus})
+              {selectedCar.acTemperatureC.toFixed(1)}&deg;C ({getAcStatusLabel(selectedCar.acStatus, t)})
             </strong>
           </div>
 

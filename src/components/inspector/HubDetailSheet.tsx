@@ -55,6 +55,7 @@ import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 import { localizeRunField, getPresetRunNote } from "@/lib/transit/runTexts";
+import { getStationTypeLabel } from "@/lib/transit/stationLabels";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
 import { TimetableDialog, TIMETABLE_OVERFLOW_THRESHOLD } from "./TimetableDialog";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
@@ -863,9 +864,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                         : "bg-slate-800/80 border-slate-700 text-slate-300"
                     }`}
                   >
-                    {stop.stationType === "BUS_POLE"
-                      ? "Rambu Bus Stop (Plang Tiang)"
-                      : stop.stationType.replace(/_/g, " ")}
+                    {getStationTypeLabel(stop.stationType, t)}
                   </span>
                 )}
               </div>
