@@ -717,6 +717,20 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 tabIndex={-1}
                 className="flex-1 flex flex-col overflow-hidden p-4 space-y-3.5"
               >
+                {/* Status legend: the dot language used across the rail, always visible */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 shrink-0" aria-hidden="true">
+                  {[
+                    { color: "#10b981", label: t.navigation.serviceNormal },
+                    { color: "#f59e0b", label: t.navigation.serviceLimited },
+                    { color: "#f43f5e", label: t.navigation.serviceSuspended },
+                    { color: "#64748b", label: t.navigation.serviceOffHours },
+                  ].map((item) => (
+                    <span key={item.label} className="flex items-center gap-1 text-[10px] font-mono text-slate-400">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
                 {fetchFailed && (
                   <div className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-300 text-[11px] font-mono shrink-0">
                     <span className="flex items-center gap-1.5">
