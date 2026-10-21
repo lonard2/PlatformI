@@ -87,6 +87,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleSeatingDiagram vehicle={rosaliaVehicle} />);
 
       expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /Tampilkan kursi/i }));
       expect(screen.getByText(/ARAH DEPAN/i)).toBeInTheDocument();
 
       // Click seat 1A to inspect
@@ -103,6 +104,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleSeatingDiagram vehicle={whooshVehicle} />);
 
       expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /Tampilkan kursi/i }));
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();
@@ -125,6 +127,7 @@ describe("Milestone 3: Enthusiast Vehicle Inspector & Hub Boards", () => {
       render(<VehicleSeatingDiagram vehicle={hiaceVehicle} />);
 
       expect(screen.getByText(/Total Kursi:|Total Tempat Duduk:/i)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /Tampilkan kursi/i }));
 
       const seat1A = screen.getByText("1A");
       expect(seat1A).toBeInTheDocument();

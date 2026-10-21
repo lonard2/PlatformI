@@ -377,6 +377,9 @@ export function VehicleSeatingDiagram({
   const [activeDeck, setActiveDeck] = useState<SeatDeck>("SINGLE");
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [userSelectedSeatIds, setUserSelectedSeatIds] = useState<string[]>([]);
+  // Seat matrix stays collapsed until requested: the stats bar above already
+  // answers "is there space", and the full enthusiast matrix is one tap away.
+  const [showSeatMap, setShowSeatMap] = useState(false);
 
   const diagram = initialDiagram;
   const filteredSeats = diagram.seats.filter(
@@ -460,6 +463,19 @@ export function VehicleSeatingDiagram({
         )}
       </div>
 
+      {/* 1b. SEAT MAP DISCLOSURE */}
+      <button
+        onClick={() => setShowSeatMap(!showSeatMap)}
+        aria-expanded={showSeatMap}
+        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-800 bg-slate-900/50 text-[11px] font-mono text-slate-400 hover:text-slate-200 hover:border-slate-700 transition"
+      >
+        <span>
+          {showSeatMap ? t.vehicleInspector.hideSeats : t.vehicleInspector.showSeats} ({filteredSeats.length})
+        </span>
+      </button>
+
+      {showSeatMap && (
+      <>
       {/* 2. SVG INTERACTIVE CABIN SEATING PLAN */}
       <div className="p-4 bg-[#070b14] rounded-2xl border border-slate-800/90 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
         {/* Front of Vehicle Indicator */}
@@ -550,6 +566,8 @@ export function VehicleSeatingDiagram({
             ))}
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

@@ -297,6 +297,11 @@ export interface TranslationDictionary {
     seatsFreeSuffix: string;
     deckLower: string;
     deckUpper: string;
+    emptiest: string;
+    showSeats: string;
+    hideSeats: string;
+    prevCar: string;
+    nextCar: string;
     diagramTrain: string;
     diagramDecks: string;
     diagramBusZones: string;

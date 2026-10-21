@@ -485,10 +485,27 @@ function getVehicleCarriages(vehicle: Vehicle, t: TranslationDictionary): Vehicl
   ];
 }
 
+/**
+ * Returns the carIndex of the least-occupied carriage (first on ties),
+ * falling back to 1 for an empty formation.
+ */
+export function findEmptiestCarIndex(
+  carriages: Array<{ carIndex: number; occupancyPercent: number }>
+): number {
+  if (carriages.length === 0) return 1;
+  let best = carriages[0];
+  for (const car of carriages) {
+    if (car.occupancyPercent < best.occupancyPercent) best = car;
+  }
+  return best.carIndex;
+}
+
 export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProps) {
   const { t } = useTranslation();
   const carriages = getVehicleCarriages(vehicle, t);
-  const [selectedCarIndex, setSelectedCarIndex] = useState<number>(1);
+  const [selectedCarIndex, setSelectedCarIndex] = useState<number>(() =>
+    findEmptiestCarIndex(carriages)
+  );
   const [isFitMode, setIsFitMode] = useState<boolean>(false);
   const scrollCanvasRef = useRef<HTMLDivElement | null>(null);
 
@@ -538,6 +555,17 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
     if (isShip) return `D${carIdx}`;
     if (isAviation) return `Z${carIdx}`;
     return `Z${carIdx}`;
+  };
+
+  // Stepper order follows the formation; wraps at both ends.
+  const selectedPosition = Math.max(
+    0,
+    carriages.findIndex((c) => c.carIndex === selectedCar.carIndex)
+  );
+  const stepTo = (delta: number) => {
+    const next =
+      carriages[(selectedPosition + delta + carriages.length) % carriages.length];
+    if (next) setSelectedCarIndex(next.carIndex);
   };
 
   const handleScrollLeft = () => {
@@ -912,6 +940,41 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
             })}
           </svg>
         </div>
+      </div>
+
+      {/* 2b. CAR STEPPER: one boarding decision at a time */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <button
+          onClick={() => stepTo(-1)}
+          aria-label={t.vehicleInspector.prevCar}
+          className="p-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/50 transition shrink-0"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <div aria-live="polite" className="text-center font-mono min-w-0 flex-1">
+          <span className="text-sm font-bold text-white">
+            {getPrefixLabel(selectedCar.carIndex)} / {totalCars}
+          </span>
+          <span className="text-[11px] text-slate-400"> · {selectedCar.occupancyPercent}%</span>
+          {selectedCar.carIndex === findEmptiestCarIndex(carriages) && (
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 border border-emerald-500/40 text-emerald-400">
+              {t.vehicleInspector.emptiest}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => setSelectedCarIndex(findEmptiestCarIndex(carriages))}
+          className="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 text-[11px] font-mono font-bold text-emerald-300 hover:text-emerald-100 hover:border-emerald-400/60 transition shrink-0"
+        >
+          {t.vehicleInspector.emptiest}
+        </button>
+        <button
+          onClick={() => stepTo(1)}
+          aria-label={t.vehicleInspector.nextCar}
+          className="p-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/50 transition shrink-0"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
 
       {/* 3. HORIZONTAL QUICK-SELECTION PILLS */}
