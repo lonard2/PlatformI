@@ -81,9 +81,9 @@ export const ar: TranslationDictionary = {
     nextAlert: "التنبيه التالي",
     alertDismissed: "تم إخفاء التنبيه",
     dismissAlert: "تجاهل التنبيه",
-    syncCartography: "مزامنة الخرائط الإقليمية",
-    initEngine: "جارٍ تهيئة محرك الخرائط متعدد الأنماط",
-    loadingMapCopy: "جارٍ تحميل خطوط النقل المتجهة لجابوديتابيك ومنارات المراكز الذكية وقياسات الأسطول في الوقت الفعلي...",
+    syncCartography: "جارٍ تجهيز خريطة النقل",
+    initEngine: "جارٍ تحميل خريطة النقل في جاكرتا",
+    loadingMapCopy: "المسارات والمحطات والمركبات المباشرة في الطريق إليك.",
   },
   navigation: {
     tabMap: "الخريطة",

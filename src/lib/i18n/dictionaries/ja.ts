@@ -81,9 +81,9 @@ export const ja: TranslationDictionary = {
     nextAlert: "次の通知",
     alertDismissed: "アラートを非表示にしました",
     dismissAlert: "アラートを非表示",
-    syncCartography: "地域カートグラフィを同期中",
-    initEngine: "マルチモーダル地図エンジンを初期化中",
-    loadingMapCopy: "ジャボデタベック交通のベクトル路線、スマートハブビーコン、リアルタイム車両テレメトリを読み込み中...",
+    syncCartography: "交通マップを準備しています",
+    initEngine: "ジャカルタ交通マップを読み込み中",
+    loadingMapCopy: "路線、駅、リアルタイムの車両を読み込んでいます。",
   },
   navigation: {
     tabMap: "地図",

@@ -81,9 +81,9 @@ export const zh: TranslationDictionary = {
     nextAlert: "下一条提醒",
     alertDismissed: "提醒已隐藏",
     dismissAlert: "忽略提醒",
-    syncCartography: "正在同步区域地图",
-    initEngine: "正在初始化多模式地图引擎",
-    loadingMapCopy: "正在加载雅加达都市圈交通矢量线路、智能枢纽信标和实时车队遥测数据...",
+    syncCartography: "正在准备交通地图",
+    initEngine: "正在加载雅加达交通地图",
+    loadingMapCopy: "路线、车站和实时车辆即将呈现。",
   },
   navigation: {
     tabMap: "地图",

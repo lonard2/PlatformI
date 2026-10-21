@@ -81,9 +81,9 @@ export const ko: TranslationDictionary = {
     nextAlert: "다음 알림",
     alertDismissed: "알림 숨김",
     dismissAlert: "알림 닫기",
-    syncCartography: "지역 지도 데이터 동기화 중",
-    initEngine: "멀티모달 지도 엔진 초기화 중",
-    loadingMapCopy: "자보데타베크 대중교통 벡터 노선, 스마트 허브 비콘, 실시간 차량 텔레메트리를 불러오는 중...",
+    syncCartography: "교통 지도를 준비하고 있습니다",
+    initEngine: "자카르타 교통 지도 불러오는 중",
+    loadingMapCopy: "노선, 정류장, 실시간 차량 정보를 불러오고 있습니다.",
   },
   navigation: {
     tabMap: "지도",

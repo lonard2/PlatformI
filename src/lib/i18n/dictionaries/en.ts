@@ -81,9 +81,9 @@ export const en: TranslationDictionary = {
     nextAlert: "Next alert",
     alertDismissed: "Alert hidden",
     dismissAlert: "Dismiss alert",
-    syncCartography: "Synchronizing Regional Cartography",
-    initEngine: "Initializing Multimodal Cartography Engine",
-    loadingMapCopy: "Loading Jabodetabek transit vector polylines, smart hub beacons, and real-time fleet telemetry...",
+    syncCartography: "Preparing your transit map",
+    initEngine: "Loading the Jakarta transit map",
+    loadingMapCopy: "Routes, stations, and live vehicles are on their way.",
   },
   navigation: {
     tabMap: "Map",

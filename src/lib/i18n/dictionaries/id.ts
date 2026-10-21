@@ -81,9 +81,9 @@ export const id: TranslationDictionary = {
     nextAlert: "Peringatan berikutnya",
     alertDismissed: "Pemberitahuan disembunyikan",
     dismissAlert: "Abaikan pemberitahuan",
-    syncCartography: "Sinkronisasi Kartografi Regional",
-    initEngine: "Menginisialisasi Mesin Kartografi Multimoda",
-    loadingMapCopy: "Memuat polyline vektor transit Jabodetabek, beacon hub pintar, dan telemetri armada waktu nyata...",
+    syncCartography: "Menyiapkan peta transit",
+    initEngine: "Memuat peta transit Jakarta",
+    loadingMapCopy: "Rute, stasiun, dan kendaraan langsung segera tampil.",
   },
   navigation: {
     tabMap: "Peta",
