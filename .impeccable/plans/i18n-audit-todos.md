@@ -32,3 +32,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - Batch D1: fixed duplicate admin sections (dict merge was correct; types had two — merged into the pre-existing 200-key block). Note: admin section already covered dashboard/scanner/shiftLog surfaces.
 - Batch D2a: network page chrome+toasts+confirms wired (~110 keys). Detector: same 3 pre-existing 9px advisories as base.
 - Batch D2b: timetables page + batch modal wired (~120 keys incl. weekdayShort, preset notes, batch generator). Detector: check below.
+- Batch D2c: run-text mapper + preset notes (runs section). R9 SIMULATION_SPEED dead, untouched. R10 layout metadata stays EN (no server locale). R11 modes description/headwayText/operatingHours dead, untouched. R12 fareDescription tariff formulas exempt as operator data. R13 preset labels stay identifiers; preset notes localized at apply.

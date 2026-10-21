@@ -1085,6 +1085,28 @@ export interface TranslationDictionary {
     layoutExecHighway: string;
     layoutShuttleVip: string;
     layoutCommuterBench: string;
+  runs: {
+    runClassStandard: string;
+    runNotesRegular: string;
+    runClassNightDepot: string;
+    runStationFirst: string;
+    runStationLast: string;
+    runBetween: string;
+    runNightNotes: string;
+    runNightDesc: string;
+    runDepotEntry: string;
+    runBayPeron: string;
+    runNoteG1012: string;
+    runNoteG1018: string;
+    runNoteGA404: string;
+    runNoteGA312: string;
+    runNoteKA01: string;
+    runNoteA04: string;
+    runNoteDT101: string;
+    runNoteTJ108: string;
+    runNoteSB08: string;
+    runNoteM101: string;
+  };
     tbOverwriting: string;
     tbConfirmOverwrite: string;
     tbGenerating: string;

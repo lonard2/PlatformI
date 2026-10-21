@@ -54,6 +54,7 @@ import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
+import { localizeRunField, getPresetRunNote } from "@/lib/transit/runTexts";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
 import { TimetableDialog, TIMETABLE_OVERFLOW_THRESHOLD } from "./TimetableDialog";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
@@ -620,10 +621,10 @@ export function generateDepartureBoard(
           crowdLevel: "LEVEL_2_FEW_SEATS",
           runNumber: run.tripCode,
           operatorName: run.operatorName,
-          gateOrBay: run.gateOrBay,
-          serviceClass: run.serviceClass,
+          gateOrBay: localizeRunField(run.gateOrBay, t) ?? run.gateOrBay,
+          serviceClass: localizeRunField(run.serviceClass, t) ?? run.serviceClass,
           baggageBelt: run.baggageBelt,
-          notes: run.notes,
+          notes: getPresetRunNote(run.tripCode, t) ?? localizeRunField(run.notes, t) ?? run.notes,
           transitStopsSummary: `${run.origin} -> ${run.destination}`,
           vehicleCode: run.tripCode,
           tripType: run.tripType,
