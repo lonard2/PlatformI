@@ -267,7 +267,13 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
               title={currentAlert.title}
               className="touch-target flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-900/95 px-2.5 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
             >
-              <span className={`w-2 h-2 rounded-full ${badgeConfig.pulseColor}`} aria-hidden="true" />
+              <span className="relative flex items-center justify-center" aria-hidden="true">
+                <span
+                  className={`animate-ping motion-reduce:animate-none absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
+                  style={{ animationIterationCount: 1 }}
+                />
+                <span className={`w-2 h-2 rounded-full ${badgeConfig.pulseColor}`} />
+              </span>
               <span className="text-[11px] font-mono font-bold text-slate-300">{activeAlerts.length}</span>
             </button>
           </motion.div>
