@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { resolvePlannedJourney, findMatchingStop, journeyHasRoute } from "@/lib/services/journeyPlanner";
+import { resolvePlannedJourney, findMatchingStop, journeyHasRoute, getStopSuggestions } from "@/lib/services/journeyPlanner";
 import { CheckInModal } from "@/components/crowdsource/CheckInModal";
 import { CommunityLiveFeed } from "@/components/crowdsource/CommunityLiveFeed";
 import { DigitalPassWallet } from "@/components/ticketing/DigitalPassWallet";
@@ -87,6 +87,10 @@ export default function Home() {
   const [journeyOrigin, setJourneyOrigin] = useState<string>("");
   const [journeyDest, setJourneyDest] = useState<string>("");
   const [journeyQuery, setJourneyQuery] = useState<string | null>(null);
+  const [originOpen, setOriginOpen] = useState<boolean>(false);
+  const [destOpen, setDestOpen] = useState<boolean>(false);
+  const [originActive, setOriginActive] = useState<number>(-1);
+  const [destActive, setDestActive] = useState<number>(-1);
   const journeyPanelRef = useRef<HTMLDivElement>(null);
   const journeyPillRef = useRef<HTMLButtonElement>(null);
   const shouldRestorePillFocus = useRef<boolean>(false);
@@ -189,15 +193,16 @@ export default function Home() {
     clearPlannedJourney();
   };
 
-  // Stop universe for the journey autocomplete: only stops that belong to a
-  // known line, deduplicated, A-Z. Stops without a line are map-only.
-  const stopNames = useMemo(() => {
-    const knownLineIds = new Set(allLines.map((l) => l.id));
-    const names = allStops
-      .filter((s) => knownLineIds.has(s.lineId))
-      .map((s) => s.name);
-    return Array.from(new Set(names)).sort();
-  }, [allStops, allLines]);
+  // Ranked suggestions: prefix matches outrank substring matches so
+  // Halim-type collisions resolve to a visible list, not a silent pick.
+  const originSuggestions = useMemo(
+    () => getStopSuggestions(journeyOrigin, allStops, allLines),
+    [journeyOrigin, allStops, allLines]
+  );
+  const destSuggestions = useMemo(
+    () => getStopSuggestions(journeyDest, allStops, allLines),
+    [journeyDest, allStops, allLines]
+  );
 
   // Honest coverage: how many of the advertised lines actually carry stop
   // data the planner can route between.
@@ -410,12 +415,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                <datalist id="stop-names">
-                  {stopNames.map((name) => (
-                    <option key={name} value={name} />
-                  ))}
-                </datalist>
-
                 <div className="space-y-1.5 relative">
                   {/* Origin Field */}
                   <div className="relative">
@@ -428,17 +427,82 @@ export default function Home() {
                     <input
                       id="journey-origin"
                       name="journey-origin"
-                      list="stop-names"
+                      role="combobox"
+                      aria-expanded={originOpen && originSuggestions.length > 0}
+                      aria-controls="journey-origin-listbox"
+                      aria-activedescendant={originActive >= 0 ? `journey-origin-opt-${originActive}` : undefined}
+                      autoComplete="off"
                       type="text"
                       placeholder={t.common.origin}
                       value={journeyOrigin}
-                      onChange={(e) => setJourneyOrigin(e.target.value)}
+                      onChange={(e) => {
+                        setJourneyOrigin(e.target.value);
+                        setOriginActive(-1);
+                        setOriginOpen(true);
+                      }}
+                      onFocus={() => setOriginOpen(true)}
+                      onBlur={() => setTimeout(() => setOriginOpen(false), 120)}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowDown" && originSuggestions.length > 0) {
+                          e.preventDefault();
+                          setOriginOpen(true);
+                          setOriginActive((i) => (i + 1) % originSuggestions.length);
+                        } else if (e.key === "ArrowUp" && originSuggestions.length > 0) {
+                          e.preventDefault();
+                          setOriginActive((i) => (i - 1 + originSuggestions.length) % originSuggestions.length);
+                        } else if (e.key === "Enter" && originActive >= 0 && originSuggestions[originActive]) {
+                          e.preventDefault();
+                          setJourneyOrigin(originSuggestions[originActive].name);
+                          setOriginOpen(false);
+                          setOriginActive(-1);
+                        } else if (e.key === "Escape") {
+                          setOriginOpen(false);
+                          setOriginActive(-1);
+                        }
+                      }}
                       className={`w-full min-h-[44px] bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
                         originMismatch
                           ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
                           : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
                       }`}
                     />
+                    {originOpen && originSuggestions.length > 0 && (
+                      <div
+                        id="journey-origin-listbox"
+                        role="listbox"
+                        aria-label={t.common.origin}
+                        className="absolute left-0 right-0 top-full mt-1 z-50 glass-dropdown rounded-xl border border-white/15 p-1 shadow-2xl max-h-56 overflow-y-auto"
+                      >
+                        {originSuggestions.map((s, i) => (
+                          <button
+                            key={s.name}
+                            id={`journey-origin-opt-${i}`}
+                            role="option"
+                            aria-selected={i === originActive}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setJourneyOrigin(s.name);
+                              setOriginOpen(false);
+                              setOriginActive(-1);
+                            }}
+                            className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-left transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                              i === originActive ? "bg-cyan-950/70 text-cyan-200" : "text-slate-200 hover:bg-slate-800/70"
+                            }`}
+                          >
+                            <span className="truncate">{s.name}</span>
+                            {s.lineCode && (
+                              <span
+                                className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0"
+                                style={{ borderColor: `${s.lineColorHex}60`, color: s.lineColorHex }}
+                              >
+                                {s.lineCode}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Swap Button between inputs */}
@@ -465,17 +529,82 @@ export default function Home() {
                     <input
                       id="journey-destination"
                       name="journey-destination"
-                      list="stop-names"
+                      role="combobox"
+                      aria-expanded={destOpen && destSuggestions.length > 0}
+                      aria-controls="journey-destination-listbox"
+                      aria-activedescendant={destActive >= 0 ? `journey-destination-opt-${destActive}` : undefined}
+                      autoComplete="off"
                       type="text"
                       placeholder={t.common.destination}
                       value={journeyDest}
-                      onChange={(e) => setJourneyDest(e.target.value)}
+                      onChange={(e) => {
+                        setJourneyDest(e.target.value);
+                        setDestActive(-1);
+                        setDestOpen(true);
+                      }}
+                      onFocus={() => setDestOpen(true)}
+                      onBlur={() => setTimeout(() => setDestOpen(false), 120)}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowDown" && destSuggestions.length > 0) {
+                          e.preventDefault();
+                          setDestOpen(true);
+                          setDestActive((i) => (i + 1) % destSuggestions.length);
+                        } else if (e.key === "ArrowUp" && destSuggestions.length > 0) {
+                          e.preventDefault();
+                          setDestActive((i) => (i - 1 + destSuggestions.length) % destSuggestions.length);
+                        } else if (e.key === "Enter" && destActive >= 0 && destSuggestions[destActive]) {
+                          e.preventDefault();
+                          setJourneyDest(destSuggestions[destActive].name);
+                          setDestOpen(false);
+                          setDestActive(-1);
+                        } else if (e.key === "Escape") {
+                          setDestOpen(false);
+                          setDestActive(-1);
+                        }
+                      }}
                       className={`w-full min-h-[44px] bg-slate-950/90 border rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 transition focus-visible:outline-none focus-visible:ring-1 ${
                         destMismatch
                           ? "border-rose-500/70 focus:border-rose-400 focus-visible:ring-rose-400"
                           : "border-slate-800 focus:border-cyan-500/60 focus-visible:ring-cyan-400/60"
                       }`}
                     />
+                    {destOpen && destSuggestions.length > 0 && (
+                      <div
+                        id="journey-destination-listbox"
+                        role="listbox"
+                        aria-label={t.common.destination}
+                        className="absolute left-0 right-0 top-full mt-1 z-50 glass-dropdown rounded-xl border border-white/15 p-1 shadow-2xl max-h-56 overflow-y-auto"
+                      >
+                        {destSuggestions.map((s, i) => (
+                          <button
+                            key={s.name}
+                            id={`journey-destination-opt-${i}`}
+                            role="option"
+                            aria-selected={i === destActive}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setJourneyDest(s.name);
+                              setDestOpen(false);
+                              setDestActive(-1);
+                            }}
+                            className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-left transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 ${
+                              i === destActive ? "bg-cyan-950/70 text-cyan-200" : "text-slate-200 hover:bg-slate-800/70"
+                            }`}
+                          >
+                            <span className="truncate">{s.name}</span>
+                            {s.lineCode && (
+                              <span
+                                className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0"
+                                style={{ borderColor: `${s.lineColorHex}60`, color: s.lineColorHex }}
+                              >
+                                {s.lineCode}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 

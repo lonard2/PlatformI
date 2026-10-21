@@ -56,6 +56,47 @@ export function journeyHasRoute(journey: PlannedJourney | null): boolean {
 }
 
 /**
+ * Ranked stop suggestion for the journey combobox. One entry per station name
+ * so Halim-type collisions resolve to a visible, tappable list instead of a
+ * silent substring pick. Prefix matches outrank substring matches.
+ */
+export interface StopSuggestion {
+  name: string;
+  lineCode: string;
+  lineColorHex: string;
+}
+
+export function getStopSuggestions(
+  query: string,
+  allStops: Stop[],
+  allLines: Line[],
+  limit = 6
+): StopSuggestion[] {
+  const norm = query.trim().toLowerCase();
+  if (!norm) return [];
+  const knownLineIds = new Set(allLines.map((l) => l.id));
+  const byName = new Map<string, Stop>();
+  for (const s of allStops) {
+    if (!knownLineIds.has(s.lineId)) continue;
+    if (!byName.has(s.name)) byName.set(s.name, s);
+  }
+  const starts: Stop[] = [];
+  const contains: Stop[] = [];
+  for (const s of byName.values()) {
+    const n = s.name.toLowerCase();
+    if (n.startsWith(norm)) starts.push(s);
+    else if (n.includes(norm)) contains.push(s);
+  }
+  const ranked = [...starts, ...contains].slice(0, limit);
+  const lineById = new Map(allLines.map((l) => [l.id, l]));
+  return ranked.map((s) => ({
+    name: s.name,
+    lineCode: lineById.get(s.lineId)?.code ?? "",
+    lineColorHex: lineById.get(s.lineId)?.colorHex ?? "#38bdf8",
+  }));
+}
+
+/**
  * Resolves planned journey deterministically from user-entered stop names.
  */
 export function resolvePlannedJourney(

@@ -15,6 +15,7 @@ import {
   resolvePlannedJourney,
   findMatchingStop,
   journeyHasRoute,
+  getStopSuggestions,
 } from "../src/lib/services/journeyPlanner";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { TRANSIT_STOPS, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
@@ -153,5 +154,20 @@ describe("Deterministic Journey Planning & Map Binding", () => {
 
     // No journey at all is never a route
     expect(journeyHasRoute(null)).toBe(false);
+  });
+
+  it("ranks stop suggestions with prefix matches first and caps at six", () => {
+    const suggestions = getStopSuggestions("Halim", TRANSIT_STOPS, TRANSIT_LINES);
+    expect(suggestions.length).toBeGreaterThan(0);
+    expect(suggestions.length).toBeLessThanOrEqual(6);
+    const names = suggestions.map((s) => s.name);
+    expect(new Set(names).size).toBe(names.length);
+    for (const s of suggestions) {
+      expect(s.name.toLowerCase()).toContain("halim");
+      expect(s.lineCode).toBeTruthy();
+    }
+
+    expect(getStopSuggestions("", TRANSIT_STOPS, TRANSIT_LINES)).toEqual([]);
+    expect(getStopSuggestions("   ", TRANSIT_STOPS, TRANSIT_LINES)).toEqual([]);
   });
 });
