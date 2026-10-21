@@ -73,6 +73,7 @@ export const ja: TranslationDictionary = {
     findRoute: "ルート検索",
     route: "ルート",
     stale: "古い情報",
+    mapTilesSlow: "地図タイルの読み込みが遅れています — 再試行中…",
     viewStatus: "ステータス",
     vehicles: "両",
     lines: "路線",

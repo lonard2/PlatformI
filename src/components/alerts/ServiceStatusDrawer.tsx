@@ -49,6 +49,10 @@ import {
   SYSTEM_UPTIME_METRICS,
 } from "@/lib/data/jakarta-dataset";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
+import {
+  OPERATING_STATUS_ORDER,
+  OperatingStatusMark,
+} from "@/components/alerts/OperatingStatusMark";
 
 export interface ServiceStatusDrawerProps {
   isOpen: boolean;

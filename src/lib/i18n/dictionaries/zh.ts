@@ -73,6 +73,7 @@ export const zh: TranslationDictionary = {
     findRoute: "查找路线",
     route: "路线",
     stale: "过期",
+    mapTilesSlow: "地图瓦片加载缓慢 — 正在重试…",
     viewStatus: "状态",
     vehicles: "辆",
     lines: "条线路",

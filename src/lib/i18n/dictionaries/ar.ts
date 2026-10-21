@@ -73,6 +73,7 @@ export const ar: TranslationDictionary = {
     findRoute: "البحث عن مسار",
     route: "مسار",
     stale: "قديم",
+    mapTilesSlow: "بلاطات الخريطة بطيئة — تتم إعادة المحاولة…",
     viewStatus: "الحالة",
     vehicles: "مركبات",
     lines: "خطوط",

@@ -697,6 +697,11 @@ if (typeof window !== "undefined" && !CARTO_API_KEY) {
   );
 }
 
+/** Bright keyless fallback tiles under dark chrome need dimming to stay legible. */
+export function basemapNeedsDim(layerId: string): boolean {
+  return !CARTO_API_KEY && layerId !== "satellite";
+}
+
 export const TILE_LAYERS: Record<"dark" | "light" | "satellite" | "streets", TileLayerDefinition> = {
   dark: cartoLayer("dark", "CartoDB Dark Matter", "dark_all"),
   light: cartoLayer("light", "CartoDB Positron", "light_all"),

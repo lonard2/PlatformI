@@ -138,6 +138,12 @@ code, kbd, samp, pre, .font-mono {
   outline-offset: 2px !important;
 }
 
+/* Dim bright fallback tiles under dark chrome (markers/polylines unaffected:
+   they live in separate Leaflet panes above the tile pane) */
+.basemap-dimmed .leaflet-tile-pane {
+  filter: brightness(0.78) saturate(0.85);
+}
+
 /* Leaflet Container & Markers */
 .leaflet-container {
   width: 100%;

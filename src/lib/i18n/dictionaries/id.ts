@@ -73,6 +73,7 @@ export const id: TranslationDictionary = {
     findRoute: "Cari Rute",
     route: "Rute",
     stale: "Data lama",
+    mapTilesSlow: "Ubin peta lambat — mencoba lagi…",
     viewStatus: "Status",
     vehicles: "kendaraan",
     lines: "jalur",

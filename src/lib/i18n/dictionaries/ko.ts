@@ -73,6 +73,7 @@ export const ko: TranslationDictionary = {
     findRoute: "경로 찾기",
     route: "경로",
     stale: "오래된 정보",
+    mapTilesSlow: "지도 타일 로딩이 느립니다 — 다시 시도 중…",
     viewStatus: "상태",
     vehicles: "대",
     lines: "개 노선",

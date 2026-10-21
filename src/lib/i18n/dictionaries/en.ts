@@ -73,6 +73,7 @@ export const en: TranslationDictionary = {
     findRoute: "Find Route",
     route: "Route",
     stale: "Stale",
+    mapTilesSlow: "Map tiles are slow — retrying…",
     viewStatus: "Status",
     vehicles: "vehicles",
     lines: "lines",

@@ -26,6 +26,10 @@ import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+import {
+  operatingStatusForSeverity,
+  OperatingStatusMark,
+} from "@/components/alerts/OperatingStatusMark";
 
 export interface DisruptionAlertBannerProps {
   onOpenStatusDrawer?: () => void;
@@ -272,8 +276,12 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   className={`animate-ping motion-reduce:animate-none absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
                   style={{ animationIterationCount: 1 }}
                 />
-                <span className={`w-2 h-2 rounded-full ${badgeConfig.pulseColor}`} />
               </span>
+              <OperatingStatusMark
+                status={operatingStatusForSeverity(currentAlert.severity)}
+                t={t}
+                className="text-[11px] font-mono font-bold whitespace-nowrap"
+              />
               <span className="text-[11px] font-mono font-bold text-slate-300">{activeAlerts.length}</span>
             </button>
           </motion.div>

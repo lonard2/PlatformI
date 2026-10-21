@@ -43,6 +43,10 @@ import {
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus, DisruptionAlert, Line } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
+import {
+  OPERATING_STATUS_CHIP,
+  OperatingStatusMark,
+} from "@/components/alerts/OperatingStatusMark";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
 export interface SystemCorridorDetail {
@@ -1258,22 +1262,8 @@ export function TransportationSystemBar() {
                                 {item.badgeLabel}
                               </span>
 
-                              {/* Live Operational Status Dot + Label: the label always
-                                  renders so state is never carried by colour alone */}
-                              <span
-                                aria-hidden="true"
-                                className={`w-2 h-2 rounded-full shrink-0 ${liveStatus === "NORMAL" || liveStatus === "OFF_HOURS" ? "" : "animate-pulse"}`}
-                                style={{
-                                  backgroundColor: STATUS_COLORS[liveStatus].color,
-                                  boxShadow: STATUS_COLORS[liveStatus].glow,
-                                }}
-                              />
-                              <span
-                                className="text-[10px] font-mono font-bold shrink-0 whitespace-nowrap"
-                                style={{ color: STATUS_COLORS[liveStatus].color }}
-                              >
-                                {getShortStatusLabel(liveStatus, t)}
-                              </span>
+                              {/* Live status: one shared dot + word, never colour alone */}
+                              <OperatingStatusMark status={liveStatus} t={t} />
 
                               {item.type === "building_hub" ? (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
@@ -1426,10 +1416,10 @@ export function TransportationSystemBar() {
                         {activeItem.badgeLabel}
                       </span>
                       <span
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${liveTrayStatus ? TRAY_STATUS_CLASSES[liveTrayStatus] : ""}`}
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${liveTrayStatus ? OPERATING_STATUS_CHIP[liveTrayStatus] : ""}`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {liveTrayStatus ? getLocalizedStatusPhrase(liveTrayStatus, t) : ""}
+{liveTrayStatus ? <OperatingStatusMark status={liveTrayStatus} t={t} className="text-[10px] font-mono font-bold whitespace-nowrap" /> : ""}
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">

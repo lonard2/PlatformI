@@ -97,6 +97,7 @@ export interface TranslationDictionary {
     findRoute: string;
     route: string;
     stale: string;
+    mapTilesSlow: string;
     viewStatus: string;
     vehicles: string;
     lines: string;
