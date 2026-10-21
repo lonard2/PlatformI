@@ -81,7 +81,6 @@ export function TransitMap() {
   const [tileDegraded, setTileDegraded] = useState<boolean>(false);
   const [tileHostFallback, setTileHostFallback] = useState<boolean>(false);
   const [tileAttemptKey, setTileAttemptKey] = useState<number>(0);
-  const tileLayerEntryRef = useRef<{ layer: L.TileLayer; detach: () => void } | null>(null);
   const slowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const viewportCenter = useTransitStore((state) => state.viewportCenter);
   const viewportZoom = useTransitStore((state) => state.viewportZoom);
@@ -159,7 +158,6 @@ export function TransitMap() {
 
     const { layer, detach } = createMonitoredTileLayer(tileConfig, handleTileFatal);
     layer.addTo(map);
-    tileLayerEntryRef.current = { layer, detach };
 
     const onSlowTiles = () => setTileDegraded(true);
     layer.on("load", () => {
@@ -178,7 +176,6 @@ export function TransitMap() {
       }
       detach();
       layer.remove();
-      tileLayerEntryRef.current = null;
     };
   }, [mapReady, activeTileLayer, tileHostFallback, tileAttemptKey]);
 
