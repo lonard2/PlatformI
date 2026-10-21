@@ -489,7 +489,6 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
           { code: "11", name: "Koridor 11: Pulo Gebang - Kampung Melayu", lineId: "line-tj-cor-11", headwayMinutes: 6, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#2E3192" },
           { code: "12", name: "Koridor 12: Pluit - Tanjung Priok", lineId: "line-tj-cor-12", headwayMinutes: 7, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#8CC63F" },
           { code: "13", name: "Koridor 13: Ciledug - Tendean (Layang Elevated)", lineId: "line-tj-cor-13", headwayMinutes: 5, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal (Layang)", fareText: "Rp 3.500", badgeColor: "#5B67A5" },
-          { code: "13C", name: "Koridor 13C: Puri Beta - Dukuh Atas Layang", lineId: "line-tj-sub-13c", headwayMinutes: 6, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#5B67A5" },
           { code: "14", name: "Koridor 14: JIS - Senen Raya", lineId: "line-tj-cor-14", headwayMinutes: 8, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#E87722" },
         ],
       },
@@ -515,7 +514,6 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
           { code: "1E", name: "1E: Pondok Labu - Blok M via Fatmawati", headwayMinutes: 10, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
           { code: "1F", name: "1F: Stasiun Palmerah - Bundaran Senayan", headwayMinutes: 10, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
           { code: "1H", name: "1H: Stasiun Tanah Abang - Stasiun Gondangdia", headwayMinutes: 12, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
-          { code: "1N", name: "1N: Tanah Abang - Blok M via Gandaria", lineId: "line-tj-feeder-1n", headwayMinutes: 12, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
           { code: "1P", name: "1P: Senen - Blok M via Sudirman", lineId: "line-tj-feeder-1p", headwayMinutes: 10, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal (10 mnt)", fareText: "Rp 3.500", badgeColor: "#F58220" },
           { code: "1Q", name: "1Q: Rempoa - Blok M via Bintaro", headwayMinutes: 15, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
           { code: "1R", name: "1R: Senen - Tanah Abang via Kebon Sirih", headwayMinutes: 10, operatingHours: "05:00 - 22:00 WIB", status: "NORMAL", statusText: "Normal", fareText: "Rp 3.500", badgeColor: "#F58220" },
@@ -564,7 +562,6 @@ export const SYSTEM_GROUPS: TransitSystemGroup[] = [
         statusReason: "Armada Premium Beroperasi Sesuai Jadwal",
         corridorsOrBuildings: [
           { code: "1T", name: "1T: Cibubur Junction - Blok M via Tol Jagorawi", lineId: "line-tj-royal-1t", headwayMinutes: 20, operatingHours: "05:30 - 21:00 WIB", status: "NORMAL", statusText: "Premium", fareText: "Rp 20.000", badgeColor: "#8B5CF6" },
-          { code: "1U", name: "1U: TMII Pintu 1 - Balai Kota via Tol", lineId: "line-tj-royal-1u", headwayMinutes: 25, operatingHours: "05:45 - 20:30 WIB", status: "NORMAL", statusText: "Premium", fareText: "Rp 20.000", badgeColor: "#8B5CF6" },
           { code: "1K", name: "1K: Cibubur Junction - Blok M via Tol Cijago", headwayMinutes: 20, operatingHours: "05:45 - 20:45 WIB", status: "NORMAL", statusText: "Premium", fareText: "Rp 20.000", badgeColor: "#8B5CF6" },
           { code: "6P", name: "6P: Cibubur - Kuningan via Tol Jagorawi", headwayMinutes: 20, operatingHours: "05:30 - 21:00 WIB", status: "NORMAL", statusText: "Premium", fareText: "Rp 20.000", badgeColor: "#8B5CF6" },
           { code: "S12", name: "S12: BSD Serpong - Fatmawati MRT", headwayMinutes: 25, operatingHours: "05:45 - 20:30 WIB", status: "NORMAL", statusText: "Premium", fareText: "Rp 20.000", badgeColor: "#8B5CF6" },

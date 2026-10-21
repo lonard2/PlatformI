@@ -1861,30 +1861,6 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 35. TransJakarta Sub-Corridor 13C (Puri Beta - Dukuh Atas)
-  {
-    id: "line-tj-sub-13c",
-    regionId: JABODETABEK_REGION.id,
-    code: "13C",
-    name: "TransJakarta 13C (Puri Beta Ciledug - Dukuh Atas Layang)",
-    category: "BUS",
-    mode: "TRANSJAKARTA_BRT",
-    colorHex: "#5B67A5",
-    textColorHex: "#FFFFFF",
-    fareType: "FLAT",
-    baseFareRp: 3500,
-    farePerKmRp: 0,
-    maxFareRp: 3500,
-    headwayMinutes: 6,
-    firstDeparture: "05:00",
-    lastDeparture: "22:00",
-    polylineCoordinates: [
-      { latitude: -6.2312, longitude: 106.7214 },
-      { latitude: -6.2387, longitude: 106.7986 },
-      { latitude: -6.2198, longitude: 106.8055 },
-      { latitude: -6.2008, longitude: 106.8227 },
-    ],
-  },
 
   // 36. Feeder Non-BRT 1A (Pantai Maju PIK - Balai Kota)
   {
@@ -1911,29 +1887,6 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 37. Feeder Non-BRT 1N (Tanah Abang - Blok M)
-  {
-    id: "line-tj-feeder-1n",
-    regionId: JABODETABEK_REGION.id,
-    code: "1N",
-    name: "TransJakarta Feeder 1N (Tanah Abang - Blok M via Gandaria)",
-    category: "BUS",
-    mode: "TRANSJAKARTA_NON_BRT",
-    colorHex: "#F58220",
-    textColorHex: "#FFFFFF",
-    fareType: "FLAT",
-    baseFareRp: 3500,
-    farePerKmRp: 0,
-    maxFareRp: 3500,
-    headwayMinutes: 12,
-    firstDeparture: "05:00",
-    lastDeparture: "22:00",
-    polylineCoordinates: [
-      { latitude: -6.1856, longitude: 106.8154 },
-      { latitude: -6.2078, longitude: 106.7972 },
-      { latitude: -6.2443, longitude: 106.7981 },
-    ],
-  },
 
   // 38. Feeder Non-BRT 1P (Senen - Blok M)
   {
@@ -2082,29 +2035,6 @@ export const TRANSIT_LINES: Line[] = [
     ],
   },
 
-  // 44. RoyalTrans 1U (TMII - Balai Kota)
-  {
-    id: "line-tj-royal-1u",
-    regionId: JABODETABEK_REGION.id,
-    code: "1U",
-    name: "RoyalTrans 1U Premium (TMII Pintu 1 - Balai Kota)",
-    category: "BUS",
-    mode: "TRANSJAKARTA_NON_BRT",
-    colorHex: "#8B5CF6",
-    textColorHex: "#FFFFFF",
-    fareType: "FLAT",
-    baseFareRp: 20000,
-    farePerKmRp: 0,
-    maxFareRp: 20000,
-    headwayMinutes: 25,
-    firstDeparture: "05:45",
-    lastDeparture: "20:30",
-    polylineCoordinates: [
-      { latitude: -6.3012, longitude: 106.8935 },
-      { latitude: -6.2412, longitude: 106.8245 },
-      { latitude: -6.1754, longitude: 106.8272 },
-    ],
-  },
 
   // 45. Bus Wisata BW2 (Monas Explorer / Jakarta Modern - Gratis)
   {
