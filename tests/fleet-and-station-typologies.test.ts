@@ -210,11 +210,11 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     expect(firstDeparture.origin).toBe("Soekarno-Hatta (CGK)");
     expect(firstDeparture.destination).toBe("DPS");
     expect(firstDeparture.gateOrBay).toMatch(/^Gate \d+$/);
-    expect(firstDeparture.serviceClass).toBe("Business & Economy Class");
+    expect(firstDeparture.serviceClass).toBe("Kelas Bisnis & Ekonomi");
     expect(firstDeparture.baggageBelt).toMatch(/^Belt \d+$/);
-    expect(firstDeparture.notes).toContain("Boarding gate closes 15 minutes prior");
+    expect(firstDeparture.notes).toContain("Gerbang boarding tutup 15 menit");
     expect(["Garuda Indonesia", "Citilink", "Batik Air"]).toContain(firstDeparture.operatorName);
-    expect(firstDeparture.transitStopsSummary).toBe("Direct Flight Non-Stop");
+    expect(firstDeparture.transitStopsSummary).toBe("Penerbangan Langsung Non-Stop");
   });
 
   it("generates rich Rail departure metadata (Whoosh & KAI Intercity) with origin, track/peron, and Wi-Fi notes", () => {
@@ -282,9 +282,9 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     expect(whooshItem).toBeDefined();
     expect(whooshItem?.origin).toBe("Stasiun Halim HSR");
     expect(whooshItem?.destination).toBe("Stasiun Tegalluar Summarecon");
-    expect(whooshItem?.serviceClass).toBe("Premium Economy & First Class");
+    expect(whooshItem?.serviceClass).toBe("Premium Ekonomi & First Class");
     expect(whooshItem?.gateOrBay).toMatch(/^Peron \d+ \(Jalur \d+\)$/);
-    expect(whooshItem?.notes).toContain("Direct Express bypasses intermediate stops");
+    expect(whooshItem?.notes).toContain("Direct Express melewati stasiun antara");
     expect(whooshItem?.operatorName).toBe("PT Kereta Cepat Indonesia China (KCIC)");
 
     const kaiItem = departures.find((d) => d.mode === "KAI_INTERCITY");
@@ -412,7 +412,7 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     expect(brtItem).toBeDefined();
     expect(brtItem?.origin).toBe("Blok M");
     expect(brtItem?.destination).toBe("Kota");
-    expect(brtItem?.serviceClass).toBe("BRT Standard Rapid");
+    expect(brtItem?.serviceClass).toBe("BRT Standar Rapid");
     expect(brtItem?.notes).toBe("Angkutan AMARI beroperasi 24 Jam.");
     expect(brtItem?.operatorName).toBe("PT Transportasi Jakarta");
 

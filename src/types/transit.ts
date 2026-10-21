@@ -224,6 +224,8 @@ export interface PhotoGalleryItem {
   vehicleId: string;
   url: string;
   caption: string;
+  /** Localization key for built-in fallback captions; custom photos use raw caption. */
+  captionKey?: "capMrt1" | "capMrt2" | "capMrt3" | "capWhoosh1" | "capWhoosh2" | "capWhoosh3" | "capAkap1" | "capAkap2" | "capAkap3" | "capShuttle1" | "capShuttle2" | "capBrt1" | "capBrt2" | "capBoat1" | "capBoat2";
   photographer: string;
   tag: string;
 }

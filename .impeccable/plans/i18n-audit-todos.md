@@ -20,7 +20,7 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 | D1 | admin | alerts + fleet pages | DONE | — |
 | D2 | admin+lib | network + timetables pages, layout metadata, timetableMatrix/modes/SIM_SPEED strings | TODO | — |
 | E1 | inspector-enums | acStatus/seat-type/features/photo-tag/fareType enum mappings, gallery aria + Photo by | TODO | — |
-| E2 | inspector-content | TechnicalSpecs sentences, gallery captions, HubDetailSheet procedural copy | TODO | — |
+| E2 | inspector-content | TechnicalSpecs sentences, gallery captions, HubDetailSheet procedural copy | DONE (416/416) | — |
 | E3 | skybridge | SKYBRIDGE_HUBS_DATA + chrome to dictionaries | TODO | — |
 
 ## Ledger
@@ -33,3 +33,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - Batch D2a: network page chrome+toasts+confirms wired (~110 keys). Detector: same 3 pre-existing 9px advisories as base.
 - Batch D2b: timetables page + batch modal wired (~120 keys incl. weekdayShort, preset notes, batch generator). Detector: check below.
 - Batch D2c: run-text mapper + preset notes (runs section). R9 SIMULATION_SPEED dead, untouched. R10 layout metadata stays EN (no server locale). R11 modes description/headwayText/operatingHours dead, untouched. R12 fareDescription tariff formulas exempt as operator data. R13 preset labels stay identifiers; preset notes localized at apply.
+- E2: restored BUS_POLE proper-noun term via busPoleFull (all locales, untranslated). runTexts/specTexts mappers keep user data untouched.

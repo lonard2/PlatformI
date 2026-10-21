@@ -28,6 +28,7 @@ import { Vehicle, TechnicalSpec, TransitMode } from "@/types/transit";
 import { VehicleOpsRunCard } from "./VehicleOpsRunCard";
 import { VEHICLE_TECHNICAL_SPECS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
+import { localizeSpecText } from "@/lib/transit/specTexts";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
 interface VehicleTechnicalSpecsProps {
@@ -477,7 +478,7 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec, t:
         <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800">
           <div>{t.vehicleInspector.dimLength} <strong className="text-white">5.91 m</strong></div>
           <div>{t.vehicleInspector.dimHeight} <strong className="text-white">2.28 m</strong></div>
-          <div>{t.vehicleInspector.capacityShort} <strong className="text-cyan-400">8 Kursi VIP</strong></div>
+          <div>{t.vehicleInspector.capacityShort} <strong className="text-cyan-400">{t.vehicle.specVipCapacity}</strong></div>
         </div>
       </div>
     );
@@ -547,7 +548,16 @@ function renderVehicleDimensionDiagram(vehicle: Vehicle, spec: TechnicalSpec, t:
 
 export function VehicleTechnicalSpecs({ vehicle }: VehicleTechnicalSpecsProps) {
   const { t } = useTranslation();
-  const spec = getVehicleSpec(vehicle);
+  const baseSpec = getVehicleSpec(vehicle);
+  // Default spec sentences localize; genuine per-vehicle data passes through.
+  const spec: TechnicalSpec = {
+    ...baseSpec,
+    torque: localizeSpecText(baseSpec.torque, t),
+    safetyFeatures: baseSpec.safetyFeatures.map((f) => localizeSpecText(f, t)),
+    historicalNotes: baseSpec.historicalNotes
+      ? localizeSpecText(baseSpec.historicalNotes, t)
+      : baseSpec.historicalNotes,
+  };
 
   return (
     <div className="space-y-4 text-slate-200">
