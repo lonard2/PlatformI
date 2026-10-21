@@ -2481,7 +2481,7 @@ export const TRANSIT_LINES: Line[] = [
 // STOPS / STATIONS DATASET
 // ==========================================
 
-export const TRANSIT_STOPS: Stop[] = [
+const TRANSIT_STOPS_CORE: Stop[] = [
   // MRT North-South Line Stops
   {
     id: "stop-mrt-lbk",
@@ -2768,6 +2768,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Aviation Concourse",
+    stationType: "AIRPORT_TERMINAL",
+    scale: "BIG",
   },
   {
     id: "stop-sea-angke",
@@ -2784,6 +2786,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: true,
     platformType: "Floating Marine Pier",
+    stationType: "HARBOR_PORT",
+    scale: "MEDIUM",
   },
   {
     id: "stop-maritime-angke",
@@ -2800,6 +2804,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: true,
     platformType: "Floating Marine Pier",
+    stationType: "HARBOR_PORT",
+    scale: "MEDIUM",
   },
   {
     id: "stop-akap-pgb",
@@ -2816,6 +2822,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Intercity Bus Bay",
+    stationType: "BUS_TERMINAL",
+    scale: "BIG",
   },
   {
     id: "stop-tj-monas",
@@ -2832,6 +2840,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "BRT Central Concourse",
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
   {
     id: "stop-kai-gmr",
@@ -2896,6 +2906,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Multi-Modal Transit Terminal",
+    stationType: "BUS_TERMINAL",
+    scale: "BIG",
   },
   {
     id: "stop-hub-kld",
@@ -2912,6 +2924,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Regional Bus Terminal",
+    stationType: "BUS_TERMINAL",
+    scale: "BIG",
   },
   {
     id: "stop-hub-poris",
@@ -2928,6 +2942,8 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Integrated Hub",
+    stationType: "BUS_TERMINAL",
+    scale: "BIG",
   },
   {
     id: "stop-shuttle-fx",
@@ -2944,9 +2960,11 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: true,
     wheelchairRamp: true,
     platformType: "Executive Shuttle Berth",
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
-  // ===== Auto-imported stops (GTFS static feed + verified rail coordinates) =====
-  {
+];
+const TRANSIT_STOPS_EXTRA_0: Stop[] = [  {
     id: "stop-tj-cor-1-stop-tj-1-p00017",
     lineId: "line-tj-cor-1",
     name: "Blok M",
@@ -2960,7 +2978,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00012",
     lineId: "line-tj-cor-1",
@@ -2975,7 +2996,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00009",
     lineId: "line-tj-cor-1",
@@ -2990,7 +3014,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00696",
     lineId: "line-tj-cor-1",
@@ -3005,7 +3032,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00016",
     lineId: "line-tj-cor-1",
@@ -3020,7 +3050,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00017",
     lineId: "line-tj-cor-1",
@@ -3035,7 +3068,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00747",
     lineId: "line-tj-cor-1",
@@ -3050,7 +3086,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00690",
     lineId: "line-tj-cor-1",
@@ -3065,7 +3104,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00024",
     lineId: "line-tj-cor-1",
@@ -3080,7 +3122,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00027",
     lineId: "line-tj-cor-1",
@@ -3095,7 +3140,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00034",
     lineId: "line-tj-cor-1",
@@ -3110,7 +3158,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00038",
     lineId: "line-tj-cor-1",
@@ -3125,7 +3176,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00039",
     lineId: "line-tj-cor-1",
@@ -3140,7 +3194,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00753",
     lineId: "line-tj-cor-1",
@@ -3155,7 +3212,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00045",
     lineId: "line-tj-cor-1",
@@ -3170,7 +3230,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00687",
     lineId: "line-tj-cor-1",
@@ -3185,7 +3248,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00053",
     lineId: "line-tj-cor-1",
@@ -3200,7 +3266,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00055",
     lineId: "line-tj-cor-1",
@@ -3215,7 +3284,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00054",
     lineId: "line-tj-cor-1",
@@ -3230,7 +3302,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00688",
     lineId: "line-tj-cor-1",
@@ -3245,7 +3320,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00051",
     lineId: "line-tj-cor-1",
@@ -3260,7 +3338,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00048",
     lineId: "line-tj-cor-1",
@@ -3275,7 +3356,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00751",
     lineId: "line-tj-cor-1",
@@ -3290,7 +3374,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00040",
     lineId: "line-tj-cor-1",
@@ -3305,7 +3392,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00036",
     lineId: "line-tj-cor-1",
@@ -3320,7 +3410,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00031",
     lineId: "line-tj-cor-1",
@@ -3335,7 +3428,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00030",
     lineId: "line-tj-cor-1",
@@ -3350,7 +3446,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00021",
     lineId: "line-tj-cor-1",
@@ -3365,7 +3464,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00692",
     lineId: "line-tj-cor-1",
@@ -3380,7 +3482,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00020",
     lineId: "line-tj-cor-1",
@@ -3395,7 +3500,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00018",
     lineId: "line-tj-cor-1",
@@ -3410,7 +3518,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00014",
     lineId: "line-tj-cor-1",
@@ -3425,7 +3536,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00694",
     lineId: "line-tj-cor-1",
@@ -3440,7 +3554,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00010",
     lineId: "line-tj-cor-1",
@@ -3455,7 +3572,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00083",
     lineId: "line-tj-cor-1",
@@ -3470,7 +3590,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00060",
     lineId: "line-tj-cor-1",
@@ -3485,7 +3608,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00064",
     lineId: "line-tj-cor-1",
@@ -3500,7 +3626,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00061",
     lineId: "line-tj-cor-1",
@@ -3515,7 +3644,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00058",
     lineId: "line-tj-cor-1",
@@ -3530,7 +3662,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00057",
     lineId: "line-tj-cor-1",
@@ -3545,7 +3680,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00166",
     lineId: "line-tj-cor-1",
@@ -3560,7 +3698,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00019",
     lineId: "line-tj-cor-1",
@@ -3575,7 +3716,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00163",
     lineId: "line-tj-cor-1",
@@ -3590,7 +3734,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00399",
     lineId: "line-tj-cor-1",
@@ -3605,7 +3752,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00398",
     lineId: "line-tj-cor-1",
@@ -3620,7 +3770,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00437",
     lineId: "line-tj-cor-1",
@@ -3635,7 +3788,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00434",
     lineId: "line-tj-cor-1",
@@ -3650,7 +3806,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00724",
     lineId: "line-tj-cor-1",
@@ -3665,7 +3824,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00080",
     lineId: "line-tj-cor-1",
@@ -3680,7 +3842,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00077",
     lineId: "line-tj-cor-1",
@@ -3695,7 +3860,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00726",
     lineId: "line-tj-cor-1",
@@ -3710,7 +3878,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00433",
     lineId: "line-tj-cor-1",
@@ -3725,7 +3896,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00436",
     lineId: "line-tj-cor-1",
@@ -3740,7 +3914,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00397",
     lineId: "line-tj-cor-1",
@@ -3755,7 +3932,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00400",
     lineId: "line-tj-cor-1",
@@ -3770,7 +3950,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00758",
     lineId: "line-tj-cor-1",
@@ -3785,7 +3968,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00757",
     lineId: "line-tj-cor-1",
@@ -3800,7 +3986,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00583",
     lineId: "line-tj-cor-1",
@@ -3815,7 +4004,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-1-stop-tj-1-g00581",
     lineId: "line-tj-cor-1",
@@ -3830,7 +4022,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00126",
     lineId: "line-tj-cor-2",
@@ -3845,7 +4040,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00622",
     lineId: "line-tj-cor-2",
@@ -3860,7 +4058,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00697",
     lineId: "line-tj-cor-2",
@@ -3875,7 +4076,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00626",
     lineId: "line-tj-cor-2",
@@ -3890,7 +4094,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00092",
     lineId: "line-tj-cor-2",
@@ -3905,7 +4112,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00096",
     lineId: "line-tj-cor-2",
@@ -3920,7 +4130,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00094",
     lineId: "line-tj-cor-2",
@@ -3935,7 +4148,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00098",
     lineId: "line-tj-cor-2",
@@ -3950,7 +4166,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00101",
     lineId: "line-tj-cor-2",
@@ -3965,7 +4184,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00102",
     lineId: "line-tj-cor-2",
@@ -3980,7 +4202,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00104",
     lineId: "line-tj-cor-2",
@@ -3995,7 +4220,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00106",
     lineId: "line-tj-cor-2",
@@ -4010,7 +4238,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00110",
     lineId: "line-tj-cor-2",
@@ -4025,7 +4256,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00111",
     lineId: "line-tj-cor-2",
@@ -4040,7 +4274,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00112",
     lineId: "line-tj-cor-2",
@@ -4055,7 +4292,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00113",
     lineId: "line-tj-cor-2",
@@ -4070,7 +4310,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00114",
     lineId: "line-tj-cor-2",
@@ -4085,7 +4328,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00120",
     lineId: "line-tj-cor-2",
@@ -4100,7 +4346,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00122",
     lineId: "line-tj-cor-2",
@@ -4115,7 +4364,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00042",
     lineId: "line-tj-cor-2",
@@ -4130,7 +4382,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00041",
     lineId: "line-tj-cor-2",
@@ -4145,7 +4400,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00121",
     lineId: "line-tj-cor-2",
@@ -4160,7 +4418,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00117",
     lineId: "line-tj-cor-2",
@@ -4175,7 +4436,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00125",
     lineId: "line-tj-cor-2",
@@ -4190,7 +4454,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00108",
     lineId: "line-tj-cor-2",
@@ -4205,7 +4472,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00105",
     lineId: "line-tj-cor-2",
@@ -4220,7 +4490,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00103",
     lineId: "line-tj-cor-2",
@@ -4235,7 +4508,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00100",
     lineId: "line-tj-cor-2",
@@ -4250,7 +4526,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00099",
     lineId: "line-tj-cor-2",
@@ -4265,7 +4544,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00095",
     lineId: "line-tj-cor-2",
@@ -4280,7 +4562,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00097",
     lineId: "line-tj-cor-2",
@@ -4295,7 +4580,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00093",
     lineId: "line-tj-cor-2",
@@ -4310,7 +4598,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00629",
     lineId: "line-tj-cor-2",
@@ -4325,7 +4616,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00698",
     lineId: "line-tj-cor-2",
@@ -4340,7 +4634,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00625",
     lineId: "line-tj-cor-2",
@@ -4355,7 +4652,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00067",
     lineId: "line-tj-cor-2",
@@ -4370,7 +4670,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-2-stop-tj-2-g00123",
     lineId: "line-tj-cor-2",
@@ -4385,7 +4688,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00161",
     lineId: "line-tj-cor-3",
@@ -4400,7 +4706,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00158",
     lineId: "line-tj-cor-3",
@@ -4415,7 +4724,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00157",
     lineId: "line-tj-cor-3",
@@ -4430,7 +4742,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00155",
     lineId: "line-tj-cor-3",
@@ -4445,7 +4760,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00703",
     lineId: "line-tj-cor-3",
@@ -4460,7 +4778,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00152",
     lineId: "line-tj-cor-3",
@@ -4475,7 +4796,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00150",
     lineId: "line-tj-cor-3",
@@ -4490,7 +4814,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00149",
     lineId: "line-tj-cor-3",
@@ -4505,7 +4832,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00146",
     lineId: "line-tj-cor-3",
@@ -4520,7 +4850,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00138",
     lineId: "line-tj-cor-3",
@@ -4535,7 +4868,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00708",
     lineId: "line-tj-cor-3",
@@ -4550,7 +4886,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00131",
     lineId: "line-tj-cor-3",
@@ -4565,7 +4904,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00163",
     lineId: "line-tj-cor-3",
@@ -4580,7 +4922,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00121",
     lineId: "line-tj-cor-3",
@@ -4595,7 +4940,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00117",
     lineId: "line-tj-cor-3",
@@ -4610,7 +4958,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00118",
     lineId: "line-tj-cor-3",
@@ -4625,7 +4976,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00122",
     lineId: "line-tj-cor-3",
@@ -4640,7 +4994,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00166",
     lineId: "line-tj-cor-3",
@@ -4655,7 +5012,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00128",
     lineId: "line-tj-cor-3",
@@ -4670,7 +5030,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00706",
     lineId: "line-tj-cor-3",
@@ -4685,7 +5048,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00132",
     lineId: "line-tj-cor-3",
@@ -4700,7 +5066,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00142",
     lineId: "line-tj-cor-3",
@@ -4715,7 +5084,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00148",
     lineId: "line-tj-cor-3",
@@ -4730,7 +5102,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00151",
     lineId: "line-tj-cor-3",
@@ -4745,7 +5120,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00153",
     lineId: "line-tj-cor-3",
@@ -4760,7 +5138,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00702",
     lineId: "line-tj-cor-3",
@@ -4775,7 +5156,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00154",
     lineId: "line-tj-cor-3",
@@ -4790,7 +5174,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00159",
     lineId: "line-tj-cor-3",
@@ -4805,7 +5192,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00750",
     lineId: "line-tj-cor-3",
@@ -4820,7 +5210,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00752",
     lineId: "line-tj-cor-3",
@@ -4835,7 +5228,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-3-stop-tj-3-g00156",
     lineId: "line-tj-cor-3",
@@ -4850,7 +5246,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00170",
     lineId: "line-tj-cor-4",
@@ -4865,7 +5264,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00171",
     lineId: "line-tj-cor-4",
@@ -4880,7 +5282,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00174",
     lineId: "line-tj-cor-4",
@@ -4895,7 +5300,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00176",
     lineId: "line-tj-cor-4",
@@ -4910,7 +5318,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00178",
     lineId: "line-tj-cor-4",
@@ -4925,7 +5336,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00183",
     lineId: "line-tj-cor-4",
@@ -4940,7 +5354,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00184",
     lineId: "line-tj-cor-4",
@@ -4955,7 +5372,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00187",
     lineId: "line-tj-cor-4",
@@ -4970,7 +5390,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-b08048p",
     lineId: "line-tj-cor-4",
@@ -4985,7 +5408,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00190",
     lineId: "line-tj-cor-4",
@@ -5000,7 +5426,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00193",
     lineId: "line-tj-cor-4",
@@ -5015,7 +5444,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00195",
     lineId: "line-tj-cor-4",
@@ -5030,7 +5462,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00197",
     lineId: "line-tj-cor-4",
@@ -5045,7 +5480,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00196",
     lineId: "line-tj-cor-4",
@@ -5060,7 +5498,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00194",
     lineId: "line-tj-cor-4",
@@ -5075,7 +5516,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00192",
     lineId: "line-tj-cor-4",
@@ -5090,7 +5534,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00191",
     lineId: "line-tj-cor-4",
@@ -5105,7 +5552,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-b08047p",
     lineId: "line-tj-cor-4",
@@ -5120,7 +5570,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00186",
     lineId: "line-tj-cor-4",
@@ -5135,7 +5588,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00185",
     lineId: "line-tj-cor-4",
@@ -5150,7 +5606,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00182",
     lineId: "line-tj-cor-4",
@@ -5165,7 +5624,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00181",
     lineId: "line-tj-cor-4",
@@ -5180,7 +5642,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00177",
     lineId: "line-tj-cor-4",
@@ -5195,7 +5660,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00175",
     lineId: "line-tj-cor-4",
@@ -5210,7 +5678,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00172",
     lineId: "line-tj-cor-4",
@@ -5225,7 +5696,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00168",
     lineId: "line-tj-cor-4",
@@ -5240,7 +5714,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00216",
     lineId: "line-tj-cor-4",
@@ -5255,7 +5732,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00214",
     lineId: "line-tj-cor-4",
@@ -5270,7 +5750,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00212",
     lineId: "line-tj-cor-4",
@@ -5285,7 +5768,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-b08302p",
     lineId: "line-tj-cor-4",
@@ -5300,7 +5786,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00699",
     lineId: "line-tj-cor-4",
@@ -5315,7 +5804,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00733",
     lineId: "line-tj-cor-4",
@@ -5330,7 +5822,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00202",
     lineId: "line-tj-cor-4",
@@ -5345,7 +5840,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00203",
     lineId: "line-tj-cor-4",
@@ -5360,7 +5858,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00734",
     lineId: "line-tj-cor-4",
@@ -5375,7 +5876,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00700",
     lineId: "line-tj-cor-4",
@@ -5390,7 +5894,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-b08301p",
     lineId: "line-tj-cor-4",
@@ -5405,7 +5912,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00188",
     lineId: "line-tj-cor-4",
@@ -5420,7 +5930,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00625",
     lineId: "line-tj-cor-4",
@@ -5435,7 +5948,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00623",
     lineId: "line-tj-cor-4",
@@ -5450,7 +5966,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-4-stop-tj-4-g00189",
     lineId: "line-tj-cor-4",
@@ -5465,7 +5984,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00668",
     lineId: "line-tj-cor-5",
@@ -5480,7 +6002,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00209",
     lineId: "line-tj-cor-5",
@@ -5495,7 +6020,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00213",
     lineId: "line-tj-cor-5",
@@ -5510,7 +6038,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00215",
     lineId: "line-tj-cor-5",
@@ -5525,7 +6056,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00217",
     lineId: "line-tj-cor-5",
@@ -5540,7 +6074,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00219",
     lineId: "line-tj-cor-5",
@@ -5555,7 +6092,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00221",
     lineId: "line-tj-cor-5",
@@ -5570,7 +6110,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00223",
     lineId: "line-tj-cor-5",
@@ -5585,7 +6128,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00224",
     lineId: "line-tj-cor-5",
@@ -5600,7 +6146,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00229",
     lineId: "line-tj-cor-5",
@@ -5615,7 +6164,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00227",
     lineId: "line-tj-cor-5",
@@ -5630,7 +6182,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00225",
     lineId: "line-tj-cor-5",
@@ -5645,7 +6200,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00222",
     lineId: "line-tj-cor-5",
@@ -5660,7 +6218,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00220",
     lineId: "line-tj-cor-5",
@@ -5675,7 +6236,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00218",
     lineId: "line-tj-cor-5",
@@ -5690,7 +6254,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00216",
     lineId: "line-tj-cor-5",
@@ -5705,7 +6272,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00214",
     lineId: "line-tj-cor-5",
@@ -5720,7 +6290,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00212",
     lineId: "line-tj-cor-5",
@@ -5735,7 +6308,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00210",
     lineId: "line-tj-cor-5",
@@ -5750,7 +6326,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00206",
     lineId: "line-tj-cor-5",
@@ -5765,7 +6344,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00355",
     lineId: "line-tj-cor-5",
@@ -5780,7 +6362,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00670",
     lineId: "line-tj-cor-5",
@@ -5795,7 +6380,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00241",
     lineId: "line-tj-cor-5",
@@ -5810,7 +6398,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00240",
     lineId: "line-tj-cor-5",
@@ -5825,7 +6416,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00238",
     lineId: "line-tj-cor-5",
@@ -5840,7 +6434,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00236",
     lineId: "line-tj-cor-5",
@@ -5855,7 +6452,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00234",
     lineId: "line-tj-cor-5",
@@ -5870,7 +6470,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00232",
     lineId: "line-tj-cor-5",
@@ -5885,7 +6488,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00231",
     lineId: "line-tj-cor-5",
@@ -5900,7 +6506,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00233",
     lineId: "line-tj-cor-5",
@@ -5915,7 +6524,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00235",
     lineId: "line-tj-cor-5",
@@ -5930,7 +6542,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00237",
     lineId: "line-tj-cor-5",
@@ -5945,7 +6560,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-5-stop-tj-5-g00239",
     lineId: "line-tj-cor-5",
@@ -5960,7 +6578,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00304",
     lineId: "line-tj-cor-6",
@@ -5975,7 +6596,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00245",
     lineId: "line-tj-cor-6",
@@ -5990,7 +6614,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00247",
     lineId: "line-tj-cor-6",
@@ -6005,7 +6632,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00253",
     lineId: "line-tj-cor-6",
@@ -6020,7 +6650,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00259",
     lineId: "line-tj-cor-6",
@@ -6035,7 +6668,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00261",
     lineId: "line-tj-cor-6",
@@ -6050,7 +6686,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00262",
     lineId: "line-tj-cor-6",
@@ -6065,7 +6704,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00265",
     lineId: "line-tj-cor-6",
@@ -6080,7 +6722,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00269",
     lineId: "line-tj-cor-6",
@@ -6095,7 +6740,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00273",
     lineId: "line-tj-cor-6",
@@ -6110,7 +6758,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00275",
     lineId: "line-tj-cor-6",
@@ -6125,7 +6776,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00279",
     lineId: "line-tj-cor-6",
@@ -6140,7 +6794,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00285",
     lineId: "line-tj-cor-6",
@@ -6155,7 +6812,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00289",
     lineId: "line-tj-cor-6",
@@ -6170,7 +6830,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00291",
     lineId: "line-tj-cor-6",
@@ -6185,7 +6848,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00295",
     lineId: "line-tj-cor-6",
@@ -6200,7 +6866,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00301",
     lineId: "line-tj-cor-6",
@@ -6215,7 +6884,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00303",
     lineId: "line-tj-cor-6",
@@ -6230,7 +6902,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00299",
     lineId: "line-tj-cor-6",
@@ -6245,7 +6920,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00297",
     lineId: "line-tj-cor-6",
@@ -6260,7 +6938,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00293",
     lineId: "line-tj-cor-6",
@@ -6275,7 +6956,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00287",
     lineId: "line-tj-cor-6",
@@ -6290,7 +6974,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00283",
     lineId: "line-tj-cor-6",
@@ -6305,7 +6992,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00281",
     lineId: "line-tj-cor-6",
@@ -6320,7 +7010,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00277",
     lineId: "line-tj-cor-6",
@@ -6335,7 +7028,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00271",
     lineId: "line-tj-cor-6",
@@ -6350,7 +7046,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00266",
     lineId: "line-tj-cor-6",
@@ -6365,7 +7064,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00264",
     lineId: "line-tj-cor-6",
@@ -6380,7 +7082,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00263",
     lineId: "line-tj-cor-6",
@@ -6395,7 +7100,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00260",
     lineId: "line-tj-cor-6",
@@ -6410,7 +7118,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00258",
     lineId: "line-tj-cor-6",
@@ -6425,7 +7136,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00255",
     lineId: "line-tj-cor-6",
@@ -6440,7 +7154,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00250",
     lineId: "line-tj-cor-6",
@@ -6455,7 +7172,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00243",
     lineId: "line-tj-cor-6",
@@ -6470,7 +7190,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00307",
     lineId: "line-tj-cor-6",
@@ -6485,7 +7208,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00205",
     lineId: "line-tj-cor-6",
@@ -6500,7 +7226,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-6-stop-tj-6-g00204",
     lineId: "line-tj-cor-6",
@@ -6515,7 +7244,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00311",
     lineId: "line-tj-cor-7",
@@ -6530,7 +7262,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00312",
     lineId: "line-tj-cor-7",
@@ -6545,7 +7280,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00315",
     lineId: "line-tj-cor-7",
@@ -6560,7 +7298,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00317",
     lineId: "line-tj-cor-7",
@@ -6575,7 +7316,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00319",
     lineId: "line-tj-cor-7",
@@ -6590,7 +7334,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00321",
     lineId: "line-tj-cor-7",
@@ -6605,7 +7352,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00322",
     lineId: "line-tj-cor-7",
@@ -6620,7 +7370,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00329",
     lineId: "line-tj-cor-7",
@@ -6635,7 +7388,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00720",
     lineId: "line-tj-cor-7",
@@ -6650,7 +7406,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00345",
     lineId: "line-tj-cor-7",
@@ -6665,7 +7424,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00349",
     lineId: "line-tj-cor-7",
@@ -6680,7 +7442,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00350",
     lineId: "line-tj-cor-7",
@@ -6695,7 +7460,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00353",
     lineId: "line-tj-cor-7",
@@ -6710,7 +7478,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00673",
     lineId: "line-tj-cor-7",
@@ -6725,7 +7496,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00672",
     lineId: "line-tj-cor-7",
@@ -6740,7 +7514,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00352",
     lineId: "line-tj-cor-7",
@@ -6755,7 +7532,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00351",
     lineId: "line-tj-cor-7",
@@ -6770,7 +7550,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00348",
     lineId: "line-tj-cor-7",
@@ -6785,7 +7568,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00347",
     lineId: "line-tj-cor-7",
@@ -6800,7 +7586,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00718",
     lineId: "line-tj-cor-7",
@@ -6815,7 +7604,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00336",
     lineId: "line-tj-cor-7",
@@ -6830,7 +7622,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00327",
     lineId: "line-tj-cor-7",
@@ -6845,7 +7640,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00320",
     lineId: "line-tj-cor-7",
@@ -6860,7 +7658,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00318",
     lineId: "line-tj-cor-7",
@@ -6875,7 +7676,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00316",
     lineId: "line-tj-cor-7",
@@ -6890,7 +7694,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00314",
     lineId: "line-tj-cor-7",
@@ -6905,7 +7712,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00313",
     lineId: "line-tj-cor-7",
@@ -6920,7 +7730,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-7-stop-tj-7-g00717",
     lineId: "line-tj-cor-7",
@@ -6935,7 +7748,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00115",
     lineId: "line-tj-cor-8",
@@ -6950,7 +7766,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00118",
     lineId: "line-tj-cor-8",
@@ -6965,7 +7784,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00122",
     lineId: "line-tj-cor-8",
@@ -6980,7 +7802,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00166",
     lineId: "line-tj-cor-8",
@@ -6995,7 +7820,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00400",
     lineId: "line-tj-cor-8",
@@ -7010,7 +7838,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00398",
     lineId: "line-tj-cor-8",
@@ -7025,7 +7856,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00403",
     lineId: "line-tj-cor-8",
@@ -7040,7 +7874,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00135",
     lineId: "line-tj-cor-8",
@@ -7055,7 +7892,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00144",
     lineId: "line-tj-cor-8",
@@ -7070,7 +7910,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00396",
     lineId: "line-tj-cor-8",
@@ -7085,7 +7928,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00394",
     lineId: "line-tj-cor-8",
@@ -7100,7 +7946,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00392",
     lineId: "line-tj-cor-8",
@@ -7115,7 +7964,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00390",
     lineId: "line-tj-cor-8",
@@ -7130,7 +7982,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00388",
     lineId: "line-tj-cor-8",
@@ -7145,7 +8000,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00386",
     lineId: "line-tj-cor-8",
@@ -7160,7 +8018,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00384",
     lineId: "line-tj-cor-8",
@@ -7175,7 +8036,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00382",
     lineId: "line-tj-cor-8",
@@ -7190,7 +8054,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00380",
     lineId: "line-tj-cor-8",
@@ -7205,7 +8072,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00378",
     lineId: "line-tj-cor-8",
@@ -7220,7 +8090,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00372",
     lineId: "line-tj-cor-8",
@@ -7235,7 +8108,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00370",
     lineId: "line-tj-cor-8",
@@ -7250,7 +8126,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00368",
     lineId: "line-tj-cor-8",
@@ -7265,7 +8144,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00367",
     lineId: "line-tj-cor-8",
@@ -7280,7 +8162,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00369",
     lineId: "line-tj-cor-8",
@@ -7295,7 +8180,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00371",
     lineId: "line-tj-cor-8",
@@ -7310,7 +8198,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00375",
     lineId: "line-tj-cor-8",
@@ -7325,7 +8216,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00379",
     lineId: "line-tj-cor-8",
@@ -7340,7 +8234,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00381",
     lineId: "line-tj-cor-8",
@@ -7355,7 +8252,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00383",
     lineId: "line-tj-cor-8",
@@ -7370,7 +8270,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00385",
     lineId: "line-tj-cor-8",
@@ -7385,7 +8288,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00387",
     lineId: "line-tj-cor-8",
@@ -7400,7 +8306,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00389",
     lineId: "line-tj-cor-8",
@@ -7415,7 +8324,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00391",
     lineId: "line-tj-cor-8",
@@ -7430,7 +8342,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00393",
     lineId: "line-tj-cor-8",
@@ -7445,7 +8360,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
+  }
+];
+const TRANSIT_STOPS_EXTRA_1: Stop[] = [
   {
     id: "stop-tj-cor-8-stop-tj-8-g00395",
     lineId: "line-tj-cor-8",
@@ -7460,7 +8379,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00147",
     lineId: "line-tj-cor-8",
@@ -7475,7 +8397,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00138",
     lineId: "line-tj-cor-8",
@@ -7490,7 +8415,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00739",
     lineId: "line-tj-cor-8",
@@ -7505,7 +8433,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00405",
     lineId: "line-tj-cor-8",
@@ -7520,7 +8451,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00397",
     lineId: "line-tj-cor-8",
@@ -7535,7 +8469,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00399",
     lineId: "line-tj-cor-8",
@@ -7550,7 +8487,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00163",
     lineId: "line-tj-cor-8",
@@ -7565,7 +8505,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00121",
     lineId: "line-tj-cor-8",
@@ -7580,7 +8523,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00117",
     lineId: "line-tj-cor-8",
@@ -7595,7 +8541,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00359",
     lineId: "line-tj-cor-8",
@@ -7610,7 +8559,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00360",
     lineId: "line-tj-cor-8",
@@ -7625,7 +8577,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00363",
     lineId: "line-tj-cor-8",
@@ -7640,7 +8595,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00366",
     lineId: "line-tj-cor-8",
@@ -7655,7 +8613,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00708",
     lineId: "line-tj-cor-8",
@@ -7670,7 +8631,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00131",
     lineId: "line-tj-cor-8",
@@ -7685,7 +8649,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00129",
     lineId: "line-tj-cor-8",
@@ -7700,7 +8667,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-8-stop-tj-8-g00706",
     lineId: "line-tj-cor-8",
@@ -7715,7 +8685,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00677",
     lineId: "line-tj-cor-9",
@@ -7730,7 +8703,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00075",
     lineId: "line-tj-cor-9",
@@ -7745,7 +8721,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00446",
     lineId: "line-tj-cor-9",
@@ -7760,7 +8739,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00443",
     lineId: "line-tj-cor-9",
@@ -7775,7 +8757,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00442",
     lineId: "line-tj-cor-9",
@@ -7790,7 +8775,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00440",
     lineId: "line-tj-cor-9",
@@ -7805,7 +8793,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00740",
     lineId: "line-tj-cor-9",
@@ -7820,7 +8811,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00405",
     lineId: "line-tj-cor-9",
@@ -7835,7 +8829,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00437",
     lineId: "line-tj-cor-9",
@@ -7850,7 +8847,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00434",
     lineId: "line-tj-cor-9",
@@ -7865,7 +8865,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00724",
     lineId: "line-tj-cor-9",
@@ -7880,7 +8883,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00080",
     lineId: "line-tj-cor-9",
@@ -7895,7 +8901,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00432",
     lineId: "line-tj-cor-9",
@@ -7910,7 +8919,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00667",
     lineId: "line-tj-cor-9",
@@ -7925,7 +8937,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00427",
     lineId: "line-tj-cor-9",
@@ -7940,7 +8955,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00423",
     lineId: "line-tj-cor-9",
@@ -7955,7 +8973,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00420",
     lineId: "line-tj-cor-9",
@@ -7970,7 +8991,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00736",
     lineId: "line-tj-cor-9",
@@ -7985,7 +9009,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00418",
     lineId: "line-tj-cor-9",
@@ -8000,7 +9027,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00416",
     lineId: "line-tj-cor-9",
@@ -8015,7 +9045,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00414",
     lineId: "line-tj-cor-9",
@@ -8030,7 +9063,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00410",
     lineId: "line-tj-cor-9",
@@ -8045,7 +9081,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00347",
     lineId: "line-tj-cor-9",
@@ -8060,7 +9099,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00717",
     lineId: "line-tj-cor-9",
@@ -8075,7 +9117,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00721",
     lineId: "line-tj-cor-9",
@@ -8090,7 +9135,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00344",
     lineId: "line-tj-cor-9",
@@ -8105,7 +9153,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00408",
     lineId: "line-tj-cor-9",
@@ -8120,7 +9171,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00412",
     lineId: "line-tj-cor-9",
@@ -8135,7 +9189,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00415",
     lineId: "line-tj-cor-9",
@@ -8150,7 +9207,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00417",
     lineId: "line-tj-cor-9",
@@ -8165,7 +9225,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00738",
     lineId: "line-tj-cor-9",
@@ -8180,7 +9243,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00419",
     lineId: "line-tj-cor-9",
@@ -8195,7 +9261,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00421",
     lineId: "line-tj-cor-9",
@@ -8210,7 +9279,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00425",
     lineId: "line-tj-cor-9",
@@ -8225,7 +9297,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00665",
     lineId: "line-tj-cor-9",
@@ -8240,7 +9315,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00429",
     lineId: "line-tj-cor-9",
@@ -8255,7 +9333,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00077",
     lineId: "line-tj-cor-9",
@@ -8270,7 +9351,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00726",
     lineId: "line-tj-cor-9",
@@ -8285,7 +9369,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00433",
     lineId: "line-tj-cor-9",
@@ -8300,7 +9387,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00436",
     lineId: "line-tj-cor-9",
@@ -8315,7 +9405,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00403",
     lineId: "line-tj-cor-9",
@@ -8330,7 +9423,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00742",
     lineId: "line-tj-cor-9",
@@ -8345,7 +9441,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00439",
     lineId: "line-tj-cor-9",
@@ -8360,7 +9459,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00441",
     lineId: "line-tj-cor-9",
@@ -8375,7 +9477,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00444",
     lineId: "line-tj-cor-9",
@@ -8390,7 +9495,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00445",
     lineId: "line-tj-cor-9",
@@ -8405,7 +9513,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00074",
     lineId: "line-tj-cor-9",
@@ -8420,7 +9531,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00402",
     lineId: "line-tj-cor-9",
@@ -8435,7 +9549,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00001",
     lineId: "line-tj-cor-9",
@@ -8450,7 +9567,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-9-stop-tj-9-g00002",
     lineId: "line-tj-cor-9",
@@ -8465,7 +9585,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00328",
     lineId: "line-tj-cor-10",
@@ -8480,7 +9603,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00329",
     lineId: "line-tj-cor-10",
@@ -8495,7 +9621,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00722",
     lineId: "line-tj-cor-10",
@@ -8510,7 +9639,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00448",
     lineId: "line-tj-cor-10",
@@ -8525,7 +9657,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00452",
     lineId: "line-tj-cor-10",
@@ -8540,7 +9675,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00454",
     lineId: "line-tj-cor-10",
@@ -8555,7 +9693,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00457",
     lineId: "line-tj-cor-10",
@@ -8570,7 +9711,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00458",
     lineId: "line-tj-cor-10",
@@ -8585,7 +9729,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00461",
     lineId: "line-tj-cor-10",
@@ -8600,7 +9747,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00463",
     lineId: "line-tj-cor-10",
@@ -8615,7 +9765,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00467",
     lineId: "line-tj-cor-10",
@@ -8630,7 +9783,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00471",
     lineId: "line-tj-cor-10",
@@ -8645,7 +9801,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00475",
     lineId: "line-tj-cor-10",
@@ -8660,7 +9819,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00481",
     lineId: "line-tj-cor-10",
@@ -8675,7 +9837,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00483",
     lineId: "line-tj-cor-10",
@@ -8690,7 +9855,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00487",
     lineId: "line-tj-cor-10",
@@ -8705,7 +9873,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00492",
     lineId: "line-tj-cor-10",
@@ -8720,7 +9891,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00496",
     lineId: "line-tj-cor-10",
@@ -8735,7 +9909,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00499",
     lineId: "line-tj-cor-10",
@@ -8750,7 +9927,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00500",
     lineId: "line-tj-cor-10",
@@ -8765,7 +9945,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00497",
     lineId: "line-tj-cor-10",
@@ -8780,7 +9963,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00494",
     lineId: "line-tj-cor-10",
@@ -8795,7 +9981,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00489",
     lineId: "line-tj-cor-10",
@@ -8810,7 +9999,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00485",
     lineId: "line-tj-cor-10",
@@ -8825,7 +10017,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00479",
     lineId: "line-tj-cor-10",
@@ -8840,7 +10035,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00477",
     lineId: "line-tj-cor-10",
@@ -8855,7 +10053,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00473",
     lineId: "line-tj-cor-10",
@@ -8870,7 +10071,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00469",
     lineId: "line-tj-cor-10",
@@ -8885,7 +10089,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00465",
     lineId: "line-tj-cor-10",
@@ -8900,7 +10107,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00460",
     lineId: "line-tj-cor-10",
@@ -8915,7 +10125,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00459",
     lineId: "line-tj-cor-10",
@@ -8930,7 +10143,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00456",
     lineId: "line-tj-cor-10",
@@ -8945,7 +10161,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00455",
     lineId: "line-tj-cor-10",
@@ -8960,7 +10179,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00453",
     lineId: "line-tj-cor-10",
@@ -8975,7 +10197,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00451",
     lineId: "line-tj-cor-10",
@@ -8990,7 +10215,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00718",
     lineId: "line-tj-cor-10",
@@ -9005,7 +10233,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00335",
     lineId: "line-tj-cor-10",
@@ -9020,7 +10251,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00511",
     lineId: "line-tj-cor-10",
@@ -9035,7 +10269,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00509",
     lineId: "line-tj-cor-10",
@@ -9050,7 +10287,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00503",
     lineId: "line-tj-cor-10",
@@ -9065,7 +10305,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00505",
     lineId: "line-tj-cor-10",
@@ -9080,7 +10323,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-10-stop-tj-10-g00507",
     lineId: "line-tj-cor-10",
@@ -9095,7 +10341,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00513",
     lineId: "line-tj-cor-11",
@@ -9110,7 +10359,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00517",
     lineId: "line-tj-cor-11",
@@ -9125,7 +10377,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00519",
     lineId: "line-tj-cor-11",
@@ -9140,7 +10395,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00521",
     lineId: "line-tj-cor-11",
@@ -9155,7 +10413,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00523",
     lineId: "line-tj-cor-11",
@@ -9170,7 +10431,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00527",
     lineId: "line-tj-cor-11",
@@ -9185,7 +10449,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00529",
     lineId: "line-tj-cor-11",
@@ -9200,7 +10467,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00534",
     lineId: "line-tj-cor-11",
@@ -9215,7 +10485,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00538",
     lineId: "line-tj-cor-11",
@@ -9230,7 +10503,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00541",
     lineId: "line-tj-cor-11",
@@ -9245,7 +10521,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00545",
     lineId: "line-tj-cor-11",
@@ -9260,7 +10539,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00549",
     lineId: "line-tj-cor-11",
@@ -9275,7 +10557,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00553",
     lineId: "line-tj-cor-11",
@@ -9290,7 +10575,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00556",
     lineId: "line-tj-cor-11",
@@ -9305,7 +10593,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00355",
     lineId: "line-tj-cor-11",
@@ -9320,7 +10611,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00670",
     lineId: "line-tj-cor-11",
@@ -9335,7 +10629,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00669",
     lineId: "line-tj-cor-11",
@@ -9350,7 +10647,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00558",
     lineId: "line-tj-cor-11",
@@ -9365,7 +10665,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00551",
     lineId: "line-tj-cor-11",
@@ -9380,7 +10683,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00547",
     lineId: "line-tj-cor-11",
@@ -9395,7 +10701,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00543",
     lineId: "line-tj-cor-11",
@@ -9410,7 +10719,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00539",
     lineId: "line-tj-cor-11",
@@ -9425,7 +10737,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00535",
     lineId: "line-tj-cor-11",
@@ -9440,7 +10755,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00532",
     lineId: "line-tj-cor-11",
@@ -9455,7 +10773,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00528",
     lineId: "line-tj-cor-11",
@@ -9470,7 +10791,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00525",
     lineId: "line-tj-cor-11",
@@ -9485,7 +10809,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00522",
     lineId: "line-tj-cor-11",
@@ -9500,7 +10827,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00520",
     lineId: "line-tj-cor-11",
@@ -9515,7 +10845,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00518",
     lineId: "line-tj-cor-11",
@@ -9530,7 +10863,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-11-stop-tj-11-g00515",
     lineId: "line-tj-cor-11",
@@ -9545,7 +10881,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00559",
     lineId: "line-tj-cor-12",
@@ -9560,7 +10899,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00492",
     lineId: "line-tj-cor-12",
@@ -9575,7 +10917,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00560",
     lineId: "line-tj-cor-12",
@@ -9590,7 +10935,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00563",
     lineId: "line-tj-cor-12",
@@ -9605,7 +10953,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00711",
     lineId: "line-tj-cor-12",
@@ -9620,7 +10971,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00566",
     lineId: "line-tj-cor-12",
@@ -9635,7 +10989,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00568",
     lineId: "line-tj-cor-12",
@@ -9650,7 +11007,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00235",
     lineId: "line-tj-cor-12",
@@ -9665,7 +11025,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00237",
     lineId: "line-tj-cor-12",
@@ -9680,7 +11043,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00573",
     lineId: "line-tj-cor-12",
@@ -9695,7 +11061,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00577",
     lineId: "line-tj-cor-12",
@@ -9710,7 +11079,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00060",
     lineId: "line-tj-cor-12",
@@ -9725,7 +11097,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00064",
     lineId: "line-tj-cor-12",
@@ -9740,7 +11115,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00061",
     lineId: "line-tj-cor-12",
@@ -9755,7 +11133,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00579",
     lineId: "line-tj-cor-12",
@@ -9770,7 +11151,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00575",
     lineId: "line-tj-cor-12",
@@ -9785,7 +11169,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00238",
     lineId: "line-tj-cor-12",
@@ -9800,7 +11187,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00236",
     lineId: "line-tj-cor-12",
@@ -9815,7 +11205,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00567",
     lineId: "line-tj-cor-12",
@@ -9830,7 +11223,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00565",
     lineId: "line-tj-cor-12",
@@ -9845,7 +11241,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00712",
     lineId: "line-tj-cor-12",
@@ -9860,7 +11259,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00564",
     lineId: "line-tj-cor-12",
@@ -9875,7 +11277,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00677",
     lineId: "line-tj-cor-12",
@@ -9890,7 +11295,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00072",
     lineId: "line-tj-cor-12",
@@ -9905,7 +11313,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00068",
     lineId: "line-tj-cor-12",
@@ -9920,7 +11331,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00070",
     lineId: "line-tj-cor-12",
@@ -9935,7 +11349,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00496",
     lineId: "line-tj-cor-12",
@@ -9950,7 +11367,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00499",
     lineId: "line-tj-cor-12",
@@ -9965,7 +11385,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00505",
     lineId: "line-tj-cor-12",
@@ -9980,7 +11403,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00507",
     lineId: "line-tj-cor-12",
@@ -9995,7 +11421,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00755",
     lineId: "line-tj-cor-12",
@@ -10010,7 +11439,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00509",
     lineId: "line-tj-cor-12",
@@ -10025,7 +11457,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00503",
     lineId: "line-tj-cor-12",
@@ -10040,7 +11475,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00500",
     lineId: "line-tj-cor-12",
@@ -10055,7 +11493,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00497",
     lineId: "line-tj-cor-12",
@@ -10070,7 +11511,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00562",
     lineId: "line-tj-cor-12",
@@ -10085,7 +11529,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00076",
     lineId: "line-tj-cor-12",
@@ -10100,7 +11547,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-12-stop-tj-12-g00074",
     lineId: "line-tj-cor-12",
@@ -10115,7 +11565,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00608",
     lineId: "line-tj-cor-13",
@@ -10130,7 +11583,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00607",
     lineId: "line-tj-cor-13",
@@ -10145,7 +11601,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00604",
     lineId: "line-tj-cor-13",
@@ -10160,7 +11619,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00601",
     lineId: "line-tj-cor-13",
@@ -10175,7 +11637,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00599",
     lineId: "line-tj-cor-13",
@@ -10190,7 +11655,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00597",
     lineId: "line-tj-cor-13",
@@ -10205,7 +11673,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00595",
     lineId: "line-tj-cor-13",
@@ -10220,7 +11691,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00593",
     lineId: "line-tj-cor-13",
@@ -10235,7 +11709,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00588",
     lineId: "line-tj-cor-13",
@@ -10250,7 +11727,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00585",
     lineId: "line-tj-cor-13",
@@ -10265,7 +11745,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00091",
     lineId: "line-tj-cor-13",
@@ -10280,7 +11763,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00583",
     lineId: "line-tj-cor-13",
@@ -10295,7 +11781,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00580",
     lineId: "line-tj-cor-13",
@@ -10310,7 +11799,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00007",
     lineId: "line-tj-cor-13",
@@ -10325,7 +11817,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00008",
     lineId: "line-tj-cor-13",
@@ -10340,7 +11835,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00582",
     lineId: "line-tj-cor-13",
@@ -10355,7 +11853,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00584",
     lineId: "line-tj-cor-13",
@@ -10370,7 +11871,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00760",
     lineId: "line-tj-cor-13",
@@ -10385,7 +11889,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00587",
     lineId: "line-tj-cor-13",
@@ -10400,7 +11907,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00592",
     lineId: "line-tj-cor-13",
@@ -10415,7 +11925,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00594",
     lineId: "line-tj-cor-13",
@@ -10430,7 +11943,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00596",
     lineId: "line-tj-cor-13",
@@ -10445,7 +11961,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00598",
     lineId: "line-tj-cor-13",
@@ -10460,7 +11979,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00600",
     lineId: "line-tj-cor-13",
@@ -10475,7 +11997,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00602",
     lineId: "line-tj-cor-13",
@@ -10490,7 +12015,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00603",
     lineId: "line-tj-cor-13",
@@ -10505,7 +12033,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00612",
     lineId: "line-tj-cor-13",
@@ -10520,7 +12051,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-13-stop-tj-13-g00613",
     lineId: "line-tj-cor-13",
@@ -10535,7 +12069,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-p00095",
     lineId: "line-tj-cor-14",
@@ -10550,7 +12087,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00713",
     lineId: "line-tj-cor-14",
@@ -10565,7 +12105,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00711",
     lineId: "line-tj-cor-14",
@@ -10580,7 +12123,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00566",
     lineId: "line-tj-cor-14",
@@ -10595,7 +12141,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00568",
     lineId: "line-tj-cor-14",
@@ -10610,7 +12159,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00715",
     lineId: "line-tj-cor-14",
@@ -10625,7 +12177,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00709",
     lineId: "line-tj-cor-14",
@@ -10640,7 +12195,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00107",
     lineId: "line-tj-cor-14",
@@ -10655,7 +12213,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00110",
     lineId: "line-tj-cor-14",
@@ -10670,7 +12231,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00710",
     lineId: "line-tj-cor-14",
@@ -10685,7 +12249,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00716",
     lineId: "line-tj-cor-14",
@@ -10700,7 +12267,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00569",
     lineId: "line-tj-cor-14",
@@ -10715,7 +12285,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00567",
     lineId: "line-tj-cor-14",
@@ -10730,7 +12303,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00565",
     lineId: "line-tj-cor-14",
@@ -10745,7 +12321,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00712",
     lineId: "line-tj-cor-14",
@@ -10760,7 +12339,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-cor-14-stop-tj-14-g00714",
     lineId: "line-tj-cor-14",
@@ -10775,7 +12357,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "MEDIUM",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00127",
     lineId: "line-tj-sub-2a",
@@ -10790,7 +12375,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00622",
     lineId: "line-tj-sub-2a",
@@ -10805,7 +12393,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00697",
     lineId: "line-tj-sub-2a",
@@ -10820,7 +12411,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00626",
     lineId: "line-tj-sub-2a",
@@ -10835,7 +12429,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00092",
     lineId: "line-tj-sub-2a",
@@ -10850,7 +12447,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00096",
     lineId: "line-tj-sub-2a",
@@ -10865,7 +12465,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00094",
     lineId: "line-tj-sub-2a",
@@ -10880,7 +12483,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00098",
     lineId: "line-tj-sub-2a",
@@ -10895,7 +12501,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00101",
     lineId: "line-tj-sub-2a",
@@ -10910,7 +12519,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00102",
     lineId: "line-tj-sub-2a",
@@ -10925,7 +12537,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00104",
     lineId: "line-tj-sub-2a",
@@ -10940,7 +12555,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00107",
     lineId: "line-tj-sub-2a",
@@ -10955,7 +12573,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00124",
     lineId: "line-tj-sub-2a",
@@ -10970,7 +12591,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00066",
     lineId: "line-tj-sub-2a",
@@ -10985,7 +12609,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00123",
     lineId: "line-tj-sub-2a",
@@ -11000,7 +12627,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00113",
     lineId: "line-tj-sub-2a",
@@ -11015,7 +12645,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00114",
     lineId: "line-tj-sub-2a",
@@ -11030,7 +12663,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00120",
     lineId: "line-tj-sub-2a",
@@ -11045,7 +12681,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00122",
     lineId: "line-tj-sub-2a",
@@ -11060,7 +12699,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00166",
     lineId: "line-tj-sub-2a",
@@ -11075,7 +12717,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00128",
     lineId: "line-tj-sub-2a",
@@ -11090,7 +12735,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00705",
     lineId: "line-tj-sub-2a",
@@ -11105,7 +12753,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00132",
     lineId: "line-tj-sub-2a",
@@ -11120,7 +12771,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00142",
     lineId: "line-tj-sub-2a",
@@ -11135,7 +12789,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00148",
     lineId: "line-tj-sub-2a",
@@ -11150,7 +12807,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00151",
     lineId: "line-tj-sub-2a",
@@ -11165,7 +12825,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00153",
     lineId: "line-tj-sub-2a",
@@ -11180,7 +12843,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00701",
     lineId: "line-tj-sub-2a",
@@ -11195,7 +12861,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00154",
     lineId: "line-tj-sub-2a",
@@ -11210,7 +12879,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00155",
     lineId: "line-tj-sub-2a",
@@ -11225,7 +12897,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00704",
     lineId: "line-tj-sub-2a",
@@ -11240,7 +12915,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00152",
     lineId: "line-tj-sub-2a",
@@ -11255,7 +12933,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00150",
     lineId: "line-tj-sub-2a",
@@ -11270,7 +12951,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00149",
     lineId: "line-tj-sub-2a",
@@ -11285,7 +12969,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00146",
     lineId: "line-tj-sub-2a",
@@ -11300,7 +12987,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00138",
     lineId: "line-tj-sub-2a",
@@ -11315,7 +13005,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00707",
     lineId: "line-tj-sub-2a",
@@ -11330,7 +13023,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00131",
     lineId: "line-tj-sub-2a",
@@ -11345,7 +13041,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00163",
     lineId: "line-tj-sub-2a",
@@ -11360,7 +13059,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00121",
     lineId: "line-tj-sub-2a",
@@ -11375,7 +13077,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00117",
     lineId: "line-tj-sub-2a",
@@ -11390,7 +13095,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00125",
     lineId: "line-tj-sub-2a",
@@ -11405,7 +13113,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00108",
     lineId: "line-tj-sub-2a",
@@ -11420,7 +13131,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00105",
     lineId: "line-tj-sub-2a",
@@ -11435,7 +13149,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00103",
     lineId: "line-tj-sub-2a",
@@ -11450,7 +13167,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00100",
     lineId: "line-tj-sub-2a",
@@ -11465,7 +13185,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00099",
     lineId: "line-tj-sub-2a",
@@ -11480,7 +13203,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00095",
     lineId: "line-tj-sub-2a",
@@ -11495,7 +13221,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00097",
     lineId: "line-tj-sub-2a",
@@ -11510,7 +13239,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00093",
     lineId: "line-tj-sub-2a",
@@ -11525,7 +13257,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00629",
     lineId: "line-tj-sub-2a",
@@ -11540,7 +13275,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00698",
     lineId: "line-tj-sub-2a",
@@ -11555,7 +13293,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00625",
     lineId: "line-tj-sub-2a",
@@ -11570,7 +13311,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00170",
     lineId: "line-tj-sub-2a",
@@ -11585,7 +13329,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-2a-stop-tj-2a-g00067",
     lineId: "line-tj-sub-2a",
@@ -11600,7 +13347,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00160",
     lineId: "line-tj-sub-3f",
@@ -11615,7 +13365,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00158",
     lineId: "line-tj-sub-3f",
@@ -11630,7 +13383,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00157",
     lineId: "line-tj-sub-3f",
@@ -11645,7 +13401,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00155",
     lineId: "line-tj-sub-3f",
@@ -11660,7 +13419,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00703",
     lineId: "line-tj-sub-3f",
@@ -11675,7 +13437,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00152",
     lineId: "line-tj-sub-3f",
@@ -11690,7 +13455,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00150",
     lineId: "line-tj-sub-3f",
@@ -11705,7 +13473,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00149",
     lineId: "line-tj-sub-3f",
@@ -11720,7 +13491,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00146",
     lineId: "line-tj-sub-3f",
@@ -11735,7 +13509,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00141",
     lineId: "line-tj-sub-3f",
@@ -11750,7 +13527,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00740",
     lineId: "line-tj-sub-3f",
@@ -11765,7 +13545,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00405",
     lineId: "line-tj-sub-3f",
@@ -11780,7 +13563,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00437",
     lineId: "line-tj-sub-3f",
@@ -11795,7 +13581,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00434",
     lineId: "line-tj-sub-3f",
@@ -11810,7 +13599,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00723",
     lineId: "line-tj-sub-3f",
@@ -11825,7 +13617,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00080",
     lineId: "line-tj-sub-3f",
@@ -11840,7 +13635,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00013",
     lineId: "line-tj-sub-3f",
@@ -11855,7 +13653,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00016",
     lineId: "line-tj-sub-3f",
@@ -11870,7 +13671,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00077",
     lineId: "line-tj-sub-3f",
@@ -11885,7 +13689,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00726",
     lineId: "line-tj-sub-3f",
@@ -11900,7 +13707,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00433",
     lineId: "line-tj-sub-3f",
@@ -11915,7 +13725,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00436",
     lineId: "line-tj-sub-3f",
@@ -11930,7 +13743,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00403",
     lineId: "line-tj-sub-3f",
@@ -11945,7 +13761,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
+  }
+];
+const TRANSIT_STOPS_EXTRA_2: Stop[] = [
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00132",
     lineId: "line-tj-sub-3f",
@@ -11960,7 +13780,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00142",
     lineId: "line-tj-sub-3f",
@@ -11975,7 +13798,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00148",
     lineId: "line-tj-sub-3f",
@@ -11990,7 +13816,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00151",
     lineId: "line-tj-sub-3f",
@@ -12005,7 +13834,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00153",
     lineId: "line-tj-sub-3f",
@@ -12020,7 +13852,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00702",
     lineId: "line-tj-sub-3f",
@@ -12035,7 +13870,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00154",
     lineId: "line-tj-sub-3f",
@@ -12050,7 +13888,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00156",
     lineId: "line-tj-sub-3f",
@@ -12065,7 +13906,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00159",
     lineId: "line-tj-sub-3f",
@@ -12080,7 +13924,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-3f-stop-tj-3f-g00758",
     lineId: "line-tj-sub-3f",
@@ -12095,7 +13942,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00322",
     lineId: "line-tj-sub-5c",
@@ -12110,7 +13960,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00329",
     lineId: "line-tj-sub-5c",
@@ -12125,7 +13978,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00720",
     lineId: "line-tj-sub-5c",
@@ -12140,7 +13996,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00345",
     lineId: "line-tj-sub-5c",
@@ -12155,7 +14014,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00349",
     lineId: "line-tj-sub-5c",
@@ -12170,7 +14032,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00350",
     lineId: "line-tj-sub-5c",
@@ -12185,7 +14050,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00353",
     lineId: "line-tj-sub-5c",
@@ -12200,7 +14068,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00674",
     lineId: "line-tj-sub-5c",
@@ -12215,7 +14086,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00208",
     lineId: "line-tj-sub-5c",
@@ -12230,7 +14104,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00213",
     lineId: "line-tj-sub-5c",
@@ -12245,7 +14122,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00215",
     lineId: "line-tj-sub-5c",
@@ -12260,7 +14140,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00217",
     lineId: "line-tj-sub-5c",
@@ -12275,7 +14158,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00219",
     lineId: "line-tj-sub-5c",
@@ -12290,7 +14176,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00221",
     lineId: "line-tj-sub-5c",
@@ -12305,7 +14194,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00223",
     lineId: "line-tj-sub-5c",
@@ -12320,7 +14212,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00224",
     lineId: "line-tj-sub-5c",
@@ -12335,7 +14230,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00124",
     lineId: "line-tj-sub-5c",
@@ -12350,7 +14248,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00113",
     lineId: "line-tj-sub-5c",
@@ -12365,7 +14266,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00114",
     lineId: "line-tj-sub-5c",
@@ -12380,7 +14284,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00120",
     lineId: "line-tj-sub-5c",
@@ -12395,7 +14302,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00122",
     lineId: "line-tj-sub-5c",
@@ -12410,7 +14320,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00042",
     lineId: "line-tj-sub-5c",
@@ -12425,7 +14338,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00041",
     lineId: "line-tj-sub-5c",
@@ -12440,7 +14356,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00121",
     lineId: "line-tj-sub-5c",
@@ -12455,7 +14374,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00116",
     lineId: "line-tj-sub-5c",
@@ -12470,7 +14392,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00232",
     lineId: "line-tj-sub-5c",
@@ -12485,7 +14410,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00225",
     lineId: "line-tj-sub-5c",
@@ -12500,7 +14428,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00222",
     lineId: "line-tj-sub-5c",
@@ -12515,7 +14446,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00220",
     lineId: "line-tj-sub-5c",
@@ -12530,7 +14464,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00218",
     lineId: "line-tj-sub-5c",
@@ -12545,7 +14482,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00216",
     lineId: "line-tj-sub-5c",
@@ -12560,7 +14500,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00214",
     lineId: "line-tj-sub-5c",
@@ -12575,7 +14518,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00212",
     lineId: "line-tj-sub-5c",
@@ -12590,7 +14536,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00210",
     lineId: "line-tj-sub-5c",
@@ -12605,7 +14554,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00206",
     lineId: "line-tj-sub-5c",
@@ -12620,7 +14572,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00355",
     lineId: "line-tj-sub-5c",
@@ -12635,7 +14590,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00671",
     lineId: "line-tj-sub-5c",
@@ -12650,7 +14608,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00352",
     lineId: "line-tj-sub-5c",
@@ -12665,7 +14626,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00351",
     lineId: "line-tj-sub-5c",
@@ -12680,7 +14644,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00348",
     lineId: "line-tj-sub-5c",
@@ -12695,7 +14662,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00346",
     lineId: "line-tj-sub-5c",
@@ -12710,7 +14680,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00718",
     lineId: "line-tj-sub-5c",
@@ -12725,7 +14698,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00335",
     lineId: "line-tj-sub-5c",
@@ -12740,7 +14716,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00759",
     lineId: "line-tj-sub-5c",
@@ -12755,7 +14734,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-5c-stop-tj-5c-g00066",
     lineId: "line-tj-sub-5c",
@@ -12770,7 +14752,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00304",
     lineId: "line-tj-sub-6a",
@@ -12785,7 +14770,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00245",
     lineId: "line-tj-sub-6a",
@@ -12800,7 +14788,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00247",
     lineId: "line-tj-sub-6a",
@@ -12815,7 +14806,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00253",
     lineId: "line-tj-sub-6a",
@@ -12830,7 +14824,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00259",
     lineId: "line-tj-sub-6a",
@@ -12845,7 +14842,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00261",
     lineId: "line-tj-sub-6a",
@@ -12860,7 +14860,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00262",
     lineId: "line-tj-sub-6a",
@@ -12875,7 +14878,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00265",
     lineId: "line-tj-sub-6a",
@@ -12890,7 +14896,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00269",
     lineId: "line-tj-sub-6a",
@@ -12905,7 +14914,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00273",
     lineId: "line-tj-sub-6a",
@@ -12920,7 +14932,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00274",
     lineId: "line-tj-sub-6a",
@@ -12935,7 +14950,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00279",
     lineId: "line-tj-sub-6a",
@@ -12950,7 +14968,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00285",
     lineId: "line-tj-sub-6a",
@@ -12965,7 +14986,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00289",
     lineId: "line-tj-sub-6a",
@@ -12980,7 +15004,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00291",
     lineId: "line-tj-sub-6a",
@@ -12995,7 +15022,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00295",
     lineId: "line-tj-sub-6a",
@@ -13010,7 +15040,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00301",
     lineId: "line-tj-sub-6a",
@@ -13025,7 +15058,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00033",
     lineId: "line-tj-sub-6a",
@@ -13040,7 +15076,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00037",
     lineId: "line-tj-sub-6a",
@@ -13055,7 +15094,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00039",
     lineId: "line-tj-sub-6a",
@@ -13070,7 +15112,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00067",
     lineId: "line-tj-sub-6a",
@@ -13085,7 +15130,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00066",
     lineId: "line-tj-sub-6a",
@@ -13100,7 +15148,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00040",
     lineId: "line-tj-sub-6a",
@@ -13115,7 +15166,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00035",
     lineId: "line-tj-sub-6a",
@@ -13130,7 +15184,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00032",
     lineId: "line-tj-sub-6a",
@@ -13145,7 +15202,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00299",
     lineId: "line-tj-sub-6a",
@@ -13160,7 +15220,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00297",
     lineId: "line-tj-sub-6a",
@@ -13175,7 +15238,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00293",
     lineId: "line-tj-sub-6a",
@@ -13190,7 +15256,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00287",
     lineId: "line-tj-sub-6a",
@@ -13205,7 +15274,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00283",
     lineId: "line-tj-sub-6a",
@@ -13220,7 +15292,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00281",
     lineId: "line-tj-sub-6a",
@@ -13235,7 +15310,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00277",
     lineId: "line-tj-sub-6a",
@@ -13250,7 +15328,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00271",
     lineId: "line-tj-sub-6a",
@@ -13265,7 +15346,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00267",
     lineId: "line-tj-sub-6a",
@@ -13280,7 +15364,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00264",
     lineId: "line-tj-sub-6a",
@@ -13295,7 +15382,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00263",
     lineId: "line-tj-sub-6a",
@@ -13310,7 +15400,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00260",
     lineId: "line-tj-sub-6a",
@@ -13325,7 +15418,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00258",
     lineId: "line-tj-sub-6a",
@@ -13340,7 +15436,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00255",
     lineId: "line-tj-sub-6a",
@@ -13355,7 +15454,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00250",
     lineId: "line-tj-sub-6a",
@@ -13370,7 +15472,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00243",
     lineId: "line-tj-sub-6a",
@@ -13385,7 +15490,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00307",
     lineId: "line-tj-sub-6a",
@@ -13400,7 +15508,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00028",
     lineId: "line-tj-sub-6a",
@@ -13415,7 +15526,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00022",
     lineId: "line-tj-sub-6a",
@@ -13430,7 +15544,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00691",
     lineId: "line-tj-sub-6a",
@@ -13445,7 +15562,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6a-stop-tj-6a-g00666",
     lineId: "line-tj-sub-6a",
@@ -13460,7 +15580,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00306",
     lineId: "line-tj-sub-6b",
@@ -13475,7 +15598,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00245",
     lineId: "line-tj-sub-6b",
@@ -13490,7 +15616,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00247",
     lineId: "line-tj-sub-6b",
@@ -13505,7 +15634,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00253",
     lineId: "line-tj-sub-6b",
@@ -13520,7 +15652,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00259",
     lineId: "line-tj-sub-6b",
@@ -13535,7 +15670,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00261",
     lineId: "line-tj-sub-6b",
@@ -13550,7 +15688,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00262",
     lineId: "line-tj-sub-6b",
@@ -13565,7 +15706,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00265",
     lineId: "line-tj-sub-6b",
@@ -13580,7 +15724,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00268",
     lineId: "line-tj-sub-6b",
@@ -13595,7 +15742,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00272",
     lineId: "line-tj-sub-6b",
@@ -13610,7 +15760,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00426",
     lineId: "line-tj-sub-6b",
@@ -13625,7 +15778,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00664",
     lineId: "line-tj-sub-6b",
@@ -13640,7 +15796,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00430",
     lineId: "line-tj-sub-6b",
@@ -13655,7 +15814,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00690",
     lineId: "line-tj-sub-6b",
@@ -13670,7 +15832,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00023",
     lineId: "line-tj-sub-6b",
@@ -13685,7 +15850,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00025",
     lineId: "line-tj-sub-6b",
@@ -13700,7 +15868,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00033",
     lineId: "line-tj-sub-6b",
@@ -13715,7 +15886,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00037",
     lineId: "line-tj-sub-6b",
@@ -13730,7 +15904,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00039",
     lineId: "line-tj-sub-6b",
@@ -13745,7 +15922,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00067",
     lineId: "line-tj-sub-6b",
@@ -13760,7 +15940,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00066",
     lineId: "line-tj-sub-6b",
@@ -13775,7 +15958,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00040",
     lineId: "line-tj-sub-6b",
@@ -13790,7 +15976,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00035",
     lineId: "line-tj-sub-6b",
@@ -13805,7 +15994,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00032",
     lineId: "line-tj-sub-6b",
@@ -13820,7 +16012,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00028",
     lineId: "line-tj-sub-6b",
@@ -13835,7 +16030,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00022",
     lineId: "line-tj-sub-6b",
@@ -13850,7 +16048,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00691",
     lineId: "line-tj-sub-6b",
@@ -13865,7 +16066,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00666",
     lineId: "line-tj-sub-6b",
@@ -13880,7 +16084,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00428",
     lineId: "line-tj-sub-6b",
@@ -13895,7 +16102,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00271",
     lineId: "line-tj-sub-6b",
@@ -13910,7 +16120,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00267",
     lineId: "line-tj-sub-6b",
@@ -13925,7 +16138,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00264",
     lineId: "line-tj-sub-6b",
@@ -13940,7 +16156,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00263",
     lineId: "line-tj-sub-6b",
@@ -13955,7 +16174,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00260",
     lineId: "line-tj-sub-6b",
@@ -13970,7 +16192,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00258",
     lineId: "line-tj-sub-6b",
@@ -13985,7 +16210,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00255",
     lineId: "line-tj-sub-6b",
@@ -14000,7 +16228,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00250",
     lineId: "line-tj-sub-6b",
@@ -14015,7 +16246,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00243",
     lineId: "line-tj-sub-6b",
@@ -14030,7 +16264,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00307",
     lineId: "line-tj-sub-6b",
@@ -14045,7 +16282,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00299",
     lineId: "line-tj-sub-6b",
@@ -14060,7 +16300,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00297",
     lineId: "line-tj-sub-6b",
@@ -14075,7 +16318,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00293",
     lineId: "line-tj-sub-6b",
@@ -14090,7 +16336,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00287",
     lineId: "line-tj-sub-6b",
@@ -14105,7 +16354,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00283",
     lineId: "line-tj-sub-6b",
@@ -14120,7 +16372,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00281",
     lineId: "line-tj-sub-6b",
@@ -14135,7 +16390,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-6b-stop-tj-6b-g00277",
     lineId: "line-tj-sub-6b",
@@ -14150,7 +16408,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00311",
     lineId: "line-tj-sub-7f",
@@ -14165,7 +16426,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00312",
     lineId: "line-tj-sub-7f",
@@ -14180,7 +16444,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00315",
     lineId: "line-tj-sub-7f",
@@ -14195,7 +16462,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00317",
     lineId: "line-tj-sub-7f",
@@ -14210,7 +16480,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00319",
     lineId: "line-tj-sub-7f",
@@ -14225,7 +16498,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00463",
     lineId: "line-tj-sub-7f",
@@ -14240,7 +16516,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00467",
     lineId: "line-tj-sub-7f",
@@ -14255,7 +16534,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00471",
     lineId: "line-tj-sub-7f",
@@ -14270,7 +16552,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00475",
     lineId: "line-tj-sub-7f",
@@ -14285,7 +16570,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00481",
     lineId: "line-tj-sub-7f",
@@ -14300,7 +16588,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00096",
     lineId: "line-tj-sub-7f",
@@ -14315,7 +16606,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00094",
     lineId: "line-tj-sub-7f",
@@ -14330,7 +16624,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00098",
     lineId: "line-tj-sub-7f",
@@ -14345,7 +16642,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00101",
     lineId: "line-tj-sub-7f",
@@ -14360,7 +16660,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00102",
     lineId: "line-tj-sub-7f",
@@ -14375,7 +16678,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00104",
     lineId: "line-tj-sub-7f",
@@ -14390,7 +16696,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00106",
     lineId: "line-tj-sub-7f",
@@ -14405,7 +16714,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00124",
     lineId: "line-tj-sub-7f",
@@ -14420,7 +16732,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00113",
     lineId: "line-tj-sub-7f",
@@ -14435,7 +16750,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00114",
     lineId: "line-tj-sub-7f",
@@ -14450,7 +16768,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00120",
     lineId: "line-tj-sub-7f",
@@ -14465,7 +16786,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00122",
     lineId: "line-tj-sub-7f",
@@ -14480,7 +16804,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00042",
     lineId: "line-tj-sub-7f",
@@ -14495,7 +16822,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00041",
     lineId: "line-tj-sub-7f",
@@ -14510,7 +16840,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00121",
     lineId: "line-tj-sub-7f",
@@ -14525,7 +16858,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00117",
     lineId: "line-tj-sub-7f",
@@ -14540,7 +16876,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00115",
     lineId: "line-tj-sub-7f",
@@ -14555,7 +16894,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00125",
     lineId: "line-tj-sub-7f",
@@ -14570,7 +16912,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00109",
     lineId: "line-tj-sub-7f",
@@ -14585,7 +16930,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00105",
     lineId: "line-tj-sub-7f",
@@ -14600,7 +16948,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00103",
     lineId: "line-tj-sub-7f",
@@ -14615,7 +16966,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00100",
     lineId: "line-tj-sub-7f",
@@ -14630,7 +16984,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00099",
     lineId: "line-tj-sub-7f",
@@ -14645,7 +17002,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00095",
     lineId: "line-tj-sub-7f",
@@ -14660,7 +17020,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00477",
     lineId: "line-tj-sub-7f",
@@ -14675,7 +17038,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00473",
     lineId: "line-tj-sub-7f",
@@ -14690,7 +17056,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00469",
     lineId: "line-tj-sub-7f",
@@ -14705,7 +17074,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00465",
     lineId: "line-tj-sub-7f",
@@ -14720,7 +17092,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00318",
     lineId: "line-tj-sub-7f",
@@ -14735,7 +17110,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00314",
     lineId: "line-tj-sub-7f",
@@ -14750,7 +17128,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00313",
     lineId: "line-tj-sub-7f",
@@ -14765,7 +17146,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00066",
     lineId: "line-tj-sub-7f",
@@ -14780,7 +17164,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00116",
     lineId: "line-tj-sub-7f",
@@ -14795,7 +17182,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-7f-stop-tj-7f-g00316",
     lineId: "line-tj-sub-7f",
@@ -14810,7 +17200,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00322",
     lineId: "line-tj-sub-9a",
@@ -14825,7 +17218,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00329",
     lineId: "line-tj-sub-9a",
@@ -14840,7 +17236,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00344",
     lineId: "line-tj-sub-9a",
@@ -14855,7 +17254,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00408",
     lineId: "line-tj-sub-9a",
@@ -14870,7 +17272,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00412",
     lineId: "line-tj-sub-9a",
@@ -14885,7 +17290,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00415",
     lineId: "line-tj-sub-9a",
@@ -14900,7 +17308,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00417",
     lineId: "line-tj-sub-9a",
@@ -14915,7 +17326,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00738",
     lineId: "line-tj-sub-9a",
@@ -14930,7 +17344,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00419",
     lineId: "line-tj-sub-9a",
@@ -14945,7 +17362,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00421",
     lineId: "line-tj-sub-9a",
@@ -14960,7 +17380,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00425",
     lineId: "line-tj-sub-9a",
@@ -14975,7 +17398,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00665",
     lineId: "line-tj-sub-9a",
@@ -14990,7 +17416,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00429",
     lineId: "line-tj-sub-9a",
@@ -15005,7 +17434,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00077",
     lineId: "line-tj-sub-9a",
@@ -15020,7 +17452,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00726",
     lineId: "line-tj-sub-9a",
@@ -15035,7 +17470,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00433",
     lineId: "line-tj-sub-9a",
@@ -15050,7 +17488,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00436",
     lineId: "line-tj-sub-9a",
@@ -15065,7 +17506,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00437",
     lineId: "line-tj-sub-9a",
@@ -15080,7 +17524,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00434",
     lineId: "line-tj-sub-9a",
@@ -15095,7 +17542,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00724",
     lineId: "line-tj-sub-9a",
@@ -15110,7 +17560,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00080",
     lineId: "line-tj-sub-9a",
@@ -15125,7 +17578,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00432",
     lineId: "line-tj-sub-9a",
@@ -15140,7 +17596,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00667",
     lineId: "line-tj-sub-9a",
@@ -15155,7 +17614,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00427",
     lineId: "line-tj-sub-9a",
@@ -15170,7 +17632,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00423",
     lineId: "line-tj-sub-9a",
@@ -15185,7 +17650,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00420",
     lineId: "line-tj-sub-9a",
@@ -15200,7 +17668,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00736",
     lineId: "line-tj-sub-9a",
@@ -15215,7 +17686,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00418",
     lineId: "line-tj-sub-9a",
@@ -15230,7 +17704,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00416",
     lineId: "line-tj-sub-9a",
@@ -15245,7 +17722,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00732",
     lineId: "line-tj-sub-9a",
@@ -15260,7 +17740,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00410",
     lineId: "line-tj-sub-9a",
@@ -15275,7 +17758,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00346",
     lineId: "line-tj-sub-9a",
@@ -15290,7 +17776,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00336",
     lineId: "line-tj-sub-9a",
@@ -15305,7 +17794,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00327",
     lineId: "line-tj-sub-9a",
@@ -15320,7 +17812,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00740",
     lineId: "line-tj-sub-9a",
@@ -15335,7 +17830,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00405",
     lineId: "line-tj-sub-9a",
@@ -15350,7 +17848,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00403",
     lineId: "line-tj-sub-9a",
@@ -15365,7 +17866,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-9a-stop-tj-9a-g00741",
     lineId: "line-tj-sub-9a",
@@ -15380,7 +17884,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00511",
     lineId: "line-tj-sub-10h",
@@ -15395,7 +17902,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00240",
     lineId: "line-tj-sub-10h",
@@ -15410,7 +17920,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00238",
     lineId: "line-tj-sub-10h",
@@ -15425,7 +17938,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00236",
     lineId: "line-tj-sub-10h",
@@ -15440,7 +17956,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00234",
     lineId: "line-tj-sub-10h",
@@ -15455,7 +17974,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00120",
     lineId: "line-tj-sub-10h",
@@ -15470,7 +17992,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00122",
     lineId: "line-tj-sub-10h",
@@ -15485,7 +18010,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00166",
     lineId: "line-tj-sub-10h",
@@ -15500,7 +18028,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00400",
     lineId: "line-tj-sub-10h",
@@ -15515,7 +18046,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00398",
     lineId: "line-tj-sub-10h",
@@ -15530,7 +18064,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00437",
     lineId: "line-tj-sub-10h",
@@ -15545,7 +18082,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00434",
     lineId: "line-tj-sub-10h",
@@ -15560,7 +18100,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00723",
     lineId: "line-tj-sub-10h",
@@ -15575,7 +18118,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00080",
     lineId: "line-tj-sub-10h",
@@ -15590,7 +18136,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00014",
     lineId: "line-tj-sub-10h",
@@ -15605,7 +18154,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00694",
     lineId: "line-tj-sub-10h",
@@ -15620,7 +18172,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00695",
     lineId: "line-tj-sub-10h",
@@ -15635,7 +18190,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00015",
     lineId: "line-tj-sub-10h",
@@ -15650,7 +18208,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00077",
     lineId: "line-tj-sub-10h",
@@ -15665,7 +18226,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00725",
     lineId: "line-tj-sub-10h",
@@ -15680,7 +18244,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00433",
     lineId: "line-tj-sub-10h",
@@ -15695,7 +18262,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00436",
     lineId: "line-tj-sub-10h",
@@ -15710,7 +18280,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00397",
     lineId: "line-tj-sub-10h",
@@ -15725,7 +18298,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00399",
     lineId: "line-tj-sub-10h",
@@ -15740,7 +18316,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00163",
     lineId: "line-tj-sub-10h",
@@ -15755,7 +18334,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00121",
     lineId: "line-tj-sub-10h",
@@ -15770,7 +18352,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00117",
     lineId: "line-tj-sub-10h",
@@ -15785,7 +18370,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00233",
     lineId: "line-tj-sub-10h",
@@ -15800,7 +18388,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00235",
     lineId: "line-tj-sub-10h",
@@ -15815,7 +18406,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00237",
     lineId: "line-tj-sub-10h",
@@ -15830,7 +18424,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-sub-10h-stop-tj-10h-g00239",
     lineId: "line-tj-sub-10h",
@@ -15845,7 +18442,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06040p",
     lineId: "line-tj-feeder-1a",
@@ -15860,7 +18460,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06041p",
     lineId: "line-tj-feeder-1a",
@@ -15875,7 +18478,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06042p",
     lineId: "line-tj-feeder-1a",
@@ -15890,7 +18496,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06043p",
     lineId: "line-tj-feeder-1a",
@@ -15905,7 +18514,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06044p",
     lineId: "line-tj-feeder-1a",
@@ -15920,7 +18532,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00377p",
     lineId: "line-tj-feeder-1a",
@@ -15935,7 +18550,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02832p",
     lineId: "line-tj-feeder-1a",
@@ -15950,7 +18568,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03233p",
     lineId: "line-tj-feeder-1a",
@@ -15965,7 +18586,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05878p",
     lineId: "line-tj-feeder-1a",
@@ -15980,7 +18604,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03164p",
     lineId: "line-tj-feeder-1a",
@@ -15995,7 +18622,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b04989p",
     lineId: "line-tj-feeder-1a",
@@ -16010,7 +18640,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02208p",
     lineId: "line-tj-feeder-1a",
@@ -16025,7 +18658,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02207p",
     lineId: "line-tj-feeder-1a",
@@ -16040,7 +18676,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02394p",
     lineId: "line-tj-feeder-1a",
@@ -16055,7 +18694,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02219p",
     lineId: "line-tj-feeder-1a",
@@ -16070,7 +18712,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06045p",
     lineId: "line-tj-feeder-1a",
@@ -16085,7 +18730,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b01830p",
     lineId: "line-tj-feeder-1a",
@@ -16100,7 +18748,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05252p",
     lineId: "line-tj-feeder-1a",
@@ -16115,7 +18766,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b01829p",
     lineId: "line-tj-feeder-1a",
@@ -16130,7 +18784,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02489p",
     lineId: "line-tj-feeder-1a",
@@ -16145,7 +18802,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b07693p",
     lineId: "line-tj-feeder-1a",
@@ -16160,7 +18820,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00121p",
     lineId: "line-tj-feeder-1a",
@@ -16175,7 +18838,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00122p",
     lineId: "line-tj-feeder-1a",
@@ -16190,7 +18856,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03322p",
     lineId: "line-tj-feeder-1a",
@@ -16205,7 +18874,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05518p",
     lineId: "line-tj-feeder-1a",
@@ -16220,7 +18892,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05863p",
     lineId: "line-tj-feeder-1a",
@@ -16235,7 +18910,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05324p",
     lineId: "line-tj-feeder-1a",
@@ -16250,7 +18928,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02889p",
     lineId: "line-tj-feeder-1a",
@@ -16265,7 +18946,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00079p",
     lineId: "line-tj-feeder-1a",
@@ -16280,7 +18964,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00072",
     lineId: "line-tj-feeder-1a",
@@ -16295,7 +18982,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03407p",
     lineId: "line-tj-feeder-1a",
@@ -16310,7 +19000,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02361p",
     lineId: "line-tj-feeder-1a",
@@ -16325,7 +19018,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00068",
     lineId: "line-tj-feeder-1a",
@@ -16340,7 +19036,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00070",
     lineId: "line-tj-feeder-1a",
@@ -16355,7 +19054,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00183p",
     lineId: "line-tj-feeder-1a",
@@ -16370,7 +19072,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00064",
     lineId: "line-tj-feeder-1a",
@@ -16385,7 +19090,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00061",
     lineId: "line-tj-feeder-1a",
@@ -16400,7 +19108,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00058",
     lineId: "line-tj-feeder-1a",
@@ -16415,7 +19126,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00054",
     lineId: "line-tj-feeder-1a",
@@ -16430,7 +19144,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00688",
     lineId: "line-tj-feeder-1a",
@@ -16445,7 +19162,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
+  }
+];
+const TRANSIT_STOPS_EXTRA_3: Stop[] = [
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00051",
     lineId: "line-tj-feeder-1a",
@@ -16460,7 +19181,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00046",
     lineId: "line-tj-feeder-1a",
@@ -16475,7 +19199,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00117",
     lineId: "line-tj-feeder-1a",
@@ -16490,7 +19217,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00120",
     lineId: "line-tj-feeder-1a",
@@ -16505,7 +19235,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00043",
     lineId: "line-tj-feeder-1a",
@@ -16520,7 +19253,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00687",
     lineId: "line-tj-feeder-1a",
@@ -16535,7 +19271,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00053",
     lineId: "line-tj-feeder-1a",
@@ -16550,7 +19289,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00055",
     lineId: "line-tj-feeder-1a",
@@ -16565,7 +19307,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00056",
     lineId: "line-tj-feeder-1a",
@@ -16580,7 +19325,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02499p",
     lineId: "line-tj-feeder-1a",
@@ -16595,7 +19343,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00060",
     lineId: "line-tj-feeder-1a",
@@ -16610,7 +19361,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b01680p",
     lineId: "line-tj-feeder-1a",
@@ -16625,7 +19379,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00076",
     lineId: "line-tj-feeder-1a",
@@ -16640,7 +19397,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b01773p",
     lineId: "line-tj-feeder-1a",
@@ -16655,7 +19415,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00074",
     lineId: "line-tj-feeder-1a",
@@ -16670,7 +19433,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00917p",
     lineId: "line-tj-feeder-1a",
@@ -16685,7 +19451,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b04584p",
     lineId: "line-tj-feeder-1a",
@@ -16700,7 +19469,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05519p",
     lineId: "line-tj-feeder-1a",
@@ -16715,7 +19487,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03323p",
     lineId: "line-tj-feeder-1a",
@@ -16730,7 +19505,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02884p",
     lineId: "line-tj-feeder-1a",
@@ -16745,7 +19523,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02886p",
     lineId: "line-tj-feeder-1a",
@@ -16760,7 +19541,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05401p",
     lineId: "line-tj-feeder-1a",
@@ -16775,7 +19559,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02887p",
     lineId: "line-tj-feeder-1a",
@@ -16790,7 +19577,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02492p",
     lineId: "line-tj-feeder-1a",
@@ -16805,7 +19595,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02650p",
     lineId: "line-tj-feeder-1a",
@@ -16820,7 +19613,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05253p",
     lineId: "line-tj-feeder-1a",
@@ -16835,7 +19631,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00386p",
     lineId: "line-tj-feeder-1a",
@@ -16850,7 +19649,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02220p",
     lineId: "line-tj-feeder-1a",
@@ -16865,7 +19667,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b01328p",
     lineId: "line-tj-feeder-1a",
@@ -16880,7 +19685,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00242p",
     lineId: "line-tj-feeder-1a",
@@ -16895,7 +19703,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02389p",
     lineId: "line-tj-feeder-1a",
@@ -16910,7 +19721,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b04990p",
     lineId: "line-tj-feeder-1a",
@@ -16925,7 +19739,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02434p",
     lineId: "line-tj-feeder-1a",
@@ -16940,7 +19757,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03165p",
     lineId: "line-tj-feeder-1a",
@@ -16955,7 +19775,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b05879p",
     lineId: "line-tj-feeder-1a",
@@ -16970,7 +19793,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03234p",
     lineId: "line-tj-feeder-1a",
@@ -16985,7 +19811,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b03235p",
     lineId: "line-tj-feeder-1a",
@@ -17000,7 +19829,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00197p",
     lineId: "line-tj-feeder-1a",
@@ -17015,7 +19847,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06047p",
     lineId: "line-tj-feeder-1a",
@@ -17030,7 +19865,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06048p",
     lineId: "line-tj-feeder-1a",
@@ -17045,7 +19883,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b06049p",
     lineId: "line-tj-feeder-1a",
@@ -17060,7 +19901,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00042",
     lineId: "line-tj-feeder-1a",
@@ -17075,7 +19919,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b02885p",
     lineId: "line-tj-feeder-1a",
@@ -17090,7 +19937,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00067",
     lineId: "line-tj-feeder-1a",
@@ -17105,7 +19955,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b00102p",
     lineId: "line-tj-feeder-1a",
@@ -17120,7 +19973,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00066",
     lineId: "line-tj-feeder-1a",
@@ -17135,7 +19991,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-g00753",
     lineId: "line-tj-feeder-1a",
@@ -17150,7 +20009,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1a-stop-tj-1a-b04951p",
     lineId: "line-tj-feeder-1a",
@@ -17165,7 +20027,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-g00731",
     lineId: "line-tj-feeder-1p",
@@ -17180,7 +20045,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01971p",
     lineId: "line-tj-feeder-1p",
@@ -17195,7 +20063,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05624p",
     lineId: "line-tj-feeder-1p",
@@ -17210,7 +20081,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00222p",
     lineId: "line-tj-feeder-1p",
@@ -17225,7 +20099,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00378p",
     lineId: "line-tj-feeder-1p",
@@ -17240,7 +20117,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00612p",
     lineId: "line-tj-feeder-1p",
@@ -17255,7 +20135,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00589p",
     lineId: "line-tj-feeder-1p",
@@ -17270,7 +20153,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00127p",
     lineId: "line-tj-feeder-1p",
@@ -17285,7 +20171,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01836p",
     lineId: "line-tj-feeder-1p",
@@ -17300,7 +20189,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01837p",
     lineId: "line-tj-feeder-1p",
@@ -17315,7 +20207,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00694p",
     lineId: "line-tj-feeder-1p",
@@ -17330,7 +20225,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02408p",
     lineId: "line-tj-feeder-1p",
@@ -17345,7 +20243,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00326p",
     lineId: "line-tj-feeder-1p",
@@ -17360,7 +20261,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05502p",
     lineId: "line-tj-feeder-1p",
@@ -17375,7 +20279,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05774p",
     lineId: "line-tj-feeder-1p",
@@ -17390,7 +20297,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02863p",
     lineId: "line-tj-feeder-1p",
@@ -17405,7 +20315,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b07958p",
     lineId: "line-tj-feeder-1p",
@@ -17420,7 +20333,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b03314p",
     lineId: "line-tj-feeder-1p",
@@ -17435,7 +20351,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02420p",
     lineId: "line-tj-feeder-1p",
@@ -17450,7 +20369,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00113p",
     lineId: "line-tj-feeder-1p",
@@ -17465,7 +20387,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01969p",
     lineId: "line-tj-feeder-1p",
@@ -17480,7 +20405,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02501p",
     lineId: "line-tj-feeder-1p",
@@ -17495,7 +20423,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02476p",
     lineId: "line-tj-feeder-1p",
@@ -17510,7 +20441,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02477p",
     lineId: "line-tj-feeder-1p",
@@ -17525,7 +20459,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00806p",
     lineId: "line-tj-feeder-1p",
@@ -17540,7 +20477,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00390p",
     lineId: "line-tj-feeder-1p",
@@ -17555,7 +20495,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05442p",
     lineId: "line-tj-feeder-1p",
@@ -17570,7 +20513,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00810p",
     lineId: "line-tj-feeder-1p",
@@ -17585,7 +20531,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b07122p",
     lineId: "line-tj-feeder-1p",
@@ -17600,7 +20549,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02581p",
     lineId: "line-tj-feeder-1p",
@@ -17615,7 +20567,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01824p",
     lineId: "line-tj-feeder-1p",
@@ -17630,7 +20585,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02111p",
     lineId: "line-tj-feeder-1p",
@@ -17645,7 +20603,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02112p",
     lineId: "line-tj-feeder-1p",
@@ -17660,7 +20621,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b07322p",
     lineId: "line-tj-feeder-1p",
@@ -17675,7 +20639,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05866p",
     lineId: "line-tj-feeder-1p",
@@ -17690,7 +20657,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b04647p",
     lineId: "line-tj-feeder-1p",
@@ -17705,7 +20675,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b07321p",
     lineId: "line-tj-feeder-1p",
@@ -17720,7 +20693,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05725p",
     lineId: "line-tj-feeder-1p",
@@ -17735,7 +20711,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01945p",
     lineId: "line-tj-feeder-1p",
@@ -17750,7 +20729,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00109p",
     lineId: "line-tj-feeder-1p",
@@ -17765,7 +20747,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b04820p",
     lineId: "line-tj-feeder-1p",
@@ -17780,7 +20765,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02680p",
     lineId: "line-tj-feeder-1p",
@@ -17795,7 +20783,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05157p",
     lineId: "line-tj-feeder-1p",
@@ -17810,7 +20801,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00083p",
     lineId: "line-tj-feeder-1p",
@@ -17825,7 +20819,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b03199p",
     lineId: "line-tj-feeder-1p",
@@ -17840,7 +20837,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b03200p",
     lineId: "line-tj-feeder-1p",
@@ -17855,7 +20855,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b06038p",
     lineId: "line-tj-feeder-1p",
@@ -17870,7 +20873,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00720p",
     lineId: "line-tj-feeder-1p",
@@ -17885,7 +20891,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05693p",
     lineId: "line-tj-feeder-1p",
@@ -17900,7 +20909,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00102p",
     lineId: "line-tj-feeder-1p",
@@ -17915,7 +20927,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02755p",
     lineId: "line-tj-feeder-1p",
@@ -17930,7 +20945,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00291p",
     lineId: "line-tj-feeder-1p",
@@ -17945,7 +20963,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05890p",
     lineId: "line-tj-feeder-1p",
@@ -17960,7 +20981,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b03312p",
     lineId: "line-tj-feeder-1p",
@@ -17975,7 +20999,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b03313p",
     lineId: "line-tj-feeder-1p",
@@ -17990,7 +21017,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05892p",
     lineId: "line-tj-feeder-1p",
@@ -18005,7 +21035,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05775p",
     lineId: "line-tj-feeder-1p",
@@ -18020,7 +21053,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00214p",
     lineId: "line-tj-feeder-1p",
@@ -18035,7 +21071,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00244p",
     lineId: "line-tj-feeder-1p",
@@ -18050,7 +21089,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01835p",
     lineId: "line-tj-feeder-1p",
@@ -18065,7 +21107,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00360p",
     lineId: "line-tj-feeder-1p",
@@ -18080,7 +21125,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b02873p",
     lineId: "line-tj-feeder-1p",
@@ -18095,7 +21143,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00611p",
     lineId: "line-tj-feeder-1p",
@@ -18110,7 +21161,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05544p",
     lineId: "line-tj-feeder-1p",
@@ -18125,7 +21179,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b00221p",
     lineId: "line-tj-feeder-1p",
@@ -18140,7 +21197,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b05637p",
     lineId: "line-tj-feeder-1p",
@@ -18155,7 +21215,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b07957p",
     lineId: "line-tj-feeder-1p",
@@ -18170,7 +21233,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b01437p",
     lineId: "line-tj-feeder-1p",
@@ -18185,7 +21251,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-1p-stop-tj-1p-b06930p",
     lineId: "line-tj-feeder-1p",
@@ -18200,7 +21269,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07630p",
     lineId: "line-tj-feeder-4c",
@@ -18215,7 +21287,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07620p",
     lineId: "line-tj-feeder-4c",
@@ -18230,7 +21305,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07621p",
     lineId: "line-tj-feeder-4c",
@@ -18245,7 +21323,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07622p",
     lineId: "line-tj-feeder-4c",
@@ -18260,7 +21341,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07623p",
     lineId: "line-tj-feeder-4c",
@@ -18275,7 +21359,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b08074p",
     lineId: "line-tj-feeder-4c",
@@ -18290,7 +21377,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02847p",
     lineId: "line-tj-feeder-4c",
@@ -18305,7 +21395,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05805p",
     lineId: "line-tj-feeder-4c",
@@ -18320,7 +21413,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01821p",
     lineId: "line-tj-feeder-4c",
@@ -18335,7 +21431,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02127p",
     lineId: "line-tj-feeder-4c",
@@ -18350,7 +21449,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01606p",
     lineId: "line-tj-feeder-4c",
@@ -18365,7 +21467,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00065p",
     lineId: "line-tj-feeder-4c",
@@ -18380,7 +21485,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05850p",
     lineId: "line-tj-feeder-4c",
@@ -18395,7 +21503,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07258p",
     lineId: "line-tj-feeder-4c",
@@ -18410,7 +21521,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07259p",
     lineId: "line-tj-feeder-4c",
@@ -18425,7 +21539,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07260p",
     lineId: "line-tj-feeder-4c",
@@ -18440,7 +21557,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07261p",
     lineId: "line-tj-feeder-4c",
@@ -18455,7 +21575,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b08077p",
     lineId: "line-tj-feeder-4c",
@@ -18470,7 +21593,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b06425p",
     lineId: "line-tj-feeder-4c",
@@ -18485,7 +21611,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b06445p",
     lineId: "line-tj-feeder-4c",
@@ -18500,7 +21629,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05003p",
     lineId: "line-tj-feeder-4c",
@@ -18515,7 +21647,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05812p",
     lineId: "line-tj-feeder-4c",
@@ -18530,7 +21665,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05813p",
     lineId: "line-tj-feeder-4c",
@@ -18545,7 +21683,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01468p",
     lineId: "line-tj-feeder-4c",
@@ -18560,7 +21701,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05391p",
     lineId: "line-tj-feeder-4c",
@@ -18575,7 +21719,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00604p",
     lineId: "line-tj-feeder-4c",
@@ -18590,7 +21737,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02503p",
     lineId: "line-tj-feeder-4c",
@@ -18605,7 +21755,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02095p",
     lineId: "line-tj-feeder-4c",
@@ -18620,7 +21773,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00675p",
     lineId: "line-tj-feeder-4c",
@@ -18635,7 +21791,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05775p",
     lineId: "line-tj-feeder-4c",
@@ -18650,7 +21809,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00214p",
     lineId: "line-tj-feeder-4c",
@@ -18665,7 +21827,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00244p",
     lineId: "line-tj-feeder-4c",
@@ -18680,7 +21845,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01835p",
     lineId: "line-tj-feeder-4c",
@@ -18695,7 +21863,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00360p",
     lineId: "line-tj-feeder-4c",
@@ -18710,7 +21881,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02873p",
     lineId: "line-tj-feeder-4c",
@@ -18725,7 +21899,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00611p",
     lineId: "line-tj-feeder-4c",
@@ -18740,7 +21917,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05544p",
     lineId: "line-tj-feeder-4c",
@@ -18755,7 +21935,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00221p",
     lineId: "line-tj-feeder-4c",
@@ -18770,7 +21953,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00222p",
     lineId: "line-tj-feeder-4c",
@@ -18785,7 +21971,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00378p",
     lineId: "line-tj-feeder-4c",
@@ -18800,7 +21989,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00612p",
     lineId: "line-tj-feeder-4c",
@@ -18815,7 +22007,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00589p",
     lineId: "line-tj-feeder-4c",
@@ -18830,7 +22025,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00127p",
     lineId: "line-tj-feeder-4c",
@@ -18845,7 +22043,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01836p",
     lineId: "line-tj-feeder-4c",
@@ -18860,7 +22061,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01837p",
     lineId: "line-tj-feeder-4c",
@@ -18875,7 +22079,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00694p",
     lineId: "line-tj-feeder-4c",
@@ -18890,7 +22097,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02408p",
     lineId: "line-tj-feeder-4c",
@@ -18905,7 +22115,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00326p",
     lineId: "line-tj-feeder-4c",
@@ -18920,7 +22133,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05502p",
     lineId: "line-tj-feeder-4c",
@@ -18935,7 +22151,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05774p",
     lineId: "line-tj-feeder-4c",
@@ -18950,7 +22169,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00790p",
     lineId: "line-tj-feeder-4c",
@@ -18965,7 +22187,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01840p",
     lineId: "line-tj-feeder-4c",
@@ -18980,7 +22205,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05656p",
     lineId: "line-tj-feeder-4c",
@@ -18995,7 +22223,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05564p",
     lineId: "line-tj-feeder-4c",
@@ -19010,7 +22241,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05432p",
     lineId: "line-tj-feeder-4c",
@@ -19025,7 +22259,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02399p",
     lineId: "line-tj-feeder-4c",
@@ -19040,7 +22277,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b03187p",
     lineId: "line-tj-feeder-4c",
@@ -19055,7 +22295,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b06321p",
     lineId: "line-tj-feeder-4c",
@@ -19070,7 +22313,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b03127p",
     lineId: "line-tj-feeder-4c",
@@ -19085,7 +22331,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b01964p",
     lineId: "line-tj-feeder-4c",
@@ -19100,7 +22349,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b08063p",
     lineId: "line-tj-feeder-4c",
@@ -19115,7 +22367,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b06424p",
     lineId: "line-tj-feeder-4c",
@@ -19130,7 +22385,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b08076p",
     lineId: "line-tj-feeder-4c",
@@ -19145,7 +22403,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07262p",
     lineId: "line-tj-feeder-4c",
@@ -19160,7 +22421,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07263p",
     lineId: "line-tj-feeder-4c",
@@ -19175,7 +22439,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b08000p",
     lineId: "line-tj-feeder-4c",
@@ -19190,7 +22457,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07264p",
     lineId: "line-tj-feeder-4c",
@@ -19205,7 +22475,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05851p",
     lineId: "line-tj-feeder-4c",
@@ -19220,7 +22493,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b00826p",
     lineId: "line-tj-feeder-4c",
@@ -19235,7 +22511,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02996p",
     lineId: "line-tj-feeder-4c",
@@ -19250,7 +22529,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b02128p",
     lineId: "line-tj-feeder-4c",
@@ -19265,7 +22547,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b03890p",
     lineId: "line-tj-feeder-4c",
@@ -19280,7 +22565,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b05806p",
     lineId: "line-tj-feeder-4c",
@@ -19295,7 +22583,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07610p",
     lineId: "line-tj-feeder-4c",
@@ -19310,7 +22601,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07611p",
     lineId: "line-tj-feeder-4c",
@@ -19325,7 +22619,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07612p",
     lineId: "line-tj-feeder-4c",
@@ -19340,7 +22637,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07613p",
     lineId: "line-tj-feeder-4c",
@@ -19355,7 +22655,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07614p",
     lineId: "line-tj-feeder-4c",
@@ -19370,7 +22673,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07615p",
     lineId: "line-tj-feeder-4c",
@@ -19385,7 +22691,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07616p",
     lineId: "line-tj-feeder-4c",
@@ -19400,7 +22709,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07617p",
     lineId: "line-tj-feeder-4c",
@@ -19415,7 +22727,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07618p",
     lineId: "line-tj-feeder-4c",
@@ -19430,7 +22745,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07666p",
     lineId: "line-tj-feeder-4c",
@@ -19445,7 +22763,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-4c-stop-tj-4c-b07265p",
     lineId: "line-tj-feeder-4c",
@@ -19460,7 +22781,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00306",
     lineId: "line-tj-feeder-6v",
@@ -19475,7 +22799,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00245",
     lineId: "line-tj-feeder-6v",
@@ -19490,7 +22817,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00247",
     lineId: "line-tj-feeder-6v",
@@ -19505,7 +22835,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00253",
     lineId: "line-tj-feeder-6v",
@@ -19520,7 +22853,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00259",
     lineId: "line-tj-feeder-6v",
@@ -19535,7 +22871,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00261",
     lineId: "line-tj-feeder-6v",
@@ -19550,7 +22889,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00262",
     lineId: "line-tj-feeder-6v",
@@ -19565,7 +22907,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00265",
     lineId: "line-tj-feeder-6v",
@@ -19580,7 +22925,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00268",
     lineId: "line-tj-feeder-6v",
@@ -19595,7 +22943,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00272",
     lineId: "line-tj-feeder-6v",
@@ -19610,7 +22961,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00008",
     lineId: "line-tj-feeder-6v",
@@ -19625,7 +22979,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00582",
     lineId: "line-tj-feeder-6v",
@@ -19640,7 +22997,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00584",
     lineId: "line-tj-feeder-6v",
@@ -19655,7 +23015,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00009",
     lineId: "line-tj-feeder-6v",
@@ -19670,7 +23033,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00695",
     lineId: "line-tj-feeder-6v",
@@ -19685,7 +23051,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00015",
     lineId: "line-tj-feeder-6v",
@@ -19700,7 +23069,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00013",
     lineId: "line-tj-feeder-6v",
@@ -19715,7 +23087,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00693",
     lineId: "line-tj-feeder-6v",
@@ -19730,7 +23105,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00010",
     lineId: "line-tj-feeder-6v",
@@ -19745,7 +23123,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00011",
     lineId: "line-tj-feeder-6v",
@@ -19760,7 +23141,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00583",
     lineId: "line-tj-feeder-6v",
@@ -19775,7 +23159,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00580",
     lineId: "line-tj-feeder-6v",
@@ -19790,7 +23177,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00007",
     lineId: "line-tj-feeder-6v",
@@ -19805,7 +23195,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00271",
     lineId: "line-tj-feeder-6v",
@@ -19820,7 +23213,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00267",
     lineId: "line-tj-feeder-6v",
@@ -19835,7 +23231,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00264",
     lineId: "line-tj-feeder-6v",
@@ -19850,7 +23249,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00263",
     lineId: "line-tj-feeder-6v",
@@ -19865,7 +23267,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00260",
     lineId: "line-tj-feeder-6v",
@@ -19880,7 +23285,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00258",
     lineId: "line-tj-feeder-6v",
@@ -19895,7 +23303,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00255",
     lineId: "line-tj-feeder-6v",
@@ -19910,7 +23321,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00250",
     lineId: "line-tj-feeder-6v",
@@ -19925,7 +23339,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00242",
     lineId: "line-tj-feeder-6v",
@@ -19940,7 +23357,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00307",
     lineId: "line-tj-feeder-6v",
@@ -19955,7 +23375,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: true,
     tactilePaving: false,
     wheelchairRamp: true,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00083",
     lineId: "line-tj-feeder-6v",
@@ -19970,7 +23393,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-6v-stop-tj-6v-g00758",
     lineId: "line-tj-feeder-6v",
@@ -19985,7 +23411,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b08518p",
     lineId: "line-tj-feeder-7a",
@@ -20000,7 +23429,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05361p",
     lineId: "line-tj-feeder-7a",
@@ -20015,7 +23447,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00400p",
     lineId: "line-tj-feeder-7a",
@@ -20030,7 +23465,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05673p",
     lineId: "line-tj-feeder-7a",
@@ -20045,7 +23483,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00875p",
     lineId: "line-tj-feeder-7a",
@@ -20060,7 +23501,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05563p",
     lineId: "line-tj-feeder-7a",
@@ -20075,7 +23519,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01341p",
     lineId: "line-tj-feeder-7a",
@@ -20090,7 +23537,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03215p",
     lineId: "line-tj-feeder-7a",
@@ -20105,7 +23555,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05257p",
     lineId: "line-tj-feeder-7a",
@@ -20120,7 +23573,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02869p",
     lineId: "line-tj-feeder-7a",
@@ -20135,7 +23591,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02490p",
     lineId: "line-tj-feeder-7a",
@@ -20150,7 +23609,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00004p",
     lineId: "line-tj-feeder-7a",
@@ -20165,7 +23627,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05697p",
     lineId: "line-tj-feeder-7a",
@@ -20180,7 +23645,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01418p",
     lineId: "line-tj-feeder-7a",
@@ -20195,7 +23663,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b06906p",
     lineId: "line-tj-feeder-7a",
@@ -20210,7 +23681,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00120p",
     lineId: "line-tj-feeder-7a",
@@ -20225,7 +23699,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02831p",
     lineId: "line-tj-feeder-7a",
@@ -20240,7 +23717,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02868p",
     lineId: "line-tj-feeder-7a",
@@ -20255,7 +23735,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01857p",
     lineId: "line-tj-feeder-7a",
@@ -20270,7 +23753,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01965p",
     lineId: "line-tj-feeder-7a",
@@ -20285,7 +23771,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b07718p",
     lineId: "line-tj-feeder-7a",
@@ -20300,7 +23789,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b07989p",
     lineId: "line-tj-feeder-7a",
@@ -20315,7 +23807,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00036p",
     lineId: "line-tj-feeder-7a",
@@ -20330,7 +23825,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00824p",
     lineId: "line-tj-feeder-7a",
@@ -20345,7 +23843,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02087p",
     lineId: "line-tj-feeder-7a",
@@ -20360,7 +23861,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01775p",
     lineId: "line-tj-feeder-7a",
@@ -20375,7 +23879,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00347p",
     lineId: "line-tj-feeder-7a",
@@ -20390,7 +23897,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b05488p",
     lineId: "line-tj-feeder-7a",
@@ -20405,7 +23915,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00402p",
     lineId: "line-tj-feeder-7a",
@@ -20420,7 +23933,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01184p",
     lineId: "line-tj-feeder-7a",
@@ -20435,7 +23951,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03177p",
     lineId: "line-tj-feeder-7a",
@@ -20450,7 +23969,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02895p",
     lineId: "line-tj-feeder-7a",
@@ -20465,7 +23987,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b08051p",
     lineId: "line-tj-feeder-7a",
@@ -20480,7 +24005,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b04671p",
     lineId: "line-tj-feeder-7a",
@@ -20495,7 +24023,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02484p",
     lineId: "line-tj-feeder-7a",
@@ -20510,7 +24041,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03069p",
     lineId: "line-tj-feeder-7a",
@@ -20525,7 +24059,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00610p",
     lineId: "line-tj-feeder-7a",
@@ -20540,7 +24077,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00132p",
     lineId: "line-tj-feeder-7a",
@@ -20555,7 +24095,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02989p",
     lineId: "line-tj-feeder-7a",
@@ -20570,7 +24113,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b07304p",
     lineId: "line-tj-feeder-7a",
@@ -20585,7 +24131,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00348p",
     lineId: "line-tj-feeder-7a",
@@ -20600,7 +24149,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00253p",
     lineId: "line-tj-feeder-7a",
@@ -20615,7 +24167,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00252p",
     lineId: "line-tj-feeder-7a",
@@ -20630,7 +24185,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03077p",
     lineId: "line-tj-feeder-7a",
@@ -20645,7 +24203,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00029p",
     lineId: "line-tj-feeder-7a",
@@ -20660,7 +24221,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00251p",
     lineId: "line-tj-feeder-7a",
@@ -20675,7 +24239,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00035p",
     lineId: "line-tj-feeder-7a",
@@ -20690,7 +24257,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01733p",
     lineId: "line-tj-feeder-7a",
@@ -20705,7 +24275,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01170p",
     lineId: "line-tj-feeder-7a",
@@ -20720,7 +24293,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01407p",
     lineId: "line-tj-feeder-7a",
@@ -20735,7 +24311,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01062p",
     lineId: "line-tj-feeder-7a",
@@ -20750,7 +24329,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01139p",
     lineId: "line-tj-feeder-7a",
@@ -20765,7 +24347,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01417p",
     lineId: "line-tj-feeder-7a",
@@ -20780,7 +24365,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01405p",
     lineId: "line-tj-feeder-7a",
@@ -20795,7 +24383,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b02870p",
     lineId: "line-tj-feeder-7a",
@@ -20810,7 +24401,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03216p",
     lineId: "line-tj-feeder-7a",
@@ -20825,7 +24419,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00865p",
     lineId: "line-tj-feeder-7a",
@@ -20840,7 +24437,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b03148p",
     lineId: "line-tj-feeder-7a",
@@ -20855,7 +24455,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b00901p",
     lineId: "line-tj-feeder-7a",
@@ -20870,7 +24473,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b01377p",
     lineId: "line-tj-feeder-7a",
@@ -20885,7 +24491,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b04544p",
     lineId: "line-tj-feeder-7a",
@@ -20900,7 +24509,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-7a-stop-tj-7a-b07231p",
     lineId: "line-tj-feeder-7a",
@@ -20915,7 +24527,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05715p",
     lineId: "line-tj-feeder-9d",
@@ -20930,7 +24545,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05716p",
     lineId: "line-tj-feeder-9d",
@@ -20945,7 +24563,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
+  }
+];
+const TRANSIT_STOPS_EXTRA_4: Stop[] = [
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02278p",
     lineId: "line-tj-feeder-9d",
@@ -20960,7 +24582,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01581p",
     lineId: "line-tj-feeder-9d",
@@ -20975,7 +24600,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00185p",
     lineId: "line-tj-feeder-9d",
@@ -20990,7 +24618,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02892p",
     lineId: "line-tj-feeder-9d",
@@ -21005,7 +24636,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00231p",
     lineId: "line-tj-feeder-9d",
@@ -21020,7 +24654,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00731p",
     lineId: "line-tj-feeder-9d",
@@ -21035,7 +24672,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00337p",
     lineId: "line-tj-feeder-9d",
@@ -21050,7 +24690,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02921p",
     lineId: "line-tj-feeder-9d",
@@ -21065,7 +24708,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02300p",
     lineId: "line-tj-feeder-9d",
@@ -21080,7 +24726,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02982p",
     lineId: "line-tj-feeder-9d",
@@ -21095,7 +24744,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00683p",
     lineId: "line-tj-feeder-9d",
@@ -21110,7 +24762,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03183p",
     lineId: "line-tj-feeder-9d",
@@ -21125,7 +24780,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02393p",
     lineId: "line-tj-feeder-9d",
@@ -21140,7 +24798,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00737",
     lineId: "line-tj-feeder-9d",
@@ -21155,7 +24816,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02893p",
     lineId: "line-tj-feeder-9d",
@@ -21170,7 +24834,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05687p",
     lineId: "line-tj-feeder-9d",
@@ -21185,7 +24852,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00421",
     lineId: "line-tj-feeder-9d",
@@ -21200,7 +24870,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05938p",
     lineId: "line-tj-feeder-9d",
@@ -21215,7 +24888,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01720p",
     lineId: "line-tj-feeder-9d",
@@ -21230,7 +24906,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02504p",
     lineId: "line-tj-feeder-9d",
@@ -21245,7 +24924,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02130p",
     lineId: "line-tj-feeder-9d",
@@ -21260,7 +24942,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00586p",
     lineId: "line-tj-feeder-9d",
@@ -21275,7 +24960,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00313p",
     lineId: "line-tj-feeder-9d",
@@ -21290,7 +24978,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02012p",
     lineId: "line-tj-feeder-9d",
@@ -21305,7 +24996,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00127p",
     lineId: "line-tj-feeder-9d",
@@ -21320,7 +25014,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01836p",
     lineId: "line-tj-feeder-9d",
@@ -21335,7 +25032,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01837p",
     lineId: "line-tj-feeder-9d",
@@ -21350,7 +25050,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00694p",
     lineId: "line-tj-feeder-9d",
@@ -21365,7 +25068,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02408p",
     lineId: "line-tj-feeder-9d",
@@ -21380,7 +25086,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00326p",
     lineId: "line-tj-feeder-9d",
@@ -21395,7 +25104,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05502p",
     lineId: "line-tj-feeder-9d",
@@ -21410,7 +25122,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05774p",
     lineId: "line-tj-feeder-9d",
@@ -21425,7 +25140,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05775p",
     lineId: "line-tj-feeder-9d",
@@ -21440,7 +25158,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00214p",
     lineId: "line-tj-feeder-9d",
@@ -21455,7 +25176,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00244p",
     lineId: "line-tj-feeder-9d",
@@ -21470,7 +25194,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01835p",
     lineId: "line-tj-feeder-9d",
@@ -21485,7 +25212,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00360p",
     lineId: "line-tj-feeder-9d",
@@ -21500,7 +25230,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02873p",
     lineId: "line-tj-feeder-9d",
@@ -21515,7 +25248,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00125p",
     lineId: "line-tj-feeder-9d",
@@ -21530,7 +25266,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02013p",
     lineId: "line-tj-feeder-9d",
@@ -21545,7 +25284,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02541p",
     lineId: "line-tj-feeder-9d",
@@ -21560,7 +25302,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02416p",
     lineId: "line-tj-feeder-9d",
@@ -21575,7 +25320,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00587p",
     lineId: "line-tj-feeder-9d",
@@ -21590,7 +25338,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01839p",
     lineId: "line-tj-feeder-9d",
@@ -21605,7 +25356,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00241p",
     lineId: "line-tj-feeder-9d",
@@ -21620,7 +25374,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01721p",
     lineId: "line-tj-feeder-9d",
@@ -21635,7 +25392,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00101p",
     lineId: "line-tj-feeder-9d",
@@ -21650,7 +25410,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00423",
     lineId: "line-tj-feeder-9d",
@@ -21665,7 +25428,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05688p",
     lineId: "line-tj-feeder-9d",
@@ -21680,7 +25446,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03153p",
     lineId: "line-tj-feeder-9d",
@@ -21695,7 +25464,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00735",
     lineId: "line-tj-feeder-9d",
@@ -21710,7 +25482,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02409p",
     lineId: "line-tj-feeder-9d",
@@ -21725,7 +25500,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03311p",
     lineId: "line-tj-feeder-9d",
@@ -21740,7 +25518,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02559p",
     lineId: "line-tj-feeder-9d",
@@ -21755,7 +25536,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02736p",
     lineId: "line-tj-feeder-9d",
@@ -21770,7 +25554,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01449p",
     lineId: "line-tj-feeder-9d",
@@ -21785,7 +25572,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00938p",
     lineId: "line-tj-feeder-9d",
@@ -21800,7 +25590,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02762p",
     lineId: "line-tj-feeder-9d",
@@ -21815,7 +25608,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05296p",
     lineId: "line-tj-feeder-9d",
@@ -21830,7 +25626,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02918p",
     lineId: "line-tj-feeder-9d",
@@ -21845,7 +25644,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02532p",
     lineId: "line-tj-feeder-9d",
@@ -21860,7 +25662,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03616p",
     lineId: "line-tj-feeder-9d",
@@ -21875,7 +25680,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00907p",
     lineId: "line-tj-feeder-9d",
@@ -21890,7 +25698,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05931p",
     lineId: "line-tj-feeder-9d",
@@ -21905,7 +25716,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05874p",
     lineId: "line-tj-feeder-9d",
@@ -21920,7 +25734,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02277p",
     lineId: "line-tj-feeder-9d",
@@ -21935,7 +25752,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05494p",
     lineId: "line-tj-feeder-9d",
@@ -21950,7 +25770,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b06648p",
     lineId: "line-tj-feeder-9d",
@@ -21965,7 +25788,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02470p",
     lineId: "line-tj-feeder-9d",
@@ -21980,7 +25806,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00693p",
     lineId: "line-tj-feeder-9d",
@@ -21995,7 +25824,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02160p",
     lineId: "line-tj-feeder-9d",
@@ -22010,7 +25842,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02647p",
     lineId: "line-tj-feeder-9d",
@@ -22025,7 +25860,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00430",
     lineId: "line-tj-feeder-9d",
@@ -22040,7 +25878,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00034",
     lineId: "line-tj-feeder-9d",
@@ -22055,7 +25896,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00037",
     lineId: "line-tj-feeder-9d",
@@ -22070,7 +25914,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02420p",
     lineId: "line-tj-feeder-9d",
@@ -22085,7 +25932,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01966p",
     lineId: "line-tj-feeder-9d",
@@ -22100,7 +25950,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03884p",
     lineId: "line-tj-feeder-9d",
@@ -22115,7 +25968,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01639p",
     lineId: "line-tj-feeder-9d",
@@ -22130,7 +25986,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01786p",
     lineId: "line-tj-feeder-9d",
@@ -22145,7 +26004,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02830p",
     lineId: "line-tj-feeder-9d",
@@ -22160,7 +26022,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00650",
     lineId: "line-tj-feeder-9d",
@@ -22175,7 +26040,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b00159p",
     lineId: "line-tj-feeder-9d",
@@ -22190,7 +26058,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b02972p",
     lineId: "line-tj-feeder-9d",
@@ -22205,7 +26076,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b06921p",
     lineId: "line-tj-feeder-9d",
@@ -22220,7 +26094,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01787p",
     lineId: "line-tj-feeder-9d",
@@ -22235,7 +26112,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00631",
     lineId: "line-tj-feeder-9d",
@@ -22250,7 +26130,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01638p",
     lineId: "line-tj-feeder-9d",
@@ -22265,7 +26148,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b05666p",
     lineId: "line-tj-feeder-9d",
@@ -22280,7 +26166,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b01766p",
     lineId: "line-tj-feeder-9d",
@@ -22295,7 +26184,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-b03312p",
     lineId: "line-tj-feeder-9d",
@@ -22310,7 +26202,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00035",
     lineId: "line-tj-feeder-9d",
@@ -22325,7 +26220,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-feeder-9d-stop-tj-9d-g00031",
     lineId: "line-tj-feeder-9d",
@@ -22340,7 +26238,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00248p",
     lineId: "line-tj-royal-1t",
@@ -22355,7 +26256,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b02012p",
     lineId: "line-tj-royal-1t",
@@ -22370,7 +26274,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00126p",
     lineId: "line-tj-royal-1t",
@@ -22385,7 +26292,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b01836p",
     lineId: "line-tj-royal-1t",
@@ -22400,7 +26310,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b01837p",
     lineId: "line-tj-royal-1t",
@@ -22415,7 +26328,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00694p",
     lineId: "line-tj-royal-1t",
@@ -22430,7 +26346,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b02408p",
     lineId: "line-tj-royal-1t",
@@ -22445,7 +26364,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00326p",
     lineId: "line-tj-royal-1t",
@@ -22460,7 +26382,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b05502p",
     lineId: "line-tj-royal-1t",
@@ -22475,7 +26400,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b05774p",
     lineId: "line-tj-royal-1t",
@@ -22490,7 +26418,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b02863p",
     lineId: "line-tj-royal-1t",
@@ -22505,7 +26436,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b03314p",
     lineId: "line-tj-royal-1t",
@@ -22520,7 +26454,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b02420p",
     lineId: "line-tj-royal-1t",
@@ -22535,7 +26472,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00113p",
     lineId: "line-tj-royal-1t",
@@ -22550,7 +26490,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00806p",
     lineId: "line-tj-royal-1t",
@@ -22565,7 +26508,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00102p",
     lineId: "line-tj-royal-1t",
@@ -22580,7 +26526,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b05891p",
     lineId: "line-tj-royal-1t",
@@ -22595,7 +26544,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b03313p",
     lineId: "line-tj-royal-1t",
@@ -22610,7 +26562,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b05892p",
     lineId: "line-tj-royal-1t",
@@ -22625,7 +26580,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00214p",
     lineId: "line-tj-royal-1t",
@@ -22640,7 +26598,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00244p",
     lineId: "line-tj-royal-1t",
@@ -22655,7 +26616,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b01835p",
     lineId: "line-tj-royal-1t",
@@ -22670,7 +26634,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b02013p",
     lineId: "line-tj-royal-1t",
@@ -22685,7 +26652,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b03097p",
     lineId: "line-tj-royal-1t",
@@ -22700,7 +26670,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b03094p",
     lineId: "line-tj-royal-1t",
@@ -22715,7 +26688,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-royal-1t-stop-tj-1t-b00226p",
     lineId: "line-tj-royal-1t",
@@ -22730,7 +26706,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw1-stop-tj-bw1-b01791p",
     lineId: "line-tj-wisata-bw1",
@@ -22745,7 +26724,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw1-stop-tj-bw1-b02499p",
     lineId: "line-tj-wisata-bw1",
@@ -22760,7 +26742,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw1-stop-tj-bw1-b01793p",
     lineId: "line-tj-wisata-bw1",
@@ -22775,7 +26760,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b00806p",
     lineId: "line-tj-wisata-bw2",
@@ -22790,7 +26778,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b00102p",
     lineId: "line-tj-wisata-bw2",
@@ -22805,7 +26796,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b02755p",
     lineId: "line-tj-wisata-bw2",
@@ -22820,7 +26814,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b00323p",
     lineId: "line-tj-wisata-bw2",
@@ -22835,7 +26832,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b05815p",
     lineId: "line-tj-wisata-bw2",
@@ -22850,7 +26850,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b05442p",
     lineId: "line-tj-wisata-bw2",
@@ -22865,7 +26868,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b01791p",
     lineId: "line-tj-wisata-bw2",
@@ -22880,7 +26886,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b02475p",
     lineId: "line-tj-wisata-bw2",
@@ -22895,7 +26904,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b02476p",
     lineId: "line-tj-wisata-bw2",
@@ -22910,7 +26922,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw2-stop-tj-bw2-b02477p",
     lineId: "line-tj-wisata-bw2",
@@ -22925,7 +26940,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b00806p",
     lineId: "line-tj-wisata-bw4",
@@ -22940,7 +26958,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b00102p",
     lineId: "line-tj-wisata-bw4",
@@ -22955,7 +26976,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b03313p",
     lineId: "line-tj-wisata-bw4",
@@ -22970,7 +26994,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b05892p",
     lineId: "line-tj-wisata-bw4",
@@ -22985,7 +27012,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b05773p",
     lineId: "line-tj-wisata-bw4",
@@ -23000,7 +27030,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b01835p",
     lineId: "line-tj-wisata-bw4",
@@ -23015,7 +27048,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b00611p",
     lineId: "line-tj-wisata-bw4",
@@ -23030,7 +27066,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b06928p",
     lineId: "line-tj-wisata-bw4",
@@ -23045,7 +27084,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b00378p",
     lineId: "line-tj-wisata-bw4",
@@ -23060,7 +27102,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b00589p",
     lineId: "line-tj-wisata-bw4",
@@ -23075,7 +27120,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b05774p",
     lineId: "line-tj-wisata-bw4",
@@ -23090,7 +27138,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02863p",
     lineId: "line-tj-wisata-bw4",
@@ -23105,7 +27156,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b03314p",
     lineId: "line-tj-wisata-bw4",
@@ -23120,7 +27174,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02501p",
     lineId: "line-tj-wisata-bw4",
@@ -23135,7 +27192,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02701p",
     lineId: "line-tj-wisata-bw4",
@@ -23150,7 +27210,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02581p",
     lineId: "line-tj-wisata-bw4",
@@ -23165,7 +27228,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02475p",
     lineId: "line-tj-wisata-bw4",
@@ -23180,7 +27246,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-wisata-bw4-stop-tj-bw4-b02477p",
     lineId: "line-tj-wisata-bw4",
@@ -23195,7 +27264,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05729p",
     lineId: "line-tj-mikro-jak01",
@@ -23210,7 +27282,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05694p",
     lineId: "line-tj-mikro-jak01",
@@ -23225,7 +27300,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04523p",
     lineId: "line-tj-mikro-jak01",
@@ -23240,7 +27318,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01312p",
     lineId: "line-tj-mikro-jak01",
@@ -23255,7 +27336,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05591p",
     lineId: "line-tj-mikro-jak01",
@@ -23270,7 +27354,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01080p",
     lineId: "line-tj-mikro-jak01",
@@ -23285,7 +27372,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01081p",
     lineId: "line-tj-mikro-jak01",
@@ -23300,7 +27390,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01082p",
     lineId: "line-tj-mikro-jak01",
@@ -23315,7 +27408,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04221p",
     lineId: "line-tj-mikro-jak01",
@@ -23330,7 +27426,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05051p",
     lineId: "line-tj-mikro-jak01",
@@ -23345,7 +27444,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04393p",
     lineId: "line-tj-mikro-jak01",
@@ -23360,7 +27462,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05214p",
     lineId: "line-tj-mikro-jak01",
@@ -23375,7 +27480,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04653p",
     lineId: "line-tj-mikro-jak01",
@@ -23390,7 +27498,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b00948p",
     lineId: "line-tj-mikro-jak01",
@@ -23405,7 +27516,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03861p",
     lineId: "line-tj-mikro-jak01",
@@ -23420,7 +27534,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03862p",
     lineId: "line-tj-mikro-jak01",
@@ -23435,7 +27552,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03863p",
     lineId: "line-tj-mikro-jak01",
@@ -23450,7 +27570,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03864p",
     lineId: "line-tj-mikro-jak01",
@@ -23465,7 +27588,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b08221p",
     lineId: "line-tj-mikro-jak01",
@@ -23480,7 +27606,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05308p",
     lineId: "line-tj-mikro-jak01",
@@ -23495,7 +27624,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01230p",
     lineId: "line-tj-mikro-jak01",
@@ -23510,7 +27642,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01229p",
     lineId: "line-tj-mikro-jak01",
@@ -23525,7 +27660,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03218p",
     lineId: "line-tj-mikro-jak01",
@@ -23540,7 +27678,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03219p",
     lineId: "line-tj-mikro-jak01",
@@ -23555,7 +27696,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01634p",
     lineId: "line-tj-mikro-jak01",
@@ -23570,7 +27714,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04665p",
     lineId: "line-tj-mikro-jak01",
@@ -23585,7 +27732,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b06902p",
     lineId: "line-tj-mikro-jak01",
@@ -23600,7 +27750,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b00040p",
     lineId: "line-tj-mikro-jak01",
@@ -23615,7 +27768,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05873p",
     lineId: "line-tj-mikro-jak01",
@@ -23630,7 +27786,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01059p",
     lineId: "line-tj-mikro-jak01",
@@ -23645,7 +27804,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b00316p",
     lineId: "line-tj-mikro-jak01",
@@ -23660,7 +27822,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b00446p",
     lineId: "line-tj-mikro-jak01",
@@ -23675,7 +27840,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05610p",
     lineId: "line-tj-mikro-jak01",
@@ -23690,7 +27858,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b02891p",
     lineId: "line-tj-mikro-jak01",
@@ -23705,7 +27876,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04818p",
     lineId: "line-tj-mikro-jak01",
@@ -23720,7 +27894,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01633p",
     lineId: "line-tj-mikro-jak01",
@@ -23735,7 +27912,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05582p",
     lineId: "line-tj-mikro-jak01",
@@ -23750,7 +27930,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03747p",
     lineId: "line-tj-mikro-jak01",
@@ -23765,7 +27948,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04449p",
     lineId: "line-tj-mikro-jak01",
@@ -23780,7 +27966,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01632p",
     lineId: "line-tj-mikro-jak01",
@@ -23795,7 +27984,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01628p",
     lineId: "line-tj-mikro-jak01",
@@ -23810,7 +28002,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01631p",
     lineId: "line-tj-mikro-jak01",
@@ -23825,7 +28020,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01630p",
     lineId: "line-tj-mikro-jak01",
@@ -23840,7 +28038,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01629p",
     lineId: "line-tj-mikro-jak01",
@@ -23855,7 +28056,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01627p",
     lineId: "line-tj-mikro-jak01",
@@ -23870,7 +28074,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01626p",
     lineId: "line-tj-mikro-jak01",
@@ -23885,7 +28092,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04802p",
     lineId: "line-tj-mikro-jak01",
@@ -23900,7 +28110,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01707p",
     lineId: "line-tj-mikro-jak01",
@@ -23915,7 +28128,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01706p",
     lineId: "line-tj-mikro-jak01",
@@ -23930,7 +28146,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b01705p",
     lineId: "line-tj-mikro-jak01",
@@ -23945,7 +28164,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04642p",
     lineId: "line-tj-mikro-jak01",
@@ -23960,7 +28182,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05050p",
     lineId: "line-tj-mikro-jak01",
@@ -23975,7 +28200,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b02914p",
     lineId: "line-tj-mikro-jak01",
@@ -23990,7 +28218,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03704p",
     lineId: "line-tj-mikro-jak01",
@@ -24005,7 +28236,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03703p",
     lineId: "line-tj-mikro-jak01",
@@ -24020,7 +28254,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b04524p",
     lineId: "line-tj-mikro-jak01",
@@ -24035,7 +28272,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b03761p",
     lineId: "line-tj-mikro-jak01",
@@ -24050,7 +28290,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b05589p",
     lineId: "line-tj-mikro-jak01",
@@ -24065,7 +28308,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak01-stop-tj-jak01-b02993p",
     lineId: "line-tj-mikro-jak01",
@@ -24080,7 +28326,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05706p",
     lineId: "line-tj-mikro-jak02",
@@ -24095,7 +28344,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00138p",
     lineId: "line-tj-mikro-jak02",
@@ -24110,7 +28362,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05022p",
     lineId: "line-tj-mikro-jak02",
@@ -24125,7 +28380,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01432p",
     lineId: "line-tj-mikro-jak02",
@@ -24140,7 +28398,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01239p",
     lineId: "line-tj-mikro-jak02",
@@ -24155,7 +28416,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02338p",
     lineId: "line-tj-mikro-jak02",
@@ -24170,7 +28434,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02622p",
     lineId: "line-tj-mikro-jak02",
@@ -24185,7 +28452,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04606p",
     lineId: "line-tj-mikro-jak02",
@@ -24200,7 +28470,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00264p",
     lineId: "line-tj-mikro-jak02",
@@ -24215,7 +28488,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b07271p",
     lineId: "line-tj-mikro-jak02",
@@ -24230,7 +28506,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00265p",
     lineId: "line-tj-mikro-jak02",
@@ -24245,7 +28524,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05535p",
     lineId: "line-tj-mikro-jak02",
@@ -24260,7 +28542,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05784p",
     lineId: "line-tj-mikro-jak02",
@@ -24275,7 +28560,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b03356p",
     lineId: "line-tj-mikro-jak02",
@@ -24290,7 +28578,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00973p",
     lineId: "line-tj-mikro-jak02",
@@ -24305,7 +28596,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00461p",
     lineId: "line-tj-mikro-jak02",
@@ -24320,7 +28614,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05005p",
     lineId: "line-tj-mikro-jak02",
@@ -24335,7 +28632,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00972p",
     lineId: "line-tj-mikro-jak02",
@@ -24350,7 +28650,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02226p",
     lineId: "line-tj-mikro-jak02",
@@ -24365,7 +28668,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04779p",
     lineId: "line-tj-mikro-jak02",
@@ -24380,7 +28686,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04773p",
     lineId: "line-tj-mikro-jak02",
@@ -24395,7 +28704,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05097p",
     lineId: "line-tj-mikro-jak02",
@@ -24410,7 +28722,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00282p",
     lineId: "line-tj-mikro-jak02",
@@ -24425,7 +28740,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02189p",
     lineId: "line-tj-mikro-jak02",
@@ -24440,7 +28758,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05824p",
     lineId: "line-tj-mikro-jak02",
@@ -24455,7 +28776,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01319p",
     lineId: "line-tj-mikro-jak02",
@@ -24470,7 +28794,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05082p",
     lineId: "line-tj-mikro-jak02",
@@ -24485,7 +28812,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05084p",
     lineId: "line-tj-mikro-jak02",
@@ -24500,7 +28830,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05023p",
     lineId: "line-tj-mikro-jak02",
@@ -24515,7 +28848,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02665p",
     lineId: "line-tj-mikro-jak02",
@@ -24530,7 +28866,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04662p",
     lineId: "line-tj-mikro-jak02",
@@ -24545,7 +28884,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00892p",
     lineId: "line-tj-mikro-jak02",
@@ -24560,7 +28902,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01676p",
     lineId: "line-tj-mikro-jak02",
@@ -24575,7 +28920,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00636p",
     lineId: "line-tj-mikro-jak02",
@@ -24590,7 +28938,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02126p",
     lineId: "line-tj-mikro-jak02",
@@ -24605,7 +28956,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01913p",
     lineId: "line-tj-mikro-jak02",
@@ -24620,7 +28974,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01255p",
     lineId: "line-tj-mikro-jak02",
@@ -24635,7 +28992,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02308p",
     lineId: "line-tj-mikro-jak02",
@@ -24650,7 +29010,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04476p",
     lineId: "line-tj-mikro-jak02",
@@ -24665,7 +29028,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b03135p",
     lineId: "line-tj-mikro-jak02",
@@ -24680,7 +29046,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00328p",
     lineId: "line-tj-mikro-jak02",
@@ -24695,7 +29064,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00637p",
     lineId: "line-tj-mikro-jak02",
@@ -24710,7 +29082,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01677p",
     lineId: "line-tj-mikro-jak02",
@@ -24725,7 +29100,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00893p",
     lineId: "line-tj-mikro-jak02",
@@ -24740,7 +29118,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04806p",
     lineId: "line-tj-mikro-jak02",
@@ -24755,7 +29136,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02666p",
     lineId: "line-tj-mikro-jak02",
@@ -24770,7 +29154,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b06572p",
     lineId: "line-tj-mikro-jak02",
@@ -24785,7 +29172,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05024p",
     lineId: "line-tj-mikro-jak02",
@@ -24800,7 +29190,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b06922p",
     lineId: "line-tj-mikro-jak02",
@@ -24815,7 +29208,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05085p",
     lineId: "line-tj-mikro-jak02",
@@ -24830,7 +29226,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05083p",
     lineId: "line-tj-mikro-jak02",
@@ -24845,7 +29244,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01331p",
     lineId: "line-tj-mikro-jak02",
@@ -24860,7 +29262,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05825p",
     lineId: "line-tj-mikro-jak02",
@@ -24875,7 +29280,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02190p",
     lineId: "line-tj-mikro-jak02",
@@ -24890,7 +29298,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00283p",
     lineId: "line-tj-mikro-jak02",
@@ -24905,7 +29316,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05008p",
     lineId: "line-tj-mikro-jak02",
@@ -24920,7 +29334,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b04774p",
     lineId: "line-tj-mikro-jak02",
@@ -24935,7 +29352,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05018p",
     lineId: "line-tj-mikro-jak02",
@@ -24950,7 +29370,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02227p",
     lineId: "line-tj-mikro-jak02",
@@ -24965,7 +29388,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01338p",
     lineId: "line-tj-mikro-jak02",
@@ -24980,7 +29406,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01713p",
     lineId: "line-tj-mikro-jak02",
@@ -24995,7 +29424,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00462p",
     lineId: "line-tj-mikro-jak02",
@@ -25010,7 +29442,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01447p",
     lineId: "line-tj-mikro-jak02",
@@ -25025,7 +29460,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05239p",
     lineId: "line-tj-mikro-jak02",
@@ -25040,7 +29478,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05785p",
     lineId: "line-tj-mikro-jak02",
@@ -25055,7 +29496,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05536p",
     lineId: "line-tj-mikro-jak02",
@@ -25070,7 +29514,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02723p",
     lineId: "line-tj-mikro-jak02",
@@ -25085,7 +29532,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b06573p",
     lineId: "line-tj-mikro-jak02",
@@ -25100,7 +29550,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01430p",
     lineId: "line-tj-mikro-jak02",
@@ -25115,7 +29568,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02623p",
     lineId: "line-tj-mikro-jak02",
@@ -25130,7 +29586,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b02339p",
     lineId: "line-tj-mikro-jak02",
@@ -25145,7 +29604,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01431p",
     lineId: "line-tj-mikro-jak02",
@@ -25160,7 +29622,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05021p",
     lineId: "line-tj-mikro-jak02",
@@ -25175,7 +29640,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b05531p",
     lineId: "line-tj-mikro-jak02",
@@ -25190,7 +29658,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b00139p",
     lineId: "line-tj-mikro-jak02",
@@ -25205,7 +29676,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak02-stop-tj-jak02-b01994p",
     lineId: "line-tj-mikro-jak02",
@@ -25220,7 +29694,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05950p",
     lineId: "line-tj-mikro-jak03",
@@ -25235,7 +29712,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00043p",
     lineId: "line-tj-mikro-jak03",
@@ -25250,7 +29730,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03416p",
     lineId: "line-tj-mikro-jak03",
@@ -25265,7 +29748,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00017p",
     lineId: "line-tj-mikro-jak03",
@@ -25280,7 +29766,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05584p",
     lineId: "line-tj-mikro-jak03",
@@ -25295,7 +29784,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05394p",
     lineId: "line-tj-mikro-jak03",
@@ -25310,7 +29802,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b02668p",
     lineId: "line-tj-mikro-jak03",
@@ -25325,7 +29820,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b02279p",
     lineId: "line-tj-mikro-jak03",
@@ -25340,7 +29838,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00026p",
     lineId: "line-tj-mikro-jak03",
@@ -25355,7 +29856,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04636p",
     lineId: "line-tj-mikro-jak03",
@@ -25370,7 +29874,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01117p",
     lineId: "line-tj-mikro-jak03",
@@ -25385,7 +29892,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04650p",
     lineId: "line-tj-mikro-jak03",
@@ -25400,7 +29910,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00899p",
     lineId: "line-tj-mikro-jak03",
@@ -25415,7 +29928,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04904p",
     lineId: "line-tj-mikro-jak03",
@@ -25430,7 +29946,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05860p",
     lineId: "line-tj-mikro-jak03",
@@ -25445,7 +29964,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
+  }
+];
+const TRANSIT_STOPS_EXTRA_5: Stop[] = [
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03391p",
     lineId: "line-tj-mikro-jak03",
@@ -25460,7 +29983,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00090p",
     lineId: "line-tj-mikro-jak03",
@@ -25475,7 +30001,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03389p",
     lineId: "line-tj-mikro-jak03",
@@ -25490,7 +30019,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01330p",
     lineId: "line-tj-mikro-jak03",
@@ -25505,7 +30037,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04694p",
     lineId: "line-tj-mikro-jak03",
@@ -25520,7 +30055,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05613p",
     lineId: "line-tj-mikro-jak03",
@@ -25535,7 +30073,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00838p",
     lineId: "line-tj-mikro-jak03",
@@ -25550,7 +30091,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b02895p",
     lineId: "line-tj-mikro-jak03",
@@ -25565,7 +30109,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b02129p",
     lineId: "line-tj-mikro-jak03",
@@ -25580,7 +30127,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b07955p",
     lineId: "line-tj-mikro-jak03",
@@ -25595,7 +30145,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01085p",
     lineId: "line-tj-mikro-jak03",
@@ -25610,7 +30163,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b02297p",
     lineId: "line-tj-mikro-jak03",
@@ -25625,7 +30181,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03030p",
     lineId: "line-tj-mikro-jak03",
@@ -25640,7 +30199,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00119p",
     lineId: "line-tj-mikro-jak03",
@@ -25655,7 +30217,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04001p",
     lineId: "line-tj-mikro-jak03",
@@ -25670,7 +30235,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01480p",
     lineId: "line-tj-mikro-jak03",
@@ -25685,7 +30253,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03390p",
     lineId: "line-tj-mikro-jak03",
@@ -25700,7 +30271,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00091p",
     lineId: "line-tj-mikro-jak03",
@@ -25715,7 +30289,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05237p",
     lineId: "line-tj-mikro-jak03",
@@ -25730,7 +30307,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03067p",
     lineId: "line-tj-mikro-jak03",
@@ -25745,7 +30325,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01204p",
     lineId: "line-tj-mikro-jak03",
@@ -25760,7 +30343,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04905p",
     lineId: "line-tj-mikro-jak03",
@@ -25775,7 +30361,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00521p",
     lineId: "line-tj-mikro-jak03",
@@ -25790,7 +30379,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04651p",
     lineId: "line-tj-mikro-jak03",
@@ -25805,7 +30397,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01102p",
     lineId: "line-tj-mikro-jak03",
@@ -25820,7 +30415,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04390p",
     lineId: "line-tj-mikro-jak03",
@@ -25835,7 +30433,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00027p",
     lineId: "line-tj-mikro-jak03",
@@ -25850,7 +30451,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04628p",
     lineId: "line-tj-mikro-jak03",
@@ -25865,7 +30469,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01106p",
     lineId: "line-tj-mikro-jak03",
@@ -25880,7 +30487,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00684p",
     lineId: "line-tj-mikro-jak03",
@@ -25895,7 +30505,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b01493p",
     lineId: "line-tj-mikro-jak03",
@@ -25910,7 +30523,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b04792p",
     lineId: "line-tj-mikro-jak03",
@@ -25925,7 +30541,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b03441p",
     lineId: "line-tj-mikro-jak03",
@@ -25940,7 +30559,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b05741p",
     lineId: "line-tj-mikro-jak03",
@@ -25955,7 +30577,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak03-stop-tj-jak03-b00042p",
     lineId: "line-tj-mikro-jak03",
@@ -25970,7 +30595,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-g00634",
     lineId: "line-tj-mikro-jak10",
@@ -25985,7 +30613,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01638p",
     lineId: "line-tj-mikro-jak10",
@@ -26000,7 +30631,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05666p",
     lineId: "line-tj-mikro-jak10",
@@ -26015,7 +30649,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04793p",
     lineId: "line-tj-mikro-jak10",
@@ -26030,7 +30667,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01231p",
     lineId: "line-tj-mikro-jak10",
@@ -26045,7 +30685,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01653p",
     lineId: "line-tj-mikro-jak10",
@@ -26060,7 +30703,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01651p",
     lineId: "line-tj-mikro-jak10",
@@ -26075,7 +30721,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01650p",
     lineId: "line-tj-mikro-jak10",
@@ -26090,7 +30739,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01649p",
     lineId: "line-tj-mikro-jak10",
@@ -26105,7 +30757,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02983p",
     lineId: "line-tj-mikro-jak10",
@@ -26120,7 +30775,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02051p",
     lineId: "line-tj-mikro-jak10",
@@ -26135,7 +30793,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02094p",
     lineId: "line-tj-mikro-jak10",
@@ -26150,7 +30811,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03331p",
     lineId: "line-tj-mikro-jak10",
@@ -26165,7 +30829,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02701p",
     lineId: "line-tj-mikro-jak10",
@@ -26180,7 +30847,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b06905p",
     lineId: "line-tj-mikro-jak10",
@@ -26195,7 +30865,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00912p",
     lineId: "line-tj-mikro-jak10",
@@ -26210,7 +30883,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01643p",
     lineId: "line-tj-mikro-jak10",
@@ -26225,7 +30901,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02579p",
     lineId: "line-tj-mikro-jak10",
@@ -26240,7 +30919,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03262p",
     lineId: "line-tj-mikro-jak10",
@@ -26255,7 +30937,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01644p",
     lineId: "line-tj-mikro-jak10",
@@ -26270,7 +30955,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01645p",
     lineId: "line-tj-mikro-jak10",
@@ -26285,7 +30973,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04991p",
     lineId: "line-tj-mikro-jak10",
@@ -26300,7 +30991,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04992p",
     lineId: "line-tj-mikro-jak10",
@@ -26315,7 +31009,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01351p",
     lineId: "line-tj-mikro-jak10",
@@ -26330,7 +31027,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05254p",
     lineId: "line-tj-mikro-jak10",
@@ -26345,7 +31045,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02256p",
     lineId: "line-tj-mikro-jak10",
@@ -26360,7 +31063,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02382p",
     lineId: "line-tj-mikro-jak10",
@@ -26375,7 +31081,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01350p",
     lineId: "line-tj-mikro-jak10",
@@ -26390,7 +31099,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03776p",
     lineId: "line-tj-mikro-jak10",
@@ -26405,7 +31117,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05450p",
     lineId: "line-tj-mikro-jak10",
@@ -26420,7 +31135,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01358p",
     lineId: "line-tj-mikro-jak10",
@@ -26435,7 +31153,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04385p",
     lineId: "line-tj-mikro-jak10",
@@ -26450,7 +31171,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04649p",
     lineId: "line-tj-mikro-jak10",
@@ -26465,7 +31189,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01675p",
     lineId: "line-tj-mikro-jak10",
@@ -26480,7 +31207,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02091p",
     lineId: "line-tj-mikro-jak10",
@@ -26495,7 +31225,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05127p",
     lineId: "line-tj-mikro-jak10",
@@ -26510,7 +31243,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04951p",
     lineId: "line-tj-mikro-jak10",
@@ -26525,7 +31261,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05700p",
     lineId: "line-tj-mikro-jak10",
@@ -26540,7 +31279,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05027p",
     lineId: "line-tj-mikro-jak10",
@@ -26555,7 +31297,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05028p",
     lineId: "line-tj-mikro-jak10",
@@ -26570,7 +31315,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05405p",
     lineId: "line-tj-mikro-jak10",
@@ -26585,7 +31333,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00592p",
     lineId: "line-tj-mikro-jak10",
@@ -26600,7 +31351,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04949p",
     lineId: "line-tj-mikro-jak10",
@@ -26615,7 +31369,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02659p",
     lineId: "line-tj-mikro-jak10",
@@ -26630,7 +31387,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01483p",
     lineId: "line-tj-mikro-jak10",
@@ -26645,7 +31405,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04421p",
     lineId: "line-tj-mikro-jak10",
@@ -26660,7 +31423,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02580p",
     lineId: "line-tj-mikro-jak10",
@@ -26675,7 +31441,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05045p",
     lineId: "line-tj-mikro-jak10",
@@ -26690,7 +31459,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05448p",
     lineId: "line-tj-mikro-jak10",
@@ -26705,7 +31477,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02565p",
     lineId: "line-tj-mikro-jak10",
@@ -26720,7 +31495,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02653p",
     lineId: "line-tj-mikro-jak10",
@@ -26735,7 +31513,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00815p",
     lineId: "line-tj-mikro-jak10",
@@ -26750,7 +31531,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05449p",
     lineId: "line-tj-mikro-jak10",
@@ -26765,7 +31549,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01767p",
     lineId: "line-tj-mikro-jak10",
@@ -26780,7 +31567,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01996p",
     lineId: "line-tj-mikro-jak10",
@@ -26795,7 +31585,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04418p",
     lineId: "line-tj-mikro-jak10",
@@ -26810,7 +31603,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05480p",
     lineId: "line-tj-mikro-jak10",
@@ -26825,7 +31621,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01885p",
     lineId: "line-tj-mikro-jak10",
@@ -26840,7 +31639,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03278p",
     lineId: "line-tj-mikro-jak10",
@@ -26855,7 +31657,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00880p",
     lineId: "line-tj-mikro-jak10",
@@ -26870,7 +31675,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02225p",
     lineId: "line-tj-mikro-jak10",
@@ -26885,7 +31693,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05501p",
     lineId: "line-tj-mikro-jak10",
@@ -26900,7 +31711,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00279p",
     lineId: "line-tj-mikro-jak10",
@@ -26915,7 +31729,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01501p",
     lineId: "line-tj-mikro-jak10",
@@ -26930,7 +31747,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05451p",
     lineId: "line-tj-mikro-jak10",
@@ -26945,7 +31765,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01791p",
     lineId: "line-tj-mikro-jak10",
@@ -26960,7 +31783,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02702p",
     lineId: "line-tj-mikro-jak10",
@@ -26975,7 +31801,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03489p",
     lineId: "line-tj-mikro-jak10",
@@ -26990,7 +31819,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02824p",
     lineId: "line-tj-mikro-jak10",
@@ -27005,7 +31837,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b04799p",
     lineId: "line-tj-mikro-jak10",
@@ -27020,7 +31855,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03483p",
     lineId: "line-tj-mikro-jak10",
@@ -27035,7 +31873,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b08286p",
     lineId: "line-tj-mikro-jak10",
@@ -27050,7 +31891,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05294p",
     lineId: "line-tj-mikro-jak10",
@@ -27065,7 +31909,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00200p",
     lineId: "line-tj-mikro-jak10",
@@ -27080,7 +31927,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01639p",
     lineId: "line-tj-mikro-jak10",
@@ -27095,7 +31945,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01786p",
     lineId: "line-tj-mikro-jak10",
@@ -27110,7 +31963,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02830p",
     lineId: "line-tj-mikro-jak10",
@@ -27125,7 +31981,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03037p",
     lineId: "line-tj-mikro-jak10",
@@ -27140,7 +31999,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b03385p",
     lineId: "line-tj-mikro-jak10",
@@ -27155,7 +32017,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00594p",
     lineId: "line-tj-mikro-jak10",
@@ -27170,7 +32035,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b02505p",
     lineId: "line-tj-mikro-jak10",
@@ -27185,7 +32053,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01787p",
     lineId: "line-tj-mikro-jak10",
@@ -27200,7 +32071,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b05500p",
     lineId: "line-tj-mikro-jak10",
@@ -27215,7 +32089,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b01500p",
     lineId: "line-tj-mikro-jak10",
@@ -27230,7 +32107,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b00086p",
     lineId: "line-tj-mikro-jak10",
@@ -27245,7 +32125,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak10-stop-tj-jak10-b06068p",
     lineId: "line-tj-mikro-jak10",
@@ -27260,7 +32143,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05455p",
     lineId: "line-tj-mikro-jak12",
@@ -27275,7 +32161,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01182p",
     lineId: "line-tj-mikro-jak12",
@@ -27290,7 +32179,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01183p",
     lineId: "line-tj-mikro-jak12",
@@ -27305,7 +32197,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05386p",
     lineId: "line-tj-mikro-jak12",
@@ -27320,7 +32215,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04564p",
     lineId: "line-tj-mikro-jak12",
@@ -27335,7 +32233,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03367p",
     lineId: "line-tj-mikro-jak12",
@@ -27350,7 +32251,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02038p",
     lineId: "line-tj-mikro-jak12",
@@ -27365,7 +32269,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01980p",
     lineId: "line-tj-mikro-jak12",
@@ -27380,7 +32287,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04042p",
     lineId: "line-tj-mikro-jak12",
@@ -27395,7 +32305,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00877p",
     lineId: "line-tj-mikro-jak12",
@@ -27410,7 +32323,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00878p",
     lineId: "line-tj-mikro-jak12",
@@ -27425,7 +32341,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04710p",
     lineId: "line-tj-mikro-jak12",
@@ -27440,7 +32359,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01148p",
     lineId: "line-tj-mikro-jak12",
@@ -27455,7 +32377,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01434p",
     lineId: "line-tj-mikro-jak12",
@@ -27470,7 +32395,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00832p",
     lineId: "line-tj-mikro-jak12",
@@ -27485,7 +32413,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00916p",
     lineId: "line-tj-mikro-jak12",
@@ -27500,7 +32431,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03725p",
     lineId: "line-tj-mikro-jak12",
@@ -27515,7 +32449,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03726p",
     lineId: "line-tj-mikro-jak12",
@@ -27530,7 +32467,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00457p",
     lineId: "line-tj-mikro-jak12",
@@ -27545,7 +32485,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05222p",
     lineId: "line-tj-mikro-jak12",
@@ -27560,7 +32503,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02669p",
     lineId: "line-tj-mikro-jak12",
@@ -27575,7 +32521,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04237p",
     lineId: "line-tj-mikro-jak12",
@@ -27590,7 +32539,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01246p",
     lineId: "line-tj-mikro-jak12",
@@ -27605,7 +32557,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02058p",
     lineId: "line-tj-mikro-jak12",
@@ -27620,7 +32575,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02813p",
     lineId: "line-tj-mikro-jak12",
@@ -27635,7 +32593,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05089p",
     lineId: "line-tj-mikro-jak12",
@@ -27650,7 +32611,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02964p",
     lineId: "line-tj-mikro-jak12",
@@ -27665,7 +32629,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04978p",
     lineId: "line-tj-mikro-jak12",
@@ -27680,7 +32647,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04592p",
     lineId: "line-tj-mikro-jak12",
@@ -27695,7 +32665,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01716p",
     lineId: "line-tj-mikro-jak12",
@@ -27710,7 +32683,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01054p",
     lineId: "line-tj-mikro-jak12",
@@ -27725,7 +32701,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00876p",
     lineId: "line-tj-mikro-jak12",
@@ -27740,7 +32719,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b06920p",
     lineId: "line-tj-mikro-jak12",
@@ -27755,7 +32737,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01368p",
     lineId: "line-tj-mikro-jak12",
@@ -27770,7 +32755,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01335p",
     lineId: "line-tj-mikro-jak12",
@@ -27785,7 +32773,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00836p",
     lineId: "line-tj-mikro-jak12",
@@ -27800,7 +32791,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05102p",
     lineId: "line-tj-mikro-jak12",
@@ -27815,7 +32809,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03748p",
     lineId: "line-tj-mikro-jak12",
@@ -27830,7 +32827,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01441p",
     lineId: "line-tj-mikro-jak12",
@@ -27845,7 +32845,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03401p",
     lineId: "line-tj-mikro-jak12",
@@ -27860,7 +32863,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03917p",
     lineId: "line-tj-mikro-jak12",
@@ -27875,7 +32881,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02586p",
     lineId: "line-tj-mikro-jak12",
@@ -27890,7 +32899,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04168p",
     lineId: "line-tj-mikro-jak12",
@@ -27905,7 +32917,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04546p",
     lineId: "line-tj-mikro-jak12",
@@ -27920,7 +32935,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04166p",
     lineId: "line-tj-mikro-jak12",
@@ -27935,7 +32953,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03400p",
     lineId: "line-tj-mikro-jak12",
@@ -27950,7 +32971,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01443p",
     lineId: "line-tj-mikro-jak12",
@@ -27965,7 +32989,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01442p",
     lineId: "line-tj-mikro-jak12",
@@ -27980,7 +33007,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03125p",
     lineId: "line-tj-mikro-jak12",
@@ -27995,7 +33025,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04637p",
     lineId: "line-tj-mikro-jak12",
@@ -28010,7 +33043,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04567p",
     lineId: "line-tj-mikro-jak12",
@@ -28025,7 +33061,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04380p",
     lineId: "line-tj-mikro-jak12",
@@ -28040,7 +33079,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03486p",
     lineId: "line-tj-mikro-jak12",
@@ -28055,7 +33097,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03163p",
     lineId: "line-tj-mikro-jak12",
@@ -28070,7 +33115,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01306p",
     lineId: "line-tj-mikro-jak12",
@@ -28085,7 +33133,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04039p",
     lineId: "line-tj-mikro-jak12",
@@ -28100,7 +33151,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00594p",
     lineId: "line-tj-mikro-jak12",
@@ -28115,7 +33169,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02505p",
     lineId: "line-tj-mikro-jak12",
@@ -28130,7 +33187,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01787p",
     lineId: "line-tj-mikro-jak12",
@@ -28145,7 +33205,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-g00637",
     lineId: "line-tj-mikro-jak12",
@@ -28160,7 +33223,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01638p",
     lineId: "line-tj-mikro-jak12",
@@ -28175,7 +33241,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02830p",
     lineId: "line-tj-mikro-jak12",
@@ -28190,7 +33259,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00353p",
     lineId: "line-tj-mikro-jak12",
@@ -28205,7 +33277,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00159p",
     lineId: "line-tj-mikro-jak12",
@@ -28220,7 +33295,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05669p",
     lineId: "line-tj-mikro-jak12",
@@ -28235,7 +33313,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02972p",
     lineId: "line-tj-mikro-jak12",
@@ -28250,7 +33331,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00165p",
     lineId: "line-tj-mikro-jak12",
@@ -28265,7 +33349,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01485p",
     lineId: "line-tj-mikro-jak12",
@@ -28280,7 +33367,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00775p",
     lineId: "line-tj-mikro-jak12",
@@ -28295,7 +33385,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00531p",
     lineId: "line-tj-mikro-jak12",
@@ -28310,7 +33403,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00537p",
     lineId: "line-tj-mikro-jak12",
@@ -28325,7 +33421,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04293p",
     lineId: "line-tj-mikro-jak12",
@@ -28340,7 +33439,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00320p",
     lineId: "line-tj-mikro-jak12",
@@ -28355,7 +33457,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04618p",
     lineId: "line-tj-mikro-jak12",
@@ -28370,7 +33475,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05789p",
     lineId: "line-tj-mikro-jak12",
@@ -28385,7 +33493,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04391p",
     lineId: "line-tj-mikro-jak12",
@@ -28400,7 +33511,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04276p",
     lineId: "line-tj-mikro-jak12",
@@ -28415,7 +33529,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05241p",
     lineId: "line-tj-mikro-jak12",
@@ -28430,7 +33547,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03805p",
     lineId: "line-tj-mikro-jak12",
@@ -28445,7 +33565,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04358p",
     lineId: "line-tj-mikro-jak12",
@@ -28460,7 +33583,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02656p",
     lineId: "line-tj-mikro-jak12",
@@ -28475,7 +33601,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05736p",
     lineId: "line-tj-mikro-jak12",
@@ -28490,7 +33619,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02662p",
     lineId: "line-tj-mikro-jak12",
@@ -28505,7 +33637,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04130p",
     lineId: "line-tj-mikro-jak12",
@@ -28520,7 +33655,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01917p",
     lineId: "line-tj-mikro-jak12",
@@ -28535,7 +33673,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04359p",
     lineId: "line-tj-mikro-jak12",
@@ -28550,7 +33691,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01257p",
     lineId: "line-tj-mikro-jak12",
@@ -28565,7 +33709,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05029p",
     lineId: "line-tj-mikro-jak12",
@@ -28580,7 +33727,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01258p",
     lineId: "line-tj-mikro-jak12",
@@ -28595,7 +33745,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01259p",
     lineId: "line-tj-mikro-jak12",
@@ -28610,7 +33763,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01260p",
     lineId: "line-tj-mikro-jak12",
@@ -28625,7 +33781,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b08489p",
     lineId: "line-tj-mikro-jak12",
@@ -28640,7 +33799,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03642p",
     lineId: "line-tj-mikro-jak12",
@@ -28655,7 +33817,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03694p",
     lineId: "line-tj-mikro-jak12",
@@ -28670,7 +33835,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03880p",
     lineId: "line-tj-mikro-jak12",
@@ -28685,7 +33853,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05911p",
     lineId: "line-tj-mikro-jak12",
@@ -28700,7 +33871,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05034p",
     lineId: "line-tj-mikro-jak12",
@@ -28715,7 +33889,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05532p",
     lineId: "line-tj-mikro-jak12",
@@ -28730,7 +33907,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03978p",
     lineId: "line-tj-mikro-jak12",
@@ -28745,7 +33925,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02976p",
     lineId: "line-tj-mikro-jak12",
@@ -28760,7 +33943,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01948p",
     lineId: "line-tj-mikro-jak12",
@@ -28775,7 +33961,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05221p",
     lineId: "line-tj-mikro-jak12",
@@ -28790,7 +33979,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03529p",
     lineId: "line-tj-mikro-jak12",
@@ -28805,7 +33997,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01144p",
     lineId: "line-tj-mikro-jak12",
@@ -28820,7 +34015,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01143p",
     lineId: "line-tj-mikro-jak12",
@@ -28835,7 +34033,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01093p",
     lineId: "line-tj-mikro-jak12",
@@ -28850,7 +34051,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01127p",
     lineId: "line-tj-mikro-jak12",
@@ -28865,7 +34069,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01101p",
     lineId: "line-tj-mikro-jak12",
@@ -28880,7 +34087,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01197p",
     lineId: "line-tj-mikro-jak12",
@@ -28895,7 +34105,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04896p",
     lineId: "line-tj-mikro-jak12",
@@ -28910,7 +34123,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03643p",
     lineId: "line-tj-mikro-jak12",
@@ -28925,7 +34141,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b00845p",
     lineId: "line-tj-mikro-jak12",
@@ -28940,7 +34159,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b02331p",
     lineId: "line-tj-mikro-jak12",
@@ -28955,7 +34177,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03944p",
     lineId: "line-tj-mikro-jak12",
@@ -28970,7 +34195,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03972p",
     lineId: "line-tj-mikro-jak12",
@@ -28985,7 +34213,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04339p",
     lineId: "line-tj-mikro-jak12",
@@ -29000,7 +34231,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b05782p",
     lineId: "line-tj-mikro-jak12",
@@ -29015,7 +34249,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04496p",
     lineId: "line-tj-mikro-jak12",
@@ -29030,7 +34267,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03251p",
     lineId: "line-tj-mikro-jak12",
@@ -29045,7 +34285,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03368p",
     lineId: "line-tj-mikro-jak12",
@@ -29060,7 +34303,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b06627p",
     lineId: "line-tj-mikro-jak12",
@@ -29075,7 +34321,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b03150p",
     lineId: "line-tj-mikro-jak12",
@@ -29090,7 +34339,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b01366p",
     lineId: "line-tj-mikro-jak12",
@@ -29105,7 +34357,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-b04340p",
     lineId: "line-tj-mikro-jak12",
@@ -29120,7 +34375,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak12-stop-tj-jak12-g00650",
     lineId: "line-tj-mikro-jak12",
@@ -29135,7 +34393,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00512p",
     lineId: "line-tj-mikro-jak32",
@@ -29150,7 +34411,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00556p",
     lineId: "line-tj-mikro-jak32",
@@ -29165,7 +34429,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01313p",
     lineId: "line-tj-mikro-jak32",
@@ -29180,7 +34447,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08515p",
     lineId: "line-tj-mikro-jak32",
@@ -29195,7 +34465,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08516p",
     lineId: "line-tj-mikro-jak32",
@@ -29210,7 +34483,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08517p",
     lineId: "line-tj-mikro-jak32",
@@ -29225,7 +34501,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08510p",
     lineId: "line-tj-mikro-jak32",
@@ -29240,7 +34519,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06412p",
     lineId: "line-tj-mikro-jak32",
@@ -29255,7 +34537,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08511p",
     lineId: "line-tj-mikro-jak32",
@@ -29270,7 +34555,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06413p",
     lineId: "line-tj-mikro-jak32",
@@ -29285,7 +34573,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06414p",
     lineId: "line-tj-mikro-jak32",
@@ -29300,7 +34591,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06416p",
     lineId: "line-tj-mikro-jak32",
@@ -29315,7 +34609,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02950p",
     lineId: "line-tj-mikro-jak32",
@@ -29330,7 +34627,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00489p",
     lineId: "line-tj-mikro-jak32",
@@ -29345,7 +34645,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02962p",
     lineId: "line-tj-mikro-jak32",
@@ -29360,7 +34663,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00855p",
     lineId: "line-tj-mikro-jak32",
@@ -29375,7 +34681,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04560p",
     lineId: "line-tj-mikro-jak32",
@@ -29390,7 +34699,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03712p",
     lineId: "line-tj-mikro-jak32",
@@ -29405,7 +34717,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00530p",
     lineId: "line-tj-mikro-jak32",
@@ -29420,7 +34735,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02294p",
     lineId: "line-tj-mikro-jak32",
@@ -29435,7 +34753,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05001p",
     lineId: "line-tj-mikro-jak32",
@@ -29450,7 +34771,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03618p",
     lineId: "line-tj-mikro-jak32",
@@ -29465,7 +34789,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01120p",
     lineId: "line-tj-mikro-jak32",
@@ -29480,7 +34807,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05135p",
     lineId: "line-tj-mikro-jak32",
@@ -29495,7 +34825,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02511p",
     lineId: "line-tj-mikro-jak32",
@@ -29510,7 +34843,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04316p",
     lineId: "line-tj-mikro-jak32",
@@ -29525,7 +34861,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05133p",
     lineId: "line-tj-mikro-jak32",
@@ -29540,7 +34879,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03301p",
     lineId: "line-tj-mikro-jak32",
@@ -29555,7 +34897,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05522p",
     lineId: "line-tj-mikro-jak32",
@@ -29570,7 +34915,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03682p",
     lineId: "line-tj-mikro-jak32",
@@ -29585,7 +34933,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03502p",
     lineId: "line-tj-mikro-jak32",
@@ -29600,7 +34951,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00469p",
     lineId: "line-tj-mikro-jak32",
@@ -29615,7 +34969,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01132p",
     lineId: "line-tj-mikro-jak32",
@@ -29630,7 +34987,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02000p",
     lineId: "line-tj-mikro-jak32",
@@ -29645,7 +35005,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01525p",
     lineId: "line-tj-mikro-jak32",
@@ -29660,7 +35023,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01391p",
     lineId: "line-tj-mikro-jak32",
@@ -29675,7 +35041,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03830p",
     lineId: "line-tj-mikro-jak32",
@@ -29690,7 +35059,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04443p",
     lineId: "line-tj-mikro-jak32",
@@ -29705,7 +35077,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04320p",
     lineId: "line-tj-mikro-jak32",
@@ -29720,7 +35095,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01935p",
     lineId: "line-tj-mikro-jak32",
@@ -29735,7 +35113,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01883p",
     lineId: "line-tj-mikro-jak32",
@@ -29750,7 +35131,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04314p",
     lineId: "line-tj-mikro-jak32",
@@ -29765,7 +35149,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04321p",
     lineId: "line-tj-mikro-jak32",
@@ -29780,7 +35167,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03408p",
     lineId: "line-tj-mikro-jak32",
@@ -29795,7 +35185,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02003p",
     lineId: "line-tj-mikro-jak32",
@@ -29810,7 +35203,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00688p",
     lineId: "line-tj-mikro-jak32",
@@ -29825,7 +35221,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02303p",
     lineId: "line-tj-mikro-jak32",
@@ -29840,7 +35239,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01103p",
     lineId: "line-tj-mikro-jak32",
@@ -29855,7 +35257,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02010p",
     lineId: "line-tj-mikro-jak32",
@@ -29870,7 +35275,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02008p",
     lineId: "line-tj-mikro-jak32",
@@ -29885,7 +35293,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01088p",
     lineId: "line-tj-mikro-jak32",
@@ -29900,7 +35311,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01154p",
     lineId: "line-tj-mikro-jak32",
@@ -29915,7 +35329,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00624p",
     lineId: "line-tj-mikro-jak32",
@@ -29930,7 +35347,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00345p",
     lineId: "line-tj-mikro-jak32",
@@ -29945,7 +35365,11 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
+  }
+];
+const TRANSIT_STOPS_EXTRA_6: Stop[] = [
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03689p",
     lineId: "line-tj-mikro-jak32",
@@ -29960,7 +35384,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03132p",
     lineId: "line-tj-mikro-jak32",
@@ -29975,7 +35402,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00129p",
     lineId: "line-tj-mikro-jak32",
@@ -29990,7 +35420,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04794p",
     lineId: "line-tj-mikro-jak32",
@@ -30005,7 +35438,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03998p",
     lineId: "line-tj-mikro-jak32",
@@ -30020,7 +35456,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02028p",
     lineId: "line-tj-mikro-jak32",
@@ -30035,7 +35474,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05289p",
     lineId: "line-tj-mikro-jak32",
@@ -30050,7 +35492,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04260p",
     lineId: "line-tj-mikro-jak32",
@@ -30065,7 +35510,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03493p",
     lineId: "line-tj-mikro-jak32",
@@ -30080,7 +35528,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03069p",
     lineId: "line-tj-mikro-jak32",
@@ -30095,7 +35546,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02895p",
     lineId: "line-tj-mikro-jak32",
@@ -30110,7 +35564,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02129p",
     lineId: "line-tj-mikro-jak32",
@@ -30125,7 +35582,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05042p",
     lineId: "line-tj-mikro-jak32",
@@ -30140,7 +35600,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04671p",
     lineId: "line-tj-mikro-jak32",
@@ -30155,7 +35618,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02484p",
     lineId: "line-tj-mikro-jak32",
@@ -30170,7 +35636,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02205p",
     lineId: "line-tj-mikro-jak32",
@@ -30185,7 +35654,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03063p",
     lineId: "line-tj-mikro-jak32",
@@ -30200,7 +35672,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04441p",
     lineId: "line-tj-mikro-jak32",
@@ -30215,7 +35690,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03254p",
     lineId: "line-tj-mikro-jak32",
@@ -30230,7 +35708,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03965p",
     lineId: "line-tj-mikro-jak32",
@@ -30245,7 +35726,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02137p",
     lineId: "line-tj-mikro-jak32",
@@ -30260,7 +35744,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04795p",
     lineId: "line-tj-mikro-jak32",
@@ -30275,7 +35762,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03458p",
     lineId: "line-tj-mikro-jak32",
@@ -30290,7 +35780,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04279p",
     lineId: "line-tj-mikro-jak32",
@@ -30305,7 +35798,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05416p",
     lineId: "line-tj-mikro-jak32",
@@ -30320,7 +35816,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01037p",
     lineId: "line-tj-mikro-jak32",
@@ -30335,7 +35834,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03292p",
     lineId: "line-tj-mikro-jak32",
@@ -30350,7 +35852,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00146p",
     lineId: "line-tj-mikro-jak32",
@@ -30365,7 +35870,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05833p",
     lineId: "line-tj-mikro-jak32",
@@ -30380,7 +35888,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00349p",
     lineId: "line-tj-mikro-jak32",
@@ -30395,7 +35906,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02009p",
     lineId: "line-tj-mikro-jak32",
@@ -30410,7 +35924,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03652p",
     lineId: "line-tj-mikro-jak32",
@@ -30425,7 +35942,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00147p",
     lineId: "line-tj-mikro-jak32",
@@ -30440,7 +35960,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04947p",
     lineId: "line-tj-mikro-jak32",
@@ -30455,7 +35978,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03955p",
     lineId: "line-tj-mikro-jak32",
@@ -30470,7 +35996,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01074p",
     lineId: "line-tj-mikro-jak32",
@@ -30485,7 +36014,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03328p",
     lineId: "line-tj-mikro-jak32",
@@ -30500,7 +36032,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05933p",
     lineId: "line-tj-mikro-jak32",
@@ -30515,7 +36050,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03906p",
     lineId: "line-tj-mikro-jak32",
@@ -30530,7 +36068,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04487p",
     lineId: "line-tj-mikro-jak32",
@@ -30545,7 +36086,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03327p",
     lineId: "line-tj-mikro-jak32",
@@ -30560,7 +36104,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05295p",
     lineId: "line-tj-mikro-jak32",
@@ -30575,7 +36122,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02661p",
     lineId: "line-tj-mikro-jak32",
@@ -30590,7 +36140,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01028p",
     lineId: "line-tj-mikro-jak32",
@@ -30605,7 +36158,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04948p",
     lineId: "line-tj-mikro-jak32",
@@ -30620,7 +36176,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01491p",
     lineId: "line-tj-mikro-jak32",
@@ -30635,7 +36194,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03954p",
     lineId: "line-tj-mikro-jak32",
@@ -30650,7 +36212,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00529p",
     lineId: "line-tj-mikro-jak32",
@@ -30665,7 +36230,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01022p",
     lineId: "line-tj-mikro-jak32",
@@ -30680,7 +36248,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02517p",
     lineId: "line-tj-mikro-jak32",
@@ -30695,7 +36266,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01361p",
     lineId: "line-tj-mikro-jak32",
@@ -30710,7 +36284,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00409p",
     lineId: "line-tj-mikro-jak32",
@@ -30725,7 +36302,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04511p",
     lineId: "line-tj-mikro-jak32",
@@ -30740,7 +36320,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05132p",
     lineId: "line-tj-mikro-jak32",
@@ -30755,7 +36338,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01549p",
     lineId: "line-tj-mikro-jak32",
@@ -30770,7 +36356,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b04113p",
     lineId: "line-tj-mikro-jak32",
@@ -30785,7 +36374,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05134p",
     lineId: "line-tj-mikro-jak32",
@@ -30800,7 +36392,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00768p",
     lineId: "line-tj-mikro-jak32",
@@ -30815,7 +36410,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00008p",
     lineId: "line-tj-mikro-jak32",
@@ -30830,7 +36428,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05000p",
     lineId: "line-tj-mikro-jak32",
@@ -30845,7 +36446,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b02293p",
     lineId: "line-tj-mikro-jak32",
@@ -30860,7 +36464,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01110p",
     lineId: "line-tj-mikro-jak32",
@@ -30875,7 +36482,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b05760p",
     lineId: "line-tj-mikro-jak32",
@@ -30890,7 +36500,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b00851p",
     lineId: "line-tj-mikro-jak32",
@@ -30905,7 +36518,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08509p",
     lineId: "line-tj-mikro-jak32",
@@ -30920,7 +36536,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06181p",
     lineId: "line-tj-mikro-jak32",
@@ -30935,7 +36554,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06415p",
     lineId: "line-tj-mikro-jak32",
@@ -30950,7 +36572,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b06411p",
     lineId: "line-tj-mikro-jak32",
@@ -30965,7 +36590,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08512p",
     lineId: "line-tj-mikro-jak32",
@@ -30980,7 +36608,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08513p",
     lineId: "line-tj-mikro-jak32",
@@ -30995,7 +36626,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b08514p",
     lineId: "line-tj-mikro-jak32",
@@ -31010,7 +36644,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b01636p",
     lineId: "line-tj-mikro-jak32",
@@ -31025,7 +36662,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak32-stop-tj-jak32-b03565p",
     lineId: "line-tj-mikro-jak32",
@@ -31040,7 +36680,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b05721p",
     lineId: "line-tj-mikro-jak45",
@@ -31055,7 +36698,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01114p",
     lineId: "line-tj-mikro-jak45",
@@ -31070,7 +36716,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02365p",
     lineId: "line-tj-mikro-jak45",
@@ -31085,7 +36734,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02876p",
     lineId: "line-tj-mikro-jak45",
@@ -31100,7 +36752,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00093p",
     lineId: "line-tj-mikro-jak45",
@@ -31115,7 +36770,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b06822p",
     lineId: "line-tj-mikro-jak45",
@@ -31130,7 +36788,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03071p",
     lineId: "line-tj-mikro-jak45",
@@ -31145,7 +36806,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03569p",
     lineId: "line-tj-mikro-jak45",
@@ -31160,7 +36824,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03512p",
     lineId: "line-tj-mikro-jak45",
@@ -31175,7 +36842,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03549p",
     lineId: "line-tj-mikro-jak45",
@@ -31190,7 +36860,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02842p",
     lineId: "line-tj-mikro-jak45",
@@ -31205,7 +36878,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01847p",
     lineId: "line-tj-mikro-jak45",
@@ -31220,7 +36896,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01846p",
     lineId: "line-tj-mikro-jak45",
@@ -31235,7 +36914,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04625p",
     lineId: "line-tj-mikro-jak45",
@@ -31250,7 +36932,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02713p",
     lineId: "line-tj-mikro-jak45",
@@ -31265,7 +36950,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00486p",
     lineId: "line-tj-mikro-jak45",
@@ -31280,7 +36968,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04899p",
     lineId: "line-tj-mikro-jak45",
@@ -31295,7 +36986,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03961p",
     lineId: "line-tj-mikro-jak45",
@@ -31310,7 +37004,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03017p",
     lineId: "line-tj-mikro-jak45",
@@ -31325,7 +37022,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b06823p",
     lineId: "line-tj-mikro-jak45",
@@ -31340,7 +37040,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01026p",
     lineId: "line-tj-mikro-jak45",
@@ -31355,7 +37058,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04672p",
     lineId: "line-tj-mikro-jak45",
@@ -31370,7 +37076,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04996p",
     lineId: "line-tj-mikro-jak45",
@@ -31385,7 +37094,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03443p",
     lineId: "line-tj-mikro-jak45",
@@ -31400,7 +37112,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04429p",
     lineId: "line-tj-mikro-jak45",
@@ -31415,7 +37130,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04601p",
     lineId: "line-tj-mikro-jak45",
@@ -31430,7 +37148,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04713p",
     lineId: "line-tj-mikro-jak45",
@@ -31445,7 +37166,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00456p",
     lineId: "line-tj-mikro-jak45",
@@ -31460,7 +37184,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04104p",
     lineId: "line-tj-mikro-jak45",
@@ -31475,7 +37202,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01496p",
     lineId: "line-tj-mikro-jak45",
@@ -31490,7 +37220,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01495p",
     lineId: "line-tj-mikro-jak45",
@@ -31505,7 +37238,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01937p",
     lineId: "line-tj-mikro-jak45",
@@ -31520,7 +37256,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04624p",
     lineId: "line-tj-mikro-jak45",
@@ -31535,7 +37274,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03962p",
     lineId: "line-tj-mikro-jak45",
@@ -31550,7 +37292,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03457p",
     lineId: "line-tj-mikro-jak45",
@@ -31565,7 +37310,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00466p",
     lineId: "line-tj-mikro-jak45",
@@ -31580,7 +37328,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00297p",
     lineId: "line-tj-mikro-jak45",
@@ -31595,7 +37346,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02539p",
     lineId: "line-tj-mikro-jak45",
@@ -31610,7 +37364,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01512p",
     lineId: "line-tj-mikro-jak45",
@@ -31625,7 +37382,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04222p",
     lineId: "line-tj-mikro-jak45",
@@ -31640,7 +37400,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02200p",
     lineId: "line-tj-mikro-jak45",
@@ -31655,7 +37418,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03594p",
     lineId: "line-tj-mikro-jak45",
@@ -31670,7 +37436,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01928p",
     lineId: "line-tj-mikro-jak45",
@@ -31685,7 +37454,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03388p",
     lineId: "line-tj-mikro-jak45",
@@ -31700,7 +37472,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04906p",
     lineId: "line-tj-mikro-jak45",
@@ -31715,7 +37490,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03461p",
     lineId: "line-tj-mikro-jak45",
@@ -31730,7 +37508,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02895p",
     lineId: "line-tj-mikro-jak45",
@@ -31745,7 +37526,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02129p",
     lineId: "line-tj-mikro-jak45",
@@ -31760,7 +37544,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b07955p",
     lineId: "line-tj-mikro-jak45",
@@ -31775,7 +37562,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01085p",
     lineId: "line-tj-mikro-jak45",
@@ -31790,7 +37580,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02297p",
     lineId: "line-tj-mikro-jak45",
@@ -31805,7 +37598,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03030p",
     lineId: "line-tj-mikro-jak45",
@@ -31820,7 +37616,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00119p",
     lineId: "line-tj-mikro-jak45",
@@ -31835,7 +37634,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04694p",
     lineId: "line-tj-mikro-jak45",
@@ -31850,7 +37652,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b05613p",
     lineId: "line-tj-mikro-jak45",
@@ -31865,7 +37670,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04001p",
     lineId: "line-tj-mikro-jak45",
@@ -31880,7 +37688,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00164p",
     lineId: "line-tj-mikro-jak45",
@@ -31895,7 +37706,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04819p",
     lineId: "line-tj-mikro-jak45",
@@ -31910,7 +37724,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04355p",
     lineId: "line-tj-mikro-jak45",
@@ -31925,7 +37742,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03923p",
     lineId: "line-tj-mikro-jak45",
@@ -31940,7 +37760,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00641p",
     lineId: "line-tj-mikro-jak45",
@@ -31955,7 +37778,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00289p",
     lineId: "line-tj-mikro-jak45",
@@ -31970,7 +37796,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02917p",
     lineId: "line-tj-mikro-jak45",
@@ -31985,7 +37814,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03819p",
     lineId: "line-tj-mikro-jak45",
@@ -32000,7 +37832,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00296p",
     lineId: "line-tj-mikro-jak45",
@@ -32015,7 +37850,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00295p",
     lineId: "line-tj-mikro-jak45",
@@ -32030,7 +37868,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00298p",
     lineId: "line-tj-mikro-jak45",
@@ -32045,7 +37886,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03531p",
     lineId: "line-tj-mikro-jak45",
@@ -32060,7 +37904,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00123p",
     lineId: "line-tj-mikro-jak45",
@@ -32075,7 +37922,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02025p",
     lineId: "line-tj-mikro-jak45",
@@ -32090,7 +37940,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04382p",
     lineId: "line-tj-mikro-jak45",
@@ -32105,7 +37958,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03928p",
     lineId: "line-tj-mikro-jak45",
@@ -32120,7 +37976,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03818p",
     lineId: "line-tj-mikro-jak45",
@@ -32135,7 +37994,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01498p",
     lineId: "line-tj-mikro-jak45",
@@ -32150,7 +38012,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02482p",
     lineId: "line-tj-mikro-jak45",
@@ -32165,7 +38030,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03525p",
     lineId: "line-tj-mikro-jak45",
@@ -32180,7 +38048,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b05208p",
     lineId: "line-tj-mikro-jak45",
@@ -32195,7 +38066,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b05927p",
     lineId: "line-tj-mikro-jak45",
@@ -32210,7 +38084,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b05277p",
     lineId: "line-tj-mikro-jak45",
@@ -32225,7 +38102,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00033p",
     lineId: "line-tj-mikro-jak45",
@@ -32240,7 +38120,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04712p",
     lineId: "line-tj-mikro-jak45",
@@ -32255,7 +38138,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04405p",
     lineId: "line-tj-mikro-jak45",
@@ -32270,7 +38156,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b01714p",
     lineId: "line-tj-mikro-jak45",
@@ -32285,7 +38174,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b06825p",
     lineId: "line-tj-mikro-jak45",
@@ -32300,7 +38192,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04245p",
     lineId: "line-tj-mikro-jak45",
@@ -32315,7 +38210,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b02024p",
     lineId: "line-tj-mikro-jak45",
@@ -32330,7 +38228,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04900p",
     lineId: "line-tj-mikro-jak45",
@@ -32345,7 +38246,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b06900p",
     lineId: "line-tj-mikro-jak45",
@@ -32360,7 +38264,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b04205p",
     lineId: "line-tj-mikro-jak45",
@@ -32375,7 +38282,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00522p",
     lineId: "line-tj-mikro-jak45",
@@ -32390,7 +38300,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00425p",
     lineId: "line-tj-mikro-jak45",
@@ -32405,7 +38318,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b00568p",
     lineId: "line-tj-mikro-jak45",
@@ -32420,7 +38336,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak45-stop-tj-jak45-b03072p",
     lineId: "line-tj-mikro-jak45",
@@ -32435,7 +38354,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01798p",
     lineId: "line-tj-mikro-jak52",
@@ -32450,7 +38372,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01332p",
     lineId: "line-tj-mikro-jak52",
@@ -32465,7 +38390,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02760p",
     lineId: "line-tj-mikro-jak52",
@@ -32480,7 +38408,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05546p",
     lineId: "line-tj-mikro-jak52",
@@ -32495,7 +38426,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01279p",
     lineId: "line-tj-mikro-jak52",
@@ -32510,7 +38444,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01579p",
     lineId: "line-tj-mikro-jak52",
@@ -32525,7 +38462,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03041p",
     lineId: "line-tj-mikro-jak52",
@@ -32540,7 +38480,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05632p",
     lineId: "line-tj-mikro-jak52",
@@ -32555,7 +38498,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02808p",
     lineId: "line-tj-mikro-jak52",
@@ -32570,7 +38516,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b07532p",
     lineId: "line-tj-mikro-jak52",
@@ -32585,7 +38534,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b06302p",
     lineId: "line-tj-mikro-jak52",
@@ -32600,7 +38552,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04312p",
     lineId: "line-tj-mikro-jak52",
@@ -32615,7 +38570,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03138p",
     lineId: "line-tj-mikro-jak52",
@@ -32630,7 +38588,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04412p",
     lineId: "line-tj-mikro-jak52",
@@ -32645,7 +38606,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04411p",
     lineId: "line-tj-mikro-jak52",
@@ -32660,7 +38624,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03695p",
     lineId: "line-tj-mikro-jak52",
@@ -32675,7 +38642,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01747p",
     lineId: "line-tj-mikro-jak52",
@@ -32690,7 +38660,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01756p",
     lineId: "line-tj-mikro-jak52",
@@ -32705,7 +38678,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04989p",
     lineId: "line-tj-mikro-jak52",
@@ -32720,7 +38696,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02208p",
     lineId: "line-tj-mikro-jak52",
@@ -32735,7 +38714,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02207p",
     lineId: "line-tj-mikro-jak52",
@@ -32750,7 +38732,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02394p",
     lineId: "line-tj-mikro-jak52",
@@ -32765,7 +38750,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02219p",
     lineId: "line-tj-mikro-jak52",
@@ -32780,7 +38768,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b06045p",
     lineId: "line-tj-mikro-jak52",
@@ -32795,7 +38786,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01830p",
     lineId: "line-tj-mikro-jak52",
@@ -32810,7 +38804,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05252p",
     lineId: "line-tj-mikro-jak52",
@@ -32825,7 +38822,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01829p",
     lineId: "line-tj-mikro-jak52",
@@ -32840,7 +38840,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05714p",
     lineId: "line-tj-mikro-jak52",
@@ -32855,7 +38858,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b06565p",
     lineId: "line-tj-mikro-jak52",
@@ -32870,7 +38876,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04213p",
     lineId: "line-tj-mikro-jak52",
@@ -32885,7 +38894,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b06566p",
     lineId: "line-tj-mikro-jak52",
@@ -32900,7 +38912,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01763p",
     lineId: "line-tj-mikro-jak52",
@@ -32915,7 +38930,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02887p",
     lineId: "line-tj-mikro-jak52",
@@ -32930,7 +38948,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02492p",
     lineId: "line-tj-mikro-jak52",
@@ -32945,7 +38966,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02650p",
     lineId: "line-tj-mikro-jak52",
@@ -32960,7 +38984,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05253p",
     lineId: "line-tj-mikro-jak52",
@@ -32975,7 +39002,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05647p",
     lineId: "line-tj-mikro-jak52",
@@ -32990,7 +39020,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b00386p",
     lineId: "line-tj-mikro-jak52",
@@ -33005,7 +39038,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02220p",
     lineId: "line-tj-mikro-jak52",
@@ -33020,7 +39056,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01328p",
     lineId: "line-tj-mikro-jak52",
@@ -33035,7 +39074,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b00242p",
     lineId: "line-tj-mikro-jak52",
@@ -33050,7 +39092,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02389p",
     lineId: "line-tj-mikro-jak52",
@@ -33065,7 +39110,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04990p",
     lineId: "line-tj-mikro-jak52",
@@ -33080,7 +39128,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "BIG",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b00333p",
     lineId: "line-tj-mikro-jak52",
@@ -33095,7 +39146,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05230p",
     lineId: "line-tj-mikro-jak52",
@@ -33110,7 +39164,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05231p",
     lineId: "line-tj-mikro-jak52",
@@ -33125,7 +39182,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04281p",
     lineId: "line-tj-mikro-jak52",
@@ -33140,7 +39200,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b06299p",
     lineId: "line-tj-mikro-jak52",
@@ -33155,7 +39218,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03269p",
     lineId: "line-tj-mikro-jak52",
@@ -33170,7 +39236,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04643p",
     lineId: "line-tj-mikro-jak52",
@@ -33185,7 +39254,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04682p",
     lineId: "line-tj-mikro-jak52",
@@ -33200,7 +39272,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01087p",
     lineId: "line-tj-mikro-jak52",
@@ -33215,7 +39290,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03207p",
     lineId: "line-tj-mikro-jak52",
@@ -33230,7 +39308,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05838p",
     lineId: "line-tj-mikro-jak52",
@@ -33245,7 +39326,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b05317p",
     lineId: "line-tj-mikro-jak52",
@@ -33260,7 +39344,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02900p",
     lineId: "line-tj-mikro-jak52",
@@ -33275,7 +39362,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03343p",
     lineId: "line-tj-mikro-jak52",
@@ -33290,7 +39380,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03009p",
     lineId: "line-tj-mikro-jak52",
@@ -33305,7 +39398,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03073p",
     lineId: "line-tj-mikro-jak52",
@@ -33320,7 +39416,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04136p",
     lineId: "line-tj-mikro-jak52",
@@ -33335,7 +39434,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01866p",
     lineId: "line-tj-mikro-jak52",
@@ -33350,7 +39452,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03874p",
     lineId: "line-tj-mikro-jak52",
@@ -33365,7 +39470,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b03342p",
     lineId: "line-tj-mikro-jak52",
@@ -33380,7 +39488,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b04572p",
     lineId: "line-tj-mikro-jak52",
@@ -33395,7 +39506,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b02833p",
     lineId: "line-tj-mikro-jak52",
@@ -33410,7 +39524,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak52-stop-tj-jak52-b01055p",
     lineId: "line-tj-mikro-jak52",
@@ -33425,7 +39542,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05728p",
     lineId: "line-tj-mikro-jak88",
@@ -33440,7 +39560,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05955p",
     lineId: "line-tj-mikro-jak88",
@@ -33455,7 +39578,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05958p",
     lineId: "line-tj-mikro-jak88",
@@ -33470,7 +39596,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b00882p",
     lineId: "line-tj-mikro-jak88",
@@ -33485,7 +39614,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05959p",
     lineId: "line-tj-mikro-jak88",
@@ -33500,7 +39632,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05573p",
     lineId: "line-tj-mikro-jak88",
@@ -33515,7 +39650,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b03732p",
     lineId: "line-tj-mikro-jak88",
@@ -33530,7 +39668,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b04664p",
     lineId: "line-tj-mikro-jak88",
@@ -33545,7 +39686,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05961p",
     lineId: "line-tj-mikro-jak88",
@@ -33560,7 +39704,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05962p",
     lineId: "line-tj-mikro-jak88",
@@ -33575,7 +39722,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05964p",
     lineId: "line-tj-mikro-jak88",
@@ -33590,7 +39740,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05965p",
     lineId: "line-tj-mikro-jak88",
@@ -33605,7 +39758,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05966p",
     lineId: "line-tj-mikro-jak88",
@@ -33620,7 +39776,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05967p",
     lineId: "line-tj-mikro-jak88",
@@ -33635,7 +39794,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05969p",
     lineId: "line-tj-mikro-jak88",
@@ -33650,7 +39812,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05971p",
     lineId: "line-tj-mikro-jak88",
@@ -33665,7 +39830,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05972p",
     lineId: "line-tj-mikro-jak88",
@@ -33680,7 +39848,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05975p",
     lineId: "line-tj-mikro-jak88",
@@ -33695,7 +39866,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05976p",
     lineId: "line-tj-mikro-jak88",
@@ -33710,7 +39884,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b00853p",
     lineId: "line-tj-mikro-jak88",
@@ -33725,7 +39902,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b00722p",
     lineId: "line-tj-mikro-jak88",
@@ -33740,7 +39920,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b02839p",
     lineId: "line-tj-mikro-jak88",
@@ -33755,7 +39938,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b00721p",
     lineId: "line-tj-mikro-jak88",
@@ -33770,7 +39956,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b02547p",
     lineId: "line-tj-mikro-jak88",
@@ -33785,7 +39974,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b02922p",
     lineId: "line-tj-mikro-jak88",
@@ -33800,7 +39992,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b04821p",
     lineId: "line-tj-mikro-jak88",
@@ -33815,7 +40010,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05286p",
     lineId: "line-tj-mikro-jak88",
@@ -33830,7 +40028,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b04679p",
     lineId: "line-tj-mikro-jak88",
@@ -33845,7 +40046,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b03242p",
     lineId: "line-tj-mikro-jak88",
@@ -33860,7 +40064,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b02088p",
     lineId: "line-tj-mikro-jak88",
@@ -33875,7 +40082,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b08287p",
     lineId: "line-tj-mikro-jak88",
@@ -33890,7 +40100,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05978p",
     lineId: "line-tj-mikro-jak88",
@@ -33905,7 +40118,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05980p",
     lineId: "line-tj-mikro-jak88",
@@ -33920,7 +40136,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05982p",
     lineId: "line-tj-mikro-jak88",
@@ -33935,7 +40154,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05984p",
     lineId: "line-tj-mikro-jak88",
@@ -33950,7 +40172,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05986p",
     lineId: "line-tj-mikro-jak88",
@@ -33965,7 +40190,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05988p",
     lineId: "line-tj-mikro-jak88",
@@ -33980,7 +40208,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05989p",
     lineId: "line-tj-mikro-jak88",
@@ -33995,7 +40226,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05990p",
     lineId: "line-tj-mikro-jak88",
@@ -34010,7 +40244,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05987p",
     lineId: "line-tj-mikro-jak88",
@@ -34025,7 +40262,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05985p",
     lineId: "line-tj-mikro-jak88",
@@ -34040,7 +40280,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05983p",
     lineId: "line-tj-mikro-jak88",
@@ -34055,7 +40298,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05981p",
     lineId: "line-tj-mikro-jak88",
@@ -34070,7 +40316,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05979p",
     lineId: "line-tj-mikro-jak88",
@@ -34085,7 +40334,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b07057p",
     lineId: "line-tj-mikro-jak88",
@@ -34100,7 +40352,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05991p",
     lineId: "line-tj-mikro-jak88",
@@ -34115,7 +40370,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05977p",
     lineId: "line-tj-mikro-jak88",
@@ -34130,7 +40388,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05974p",
     lineId: "line-tj-mikro-jak88",
@@ -34145,7 +40406,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05973p",
     lineId: "line-tj-mikro-jak88",
@@ -34160,7 +40424,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05970p",
     lineId: "line-tj-mikro-jak88",
@@ -34175,7 +40442,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05968p",
     lineId: "line-tj-mikro-jak88",
@@ -34190,7 +40460,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05993p",
     lineId: "line-tj-mikro-jak88",
@@ -34205,7 +40478,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05997p",
     lineId: "line-tj-mikro-jak88",
@@ -34220,7 +40496,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05998p",
     lineId: "line-tj-mikro-jak88",
@@ -34235,7 +40514,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05999p",
     lineId: "line-tj-mikro-jak88",
@@ -34250,7 +40532,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05994p",
     lineId: "line-tj-mikro-jak88",
@@ -34265,7 +40550,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b06875p",
     lineId: "line-tj-mikro-jak88",
@@ -34280,7 +40568,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05995p",
     lineId: "line-tj-mikro-jak88",
@@ -34295,7 +40586,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b06000p",
     lineId: "line-tj-mikro-jak88",
@@ -34310,7 +40604,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05996p",
     lineId: "line-tj-mikro-jak88",
@@ -34325,7 +40622,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b04401p",
     lineId: "line-tj-mikro-jak88",
@@ -34340,7 +40640,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b01161p",
     lineId: "line-tj-mikro-jak88",
@@ -34355,7 +40658,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b04519p",
     lineId: "line-tj-mikro-jak88",
@@ -34370,7 +40676,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05960p",
     lineId: "line-tj-mikro-jak88",
@@ -34385,7 +40694,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b03645p",
     lineId: "line-tj-mikro-jak88",
@@ -34400,7 +40712,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05957p",
     lineId: "line-tj-mikro-jak88",
@@ -34415,7 +40730,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-tj-mikro-jak88-stop-tj-jak88-b05956p",
     lineId: "line-tj-mikro-jak88",
@@ -34430,7 +40748,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
   },
+
   {
     id: "stop-mrt-cipete-raya-tuku",
     lineId: "line-mrt-ns",
@@ -34445,7 +40766,9 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
+  }
+];
+const TRANSIT_STOPS_EXTRA_7: Stop[] = [
   {
     id: "stop-mrt-haji-nawi",
     lineId: "line-mrt-ns",
@@ -34461,6 +40784,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-mrt-blok-a",
     lineId: "line-mrt-ns",
@@ -34476,6 +40800,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-mrt-istora-mandiri",
     lineId: "line-mrt-ns",
@@ -34491,6 +40816,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-mrt-bendungan-hilir",
     lineId: "line-mrt-ns",
@@ -34506,6 +40832,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-mrt-setiabudi-astra",
     lineId: "line-mrt-ns",
@@ -34521,6 +40848,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-setiabudi",
     lineId: "line-lrt-jb-cb",
@@ -34536,6 +40864,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-rasuna-said",
     lineId: "line-lrt-jb-cb",
@@ -34551,6 +40880,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-kuningan",
     lineId: "line-lrt-jb-cb",
@@ -34566,6 +40896,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-pancoran",
     lineId: "line-lrt-jb-cb",
@@ -34581,6 +40912,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-cikoko",
     lineId: "line-lrt-jb-cb",
@@ -34596,6 +40928,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-ciliwung",
     lineId: "line-lrt-jb-cb",
@@ -34611,6 +40944,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-taman-mini",
     lineId: "line-lrt-jb-cb",
@@ -34626,6 +40960,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-kampung-rambutan",
     lineId: "line-lrt-jb-cb",
@@ -34641,6 +40976,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtcb-lrt-ciracas",
     lineId: "line-lrt-jb-cb",
@@ -34656,6 +40992,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-dukuh-atas",
     lineId: "line-lrt-jb-bk",
@@ -34671,6 +41008,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-setiabudi",
     lineId: "line-lrt-jb-bk",
@@ -34686,6 +41024,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-rasuna-said",
     lineId: "line-lrt-jb-bk",
@@ -34701,6 +41040,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-kuningan",
     lineId: "line-lrt-jb-bk",
@@ -34716,6 +41056,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-pancoran",
     lineId: "line-lrt-jb-bk",
@@ -34731,6 +41072,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-cikoko",
     lineId: "line-lrt-jb-bk",
@@ -34746,6 +41088,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-ciliwung",
     lineId: "line-lrt-jb-bk",
@@ -34761,6 +41104,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-cawang-interchange",
     lineId: "line-lrt-jb-bk",
@@ -34776,6 +41120,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-jatibening-baru",
     lineId: "line-lrt-jb-bk",
@@ -34791,6 +41136,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-cikunir-1",
     lineId: "line-lrt-jb-bk",
@@ -34806,6 +41152,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-cikunir-2",
     lineId: "line-lrt-jb-bk",
@@ -34821,6 +41168,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-bekasi-barat",
     lineId: "line-lrt-jb-bk",
@@ -34836,6 +41184,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtbk-lrt-jati-mulya",
     lineId: "line-lrt-jb-bk",
@@ -34851,6 +41200,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-kelapa-gading",
     lineId: "line-lrt-jkt",
@@ -34866,6 +41216,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-boulevard-utara",
     lineId: "line-lrt-jkt",
@@ -34881,6 +41232,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-boulevard-selatan",
     lineId: "line-lrt-jkt",
@@ -34896,6 +41248,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-pulomas",
     lineId: "line-lrt-jkt",
@@ -34911,6 +41264,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-equestrian",
     lineId: "line-lrt-jkt",
@@ -34926,6 +41280,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-lrtjk-lrt-velodrome",
     lineId: "line-lrt-jkt",
@@ -34941,6 +41296,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-jayakarta",
     lineId: "line-krl-bogor",
@@ -34956,6 +41312,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-mangga-besar",
     lineId: "line-krl-bogor",
@@ -34971,6 +41328,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-sawah-besar",
     lineId: "line-krl-bogor",
@@ -34986,6 +41344,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-juanda",
     lineId: "line-krl-bogor",
@@ -35001,6 +41360,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-gondangdia",
     lineId: "line-krl-bogor",
@@ -35016,6 +41376,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-cikini",
     lineId: "line-krl-bogor",
@@ -35031,6 +41392,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-tebet",
     lineId: "line-krl-bogor",
@@ -35046,6 +41408,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-cawang",
     lineId: "line-krl-bogor",
@@ -35061,6 +41424,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-duren-kalibata",
     lineId: "line-krl-bogor",
@@ -35076,6 +41440,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-pasar-minggu-baru",
     lineId: "line-krl-bogor",
@@ -35091,6 +41456,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-pasar-minggu",
     lineId: "line-krl-bogor",
@@ -35106,6 +41472,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-tanjung-barat",
     lineId: "line-krl-bogor",
@@ -35121,6 +41488,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-lenteng-agung",
     lineId: "line-krl-bogor",
@@ -35136,6 +41504,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-universitas-pancasila",
     lineId: "line-krl-bogor",
@@ -35151,6 +41520,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-universitas-indonesia",
     lineId: "line-krl-bogor",
@@ -35166,6 +41536,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-pondok-cina",
     lineId: "line-krl-bogor",
@@ -35181,6 +41552,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-depok-baru",
     lineId: "line-krl-bogor",
@@ -35196,6 +41568,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-depok",
     lineId: "line-krl-bogor",
@@ -35211,6 +41584,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-citayam",
     lineId: "line-krl-bogor",
@@ -35226,6 +41600,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-bojong-gede",
     lineId: "line-krl-bogor",
@@ -35241,6 +41616,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-cilebut",
     lineId: "line-krl-bogor",
@@ -35256,6 +41632,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-bogor",
     lineId: "line-krl-bogor",
@@ -35271,6 +41648,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-pondok-rajeg",
     lineId: "line-krl-bogor",
@@ -35286,6 +41664,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-cibinong",
     lineId: "line-krl-bogor",
@@ -35301,6 +41680,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlbg-nambo",
     lineId: "line-krl-bogor",
@@ -35316,6 +41696,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-cikarang",
     lineId: "line-krl-cikarang",
@@ -35331,6 +41712,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-metland-telagamurni",
     lineId: "line-krl-cikarang",
@@ -35346,6 +41728,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-cibitung",
     lineId: "line-krl-cikarang",
@@ -35361,6 +41744,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-tambun",
     lineId: "line-krl-cikarang",
@@ -35376,6 +41760,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-bekasi-timur",
     lineId: "line-krl-cikarang",
@@ -35391,6 +41776,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-bekasi",
     lineId: "line-krl-cikarang",
@@ -35406,6 +41792,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-kranji",
     lineId: "line-krl-cikarang",
@@ -35421,6 +41808,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-cakung",
     lineId: "line-krl-cikarang",
@@ -35436,6 +41824,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-klender-baru",
     lineId: "line-krl-cikarang",
@@ -35451,6 +41840,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-buaran",
     lineId: "line-krl-cikarang",
@@ -35466,6 +41856,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-klender",
     lineId: "line-krl-cikarang",
@@ -35481,6 +41872,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-jatinegara",
     lineId: "line-krl-cikarang",
@@ -35496,6 +41888,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-matraman",
     lineId: "line-krl-cikarang",
@@ -35511,6 +41904,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-manggarai",
     lineId: "line-krl-cikarang",
@@ -35526,6 +41920,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-sudirman",
     lineId: "line-krl-cikarang",
@@ -35541,6 +41936,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-karet",
     lineId: "line-krl-cikarang",
@@ -35556,6 +41952,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-tanah-abang",
     lineId: "line-krl-cikarang",
@@ -35571,6 +41968,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-duri",
     lineId: "line-krl-cikarang",
@@ -35586,6 +41984,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-angke",
     lineId: "line-krl-cikarang",
@@ -35601,6 +42000,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-kampung-bandan",
     lineId: "line-krl-cikarang",
@@ -35616,6 +42016,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-pondok-jati",
     lineId: "line-krl-cikarang",
@@ -35631,6 +42032,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-kramat",
     lineId: "line-krl-cikarang",
@@ -35646,6 +42048,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-gang-sentiong",
     lineId: "line-krl-cikarang",
@@ -35661,6 +42064,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-pasar-senen",
     lineId: "line-krl-cikarang",
@@ -35676,6 +42080,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-kemayoran",
     lineId: "line-krl-cikarang",
@@ -35691,6 +42096,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlck-rajawali",
     lineId: "line-krl-cikarang",
@@ -35706,6 +42112,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-tanah-abang",
     lineId: "line-krl-rangkas",
@@ -35721,6 +42128,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-palmerah",
     lineId: "line-krl-rangkas",
@@ -35736,6 +42144,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-kebayoran",
     lineId: "line-krl-rangkas",
@@ -35751,6 +42160,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-pondok-ranji",
     lineId: "line-krl-rangkas",
@@ -35766,6 +42176,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-jurang-mangu",
     lineId: "line-krl-rangkas",
@@ -35781,6 +42192,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-sudimara",
     lineId: "line-krl-rangkas",
@@ -35796,6 +42208,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-rawa-buntu",
     lineId: "line-krl-rangkas",
@@ -35811,6 +42224,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-serpong",
     lineId: "line-krl-rangkas",
@@ -35826,6 +42240,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-cisauk",
     lineId: "line-krl-rangkas",
@@ -35841,6 +42256,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-cicayur",
     lineId: "line-krl-rangkas",
@@ -35856,6 +42272,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-jatake",
     lineId: "line-krl-rangkas",
@@ -35871,6 +42288,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-parung-panjang",
     lineId: "line-krl-rangkas",
@@ -35886,6 +42304,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-cilejit",
     lineId: "line-krl-rangkas",
@@ -35901,6 +42320,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-daru",
     lineId: "line-krl-rangkas",
@@ -35916,6 +42336,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-tenjo",
     lineId: "line-krl-rangkas",
@@ -35931,6 +42352,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-tigaraksa",
     lineId: "line-krl-rangkas",
@@ -35946,6 +42368,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-cikoya",
     lineId: "line-krl-rangkas",
@@ -35961,6 +42384,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-maja",
     lineId: "line-krl-rangkas",
@@ -35976,6 +42400,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-citeras",
     lineId: "line-krl-rangkas",
@@ -35991,6 +42416,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krlrk-rangkasbitung",
     lineId: "line-krl-rangkas",
@@ -36006,6 +42432,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-duri",
     lineId: "line-krl-tgr",
@@ -36021,6 +42448,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-grogol",
     lineId: "line-krl-tgr",
@@ -36036,6 +42464,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-pesing",
     lineId: "line-krl-tgr",
@@ -36051,6 +42480,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-taman-kota",
     lineId: "line-krl-tgr",
@@ -36066,6 +42496,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-bojong-indah",
     lineId: "line-krl-tgr",
@@ -36081,6 +42512,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-rawa-buaya",
     lineId: "line-krl-tgr",
@@ -36096,6 +42528,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-kalideres",
     lineId: "line-krl-tgr",
@@ -36111,6 +42544,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-poris",
     lineId: "line-krl-tgr",
@@ -36126,6 +42560,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-batu-ceper",
     lineId: "line-krl-tgr",
@@ -36141,6 +42576,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-tanah-tinggi",
     lineId: "line-krl-tgr",
@@ -36156,6 +42592,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltg-tangerang",
     lineId: "line-krl-tgr",
@@ -36171,6 +42608,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltp-jakarta-kota-beos",
     lineId: "line-krl-tpk",
@@ -36186,6 +42624,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltp-kampung-bandan",
     lineId: "line-krl-tpk",
@@ -36201,6 +42640,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltp-ancol",
     lineId: "line-krl-tpk",
@@ -36216,6 +42656,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-krltp-jakarta-international-stadium",
     lineId: "line-krl-tpk",
@@ -36231,6 +42672,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-whoosh-kereta-cepat-karawang",
     lineId: "line-whoosh-hsr",
@@ -36246,6 +42688,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-manggarai",
     lineId: "line-kai-bandara",
@@ -36261,6 +42704,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-bni-city",
     lineId: "line-kai-bandara",
@@ -36276,6 +42720,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-duri",
     lineId: "line-kai-bandara",
@@ -36291,6 +42736,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-rawa-buaya",
     lineId: "line-kai-bandara",
@@ -36306,6 +42752,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-bandara-soekarno-hatta",
     lineId: "line-kai-bandara",
@@ -36321,6 +42768,7 @@ export const TRANSIT_STOPS: Stop[] = [
     tactilePaving: false,
     wheelchairRamp: false,
   },
+
   {
     id: "stop-kabandara-batu-ceper",
     lineId: "line-kai-bandara",
@@ -36335,9 +42783,10 @@ export const TRANSIT_STOPS: Stop[] = [
     accessibleElevator: false,
     tactilePaving: false,
     wheelchairRamp: false,
-  },
-
+  }
 ];
+export const TRANSIT_STOPS: Stop[] = [
+  ...TRANSIT_STOPS_CORE,  ...TRANSIT_STOPS_EXTRA_0,  ...TRANSIT_STOPS_EXTRA_1,  ...TRANSIT_STOPS_EXTRA_2,  ...TRANSIT_STOPS_EXTRA_3,  ...TRANSIT_STOPS_EXTRA_4,  ...TRANSIT_STOPS_EXTRA_5,  ...TRANSIT_STOPS_EXTRA_6,  ...TRANSIT_STOPS_EXTRA_7,];
 export const SIMULATED_VEHICLES: Vehicle[] = [
   // 1. MRT Jakarta Ratangga Set 01 (Run M-101)
   {
