@@ -366,6 +366,7 @@ export const ja: TranslationDictionary = {
     boardTitle: "リアルタイム発車標",
     liveTelemetry: "GPSテレメトリ（ライブ）",
     boardEmpty: "検索フィルターに一致する時刻表はありません。",
+    earlierDepartures: "出発済み",
     estPrefix: "予想:",
     totalFleetOnLine: "路線の総車両数:",
     trainsetUnit: "編成",

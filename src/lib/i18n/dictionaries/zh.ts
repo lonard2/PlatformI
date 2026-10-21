@@ -366,6 +366,7 @@ export const zh: TranslationDictionary = {
     boardTitle: "实时发车信息屏",
     liveTelemetry: "实时 GPS 遥测",
     boardEmpty: "没有符合搜索筛选条件的时刻表。",
+    earlierDepartures: "已发车班次",
     estPrefix: "预计:",
     totalFleetOnLine: "线路车队总数:",
     trainsetUnit: "列车组",

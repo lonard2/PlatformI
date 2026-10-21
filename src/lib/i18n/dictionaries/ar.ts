@@ -366,6 +366,7 @@ export const ar: TranslationDictionary = {
     boardTitle: "لوحة المغادرة المباشرة",
     liveTelemetry: "قياس GPS المباشر",
     boardEmpty: "لا توجد جداول مطابقة لمرشح البحث.",
+    earlierDepartures: "مغادرات سابقة",
     estPrefix: "التقديري:",
     totalFleetOnLine: "إجمالي أسطول الخط:",
     trainsetUnit: "قطار",

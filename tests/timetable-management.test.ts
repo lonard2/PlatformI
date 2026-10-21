@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import {
   GET as getTimetables,
@@ -265,5 +265,103 @@ describe("Timetable & Schedule Management Suite", () => {
         expect(departures[i].scheduledTime >= departures[i - 1].scheduledTime).toBe(true);
       }
     });
+  });
+});
+
+describe("Adaptive departure board (scale, past rows, window clipping)", () => {
+  const baseStop: Stop = {
+    id: "stop-test-adaptive",
+    lineId: "line-test-bus",
+    name: "Halte Uji Adaptif",
+    code: "TST",
+    latitude: -6.2,
+    longitude: 106.8,
+    sequence: 1,
+    isInterchange: false,
+    connectedLineIds: [],
+    facilities: [],
+    accessibleElevator: false,
+    tactilePaving: false,
+    wheelchairRamp: false,
+    stationType: "BUS_SHELTER",
+    scale: "SMALL",
+  };
+
+  const baseLine: Line = {
+    id: "line-test-bus",
+    regionId: "reg-jkt",
+    code: "TST",
+    name: "Test Line (A - B)",
+    category: "BUS",
+    mode: "TRANSJAKARTA_BRT",
+    colorHex: "#D9252A",
+    textColorHex: "#FFFFFF",
+    fareType: "FLAT",
+    baseFareRp: 3500,
+    farePerKmRp: 0,
+    maxFareRp: 3500,
+    headwayMinutes: 10,
+    firstDeparture: "00:00",
+    lastDeparture: "24:00",
+    polylineCoordinates: [],
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15T12:00:00+07:00"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("scales upcoming rows by stop size with at most 3 past rows", () => {
+    const cases: Array<[Stop["scale"], number]> = [
+      ["SMALL", 5],
+      ["MEDIUM", 8],
+      ["BIG", 10],
+    ];
+    for (const [scale, upcoming] of cases) {
+      const board = generateDepartureBoard(
+        { ...baseStop, scale },
+        [baseLine],
+        idDictionary
+      );
+      const past = board.filter((d) => d.status === "DEPARTED");
+      const next = board.filter((d) => d.status !== "DEPARTED");
+      expect(next.length).toBe(upcoming);
+      expect(past.length).toBe(3);
+      expect(board.length).toBe(upcoming + 3);
+    }
+  });
+
+  it("marks past rows DEPARTED and keeps chronological order", () => {
+    const board = generateDepartureBoard(baseStop, [baseLine], idDictionary);
+    expect(board.filter((d) => d.status === "DEPARTED").length).toBe(3);
+    for (let i = 1; i < board.length; i++) {
+      expect(board[i].scheduledTime >= board[i - 1].scheduledTime).toBe(true);
+    }
+  });
+
+  it("clips everything outside the operating window and empties pre-service boards", () => {
+    const narrow = {
+      ...baseLine,
+      firstDeparture: "10:00",
+      lastDeparture: "11:00",
+    };
+    vi.setSystemTime(new Date("2026-01-15T10:30:00+07:00"));
+    const board = generateDepartureBoard(baseStop, [narrow], idDictionary);
+    // 10:30 + k*10min within [10:00, 11:00): 10:30, 10:40, 10:50 upcoming
+    expect(board.filter((d) => d.status !== "DEPARTED").length).toBe(3);
+    expect(board.filter((d) => d.status === "DEPARTED").length).toBeLessThanOrEqual(3);
+
+    vi.setSystemTime(new Date("2026-01-15T04:30:00+07:00"));
+    expect(generateDepartureBoard(baseStop, [narrow], idDictionary).length).toBe(0);
+  });
+
+  it("exposes the earlier-departures label in all locales", async () => {
+    const en = (await import("../src/lib/i18n/dictionaries/en")).en;
+    expect(en.hubInspector.earlierDepartures).toBe("Earlier departures");
+    expect(idDictionary.hubInspector.earlierDepartures).toBeTruthy();
   });
 });

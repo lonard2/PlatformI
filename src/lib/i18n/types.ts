@@ -390,6 +390,7 @@ export interface TranslationDictionary {
     boardTitle: string;
     liveTelemetry: string;
     boardEmpty: string;
+    earlierDepartures: string;
     estPrefix: string;
     totalFleetOnLine: string;
     trainsetUnit: string;

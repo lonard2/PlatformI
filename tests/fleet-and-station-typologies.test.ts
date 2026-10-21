@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import {
   StationType,
@@ -154,6 +154,16 @@ describe("Domain Model: Station Typologies & Timetable Runs", () => {
 });
 
 describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", () => {
+  // Pin mid-service so adaptive counts + window clipping are deterministic:
+  // every fixture window covers 10:00 WIB.
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-15T10:00:00+07:00"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("generates rich Aviation departure metadata with airlines, gate, serviceClass, baggageBelt, and origin", () => {
     const cgkStop: Stop = {
       id: "stop-cgk-t3",
@@ -193,7 +203,8 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     };
 
     const departures = generateDepartureBoard(cgkStop, [airLine], idDictionary);
-    expect(departures.length).toBe(3);
+    // BIG stop: 10 upcoming + 3 past, all inside 05:00-23:00 at 10:00 WIB.
+    expect(departures.length).toBe(13);
 
     const firstDeparture = departures[0];
     expect(firstDeparture.origin).toBe("Soekarno-Hatta (CGK)");
@@ -264,7 +275,8 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     };
 
     const departures = generateDepartureBoard(hlmStop, [whooshLine, intercityLine], idDictionary);
-    expect(departures.length).toBe(6);
+    // BIG stop: whoosh 10+3; intercity clips to 6 upcoming + 1 past at 10:00 WIB.
+    expect(departures.length).toBe(20);
 
     const whooshItem = departures.find((d) => d.mode === "WHOOSH_HSR");
     expect(whooshItem).toBeDefined();
@@ -322,7 +334,8 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     };
 
     const departures = generateDepartureBoard(fxStop, [shuttleLine], idDictionary);
-    expect(departures.length).toBe(3);
+    // MEDIUM stop: 8 upcoming + 3 past, all inside 05:30-21:30 at 10:00 WIB.
+    expect(departures.length).toBe(11);
 
     const shuttleItem = departures[0];
     expect(shuttleItem.origin).toBe("Pool fX Sudirman");
@@ -392,7 +405,8 @@ describe("Timetable Engine: generateDepartureBoard Rich Metadata Generation", ()
     };
 
     const departures = generateDepartureBoard(blokMStop, [tjBrtLine, mikrotransLine], idDictionary);
-    expect(departures.length).toBe(6);
+    // BIG stop: 2 lines x (10 upcoming + 3 past), all inside operating windows.
+    expect(departures.length).toBe(26);
 
     const brtItem = departures.find((d) => d.mode === "TRANSJAKARTA_BRT");
     expect(brtItem).toBeDefined();
