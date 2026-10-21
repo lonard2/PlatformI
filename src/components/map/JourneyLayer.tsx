@@ -52,6 +52,7 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
     if (!journeyHasRoute(plannedJourney)) return;
 
     const { originStop, destinationStop, candidateLines, transferOption } = plannedJourney;
+    const transferLegs = plannedJourney.transferLegs ?? [];
 
     // 1. Render Candidate Polylines with Highlight Glow
     for (const line of candidateLines) {
@@ -130,6 +131,52 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
         { permanent: true, direction: "top", offset: [0, -14], className: "custom-transit-tooltip" }
       );
       transferMarker.addTo(layerGroup);
+    }
+
+    // 2b. Render Transfer Stop Pins for the best 2-transfer itinerary
+    if (!transferOption && transferLegs.length > 0) {
+      const best = transferLegs[0];
+      best.transferStops.forEach((stop, i) => {
+        const fromLine = best.lines[i];
+        const toLine = best.lines[i + 1];
+        const beaconIcon = L.divIcon({
+          className: "journey-transfer-pin",
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          html: `
+          <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+            <div class="hub-pulse-ring" style="position: absolute; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #f59e0b; background: rgba(245, 158, 11, 0.25);"></div>
+            <div style="
+              width: 22px;
+              height: 22px;
+              border-radius: 50%;
+              background: #f59e0b;
+              border: 2px solid #ffffff;
+              box-shadow: 0 0 12px #f59e0b;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #ffffff;
+              font-weight: 900;
+              font-size: 11px;
+              font-family: monospace;
+            ">T</div>
+          </div>
+        `,
+        });
+
+        const beaconMarker = L.marker([stop.latitude, stop.longitude], {
+          icon: beaconIcon,
+          zIndexOffset: 1500,
+          title: stop.name,
+        });
+
+        beaconMarker.bindTooltip(
+          `<div style="font-family: sans-serif; font-weight: 600; font-size: 11px;">${stop.name}<br/><span style="font-size: 10px; color: #f59e0b;">${fromLine.code} &rarr; ${toLine.code}</span></div>`,
+          { permanent: true, direction: "top", offset: [0, -14], className: "custom-transit-tooltip" }
+        );
+        beaconMarker.addTo(layerGroup);
+      });
     }
 
     // 3. Render Origin Pin (A - Emerald)
@@ -219,6 +266,11 @@ export function JourneyLayer({ map }: JourneyLayerProps) {
         transferOption.transferStop.latitude,
         transferOption.transferStop.longitude,
       ]);
+    }
+    if (transferLegs.length > 0) {
+      for (const stop of transferLegs[0].transferStops) {
+        bounds.extend([stop.latitude, stop.longitude]);
+      }
     }
 
     // Ensure bounds are not degenerate

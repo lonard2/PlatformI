@@ -41,7 +41,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
   const [isUndoVisible, setIsUndoVisible] = useState<boolean>(false);
-  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [fetchFailed, setFetchFailed] = useState<boolean>(false);
   // Mobile chrome diet: the strip collapses to a count dot after 4s unless
   // the alert is critical or its details are open. Tapping restores it.
@@ -70,7 +69,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
         if (data.success && data.data && data.data.length > 0) {
           setAlerts(data.data);
           setActiveAlerts(data.data);
-          setLastFetchTime(new Date());
           setAlertsSyncedAt(Date.now());
           setFetchFailed(false);
           return;
