@@ -11,6 +11,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { Vehicle, CrowdDensityLevel } from "@/types/transit";
 
@@ -52,12 +53,15 @@ interface MarkerCacheEntry {
   marker: L.Marker;
   lastSelected: boolean;
   lastCrowdLevel: CrowdDensityLevel;
+  lineId: string;
+  lastDimmed: boolean;
 }
 
 export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
+  const plannedJourney = useTransitStore((state) => state.plannedJourney);
   const allStops = useTransitStore((state) => state.allStops);
   const selectVehicle = useTransitStore((state) => state.selectVehicle);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
@@ -248,6 +252,13 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
       const nextStop = allStops.find((s) => s.id === vehicle.nextStopId);
 
       const cached = currentMarkerMap.get(vehicle.id);
+      const candidateIds = new Set(
+        (plannedJourney?.candidateLines ?? []).map((l) => l.id)
+      );
+      const dimVehicle =
+        journeyHasRoute(plannedJourney) &&
+        vehicle.id !== selectedVehicleId &&
+        !candidateIds.has(vehicle.lineId);
 
       if (!cached) {
         // Create new marker
@@ -263,6 +274,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
         const marker = L.marker([vehicle.currentLatitude, vehicle.currentLongitude], {
           icon: customIcon,
           zIndexOffset: isSelected ? 1000 : 800,
+          opacity: dimVehicle ? 0.35 : 1,
         });
 
         // Attach Desktop Glassmorphic Hover Tooltip (Lazy populated on hover)
@@ -308,9 +320,16 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
           marker,
           lastSelected: isSelected,
           lastCrowdLevel: vehicle.crowdLevel,
+          lineId: vehicle.lineId,
+          lastDimmed: dimVehicle,
         });
       } else {
-        const { marker, lastSelected, lastCrowdLevel } = cached;
+        const { marker, lastSelected, lastCrowdLevel, lineId, lastDimmed } = cached;
+        if (lastDimmed !== dimVehicle) {
+          marker.setOpacity(dimVehicle ? 0.35 : 1);
+          cached.lastDimmed = dimVehicle;
+          cached.lineId = vehicle.lineId;
+        }
 
         // Smoothly update coordinate without DOM recreation
         marker.setLatLng([vehicle.currentLatitude, vehicle.currentLongitude]);
@@ -372,6 +391,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
     simulatedVehicles,
     selectedModes,
     selectedVehicleId,
+    plannedJourney,
     allStops,
     selectVehicle,
     setHoveredEntity,

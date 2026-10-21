@@ -12,6 +12,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { StationType, StationScale } from "@/types/transit";
 
 interface HubMarkerLayerProps {
@@ -43,6 +44,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedStopId = useTransitStore((state) => state.selectedStopId);
+  const plannedJourney = useTransitStore((state) => state.plannedJourney);
   const selectStop = useTransitStore((state) => state.selectStop);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
 
@@ -80,8 +82,23 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
       return activeLineIds.has(stop.lineId);
     });
 
+    const candidateIds = new Set(
+      (plannedJourney?.candidateLines ?? []).map((l) => l.id)
+    );
+    const routePlotted = journeyHasRoute(plannedJourney);
+    const endpointIds = new Set(
+      plannedJourney ? [plannedJourney.originStop.id, plannedJourney.destinationStop.id] : []
+    );
+
     for (const stop of visibleStops) {
       const isSelected = selectedStopId === stop.id;
+      // Quieter canvas: once a route is plotted, stops off the journey fade
+      // but stay interactive. Selected stop and A/B endpoints stay bright.
+      const isDimmed =
+        routePlotted &&
+        !isSelected &&
+        !endpointIds.has(stop.id) &&
+        !candidateIds.has(stop.lineId);
       const isHub = stop.isInterchange || (stop.connectedLineIds && stop.connectedLineIds.length > 0);
       const parentLine = allLines.find((l) => l.id === stop.lineId);
       const primaryColor = parentLine?.colorHex || "#38bdf8";
@@ -230,6 +247,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         icon: customIcon,
         zIndexOffset: zIndex,
         title: stop.name,
+        opacity: isDimmed ? 0.35 : 1,
       });
 
       const typeLabel = stationType.replace("_", " ");
@@ -274,6 +292,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
     allLines,
     selectedModes,
     selectedStopId,
+    plannedJourney,
     selectStop,
     setHoveredEntity,
   ]);
