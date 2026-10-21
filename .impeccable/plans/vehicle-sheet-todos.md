@@ -13,7 +13,7 @@ Ledger lives in this file under "Ledger".
 | # | Command | Task | Status | Commit |
 |---|---------|------|--------|--------|
 | 1 | clarify | Seating tab → boarding tool: car stepper + emptiest-car default + Show-seats disclosure; matrix kept intact behind disclosure | DONE (394/394) | — |
-| 2 | colorize | Occupancy scale made explicit: numeric legend + labeled bars, thresholds moved to shared helper | TODO | — |
+| 2 | colorize | Occupancy scale made explicit: numeric legend + labeled bars, thresholds moved to shared helper | DONE (397/397) | — |
 | 3 | harden | Honest controls + failure states: occupied seats non-interactive w/ aria-disabled + not-booking microcopy; image-fail / empty-carriage / offline states; simulated-data badge; keyboard for SVG carriage nodes | TODO | — |
 | 4 | layout | Overview reorder: gallery under header, compact line/fare/headway row; tab label vs content mismatch fixed | TODO | — |
 | 5 | distill | Single VehicleOpsRunCard; sheet + Specs tab share it; zero content removed | TODO | — |
@@ -32,3 +32,4 @@ Ledger lives in this file under "Ledger".
 - T1: Ruling: impeccable sub-commands (clarify/colorize/...) are not loadable OpenCode skills; the critique Fix directives serve as the binding spec for each task. Cost if wrong: none, fixes are explicit.
 - T1: Ruling: UrbanStandingCabinView left untouched (compact capacity layout, not the overloaded matrix); disclosure applies to reserved-seat matrix only. Cost if wrong: one follow-up if critique disagrees.
 - T1: note: pre-existing 9px advisory shifted 956→1019 (stepper insertion); owned by T6 polish.
+- T2: detector still reports only the pre-existing 9px advisory (line shifted by insertions); owned by T6.

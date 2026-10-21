@@ -278,6 +278,7 @@ export const zh: TranslationDictionary = {
     hideSeats: "隐藏座位",
     prevCar: "上一节",
     nextCar: "下一节",
+    occupancyLegend: "拥挤度",
     diagramTrain: "列车编组图",
     diagramDecks: "车身甲板层级图",
     diagramBusZones: "公交车厢分区图",

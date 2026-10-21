@@ -278,6 +278,7 @@ export const ar: TranslationDictionary = {
     hideSeats: "إخفاء المقاعد",
     prevCar: "العربة السابقة",
     nextCar: "العربة التالية",
+    occupancyLegend: "مقياس الازدحام",
     diagramTrain: "مخطط تشكيل القطار",
     diagramDecks: "مخطط مستويات سطح الهيكل",
     diagramBusZones: "مخطط مقصورات حافلة",

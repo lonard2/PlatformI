@@ -302,6 +302,7 @@ export interface TranslationDictionary {
     hideSeats: string;
     prevCar: string;
     nextCar: string;
+    occupancyLegend: string;
     diagramTrain: string;
     diagramDecks: string;
     diagramBusZones: string;

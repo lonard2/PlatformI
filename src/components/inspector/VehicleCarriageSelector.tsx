@@ -35,6 +35,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import { Vehicle, VehicleCarriageTelemetry } from "@/types/transit";
+import { getOccupancyColor, OCCUPANCY_BANDS } from "@/lib/vehicle/occupancy";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
@@ -532,13 +533,6 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
     vehicle.chassis?.toLowerCase().includes("gandeng") ||
     vehicle.coachbuilder?.toLowerCase().includes("gandeng");
 
-  const getOccupancyColor = (percent: number) => {
-    if (percent < 50) return { bg: "bg-emerald-500", text: "text-emerald-400", border: "border-emerald-500/40", lightBg: "bg-emerald-950/40", hex: "#10b981" };
-    if (percent < 75) return { bg: "bg-cyan-500", text: "text-cyan-400", border: "border-cyan-500/40", lightBg: "bg-cyan-950/40", hex: "#06b6d4" };
-    if (percent < 90) return { bg: "bg-amber-500", text: "text-amber-400", border: "border-amber-500/40", lightBg: "bg-amber-950/40", hex: "#f59e0b" };
-    return { bg: "bg-rose-500", text: "text-rose-400", border: "border-rose-500/40", lightBg: "bg-rose-950/40", hex: "#f43f5e" };
-  };
-
   const occStyle = getOccupancyColor(selectedCar.occupancyPercent);
 
   // Dynamic Scale & Blueprint Geometry:
@@ -977,6 +971,18 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
         </button>
       </div>
 
+      {/* 2c. OCCUPANCY SCALE LEGEND: color never stands alone */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1" aria-label={t.vehicleInspector.occupancyLegend}>
+        {OCCUPANCY_BANDS.map((band) => (
+          <span key={band.labelKey} className="flex items-center gap-1 text-[10px] font-mono text-slate-400">
+            <span className={`w-2 h-2 rounded-full ${band.bg}`} aria-hidden="true" />
+            <span>
+              {band.min}–{band.max} {t.common[band.labelKey]}
+            </span>
+          </span>
+        ))}
+      </div>
+
       {/* 3. HORIZONTAL QUICK-SELECTION PILLS */}
       <div className="overflow-x-auto pb-1 no-scrollbar">
         <div className="flex items-center gap-1.5 min-w-max py-1">
@@ -1042,7 +1048,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
           </div>
 
           <div className={`px-2 py-1 rounded-lg border text-[10px] font-bold ${occStyle.lightBg} ${occStyle.text} ${occStyle.border}`}>
-            {selectedCar.occupancyPercent}% {t.vehicleInspector.occupied}
+            {selectedCar.occupancyPercent}% · {t.common[getOccupancyColor(selectedCar.occupancyPercent).labelKey]}
           </div>
         </div>
 

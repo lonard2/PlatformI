@@ -278,6 +278,7 @@ export const id: TranslationDictionary = {
     hideSeats: "Sembunyikan kursi",
     prevCar: "Gerbong sebelumnya",
     nextCar: "Gerbong berikutnya",
+    occupancyLegend: "Skala kepadatan",
     diagramTrain: "Diagram Formasi Rangkaian",
     diagramDecks: "Diagram Tingkat Dek Karoseri",
     diagramBusZones: "Diagram Kompartemen Kabin Bus",

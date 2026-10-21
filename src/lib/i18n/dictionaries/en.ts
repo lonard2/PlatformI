@@ -278,6 +278,7 @@ export const en: TranslationDictionary = {
     hideSeats: "Hide seats",
     prevCar: "Previous car",
     nextCar: "Next car",
+    occupancyLegend: "Occupancy scale",
     diagramTrain: "Trainset Formation Diagram",
     diagramDecks: "Coachbuilder Deck Level Diagram",
     diagramBusZones: "Bus Cabin Compartment Diagram",

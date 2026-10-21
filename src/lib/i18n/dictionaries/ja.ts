@@ -278,6 +278,7 @@ export const ja: TranslationDictionary = {
     hideSeats: "座席を隠す",
     prevCar: "前の車両",
     nextCar: "次の車両",
+    occupancyLegend: "混雑度の目安",
     diagramTrain: "編成ダイアグラム",
     diagramDecks: "車体デッキ階層ダイアグラム",
     diagramBusZones: "バス車内区画ダイアグラム",

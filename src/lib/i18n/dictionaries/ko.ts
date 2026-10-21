@@ -278,6 +278,7 @@ export const ko: TranslationDictionary = {
     hideSeats: "좌석 숨기기",
     prevCar: "이전 칸",
     nextCar: "다음 칸",
+    occupancyLegend: "혼잡도",
     diagramTrain: "편성 다이어그램",
     diagramDecks: "차체 데크 층 다이어그램",
     diagramBusZones: "버스 객실 구역 다이어그램",
