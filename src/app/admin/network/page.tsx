@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { DynamicNetworkMap } from "@/components/admin/DynamicNetworkMap";
 import {
   smoothPolyline,
@@ -58,12 +59,12 @@ import {
   haversineDistanceMeters,
 } from "@/lib/geodesy/curveSmoothing";
 
-const CATEGORIES: { id: TransitCategory | "ALL"; label: string; icon: React.ReactNode }[] = [
-  { id: "ALL", label: "All Modes", icon: <Route className="w-3.5 h-3.5" /> },
-  { id: "RAIL", label: "Rail", icon: <Train className="w-3.5 h-3.5" /> },
-  { id: "BUS", label: "Bus & Road", icon: <Bus className="w-3.5 h-3.5" /> },
-  { id: "AVIATION", label: "Aviation", icon: <Plane className="w-3.5 h-3.5" /> },
-  { id: "MARITIME", label: "Maritime", icon: <Anchor className="w-3.5 h-3.5" /> },
+const CATEGORIES: { id: TransitCategory | "ALL"; labelKey: "netCatAll" | "netCatRail" | "netCatBusRoad" | "netCatAviation" | "netCatMaritime"; icon: React.ReactNode }[] = [
+  { id: "ALL", labelKey: "netCatAll", icon: <Route className="w-3.5 h-3.5" /> },
+  { id: "RAIL", labelKey: "netCatRail", icon: <Train className="w-3.5 h-3.5" /> },
+  { id: "BUS", labelKey: "netCatBusRoad", icon: <Bus className="w-3.5 h-3.5" /> },
+  { id: "AVIATION", labelKey: "netCatAviation", icon: <Plane className="w-3.5 h-3.5" /> },
+  { id: "MARITIME", labelKey: "netCatMaritime", icon: <Anchor className="w-3.5 h-3.5" /> },
 ];
 
 const MODES_BY_CATEGORY: Record<TransitCategory, TransitMode[]> = {
@@ -93,6 +94,7 @@ const MODES_BY_CATEGORY: Record<TransitCategory, TransitMode[]> = {
 };
 
 export default function AdminNetworkStudioPage() {
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
   const fetchNetworkData = useTransitStore((state) => state.fetchNetworkData);
@@ -162,7 +164,7 @@ export default function AdminNetworkStudioPage() {
     setIsRefreshing(true);
     await fetchNetworkData();
     setIsRefreshing(false);
-    setStatusMessage({ type: "success", text: "Network database synced successfully." });
+    setStatusMessage({ type: "success", text: t.admin.netToastDbSynced });
   };
 
   // Filtered lines
@@ -256,7 +258,7 @@ export default function AdminNetworkStudioPage() {
       setIsStopModalOpen(true);
       setStatusMessage({
         type: "success",
-        text: `Point selected: ${lat.toFixed(5)}°, ${lng.toFixed(5)}°. Enter station name and save.`,
+        text: t.admin.netToastPointSelected.replace("{lat}", lat.toFixed(5)).replace("{lng}", lng.toFixed(5)),
       });
     },
     [selectedLine, allLines, lineStops.length]
@@ -285,10 +287,10 @@ export default function AdminNetworkStudioPage() {
         if (!res.ok) throw new Error("Failed to calibrate coordinates in database");
         setStatusMessage({
           type: "success",
-          text: `Calibrated coordinates for ${existing.name} (${lat.toFixed(5)}°, ${lng.toFixed(5)}°).`,
+          text: t.admin.netToastCalibrated.replace("{name}", existing.name).replace("{lat}", lat.toFixed(5)).replace("{lng}", lng.toFixed(5)),
         });
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Update failed";
+        const msg = err instanceof Error ? err.message : t.admin.netToastSaveFailed;
         setStatusMessage({ type: "error", text: msg });
       }
     },
@@ -315,7 +317,7 @@ export default function AdminNetworkStudioPage() {
       upsertLine(updatedLine);
       setStatusMessage({
         type: "success",
-        text: `Vertex #${vertexIndex + 1} moved. Click 'Save to DB' to persist or 'Revert' to discard.`,
+        text: t.admin.netToastVertexMoved.replace("{n}", String(vertexIndex + 1)),
       });
     },
     [selectedLine, upsertLine]
@@ -363,7 +365,7 @@ export default function AdminNetworkStudioPage() {
       upsertLine(updatedLine);
       setStatusMessage({
         type: "success",
-        text: `Inserted vertex at (${lat.toFixed(5)}°, ${lng.toFixed(5)}°). Drag to shape curve.`,
+        text: t.admin.netToastVertexInserted.replace("{lat}", lat.toFixed(5)).replace("{lng}", lng.toFixed(5)),
       });
     },
     [selectedLine, upsertLine]
@@ -377,7 +379,7 @@ export default function AdminNetworkStudioPage() {
       if (coords.length <= 2) {
         setStatusMessage({
           type: "error",
-          text: "A transit line requires at least 2 coordinate vertices.",
+          text: t.admin.netToastNeed2Vertices,
         });
         return;
       }
@@ -389,7 +391,7 @@ export default function AdminNetworkStudioPage() {
       upsertLine(updatedLine);
       setStatusMessage({
         type: "success",
-        text: `Deleted vertex #${vertexIndex + 1}.`,
+        text: t.admin.netToastVertexDeleted.replace("{n}", String(vertexIndex + 1)),
       });
     },
     [selectedLine, upsertLine]
@@ -409,7 +411,7 @@ export default function AdminNetworkStudioPage() {
     setPreviewSmoothedLine(false);
     setStatusMessage({
       type: "success",
-      text: `Reverted changes for ${selectedLine.code} to saved database state.`,
+      text: t.admin.netToastReverted.replace("{code}", selectedLine.code),
     });
   }, [selectedLine, savedCoordinatesMap, upsertLine]);
 
@@ -443,10 +445,10 @@ export default function AdminNetworkStudioPage() {
       setPreviewSmoothedLine(false);
       setStatusMessage({
         type: "success",
-        text: `Persisted ${savedData.polylineCoordinates.length} vertices for ${savedData.code} to database.`,
+        text: t.admin.netToastPersisted.replace("{v}", String(savedData.polylineCoordinates.length)).replace("{code}", savedData.code),
       });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Save failed";
+      const msg = err instanceof Error ? err.message : t.admin.netToastSaveFailed;
       setStatusMessage({ type: "error", text: msg });
     } finally {
       setIsSavingCurve(false);
@@ -458,7 +460,7 @@ export default function AdminNetworkStudioPage() {
     if (!selectedLine || selectedLine.polylineCoordinates.length <= 2) {
       setStatusMessage({
         type: "error",
-        text: "Line does not have enough coordinates to simplify.",
+        text: t.admin.netToastSimplifyShort,
       });
       return;
     }
@@ -471,7 +473,7 @@ export default function AdminNetworkStudioPage() {
     upsertLine(updatedLine);
     setStatusMessage({
       type: "success",
-      text: `Simplified route from ${initialCount} to ${simplified.length} vertices. Click 'Save to DB' to persist.`,
+      text: t.admin.netToastSimplified.replace("{a}", String(initialCount)).replace("{b}", String(simplified.length)),
     });
   };
 
@@ -503,7 +505,7 @@ export default function AdminNetworkStudioPage() {
       setPreviewSmoothedLine(false);
       setStatusMessage({
         type: "success",
-        text: `Applied Catmull-Rom spline to ${selectedLine.name} (${smoothedCoordinates.length} nodes persisted).`,
+        text: t.admin.netToastSplineApplied.replace("{name}", selectedLine.name).replace("{nodes}", String(smoothedCoordinates.length)),
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Save failed";
@@ -518,7 +520,7 @@ export default function AdminNetworkStudioPage() {
     if (!selectedLine || lineStops.length < 2) {
       setStatusMessage({
         type: "error",
-        text: "At least 2 stations/stops are required to build a route path.",
+        text: t.admin.netToastNeed2Stops,
       });
       return;
     }
@@ -531,7 +533,7 @@ export default function AdminNetworkStudioPage() {
     setPreviewSmoothedLine(true);
     setStatusMessage({
       type: "success",
-      text: `Generated smoothed curve path connecting all ${lineStops.length} stations. Click 'Apply to DB' to save.`,
+      text: t.admin.netToastGenerated.replace("{count}", String(lineStops.length)),
     });
   };
 
@@ -540,7 +542,7 @@ export default function AdminNetworkStudioPage() {
     if (!selectedLine || selectedLine.polylineCoordinates.length < 2) {
       setStatusMessage({
         type: "error",
-        text: "Line has no coordinates to snap to road network.",
+        text: t.admin.netToastSnapEmpty,
       });
       return;
     }
@@ -555,12 +557,12 @@ export default function AdminNetworkStudioPage() {
       setPreviewSmoothedLine(true);
       setStatusMessage({
         type: "success",
-        text: `Snapped ${snapped.length} roadway nodes to physical street alignments. Click 'Apply to DB' to save.`,
+        text: t.admin.netToastSnapped.replace("{n}", String(snapped.length)),
       });
     } catch {
       setStatusMessage({
         type: "error",
-        text: "Failed to query road network geometry.",
+        text: t.admin.netToastRoadFailed,
       });
     } finally {
       setIsSnappingRoads(false);
@@ -582,7 +584,7 @@ export default function AdminNetworkStudioPage() {
     URL.revokeObjectURL(url);
     setStatusMessage({
       type: "success",
-      text: `Exported ${selectedLine.code} GeoJSON to downloads.`,
+      text: t.admin.netToastGeoExported.replace("{code}", selectedLine.code),
     });
   };
 
@@ -635,7 +637,7 @@ export default function AdminNetworkStudioPage() {
 
         setStatusMessage({
           type: "success",
-          text: `Imported ${parsed.polylineCoordinates.length} vertices and ${parsed.stops.length} stations from GeoJSON.`,
+          text: t.admin.netToastImported.replace("{v}", String(parsed.polylineCoordinates.length)).replace("{s}", String(parsed.stops.length)),
         });
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Invalid GeoJSON file";
@@ -680,7 +682,7 @@ export default function AdminNetworkStudioPage() {
       setEditingLine(null);
       setStatusMessage({
         type: "success",
-        text: `Line ${savedLine.code} (${savedLine.name}) successfully saved.`,
+        text: t.admin.netToastLineSaved.replace("{code}", savedLine.code).replace("{name}", savedLine.name),
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Operation failed";
@@ -690,7 +692,7 @@ export default function AdminNetworkStudioPage() {
 
   // 5. Delete Line
   const handleDeleteLine = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete line "${name}"?`)) return;
+    if (!window.confirm(t.admin.netConfirmDeleteLine.replace("{name}", name))) return;
 
     try {
       const res = await fetch(`/api/network/lines?id=${encodeURIComponent(id)}`, {
@@ -700,7 +702,7 @@ export default function AdminNetworkStudioPage() {
 
       removeLineFromStore(id);
       if (selectedLineId === id) setSelectedLineId(null);
-      setStatusMessage({ type: "success", text: `Line "${name}" deleted.` });
+      setStatusMessage({ type: "success", text: t.admin.netToastLineDeleted.replace("{name}", name) });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Delete failed";
       setStatusMessage({ type: "error", text: msg });
@@ -732,7 +734,7 @@ export default function AdminNetworkStudioPage() {
       setTempPlacementCoord(null);
       setStatusMessage({
         type: "success",
-        text: `Stop ${savedStop.code} (${savedStop.name}) saved successfully.`,
+        text: t.admin.netToastStopSaved.replace("{code}", savedStop.code).replace("{name}", savedStop.name),
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Operation failed";
@@ -742,7 +744,7 @@ export default function AdminNetworkStudioPage() {
 
   // 7. Delete Stop
   const handleDeleteStop = async (id: string, name: string) => {
-    if (!window.confirm(`Delete station "${name}" from network?`)) return;
+    if (!window.confirm(t.admin.netConfirmDeleteStation.replace("{name}", name))) return;
 
     try {
       const res = await fetch(`/api/network/stops?id=${encodeURIComponent(id)}`, {
@@ -752,7 +754,7 @@ export default function AdminNetworkStudioPage() {
 
       removeStopFromStore(id);
       if (selectedStopId === id) setSelectedStopId(null);
-      setStatusMessage({ type: "success", text: `Station "${name}" deleted.` });
+      setStatusMessage({ type: "success", text: t.admin.netToastStationDeleted.replace("{name}", name) });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Delete failed";
       setStatusMessage({ type: "error", text: msg });
@@ -794,7 +796,7 @@ export default function AdminNetworkStudioPage() {
       ]);
       setStatusMessage({ type: "success", text: "Station sequence updated." });
     } catch {
-      setStatusMessage({ type: "error", text: "Failed to persist sequence update." });
+      setStatusMessage({ type: "error", text: t.admin.netToastSeqFailed });
     }
   };
 
@@ -808,13 +810,13 @@ export default function AdminNetworkStudioPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold text-white tracking-tight">Network & Map Studio</h1>
+              <h1 className="text-sm font-bold text-white tracking-tight">{t.admin.netTitle}</h1>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
                 GIS OCC
               </span>
             </div>
             <p className="text-[10px] text-slate-400">
-              {allLines.length} Transit Lines &bull; {allStops.length} Mapped Stations & Bus Stops
+              {t.admin.netSubtitle.replace("{n}", String(allLines.length)).replace("{m}", String(allStops.length))}
             </p>
           </div>
         </div>
@@ -842,11 +844,11 @@ export default function AdminNetworkStudioPage() {
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            title="Sync latest network data from SQLite database"
+            title={t.admin.netSyncTitle}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition btn-tactile min-h-[36px]"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Sync DB</span>
+            <span className="hidden sm:inline">{t.admin.netSyncDb}</span>
           </button>
 
           <button
@@ -874,7 +876,7 @@ export default function AdminNetworkStudioPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md shadow-cyan-950/40 transition btn-tactile min-h-[36px]"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>New Line</span>
+            <span>{t.admin.netNewLine}</span>
           </button>
         </div>
       </header>
@@ -897,7 +899,7 @@ export default function AdminNetworkStudioPage() {
                 }`}
               >
                 {cat.icon}
-                <span>{cat.label}</span>
+                <span>{t.admin[cat.labelKey]}</span>
               </button>
             ))}
           </div>
@@ -908,7 +910,7 @@ export default function AdminNetworkStudioPage() {
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="search"
-                placeholder="Search transit lines or codes..."
+                placeholder={t.admin.netSearchPh}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -947,7 +949,7 @@ export default function AdminNetworkStudioPage() {
                         setEditingLine(selectedLine);
                         setIsLineModalOpen(true);
                       }}
-                      title="Edit Line Specs"
+                      title={t.admin.netEditLine}
                       className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -955,7 +957,7 @@ export default function AdminNetworkStudioPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteLine(selectedLine.id, selectedLine.name)}
-                      title="Delete Line"
+                      title={t.admin.netDeleteLine}
                       className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -966,7 +968,7 @@ export default function AdminNetworkStudioPage() {
                         setSelectedLineId(null);
                         setPreviewSmoothedLine(false);
                       }}
-                      title="Close Inspector"
+                      title={t.admin.netCloseInspector}
                       className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -979,7 +981,7 @@ export default function AdminNetworkStudioPage() {
                   <div className="p-3 rounded-xl bg-amber-950/70 border border-amber-500/40 flex items-center justify-between gap-3 shadow-lg">
                     <div className="flex items-center gap-2 text-xs text-amber-300 font-semibold min-w-0">
                       <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span className="truncate">Unsaved path edits detected</span>
+                      <span className="truncate">{t.admin.netUnsaved}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
@@ -989,16 +991,16 @@ export default function AdminNetworkStudioPage() {
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow btn-tactile"
                       >
                         <Save className="w-3.5 h-3.5" />
-                        <span>Save to DB</span>
+                        <span>{t.admin.netSaveDb}</span>
                       </button>
                       <button
                         type="button"
                         onClick={handleRevertChanges}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition border border-white/10 btn-tactile"
-                        title="Discard all unsaved edits and restore database coordinates"
+                        title={t.admin.netRevertTitle}
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Revert</span>
+                        <span>{t.admin.netRevert}</span>
                       </button>
                     </div>
                   </div>
@@ -1009,15 +1011,13 @@ export default function AdminNetworkStudioPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
                       <Spline className="w-4 h-4" />
-                      <span>Catmull-Rom Spline Curvature</span>
+                      <span>{t.admin.netSplineTitle}</span>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-400">Centripetal (α=0.5)</span>
+                    <span className="text-[10px] font-mono text-slate-400">{t.admin.netSplineMethod}</span>
                   </div>
 
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Eliminate angular straight line segments. Densifies polyline nodes into smooth
-                    cartographic curves matching authentic physical rail track & roadway alignments.
-                  </p>
+                    {t.admin.netSplineDesc}</p>
 
                   <div className="flex items-center gap-2 pt-1">
                     <button
@@ -1032,12 +1032,12 @@ export default function AdminNetworkStudioPage() {
                       {previewSmoothedLine ? (
                         <>
                           <EyeOff className="w-3.5 h-3.5" />
-                          <span>Hide Preview</span>
+                          <span>{t.admin.netHidePreview}</span>
                         </>
                       ) : (
                         <>
                           <Eye className="w-3.5 h-3.5" />
-                          <span>Preview Smooth Curves</span>
+                          <span>{t.admin.netPreviewCurves}</span>
                         </>
                       )}
                     </button>
@@ -1060,52 +1060,52 @@ export default function AdminNetworkStudioPage() {
                     <button
                       type="button"
                       onClick={handleAutoBuildFromStations}
-                      title="Generate curved track path connecting all stations in sequence"
+                      title={t.admin.netBuildTitle}
                       className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Wand2 className="w-3 h-3 text-cyan-400" />
-                      <span>Build from Stops</span>
+                      <span>{t.admin.netBuildFromStops}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleSimplifyLine}
-                      title="Reduce vertex clutter using Douglas-Peucker algorithm while preserving track shape"
+                      title={t.admin.netSimplifyTitle}
                       className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Scissors className="w-3 h-3 text-rose-400" />
-                      <span>Simplify Path</span>
+                      <span>{t.admin.netSimplify}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleSnapToRoads}
                       disabled={isSnappingRoads}
-                      title="Snap polyline nodes to physical road centerlines"
+                      title={t.admin.netSnapTitle}
                       className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Compass className={`w-3 h-3 text-amber-400 ${isSnappingRoads ? "animate-spin" : ""}`} />
-                      <span>{isSnappingRoads ? "Snapping..." : "Snap to Roads"}</span>
+                      <span>{isSnappingRoads ? t.admin.netSnapping : t.admin.netSnapRoads}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleExportGeoJSON}
-                      title="Export route and stations to standard RFC 7946 GeoJSON"
+                      title={t.admin.netExportTitle}
                       className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Download className="w-3 h-3 text-emerald-400" />
-                      <span>Export GeoJSON</span>
+                      <span>{t.admin.netExportGeo}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      title="Import GeoJSON file (.geojson / .json)"
+                      title={t.admin.netImportTitle}
                       className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Upload className="w-3 h-3 text-indigo-400" />
-                      <span>Import GeoJSON</span>
+                      <span>{t.admin.netImportGeo}</span>
                     </button>
                     <input
                       ref={fileInputRef}
@@ -1136,7 +1136,7 @@ export default function AdminNetworkStudioPage() {
                         }`}
                       >
                         <Sparkles className="w-3 h-3 text-cyan-400" />
-                        <span>{isAddStopMode ? "Click Map..." : "Click to Place"}</span>
+                        <span>{isAddStopMode ? t.admin.netClickMap : t.admin.netClickPlace}</span>
                       </button>
 
                       <button
@@ -1164,14 +1164,14 @@ export default function AdminNetworkStudioPage() {
                         className="px-2 py-1 rounded-md bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-semibold transition flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" />
-                        <span>Add Stop</span>
+                        <span>{t.admin.netAddStop}</span>
                       </button>
                     </div>
                   </div>
 
                   {lineStops.length === 0 ? (
                     <div className="p-4 rounded-xl bg-slate-950/40 border border-dashed border-white/10 text-center text-xs text-slate-400">
-                      No stations or stops mapped to this line yet. Use &ldquo;Click to Place&rdquo; on the map to add stops.
+                      {t.admin.netEmptyStops}
                     </div>
                   ) : (
                     <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
@@ -1234,7 +1234,7 @@ export default function AdminNetworkStudioPage() {
                                 type="button"
                                 disabled={index === 0}
                                 onClick={() => handleMoveStopSequence(stop.id, "up")}
-                                title="Move Earlier in Sequence"
+                                title={t.admin.netMoveEarlier}
                                 className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowUp className="w-3 h-3" />
@@ -1243,7 +1243,7 @@ export default function AdminNetworkStudioPage() {
                                 type="button"
                                 disabled={index === lineStops.length - 1}
                                 onClick={() => handleMoveStopSequence(stop.id, "down")}
-                                title="Move Later in Sequence"
+                                title={t.admin.netMoveLater}
                                 className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowDown className="w-3 h-3" />
@@ -1254,7 +1254,7 @@ export default function AdminNetworkStudioPage() {
                                   setEditingStop(stop);
                                   setIsStopModalOpen(true);
                                 }}
-                                title="Edit Station"
+                                title={t.admin.netEditStation}
                                 className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                               >
                                 <Edit3 className="w-3 h-3" />
@@ -1262,7 +1262,7 @@ export default function AdminNetworkStudioPage() {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteStop(stop.id, stop.name)}
-                                title="Delete Station"
+                                title={t.admin.netDeleteStation}
                                 className="p-1 rounded bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -1361,7 +1361,7 @@ export default function AdminNetworkStudioPage() {
               <div className="flex items-center gap-2">
                 <Route className="w-4 h-4 text-cyan-400" />
                 <h3 className="text-sm font-bold text-white">
-                  {editingLine.id ? "Edit Transit Line" : "Create New Transit Line"}
+                  {editingLine.id ? t.admin.netEditLineTitle : t.admin.netCreateLineTitle}
                 </h3>
               </div>
               <button
@@ -1379,18 +1379,18 @@ export default function AdminNetworkStudioPage() {
             <form onSubmit={handleSaveLine} className="space-y-3.5 text-xs text-slate-300">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Line Code *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLineCode}</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. M-01, TJ-14"
+                    placeholder={t.admin.netLineCodePh}
                     value={editingLine.code || ""}
                     onChange={(e) => setEditingLine({ ...editingLine, code: e.target.value })}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono uppercase"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Line Brand Color *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLineColor}</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
@@ -1409,11 +1409,11 @@ export default function AdminNetworkStudioPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Line Name *</label>
+                <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLineName}</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. MRT North-South Line, TransJakarta Corridor 14"
+                  placeholder={t.admin.netLineNamePh}
                   value={editingLine.name || ""}
                   onChange={(e) => setEditingLine({ ...editingLine, name: e.target.value })}
                   className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
@@ -1422,7 +1422,7 @@ export default function AdminNetworkStudioPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Category</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netCategory}</label>
                   <select
                     value={editingLine.category || "RAIL"}
                     onChange={(e) => {
@@ -1435,15 +1435,15 @@ export default function AdminNetworkStudioPage() {
                     }}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                   >
-                    <option value="RAIL">Rail</option>
-                    <option value="BUS">Bus & Roadway</option>
-                    <option value="AVIATION">Aviation</option>
-                    <option value="MARITIME">Maritime</option>
+                    <option value="RAIL">{t.admin.netCatRail}</option>
+                    <option value="BUS">{t.admin.netCatBusRoadway}</option>
+                    <option value="AVIATION">{t.admin.netCatAviation}</option>
+                    <option value="MARITIME">{t.admin.netCatMaritime}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Transit Mode *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netTransitMode}</label>
                   {!isCustomMode ? (
                     <select
                       value={editingLine.mode || "MRT_JAKARTA"}
@@ -1469,7 +1469,7 @@ export default function AdminNetworkStudioPage() {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. APMS_SKYTRAIN, CABLE_CAR, MONORAIL"
+                        placeholder={t.admin.netCustomModePh}
                         value={editingLine.mode || ""}
                         onChange={(e) =>
                           setEditingLine({
@@ -1489,7 +1489,7 @@ export default function AdminNetworkStudioPage() {
                           });
                         }}
                         className="px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-xs whitespace-nowrap btn-tactile"
-                        title="Switch back to standard preset modes"
+                        title={t.admin.netBackToPresets}
                       >
                         Presets
                       </button>
@@ -1501,7 +1501,7 @@ export default function AdminNetworkStudioPage() {
               {/* Fare System Configuration */}
               <div className="space-y-2 pt-1 border-t border-white/5">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] text-slate-400">Fare Tariff System *</label>
+                  <label className="block text-[11px] text-slate-400">{t.admin.netFareSystem}</label>
                   <span className="text-[10px] text-cyan-400 font-mono font-semibold">
                     {editingLine.fareType || "PROGRESSIVE_DISTANCE"}
                   </span>
@@ -1547,11 +1547,11 @@ export default function AdminNetworkStudioPage() {
                   }}
                   className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                 >
-                  <option value="FLAT">Flat Single Rate (e.g. TransJakarta BRT / LRT Jakarta)</option>
-                  <option value="PROGRESSIVE_DISTANCE">Distance-Based Progressive Rate (e.g. KRL Commuter / LRT Jabodebek)</option>
-                  <option value="PROGRESSIVE_STATION">Station-Based Progressive Rate (e.g. MRT Jakarta)</option>
-                  <option value="FREE_TAP">100% Subsidized Zero-Fare (e.g. MikroTrans JakLingko)</option>
-                  <option value="DYNAMIC_TIERED">Class-Based / Dynamic Tiered (e.g. Whoosh HSR / Airport Rail / AKAP)</option>
+                  <option value="FLAT">{t.admin.netFareFlat}</option>
+                  <option value="PROGRESSIVE_DISTANCE">{t.admin.netFareDist}</option>
+                  <option value="PROGRESSIVE_STATION">{t.admin.netFareStation}</option>
+                  <option value="FREE_TAP">{t.admin.netFareSubsidized}</option>
+                  <option value="DYNAMIC_TIERED">{t.admin.netFareDynamic}</option>
                 </select>
               </div>
 
@@ -1560,12 +1560,12 @@ export default function AdminNetworkStudioPage() {
                 <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
                   <span>
-                    <strong>100% Subsidized Transit (Rp 0):</strong> Passengers tap card/QR for census and boarding validation without fare deduction.
+                    <strong>{t.admin.netFareFree}</strong> Passengers tap card/QR for census and boarding validation without fare deduction.
                   </span>
                 </div>
               ) : editingLine.fareType === "FLAT" ? (
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Flat Rate (Rp) *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netFareFlatRate}</label>
                   <input
                     type="number"
                     min="0"
@@ -1583,7 +1583,7 @@ export default function AdminNetworkStudioPage() {
                 </div>
               ) : editingLine.fareType === "DYNAMIC_TIERED" ? (
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Standard / Economy Base Fare (Rp) *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netFareBase}</label>
                   <input
                     type="number"
                     min="0"
@@ -1628,7 +1628,7 @@ export default function AdminNetworkStudioPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">Max Ceiling Cap (Rp)</label>
+                    <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netFareCap}</label>
                     <input
                       type="number"
                       min="0"
@@ -1657,7 +1657,7 @@ export default function AdminNetworkStudioPage() {
                   className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 btn-tactile"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save Line</span>
+                  <span>{t.admin.netSaveLine}</span>
                 </button>
               </div>
             </form>
@@ -1691,7 +1691,7 @@ export default function AdminNetworkStudioPage() {
 
             <form onSubmit={handleSaveStop} className="space-y-3.5 text-xs text-slate-300">
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">Line Assignment *</label>
+                <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLineAssign}</label>
                 <select
                   required
                   value={editingStop.lineId || ""}
@@ -1708,12 +1708,12 @@ export default function AdminNetworkStudioPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Stop Name *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netStopName}</label>
                   <input
                     type="text"
                     required
                     autoFocus
-                    placeholder="e.g. Bundaran HI"
+                    placeholder={t.admin.netStopNamePh}
                     value={editingStop.name || ""}
                     onChange={(e) => setEditingStop({ ...editingStop, name: e.target.value })}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
@@ -1721,11 +1721,11 @@ export default function AdminNetworkStudioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Stop Code *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netStopCode}</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. BHI"
+                    placeholder={t.admin.netStopCodePh}
                     value={editingStop.code || ""}
                     onChange={(e) => setEditingStop({ ...editingStop, code: e.target.value })}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono uppercase"
@@ -1735,7 +1735,7 @@ export default function AdminNetworkStudioPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Latitude *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLat}</label>
                   <input
                     type="number"
                     step="any"
@@ -1747,7 +1747,7 @@ export default function AdminNetworkStudioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Longitude *</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netLon}</label>
                   <input
                     type="number"
                     step="any"
@@ -1759,7 +1759,7 @@ export default function AdminNetworkStudioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Sequence #</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netSequence}</label>
                   <input
                     type="number"
                     min="1"
@@ -1774,7 +1774,7 @@ export default function AdminNetworkStudioPage() {
               {/* Station Typology & Scale */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Station Typology</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netTypology}</label>
                   <select
                     value={editingStop.stationType || "RAIL_STATION"}
                     onChange={(e) =>
@@ -1782,18 +1782,18 @@ export default function AdminNetworkStudioPage() {
                     }
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                   >
-                    <option value="TOD">TOD - Transit-Oriented Development</option>
-                    <option value="RAIL_STATION">RAIL_STATION - Heavy/Commuter/Rapid Rail</option>
-                    <option value="BUS_TERMINAL">BUS_TERMINAL - Intercity/Intermodal Bus Terminal</option>
-                    <option value="AIRPORT_TERMINAL">AIRPORT_TERMINAL - Airport Passenger Terminal</option>
-                    <option value="HARBOR_PORT">HARBOR_PORT - Maritime Passenger Port / Pier</option>
-                    <option value="BUS_SHELTER">BUS_SHELTER - BRT Halte / Feeder Shelter</option>
-                    <option value="BUS_POLE">BUS_POLE - Rambu Bus Stop / Plang Tiang (MikroTrans & Feeder)</option>
+                    <option value="TOD">TOD - {t.admin.typoDescTod}</option>
+                    <option value="RAIL_STATION">RAIL_STATION - {t.admin.typoDescRail}</option>
+                    <option value="BUS_TERMINAL">BUS_TERMINAL - {t.admin.typoDescBusTerm}</option>
+                    <option value="AIRPORT_TERMINAL">AIRPORT_TERMINAL - {t.admin.typoDescAirport}</option>
+                    <option value="HARBOR_PORT">HARBOR_PORT - {t.admin.typoDescHarbor}</option>
+                    <option value="BUS_SHELTER">BUS_SHELTER - {t.admin.typoDescShelter}</option>
+                    <option value="BUS_POLE">BUS_POLE - {t.admin.typoDescPole}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">Station Scale</label>
+                  <label className="block text-[11px] text-slate-400 mb-1">{t.admin.netScale}</label>
                   <select
                     value={editingStop.scale || "MEDIUM"}
                     onChange={(e) =>
@@ -1801,9 +1801,9 @@ export default function AdminNetworkStudioPage() {
                     }
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                   >
-                    <option value="SMALL">SMALL - Minor Shelter / Local Stop</option>
-                    <option value="MEDIUM">MEDIUM - Standard Station / Halte</option>
-                    <option value="BIG">BIG - Major Intermodal Hub / Grand Terminal</option>
+                    <option value="SMALL">SMALL - {t.admin.scaleDescSmall}</option>
+                    <option value="MEDIUM">MEDIUM - {t.admin.scaleDescMedium}</option>
+                    <option value="BIG">BIG - {t.admin.scaleDescBig}</option>
                   </select>
                 </div>
               </div>
@@ -1812,7 +1812,7 @@ export default function AdminNetworkStudioPage() {
               <div className="p-3 rounded-xl bg-slate-950/60 border border-white/10 space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-cyan-300">
                   <Accessibility className="w-3.5 h-3.5" />
-                  <span>Accessibility & Interchange</span>
+                  <span>{t.admin.netAccessibility}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -1823,7 +1823,7 @@ export default function AdminNetworkStudioPage() {
                       onChange={(e) => setEditingStop({ ...editingStop, isInterchange: e.target.checked })}
                       className="rounded border-white/20 bg-slate-900 text-cyan-500"
                     />
-                    <span>Interchange Hub</span>
+                    <span>{t.admin.netInterchange}</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1833,7 +1833,7 @@ export default function AdminNetworkStudioPage() {
                       onChange={(e) => setEditingStop({ ...editingStop, accessibleElevator: e.target.checked })}
                       className="rounded border-white/20 bg-slate-900 text-cyan-500"
                     />
-                    <span>Priority Elevator</span>
+                    <span>{t.admin.netElevator}</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1843,7 +1843,7 @@ export default function AdminNetworkStudioPage() {
                       onChange={(e) => setEditingStop({ ...editingStop, wheelchairRamp: e.target.checked })}
                       className="rounded border-white/20 bg-slate-900 text-cyan-500"
                     />
-                    <span>Wheelchair Ramp</span>
+                    <span>{t.admin.netRamp}</span>
                   </label>
 
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1853,7 +1853,7 @@ export default function AdminNetworkStudioPage() {
                       onChange={(e) => setEditingStop({ ...editingStop, tactilePaving: e.target.checked })}
                       className="rounded border-white/20 bg-slate-900 text-cyan-500"
                     />
-                    <span>Tactile Paving</span>
+                    <span>{t.admin.netTactile}</span>
                   </label>
                 </div>
               </div>
@@ -1875,7 +1875,7 @@ export default function AdminNetworkStudioPage() {
                   className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 btn-tactile"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save Stop</span>
+                  <span>{t.admin.netSaveStop}</span>
                 </button>
               </div>
             </form>
