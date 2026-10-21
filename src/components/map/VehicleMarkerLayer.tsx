@@ -11,6 +11,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { Vehicle, CrowdDensityLevel } from "@/types/transit";
@@ -34,21 +35,6 @@ function getCrowdColor(level: CrowdDensityLevel): string {
   }
 }
 
-function getCrowdLabel(level: CrowdDensityLevel): string {
-  switch (level) {
-    case "LEVEL_1_MANY_SEATS":
-      return "Seats Available";
-    case "LEVEL_2_FEW_SEATS":
-      return "Few Seats";
-    case "LEVEL_3_STANDING_ONLY":
-      return "Standing Only";
-    case "LEVEL_4_FULL_CRUSH":
-      return "Full Crush Load";
-    default:
-      return "Normal";
-  }
-}
-
 interface MarkerCacheEntry {
   marker: L.Marker;
   lastSelected: boolean;
@@ -68,6 +54,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
 
   const markerMapRef = useRef<Map<string, MarkerCacheEntry>>(new Map());
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
+  const { t } = useTranslation();
 
   // Initialize LayerGroup
   useEffect(() => {
@@ -182,10 +169,10 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
 
     const statusText =
       vehicle.status === "BOARDING"
-        ? "Sedang Menaikkan Penumpang"
+        ? t.map.vehicleBoarding
         : vehicle.speedKmh > 5
-        ? `Sedang Berjalan (${Math.round(vehicle.speedKmh)} km/h)`
-        : "Berhenti / Sinyal";
+        ? t.map.vehicleEnRoute.replace("{n}", String(Math.round(vehicle.speedKmh)))
+        : t.map.vehicleStopped;
 
     return `
       <div style="background: rgba(8, 12, 22, 0.96); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 10px 12px; font-family: ui-sans-serif, system-ui, sans-serif; min-width: 220px; max-width: 280px; box-shadow: 0 12px 36px rgba(0,0,0,0.85); backdrop-filter: blur(16px); color: #f8fafc; pointer-events: none;">
@@ -211,7 +198,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
           nextStopName
             ? `
           <div style="font-size: 10px; color: #cbd5e1; font-family: monospace; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
-            <span style="color: #64748b;">Menuju:</span>
+            <span style="color: #64748b;">${t.map.vehicleHeadingTo}:</span>
             <strong style="color: #38bdf8; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${nextStopName}</strong>
           </div>
         `
@@ -220,11 +207,11 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 9.5px; font-family: monospace;">
           <span style="color: #94a3b8;">${statusText}</span>
-          <span style="color: ${occColor}; font-weight: 800;">${occPercent}% Muatan</span>
+          <span style="color: ${occColor}; font-weight: 800;">${t.map.vehicleLoad.replace("{n}", String(occPercent))}</span>
         </div>
 
         <div style="font-size: 8.5px; color: #38bdf8; margin-top: 5px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 2px 4px; border-radius: 5px; font-family: monospace;">
-          Klik untuk rincian sarana & formasi
+          ${t.map.vehicleTapDetails}
         </div>
       </div>
     `;
@@ -395,6 +382,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
     allStops,
     selectVehicle,
     setHoveredEntity,
+    t,
   ]);
 
   return null;

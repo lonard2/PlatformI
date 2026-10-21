@@ -46,6 +46,19 @@ export function MapControls({ map }: MapControlsProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const tileTriggerRef = useRef<HTMLButtonElement>(null);
 
+  const tileLayerName = (tileId: TileLayerId): string => {
+    switch (tileId) {
+      case "dark":
+        return t.map.tileDark;
+      case "light":
+        return t.map.tileLight;
+      case "satellite":
+        return t.map.tileSatellite;
+      case "streets":
+        return t.map.tileStreets;
+    }
+  };
+
   useEffect(() => {
     if (!tileMenuOpen) return;
     const handleOutside = (e: MouseEvent) => {
@@ -143,7 +156,7 @@ export function MapControls({ map }: MapControlsProps) {
             className="touch-target glass-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all shadow-xl shadow-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
-            <span className="hidden sm:inline font-mono capitalize">{activeTileLayer}</span>
+            <span className="hidden sm:inline font-mono">{tileLayerName(activeTileLayer)}</span>
           </button>
 
           {tileMenuOpen && (

@@ -109,6 +109,34 @@ export interface TranslationDictionary {
     initEngine: string;
     loadingMapCopy: string;
   };
+  map: {
+    vehicleBoarding: string;
+    vehicleEnRoute: string;
+    vehicleStopped: string;
+    vehicleHeadingTo: string;
+    vehicleLoad: string;
+    vehicleTapDetails: string;
+    routeOperator: string;
+    routeSchedule: string;
+    routeHeadway: string;
+    minuteShort: string;
+    tileDark: string;
+    tileLight: string;
+    tileSatellite: string;
+    tileStreets: string;
+  };
+  station: {
+    tod: string;
+    railStation: string;
+    busTerminal: string;
+    airportTerminal: string;
+    harborPort: string;
+    busShelter: string;
+    busPole: string;
+    scaleSmall: string;
+    scaleMedium: string;
+    scaleLarge: string;
+  };
   navigation: {
     tabMap: string;
     tabStatus: string;

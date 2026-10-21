@@ -13,6 +13,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { Line, TransitMode } from "@/types/transit";
 
@@ -30,6 +31,7 @@ const HIGH_VOLUME_CONSOLIDATED_MODES = new Set<TransitMode>([
 ]);
 
 export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
+  const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedLineId = useTransitStore((state) => state.selectedLineId);
@@ -133,8 +135,8 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
             <span style="background: ${line.colorHex}; color: ${line.textColorHex}; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${line.code}</span>
           </div>
           <div style="font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; gap: 2px;">
-            <div>Operator: <span style="color: #cbd5e1;">${modeConfig?.operator || "Dishub DKI"}</span></div>
-            <div>Jadwal: <span style="color: #e2e8f0; font-family: monospace;">${line.firstDeparture} - ${line.lastDeparture}</span> &bull; Antara: <span style="color: #38bdf8; font-family: monospace;">${line.headwayMinutes} mnt</span></div>
+            <div>${t.map.routeOperator}: <span style="color: #cbd5e1;">${modeConfig?.operator || "Dishub DKI"}</span></div>
+            <div>${t.map.routeSchedule}: <span style="color: #e2e8f0; font-family: monospace;">${line.firstDeparture} - ${line.lastDeparture}</span> &bull; ${t.map.routeHeadway}: <span style="color: #38bdf8; font-family: monospace;">${line.headwayMinutes} ${t.map.minuteShort}</span></div>
             <div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); color: #10b981; font-weight: 600;">
               ${modeConfig?.fareDescription || `Rp ${line.baseFareRp.toLocaleString()}`}
             </div>
@@ -183,6 +185,7 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
     plannedJourney,
     selectLine,
     setHoveredEntity,
+    t,
   ]);
 
   return null;

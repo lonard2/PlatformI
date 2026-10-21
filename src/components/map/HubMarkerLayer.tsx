@@ -12,8 +12,10 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { StationType, StationScale } from "@/types/transit";
+import { getStationScaleLabel, getStationTypeLabel } from "@/lib/transit/stationLabels";
 
 interface HubMarkerLayerProps {
   map: L.Map | null;
@@ -40,6 +42,7 @@ function getStationTypeSvg(type: StationType, color: string, size = 12): string 
 }
 
 export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
+  const { t } = useTranslation();
   const allStops = useTransitStore((state) => state.allStops);
   const allLines = useTransitStore((state) => state.allLines);
   const selectedModes = useTransitStore((state) => state.selectedModes);
@@ -250,7 +253,8 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         opacity: isDimmed ? 0.35 : 1,
       });
 
-      const typeLabel = stationType.replace("_", " ");
+      const typeLabel = getStationTypeLabel(stationType, t);
+      const scaleLabel = getStationScaleLabel(scale, t);
       marker.bindTooltip(
         `<div style="font-family: ui-sans-serif, system-ui; font-size: 11px; padding: 2px 4px;">
           <div style="font-weight: 700; color: #ffffff;">${stop.name}</div>
@@ -259,7 +263,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
             <span>&bull;</span>
             <span style="color: ${primaryColor}; font-weight: 600;">${typeLabel}</span>
             <span>&bull;</span>
-            <span style="color: #cbd5e1;">${scale}</span>
+            <span style="color: #cbd5e1;">${scaleLabel}</span>
           </div>
         </div>`,
         {
@@ -295,6 +299,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
     plannedJourney,
     selectStop,
     setHoveredEntity,
+    t,
   ]);
 
   return null;
