@@ -809,6 +809,7 @@ export interface TranslationDictionary {
     allBulletinsDesc: string;
     mutedDesc: string;
   };
+
   skybridge: {
     elevation: string;
     concourseLevel: string;
@@ -1047,5 +1048,33 @@ export interface TranslationDictionary {
     shiftLogTemplateFleetAdd: string;
     shiftLogTemplateFleetUndo: string;
     shiftLogTemplateGateScan: string;
+    incidentDivergence: string;
+    syncOpsToast: string;
+    normalizeOpsToast: string;
+    syncToFleet: string;
+    syncToFleetDesc: string;
+    fleetSynced: string;
+    normalizeFleetTitle: string;
+    syncDisruptionTitle: string;
+    syncedRestore: string;
+    restoreShort: string;
+    syncFleet: string;
+    syncShort: string;
+    optionNewKaroseri: string;
+    optionNewChassis: string;
+    customKaroseri: string;
+    customChassis: string;
+    vehicleCodePh: string;
+    modelNamePh: string;
+    coachbuilderPh: string;
+    chassisPh: string;
+    cabinLayoutLabel: string;
+    dynamicDiagram: string;
+    autoConfigureMode: string;
+    layoutSleeper111: string;
+    layoutSuperExec21: string;
+    layoutExecHighway: string;
+    layoutShuttleVip: string;
+    layoutCommuterBench: string;
   };
 }

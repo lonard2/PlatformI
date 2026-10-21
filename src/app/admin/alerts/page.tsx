@@ -378,7 +378,7 @@ export default function AdminAlertsPage() {
                 ...run,
                 tripType: "ROUTE_DIVERGENCE",
                 divergenceReason: "INCIDENT_DISRUPTION",
-                divergenceDescription: `Rekayasa Insiden: ${alertTitle}`,
+                divergenceDescription: t.admin.incidentDivergence.replace("{n}", alertTitle),
               }),
             }).catch(() => {});
           }
@@ -391,7 +391,7 @@ export default function AdminAlertsPage() {
     if (alertId) {
       setLinkedAlertIds((prev) => new Set([...prev, alertId]));
     }
-    notify(`Sinkronisasi Operasi: ${targetVehicles.length} armada diperlambat & jadwal dialihkan ke Rekayasa Insiden.`);
+    notify(t.admin.syncOpsToast.replace("{n}", String(targetVehicles.length)));
   };
 
   // Restore line operations back to normal
@@ -455,7 +455,7 @@ export default function AdminAlertsPage() {
         return next;
       });
     }
-    notify(`Normalisasi Operasi: ${targetVehicles.length} armada dan jadwal dipulihkan ke pola operasi normal.`);
+    notify(t.admin.normalizeOpsToast.replace("{n}", String(targetVehicles.length)));
   };
 
   const handleBroadcast = async (e: React.FormEvent) => {
@@ -1121,10 +1121,10 @@ export default function AdminAlertsPage() {
                 <div className="space-y-0.5">
                   <div className="text-xs font-semibold text-white flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Sinkronkan ke Armada & Jadwal Operasi</span>
+                    <span>{t.admin.syncToFleet}</span>
                   </div>
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Otomatis atur status perlambatan/antrian pada armada aktif line ini dan alihkan jadwal aktif ke pola REKAYASA INSIDEN pada papan keberangkatan penumpang.
+                    {t.admin.syncToFleetDesc}
                   </p>
                 </div>
               </label>
@@ -1397,7 +1397,7 @@ export default function AdminAlertsPage() {
                     {linkedAlertIds.has(alert.id) && (
                       <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border bg-indigo-950/80 border-indigo-500/50 text-indigo-300 flex items-center gap-1">
                         <Zap className="w-2.5 h-2.5 text-indigo-400" />
-                        <span>ARMADA TERSINKRON</span>
+                        <span>{t.admin.fleetSynced}</span>
                       </span>
                     )}
 
@@ -1498,8 +1498,8 @@ export default function AdminAlertsPage() {
                         }
                         title={
                           linkedAlertIds.has(alert.id)
-                            ? "Normalisasi Operasi: Pulihkan armada dan jadwal ke reguler"
-                            : "Sinkronkan Gangguan: Perlambat armada dan alihkan jadwal ke Rekayasa Insiden"
+                            ? t.admin.normalizeFleetTitle
+                            : t.admin.syncDisruptionTitle
                         }
                         className={`px-3 py-2 rounded-xl border text-xs font-semibold transition min-h-[40px] flex items-center gap-1.5 btn-tactile ${
                           linkedAlertIds.has(alert.id)
@@ -1510,14 +1510,14 @@ export default function AdminAlertsPage() {
                         {linkedAlertIds.has(alert.id) ? (
                           <>
                             <CheckCheck className="w-3.5 h-3.5 text-amber-400" />
-                            <span className="hidden sm:inline">Tersinkron (Pulihkan)</span>
-                            <span className="sm:hidden">Pulihkan</span>
+                            <span className="hidden sm:inline">{t.admin.syncedRestore}</span>
+                            <span className="sm:hidden">{t.admin.restoreShort}</span>
                           </>
                         ) : (
                           <>
                             <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                            <span className="hidden sm:inline">Sinkron Armada</span>
-                            <span className="sm:hidden">Sinkron</span>
+                            <span className="hidden sm:inline">{t.admin.syncFleet}</span>
+                            <span className="sm:hidden">{t.admin.syncShort}</span>
                           </>
                         )}
                       </button>

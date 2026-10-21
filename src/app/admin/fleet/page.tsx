@@ -811,9 +811,9 @@ function FleetManagementContent() {
     const firstCoord = assignedLine.polylineCoordinates[0] || { latitude: -6.2088, longitude: 106.8456 };
 
     const effectiveCoachbuilder =
-      newCoachbuilder === "__CUSTOM__" ? customCoachbuilder.trim() || "Custom Karoseri" : newCoachbuilder;
+      newCoachbuilder === "__CUSTOM__" ? customCoachbuilder.trim() || t.admin.customKaroseri : newCoachbuilder;
     const effectiveChassis =
-      newChassis === "__CUSTOM__" ? customChassis.trim() || "Custom Chassis" : newChassis;
+      newChassis === "__CUSTOM__" ? customChassis.trim() || t.admin.customChassis : newChassis;
 
     let seatingDiagram: SeatingDiagram | undefined = undefined;
     if (seatingLayoutChoice === "SLEEPER_1_1_1") {
@@ -1514,7 +1514,7 @@ function FleetManagementContent() {
                     type="text"
                     value={newVehicleCode}
                     onChange={(e) => setNewVehicleCode(e.target.value)}
-                    placeholder="e.g. TJ-999 / MRT-09"
+                    placeholder={t.admin.vehicleCodePh}
                     required
                     className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono uppercase min-h-[44px]"
                   />
@@ -1526,7 +1526,7 @@ function FleetManagementContent() {
                     type="text"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    placeholder="e.g. TransJakarta Cityline 3"
+                    placeholder={t.admin.modelNamePh}
                     required
                     className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                   />
@@ -1548,14 +1548,14 @@ function FleetManagementContent() {
                         {opt.label}
                       </option>
                     ))}
-                    <option value="__CUSTOM__">+ Custom Karoseri / Coachbuilder Baru...</option>
+                    <option value="__CUSTOM__">{t.admin.optionNewKaroseri}</option>
                   </select>
                   {newCoachbuilder === "__CUSTOM__" && (
                     <input
                       type="text"
                       value={customCoachbuilder}
                       onChange={(e) => setCustomCoachbuilder(e.target.value)}
-                      placeholder="e.g. Adiputro Jetbus 5 Dream Coach / Baze VIP"
+                      placeholder={t.admin.coachbuilderPh}
                       required
                       className="w-full mt-1.5 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 min-h-[38px]"
                     />
@@ -1574,14 +1574,14 @@ function FleetManagementContent() {
                         {opt.label}
                       </option>
                     ))}
-                    <option value="__CUSTOM__">+ Custom Chassis / Rangka Baru...</option>
+                    <option value="__CUSTOM__">{t.admin.optionNewChassis}</option>
                   </select>
                   {newChassis === "__CUSTOM__" && (
                     <input
                       type="text"
                       value={customChassis}
                       onChange={(e) => setCustomChassis(e.target.value)}
-                      placeholder="e.g. Scania K410CB 6x2*4 / Mercedes-Benz O 500 RSD"
+                      placeholder={t.admin.chassisPh}
                       required
                       className="w-full mt-1.5 bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 min-h-[38px]"
                     />
@@ -1592,8 +1592,8 @@ function FleetManagementContent() {
               {/* Cabin Seating Layout Selector (Inner SVG) */}
               <div className="space-y-1.5">
                 <label htmlFor="add-vehicle-seating" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                  <span>Cabin Seating Layout (Passenger Inner View)</span>
-                  <span className="text-[10px] text-cyan-400 font-mono">Dynamic SVG Diagram</span>
+                  <span>{t.admin.cabinLayoutLabel}</span>
+                  <span className="text-[10px] text-cyan-400 font-mono">{t.admin.dynamicDiagram}</span>
                 </label>
                 <select
                   id="add-vehicle-seating"
@@ -1601,12 +1601,12 @@ function FleetManagementContent() {
                   onChange={(e) => setSeatingLayoutChoice(e.target.value)}
                   className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
                 >
-                  <option value="DEFAULT">Auto-configure based on vehicle mode</option>
-                  <option value="SLEEPER_1_1_1">Sleeper Bus (1+1+1 Individual Capsule Suites)</option>
-                  <option value="SUPER_EXEC_2_1">Super Executive (2+1 Wide Recliner Seats)</option>
-                  <option value="EXEC_2_2">Executive Highway (2+2 High Deck Standard)</option>
-                  <option value="HIACE_VIP">Executive Travel Shuttle VIP (8 Captain Seats)</option>
-                  <option value="COMMUTER_LONGITUDINAL">Commuter / BRT (Longitudinal Benches + Standing Straps)</option>
+                  <option value="DEFAULT">{t.admin.autoConfigureMode}</option>
+                  <option value="SLEEPER_1_1_1">{t.admin.layoutSleeper111}</option>
+                  <option value="SUPER_EXEC_2_1">{t.admin.layoutSuperExec21}</option>
+                  <option value="EXEC_2_2">{t.admin.layoutExecHighway}</option>
+                  <option value="HIACE_VIP">{t.admin.layoutShuttleVip}</option>
+                  <option value="COMMUTER_LONGITUDINAL">{t.admin.layoutCommuterBench}</option>
                 </select>
               </div>
 
