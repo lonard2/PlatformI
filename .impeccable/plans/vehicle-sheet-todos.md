@@ -16,7 +16,7 @@ Ledger lives in this file under "Ledger".
 | 2 | colorize | Occupancy scale made explicit: numeric legend + labeled bars, thresholds moved to shared helper | DONE (397/397) | — |
 | 3 | harden | Honest controls + failure states: occupied seats non-interactive w/ aria-disabled + not-booking microcopy; image-fail / empty-carriage / offline states; simulated-data badge; keyboard for SVG carriage nodes | DONE (403/403) | — |
 | 4 | layout | Overview reorder: gallery under header, compact line/fare/headway row; tab label vs content mismatch fixed | DONE (405/405) | — |
-| 5 | distill | Single VehicleOpsRunCard; sheet + Specs tab share it; zero content removed | TODO | — |
+| 5 | distill | Single VehicleOpsRunCard; sheet + Specs tab share it; zero content removed | DONE (407/407) | — |
 | 6 | polish | 9px ramp fix, close-button affordance, RTL/motion audit, full verify | TODO | — |
 
 ## Pre-flight interface scan

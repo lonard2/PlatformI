@@ -17,7 +17,6 @@ import {
   Compass,
   Users,
   Wind,
-  Radio,
   Wrench,
   Armchair,
   Camera,
@@ -40,6 +39,7 @@ import { VehicleTechnicalSpecs } from "./VehicleTechnicalSpecs";
 import { VehicleSeatingDiagram } from "./VehicleSeatingDiagram";
 import { VehiclePhotoGallery } from "./VehiclePhotoGallery";
 import { VehicleCarriageSelector } from "./VehicleCarriageSelector";
+import { VehicleOpsRunCard } from "./VehicleOpsRunCard";
 
 interface VehicleDetailSheetProps {
   vehicleId: string | null;
@@ -564,105 +564,11 @@ function VehicleDetailSheetContent({
             {activeTab === "specs" && (
               <div className="space-y-4">
                 {/* Vehicle Run Details & Trainset Fleet Telemetry */}
-                <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2.5 text-xs font-mono">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <Radio className="w-3.5 h-3.5 text-cyan-400" />
-                      {vehicle.category === "RAIL"
-                        ? t.vehicleInspector.operationalDetails
-                        : t.vehicleInspector.fleetRunInfo}
-                    </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
-                      {vehicle.operatorName || modeConfig.name}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    {/* Run Number / Nomor Dinas */}
-                    {vehicle.runNumber && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.common.runNumber}:
-                        </span>
-                        <strong className="text-cyan-300 text-xs font-bold">
-                          {vehicle.runNumber}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* Trainset Number (Rail only) */}
-                    {vehicle.trainsetNumber && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.common.trainset}:
-                        </span>
-                        <strong className="text-white text-xs font-bold">
-                          {vehicle.trainsetNumber}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* Total Trainsets on Line (Rail only) */}
-                    {vehicle.totalTrainsets && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.vehicleInspector.totalFleetOnLine}:
-                        </span>
-                        <strong className="text-emerald-400 text-xs font-bold">
-                          {vehicle.totalTrainsets} {t.common.trainset}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* Car Formation (Rail only) */}
-                    {vehicle.carFormation && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.common.formation}:
-                        </span>
-                        <strong className="text-slate-200 text-xs font-bold truncate block">
-                          {vehicle.carFormation}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* Bus Fleet Number (Bus only) */}
-                    {vehicle.fleetNumber && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.common.fleetNumber}:
-                        </span>
-                        <strong className="text-white text-xs font-bold">
-                          {vehicle.fleetNumber}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* License Plate (Bus only) */}
-                    {vehicle.licensePlate && (
-                      <div className="p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">
-                          {t.common.licensePlate}:
-                        </span>
-                        <strong className="text-amber-300 text-xs font-bold">
-                          {vehicle.licensePlate}
-                        </strong>
-                      </div>
-                    )}
-
-                    {/* Home Depot */}
-                    {vehicle.depotHome && (
-                      <div className="col-span-2 p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                        <span className="text-[10px] text-slate-400">
-                          {vehicle.category === "RAIL" ? `${t.common.depot}:` : `${t.vehicleInspector.poolBase}:`}
-                        </span>
-                        <strong className="text-slate-200 text-xs font-bold">
-                          {vehicle.depotHome}
-                        </strong>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <VehicleOpsRunCard
+                  vehicle={vehicle}
+                  variant="sheet"
+                  operatorLabel={vehicle.operatorName || modeConfig.name}
+                />
 
                 {/* Coachbuilder Summary */}
                 <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs space-y-1.5">
