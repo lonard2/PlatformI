@@ -60,6 +60,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
   const setActiveAlerts = useTransitStore((state) => state.setActiveAlerts);
+  const setAlertsSyncedAt = useTransitStore((state) => state.setAlertsSyncedAt);
 
   const fetchAlerts = async (signal?: AbortSignal) => {
     try {
@@ -70,6 +71,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
           setAlerts(data.data);
           setActiveAlerts(data.data);
           setLastFetchTime(new Date());
+          setAlertsSyncedAt(Date.now());
           setFetchFailed(false);
           return;
         }

@@ -20,6 +20,7 @@ import { ServiceStatusDrawer } from "../src/components/alerts/ServiceStatusDrawe
 import { AppSettingsModal } from "../src/components/settings/AppSettingsModal";
 import { UserTransitPreferencesModal } from "../src/components/settings/UserTransitPreferencesModal";
 import { TransportationSystemBar } from "../src/components/navigation/TransportationSystemBar";
+import { getLiveItemStatus } from "../src/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "../src/components/navigation/MobileBottomNav";
 import { AdminHelpModal } from "../src/components/admin/AdminHelpModal";
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
@@ -225,6 +226,31 @@ describe("Milestone 5: React UI Components Integration", () => {
       // Press Escape to close tray
       fireEvent.keyDown(tray, { key: "Escape" });
       expect(mrtBtn).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("resolves live status from active alerts per system", () => {
+      const mrtItem = {
+        id: "sys-mrt",
+        mode: "MRT_JAKARTA",
+        status: "NORMAL",
+        corridorsOrBuildings: [{ lineId: "line-mrt-ns" }],
+      } as unknown as Parameters<typeof getLiveItemStatus>[0];
+      const lines = [{ id: "line-mrt-ns", mode: "MRT_JAKARTA" }] as unknown as Parameters<
+        typeof getLiveItemStatus
+      >[2];
+      expect(getLiveItemStatus(mrtItem, [], lines)).toBe("NORMAL");
+      const warning = [
+        { lineId: "line-mrt-ns", severity: "WARNING", status: "ACTIVE" },
+      ] as unknown as Parameters<typeof getLiveItemStatus>[1];
+      expect(getLiveItemStatus(mrtItem, warning, lines)).toBe("LIMITED");
+      const critical = [
+        { lineId: "line-mrt-ns", severity: "CRITICAL", status: "ACTIVE" },
+      ] as unknown as Parameters<typeof getLiveItemStatus>[1];
+      expect(getLiveItemStatus(mrtItem, critical, lines)).toBe("SUSPENDED");
+      const resolved = [
+        { lineId: "line-mrt-ns", severity: "CRITICAL", status: "RESOLVED" },
+      ] as unknown as Parameters<typeof getLiveItemStatus>[1];
+      expect(getLiveItemStatus(mrtItem, resolved, lines)).toBe("NORMAL");
     });
   });
 

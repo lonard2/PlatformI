@@ -41,7 +41,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { TransitMode, TransitCategory, ServiceOperatingStatus } from "@/types/transit";
+import { TransitMode, TransitCategory, ServiceOperatingStatus, DisruptionAlert, Line } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 
@@ -128,6 +128,31 @@ function getLocalizedStatusPhrase(status: ServiceOperatingStatus, t: Translation
     case "OFF_HOURS":
       return t.navigation.serviceOffHoursPhrase;
   }
+}
+
+// Live status: an ACTIVE alert on any of the system's lines outranks the
+// dataset default. CRITICAL suspends, WARNING limits, anything else keeps it.
+export function getLiveItemStatus(
+  item: TransitSystemItem,
+  activeAlerts: DisruptionAlert[],
+  allLines: Line[]
+): ServiceOperatingStatus {
+  const lineIds = new Set<string>();
+  for (const c of item.corridorsOrBuildings) {
+    if (c.lineId) lineIds.add(c.lineId);
+  }
+  if (item.mode) {
+    for (const l of allLines) {
+      if (l.mode === item.mode) lineIds.add(l.id);
+    }
+  }
+  let limited = false;
+  for (const a of activeAlerts) {
+    if (a.status !== "ACTIVE" || !lineIds.has(a.lineId)) continue;
+    if (a.severity === "CRITICAL") return "SUSPENDED";
+    if (a.severity === "WARNING") limited = true;
+  }
+  return limited ? "LIMITED" : item.status;
 }
 
 // Status color semantics per DESIGN.md: emerald = healthy, amber = limited,
@@ -785,6 +810,9 @@ export function TransportationSystemBar() {
   const setViewport = useTransitStore((state) => state.setViewport);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
+  const allLines = useTransitStore((state) => state.allLines);
+  const activeAlerts = useTransitStore((state) => state.activeAlerts);
+  const alertsSyncedAt = useTransitStore((state) => state.alertsSyncedAt);
 
   // States
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<"ALL" | TransitCategory>("ALL");
@@ -904,6 +932,9 @@ export function TransportationSystemBar() {
   const activeItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
     (item) => item.id === activeItemId
   );
+  const liveTrayStatus = activeItem
+    ? getLiveItemStatus(activeItem, activeAlerts, allLines)
+    : null;
 
   const hoveredItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
     (item) => item.id === hoveredItemId
@@ -991,6 +1022,18 @@ export function TransportationSystemBar() {
 
         {/* Quick Global Settings / Reset / Language Selector */}
         <div className="flex items-center gap-2 text-[10px]">
+          {alertsSyncedAt &&
+            !activeAlerts.some(
+              (a) => a.status === "ACTIVE" && (a.severity === "WARNING" || a.severity === "CRITICAL")
+            ) && (
+              <span className="hidden md:inline font-mono text-slate-500 whitespace-nowrap">
+                {t.common.lastUpdated}{" "}
+                {new Date(alertsSyncedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
           <button
             onClick={() => setActiveDrawer(activeDrawer === "settings" ? null : "settings")}
             aria-label={t.navigation.settings}
@@ -1162,6 +1205,7 @@ export function TransportationSystemBar() {
                           ? selectedModes.includes(item.mode)
                           : true;
                         const isSelected = activeItemId === item.id;
+                        const liveStatus = getLiveItemStatus(item, activeAlerts, allLines);
 
                         return (
                           <motion.button
@@ -1174,7 +1218,7 @@ export function TransportationSystemBar() {
                             onClick={(e) => handleItemToggle(item, e)}
                             onMouseEnter={(e) => handleItemMouseEnter(item, e)}
                             onMouseLeave={handleItemMouseLeave}
-                            title={`${item.name} - ${getLocalizedStatusPhrase(item.status, t)}`}
+                            title={`${item.name} - ${getLocalizedStatusPhrase(liveStatus, t)}`}
                             className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-200 shrink-0 ${
                               isSelected
                                 ? "bg-cyan-950/95 border-cyan-400 text-white shadow-lg shadow-cyan-950/60 ring-2 ring-cyan-500/30 scale-105"
@@ -1218,17 +1262,17 @@ export function TransportationSystemBar() {
                                   renders so state is never carried by colour alone */}
                               <span
                                 aria-hidden="true"
-                                className={`w-2 h-2 rounded-full shrink-0 ${item.status === "NORMAL" || item.status === "OFF_HOURS" ? "" : "animate-pulse"}`}
+                                className={`w-2 h-2 rounded-full shrink-0 ${liveStatus === "NORMAL" || liveStatus === "OFF_HOURS" ? "" : "animate-pulse"}`}
                                 style={{
-                                  backgroundColor: STATUS_COLORS[item.status].color,
-                                  boxShadow: STATUS_COLORS[item.status].glow,
+                                  backgroundColor: STATUS_COLORS[liveStatus].color,
+                                  boxShadow: STATUS_COLORS[liveStatus].glow,
                                 }}
                               />
                               <span
                                 className="text-[10px] font-mono font-bold shrink-0 whitespace-nowrap"
-                                style={{ color: STATUS_COLORS[item.status].color }}
+                                style={{ color: STATUS_COLORS[liveStatus].color }}
                               >
-                                {getShortStatusLabel(item.status, t)}
+                                {getShortStatusLabel(liveStatus, t)}
                               </span>
 
                               {item.type === "building_hub" ? (
@@ -1382,10 +1426,10 @@ export function TransportationSystemBar() {
                         {activeItem.badgeLabel}
                       </span>
                       <span
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${TRAY_STATUS_CLASSES[activeItem.status]}`}
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full border flex items-center gap-1 ${liveTrayStatus ? TRAY_STATUS_CLASSES[liveTrayStatus] : ""}`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {getLocalizedStatusPhrase(activeItem.status, t)}
+                        {liveTrayStatus ? getLocalizedStatusPhrase(liveTrayStatus, t) : ""}
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">

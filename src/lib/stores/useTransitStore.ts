@@ -100,6 +100,8 @@ export interface TransitStoreState {
   // 11. Alerts
   activeAlerts: DisruptionAlert[];
   setActiveAlerts: (alerts: DisruptionAlert[]) => void;
+  alertsSyncedAt: number | null;
+  setAlertsSyncedAt: (timestamp: number) => void;
   pinnedAlertId: string | null;
   setPinnedAlertId: (id: string | null) => void;
 
@@ -323,6 +325,8 @@ export const useTransitStore = create<TransitStoreState>((set, get) => ({
   // 11. Alerts
   activeAlerts: DISRUPTION_ALERTS,
   setActiveAlerts: (alerts) => set({ activeAlerts: alerts }),
+  alertsSyncedAt: null,
+  setAlertsSyncedAt: (timestamp) => set({ alertsSyncedAt: timestamp }),
   pinnedAlertId: "alert-001",
   setPinnedAlertId: (id) => set({ pinnedAlertId: id }),
 
