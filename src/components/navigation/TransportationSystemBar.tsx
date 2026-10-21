@@ -34,6 +34,7 @@ import {
   Compass,
   Eye,
   EyeOff,
+  Layers,
   Camera,
   Crown,
   Globe,
@@ -790,6 +791,8 @@ export function TransportationSystemBar() {
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  // Mobile shows the sector chips alone; the systems row opens on demand.
+  const [showSystemsOnMobile, setShowSystemsOnMobile] = useState<boolean>(false);
   const [hoverCardPos, setHoverCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
@@ -970,6 +973,20 @@ export function TransportationSystemBar() {
               </button>
             );
           })}
+          {/* Mobile systems toggle: the only way to open the systems row below sm */}
+          <button
+            onClick={() => setShowSystemsOnMobile((v) => !v)}
+            aria-expanded={showSystemsOnMobile}
+            aria-label={t.navigation.routeListHeading}
+            title={t.navigation.routeListHeading}
+            className={`sm:hidden relative flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 border ${
+              showSystemsOnMobile
+                ? "bg-cyan-950/90 border-cyan-400/60 text-cyan-300"
+                : "text-slate-400 hover:text-white bg-slate-900/60 border-slate-800/80"
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Quick Global Settings / Reset / Language Selector */}
@@ -1047,8 +1064,10 @@ export function TransportationSystemBar() {
         </div>
       </div>
 
-      {/* 2. HORIZONTAL SCROLLABLE BAR WITH LEFT/RIGHT NAVIGATION CONTROLS */}
-      <div className="relative flex items-center">
+      {/* 2. HORIZONTAL SCROLLABLE BAR WITH LEFT/RIGHT NAVIGATION CONTROLS.
+          Mobile shows the sector chips alone; the systems row opens on demand
+          via the toggle below so the map keeps the viewport. */}
+      <div className={`relative items-center ${showSystemsOnMobile ? "flex" : "hidden"} sm:flex`}>
         {/* Left Scroll Arrow (Desktop) */}
         <button
           onClick={handleScrollLeft}

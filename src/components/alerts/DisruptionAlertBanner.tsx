@@ -43,6 +43,9 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [isUndoVisible, setIsUndoVisible] = useState<boolean>(false);
   const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [fetchFailed, setFetchFailed] = useState<boolean>(false);
+  // Mobile chrome diet: the strip collapses to a count dot after 4s unless
+  // the alert is critical or its details are open. Tapping restores it.
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
   const previousCriticalIdsRef = useRef<Set<string>>(
     new Set(
@@ -194,6 +197,14 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
   const badgeConfig = currentAlert ? getSeverityBadge(currentAlert.severity) : null;
 
+  // Collapse to a count dot after 4s; critical alerts and open details stay.
+  useEffect(() => {
+    setIsMinimized(false);
+    if (!currentAlert || currentAlert.severity === "CRITICAL" || isExpanded) return;
+    const timer = setTimeout(() => setIsMinimized(true), 4000);
+    return () => clearTimeout(timer);
+  }, [currentAlert, currentIndex, isExpanded]);
+
   const handleNextAlert = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIndex((prev) => (prev + 1) % activeAlerts.length);
@@ -244,6 +255,23 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
       )}
 
       {!isDismissed && !isUndoVisible && activeAlerts.length > 0 && currentAlert && badgeConfig && (
+        isMinimized && !isExpanded ? (
+          <motion.div
+            initial={false}
+            className="w-full px-3 sm:px-6 py-0.5 z-20 flex justify-start"
+          >
+            <button
+              type="button"
+              onClick={() => setIsMinimized(false)}
+              aria-label={`${t.navigation.serviceStatus}: ${activeAlerts.length}`}
+              title={currentAlert.title}
+              className="touch-target flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-900/95 px-2.5 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+            >
+              <span className={`w-2 h-2 rounded-full ${badgeConfig.pulseColor}`} aria-hidden="true" />
+              <span className="text-[11px] font-mono font-bold text-slate-300">{activeAlerts.length}</span>
+            </button>
+          </motion.div>
+        ) : (
         <motion.div
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -392,6 +420,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             )}
           </AnimatePresence>
         </motion.div>
+        )
       )}
     </AnimatePresence>
   );
