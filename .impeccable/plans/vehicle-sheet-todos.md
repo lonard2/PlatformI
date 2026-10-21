@@ -17,7 +17,7 @@ Ledger lives in this file under "Ledger".
 | 3 | harden | Honest controls + failure states: occupied seats non-interactive w/ aria-disabled + not-booking microcopy; image-fail / empty-carriage / offline states; simulated-data badge; keyboard for SVG carriage nodes | DONE (403/403) | — |
 | 4 | layout | Overview reorder: gallery under header, compact line/fare/headway row; tab label vs content mismatch fixed | DONE (405/405) | — |
 | 5 | distill | Single VehicleOpsRunCard; sheet + Specs tab share it; zero content removed | DONE (407/407) | — |
-| 6 | polish | 9px ramp fix, close-button affordance, RTL/motion audit, full verify | TODO | — |
+| 6 | polish | 9px ramp fix, close-button affordance, RTL/motion audit, full verify | DONE (409/409) | — |
 
 ## Pre-flight interface scan
 - T1↔T2 share VehicleCarriageSelector (stepper header vs legend placement). Ruling: T1 owns header structure; T2 adds legend block below header without moving T1's elements. Cost if wrong: one layout rework.
@@ -35,3 +35,4 @@ Ledger lives in this file under "Ledger".
 - T2: detector still reports only the pre-existing 9px advisory (line shifted by insertions); owned by T6.
 - T3: Ruling: full offline-state handling out of scope (client sheet, no service worker); covered image-fail + empty-formation + synthesized-data transparency. Cost if wrong: a follow-up harden pass.
 - T4: Ruling: seating-tab label kept ("Carriages & Decks") — T1 disclosure now matches the label and renaming costs 6-locale churn for little gain. Cost if wrong: one rename later.
+- T6: RTL audit: additions are flex/mirror-safe, separators aria-hidden; chevrons follow house-wide non-mirrored pattern (no rtl: usage anywhere). Motion: no new animation added. Detector now 0 findings on inspector/.

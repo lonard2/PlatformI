@@ -1062,7 +1062,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
                 </div>
 
                 {/* Percentage */}
-                <span className={`text-[9px] font-mono font-semibold ${isSelected ? "text-white" : "text-slate-400"}`}>
+                <span className={`text-[10px] font-mono font-semibold ${isSelected ? "text-white" : "text-slate-400"}`}>
                   {car.occupancyPercent}%
                 </span>
               </button>
