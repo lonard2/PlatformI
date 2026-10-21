@@ -182,6 +182,21 @@ export function resolvePlannedJourney(
 
   let transferOption: PlannedJourney["transferOption"] | undefined = undefined;
 
+  // Interchange attribution: when two lines link by name, either side names the
+  // station. When the link comes from connectedLineIds, the transfer stop must
+  // be the record that actually declares the connection — never the other side.
+  const attributeInterchange = (
+    os: Stop,
+    ds: Stop,
+    oId: string,
+    dId: string
+  ): Stop => {
+    const sameName = ds.name.trim().toLowerCase() === os.name.trim().toLowerCase();
+    if (sameName) return os;
+    if (os.connectedLineIds && os.connectedLineIds.includes(dId)) return os;
+    return ds;
+  };
+
   for (const oLine of candidateOriginLines) {
     const oStops = allStops.filter((s) => s.lineId === oLine.id);
     for (const dLine of candidateDestLines) {
@@ -189,14 +204,19 @@ export function resolvePlannedJourney(
       const dStops = allStops.filter((s) => s.lineId === dLine.id);
 
       // Find intersection stop by name, code, or connectedLineIds
-      const commonStop = oStops.find((os) =>
-        dStops.some(
-          (ds) =>
-            ds.name.trim().toLowerCase() === os.name.trim().toLowerCase() ||
+      let commonStop: Stop | undefined = undefined;
+      for (const os of oStops) {
+        const ds = dStops.find(
+          (d) =>
+            d.name.trim().toLowerCase() === os.name.trim().toLowerCase() ||
             (os.connectedLineIds && os.connectedLineIds.includes(dLine.id)) ||
-            (ds.connectedLineIds && ds.connectedLineIds.includes(oLine.id))
-        )
-      );
+            (d.connectedLineIds && d.connectedLineIds.includes(oLine.id))
+        );
+        if (ds) {
+          commonStop = attributeInterchange(os, ds, oLine.id, dLine.id);
+          break;
+        }
+      }
 
       if (commonStop) {
         transferOption = {
@@ -245,14 +265,16 @@ export function resolvePlannedJourney(
   const sharedStop = (aId: string, bId: string): Stop | undefined => {
     const aStops = stopsByLineId.get(aId) ?? [];
     const bStops = stopsByLineId.get(bId) ?? [];
-    return aStops.find((os) =>
-      bStops.some(
+    for (const a of aStops) {
+      const b = bStops.find(
         (ds) =>
-          ds.name.trim().toLowerCase() === os.name.trim().toLowerCase() ||
-          (os.connectedLineIds && os.connectedLineIds.includes(bId)) ||
+          ds.name.trim().toLowerCase() === a.name.trim().toLowerCase() ||
+          (a.connectedLineIds && a.connectedLineIds.includes(bId)) ||
           (ds.connectedLineIds && ds.connectedLineIds.includes(aId))
-      )
-    );
+      );
+      if (b) return attributeInterchange(a, b, aId, bId);
+    }
+    return undefined;
   };
 
   const transferLegs: NonNullable<PlannedJourney["transferLegs"]> = [];
