@@ -130,6 +130,14 @@ code, kbd, samp, pre, .font-mono {
   background: rgba(6, 182, 212, 0.8);
 }
 
+/* Keyboard position on the map canvas: Leaflet controls and markers */
+.leaflet-container a:focus-visible,
+.leaflet-container button:focus-visible,
+.leaflet-marker-icon:focus-visible {
+  outline: 2px solid var(--accent-cyan) !important;
+  outline-offset: 2px !important;
+}
+
 /* Leaflet Container & Markers */
 .leaflet-container {
   width: 100%;

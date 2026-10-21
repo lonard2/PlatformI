@@ -214,7 +214,7 @@ export function MapControls({ map }: MapControlsProps) {
             aria-checked={simulationSpeed === 0}
             tabIndex={simulationSpeed === 0 ? 0 : -1}
             aria-label={t.navigation.paused}
-            className={`touch-target p-2 rounded-lg text-xs font-mono font-bold transition-all ${
+            className={`touch-target p-2 rounded-lg text-xs font-mono font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               simulationSpeed === 0
                 ? "bg-amber-950/80 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -231,7 +231,7 @@ export function MapControls({ map }: MapControlsProps) {
             aria-checked={simulationSpeed === 1}
             tabIndex={simulationSpeed === 1 ? 0 : -1}
             aria-label={t.journey.simSpeedRealtime}
-            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               simulationSpeed === 1
                 ? "bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -249,7 +249,7 @@ export function MapControls({ map }: MapControlsProps) {
             aria-checked={simulationSpeed === 2}
             tabIndex={simulationSpeed === 2 ? 0 : -1}
             aria-label={t.journey.simSpeedAccelerated}
-            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               simulationSpeed === 2
                 ? "bg-blue-950/80 text-blue-300 border border-blue-500/40 shadow-lg shadow-blue-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -267,7 +267,7 @@ export function MapControls({ map }: MapControlsProps) {
             aria-checked={simulationSpeed === 5}
             tabIndex={simulationSpeed === 5 ? 0 : -1}
             aria-label={t.journey.simSpeedPreview}
-            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+            className={`touch-target px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
               simulationSpeed === 5
                 ? "bg-rose-950/80 text-rose-300 border border-rose-500/40 shadow-lg shadow-rose-500/20"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -284,7 +284,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleZoomIn}
             aria-label={t.journey.mapZoomIn}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -295,7 +295,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleZoomOut}
             aria-label={t.journey.mapZoomOut}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -306,7 +306,7 @@ export function MapControls({ map }: MapControlsProps) {
             type="button"
             onClick={handleRecenter}
             aria-label={t.journey.mapRecenter}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
           >
             <Navigation className="w-4 h-4" />
           </button>

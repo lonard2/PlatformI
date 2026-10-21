@@ -657,23 +657,49 @@ export const TRANSIT_CATEGORY_CONFIG: Record<TransitCategory, ModeCategoryMeta> 
 // 3. BASEMAP TILE LAYER DEFINITIONS
 // ==========================================
 
+// CARTO's legacy keyless basemaps now serve API-KEY-REQUIRED watermark tiles
+// (verified live). When NEXT_PUBLIC_CARTO_API_KEY is set, dark/light use keyed
+// CARTO; otherwise they fall back to keyless OSM Standard (verified live), so the
+// canvas never renders an error state. Satellite (Esri World Imagery) and streets
+// (OSM) were verified live and stay as-is.
+const CARTO_API_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+
+function cartoLayer(
+  id: "dark" | "light",
+  name: string,
+  style: string
+): TileLayerDefinition {
+  if (CARTO_API_KEY) {
+    return {
+      id,
+      name,
+      url: `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`,
+      attribution:
+        '&copy; <a href="https://carto.com/">CARTO</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+      subdomains: "abcd",
+    };
+  }
+  return {
+    id,
+    name: `${name} (OSM fallback)`,
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    subdomains: "abc",
+  };
+}
+
+if (typeof window !== "undefined" && !CARTO_API_KEY) {
+  console.warn(
+    "[PlatformI] NEXT_PUBLIC_CARTO_API_KEY is not set; dark/light basemaps use the OSM Standard fallback until a key is provisioned."
+  );
+}
+
 export const TILE_LAYERS: Record<"dark" | "light" | "satellite" | "streets", TileLayerDefinition> = {
-  dark: {
-    id: "dark",
-    name: "CartoDB Dark Matter",
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-    subdomains: "abcd",
-  },
-  light: {
-    id: "light",
-    name: "CartoDB Positron",
-    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-    subdomains: "abcd",
-  },
+  dark: cartoLayer("dark", "CartoDB Dark Matter", "dark_all"),
+  light: cartoLayer("light", "CartoDB Positron", "light_all"),
   satellite: {
     id: "satellite",
     name: "Esri World Imagery",

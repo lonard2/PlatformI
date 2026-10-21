@@ -160,6 +160,14 @@ describe("Milestone 2: Transit Mode Metadata & Cartography Configurations", () =
     }
   });
 
+  it("never ships the keyless CARTO endpoints that serve watermark tiles", () => {
+    for (const id of ["dark", "light"] as const) {
+      const url = TILE_LAYERS[id].url;
+      const bareKeyless = url.includes("basemaps.cartocdn.com") && !url.includes("api_key=");
+      expect(bareKeyless).toBe(false);
+    }
+  });
+
   it("defines 4 simulation speed multiplier options", () => {
     expect(SIMULATION_SPEED_OPTIONS.length).toBe(4);
     const values = SIMULATION_SPEED_OPTIONS.map((o) => o.value);
