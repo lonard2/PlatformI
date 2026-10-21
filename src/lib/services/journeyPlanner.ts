@@ -232,6 +232,72 @@ export function resolvePlannedJourney(
     };
   }
 
+  // 2b. Two-transfer itineraries: BFS over the line graph, top 2, so real
+  // Jabodetabek trips (feeder -> trunk -> feeder) stay deterministic instead
+  // of punting to the AI advisor. Runs only when direct/1-transfer failed.
+  const stopsByLineId = new Map<string, Stop[]>();
+  for (const l of allLines) {
+    stopsByLineId.set(
+      l.id,
+      allStops.filter((s) => s.lineId === l.id)
+    );
+  }
+  const sharedStop = (aId: string, bId: string): Stop | undefined => {
+    const aStops = stopsByLineId.get(aId) ?? [];
+    const bStops = stopsByLineId.get(bId) ?? [];
+    return aStops.find((os) =>
+      bStops.some(
+        (ds) =>
+          ds.name.trim().toLowerCase() === os.name.trim().toLowerCase() ||
+          (os.connectedLineIds && os.connectedLineIds.includes(bId)) ||
+          (ds.connectedLineIds && ds.connectedLineIds.includes(aId))
+      )
+    );
+  };
+
+  const transferLegs: NonNullable<PlannedJourney["transferLegs"]> = [];
+  for (const oLine of candidateOriginLines) {
+    for (const mLine of allLines) {
+      if (mLine.id === oLine.id || destLineIds.has(mLine.id)) continue;
+      const firstStop = sharedStop(oLine.id, mLine.id);
+      if (!firstStop) continue;
+      for (const dLine of candidateDestLines) {
+        if (dLine.id === mLine.id || dLine.id === oLine.id) continue;
+        const secondStop = sharedStop(mLine.id, dLine.id);
+        if (!secondStop) continue;
+        transferLegs.push({
+          lines: [oLine, mLine, dLine],
+          transferStops: [firstStop, secondStop],
+        });
+        if (transferLegs.length >= 2) break;
+      }
+      if (transferLegs.length >= 2) break;
+    }
+    if (transferLegs.length >= 2) break;
+  }
+
+  if (transferLegs.length > 0) {
+    const best = transferLegs[0];
+    const fare = best.lines.reduce(
+      (sum, l) => sum + calculateLegFare(l.mode, distanceKm / 3),
+      0
+    );
+    // JakLingko 3-hour tariff cap: Rp 10,000 max integrated ceiling
+    const estimatedFareRp = Math.min(10000, fare);
+    const estimatedDurationMinutes = Math.max(12, Math.round(distanceKm * 2.8 + 8) + 5);
+
+    return {
+      originStop,
+      destinationStop: destStop,
+      directLines: [],
+      transferOption: undefined,
+      transferLegs,
+      candidateLines: best.lines,
+      distanceKm: Math.round(distanceKm * 10) / 10,
+      estimatedFareRp,
+      estimatedDurationMinutes,
+    };
+  }
   // 3. No direct line and no 1-transfer route found between stops
   return {
     originStop,

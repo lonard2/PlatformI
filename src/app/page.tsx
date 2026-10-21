@@ -155,10 +155,13 @@ export default function Home() {
     const origin = journeyOrigin.trim();
     const dest = journeyDest.trim();
     if (!origin || !dest) return;
+    const legs = plannedJourney?.transferLegs;
     const lineSummary = plannedJourney?.directLines.length
       ? plannedJourney.directLines.map((l) => l.code).join(", ")
       : plannedJourney?.transferOption
       ? `${plannedJourney.transferOption.firstLine.code} → ${plannedJourney.transferOption.secondLine.code} via ${plannedJourney.transferOption.transferStop.name}`
+      : legs && legs.length > 0
+      ? `${legs[0].lines.map((l) => l.code).join(" → ")} via ${legs[0].transferStops.map((t) => t.name).join(", ")}`
       : t.journey.transitLines;
     const query = t.journey.journeyRefinePrompt
       .replace("{origin}", origin)
@@ -670,6 +673,36 @@ export default function Home() {
                                 </span>
                               </div>
                             </div>
+                          ) : plannedJourney.transferLegs && plannedJourney.transferLegs.length > 0 ? (
+                            <div className="ml-2 pl-3 border-l-2 border-dashed border-amber-500/40 py-1 space-y-1">
+                              <div className="flex items-center gap-1.5 text-[11px] font-mono flex-wrap">
+                                {plannedJourney.transferLegs[0].lines.map((l) => (
+                                  <span key={l.id} className="flex items-center gap-1.5">
+                                    <span
+                                      style={{
+                                        backgroundColor: `${l.colorHex}25`,
+                                        borderColor: `${l.colorHex}60`,
+                                        color: l.colorHex,
+                                      }}
+                                      className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                    >
+                                      {l.code}
+                                    </span>
+                                    <span className="text-slate-400 text-[10px] last:hidden">→</span>
+                                  </span>
+                                ))}
+                              </div>
+                              {plannedJourney.transferLegs[0].transferStops.map((stop, i) => (
+                                <div key={`${stop.id}-${i}`} className="flex items-center gap-1.5 text-[11px] font-mono flex-wrap">
+                                  <span className="text-amber-300 font-semibold truncate">
+                                    {stop.name}
+                                  </span>
+                                  <span className="text-slate-400 text-[10px]">
+                                    ({t.journey.journeyTransfer})
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           ) : (
                             <div className="ml-2 pl-3 border-l-2 border-cyan-500/40 py-1">
                               <div className="flex items-center gap-1.5 flex-wrap">
@@ -725,13 +758,13 @@ export default function Home() {
                           <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold border ${
                             plannedJourney.directLines.length > 0
                               ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                              : plannedJourney.transferOption
+                              : plannedJourney.transferOption || (plannedJourney.transferLegs && plannedJourney.transferLegs.length > 0)
                               ? "bg-amber-950/60 border-amber-500/40 text-amber-300"
                               : "bg-slate-800/80 border-slate-700/60 text-slate-300"
                           }`}>
                             {plannedJourney.directLines.length > 0
                               ? t.journey.journeyDirect
-                              : plannedJourney.transferOption
+                              : plannedJourney.transferOption || (plannedJourney.transferLegs && plannedJourney.transferLegs.length > 0)
                               ? t.journey.journeyTransfer
                               : t.journey.journeyNoTransfer}
                           </span>

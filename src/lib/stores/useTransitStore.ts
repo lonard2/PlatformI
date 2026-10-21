@@ -120,6 +120,10 @@ export interface PlannedJourney {
     secondLine: Line;
     transferStop: Stop;
   };
+  transferLegs?: {
+    lines: Line[];
+    transferStops: Stop[];
+  }[];
   candidateLines: Line[];
   distanceKm: number;
   estimatedFareRp: number;

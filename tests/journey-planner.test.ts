@@ -115,8 +115,9 @@ describe("Deterministic Journey Planning & Map Binding", () => {
     expect(findMatchingStop("   ", TRANSIT_STOPS)).toBeNull();
   });
 
-  it("handles stop pairs with no direct or 1-transfer path honestly without fake fares", () => {
-    // Pair from different networks without direct or 1-transfer connecting stop
+  it("routes far pairs deterministically instead of claiming nothing exists", () => {
+    // Pair from different networks without a direct or 1-transfer stop.
+    // The 2-transfer BFS resolves it with real estimates, never fake fares.
     const journey = resolvePlannedJourney(
       "Stasiun Lebak Bulus Grab",
       "Stasiun Kereta Cepat Padalarang",
@@ -129,8 +130,11 @@ describe("Deterministic Journey Planning & Map Binding", () => {
 
     expect(journey.directLines).toHaveLength(0);
     expect(journey.transferOption).toBeUndefined();
-    expect(journey.candidateLines).toHaveLength(0);
-    expect(journey.estimatedFareRp).toBe(0);
+    expect(journey.transferLegs).toBeDefined();
+    expect(journey.transferLegs!.length).toBeGreaterThan(0);
+    expect(journey.transferLegs!.length).toBeLessThanOrEqual(2);
+    expect(journey.candidateLines.length).toBeGreaterThan(0);
+    expect(journey.estimatedFareRp).toBeLessThanOrEqual(10000);
   });
 
   it("reports a route only when candidate lines exist", () => {
@@ -143,21 +147,20 @@ describe("Deterministic Journey Planning & Map Binding", () => {
     );
     expect(journeyHasRoute(routed)).toBe(true);
 
-    // Unroutable pair: resolved stops exist, but there is no route to claim
-    const unrouted = resolvePlannedJourney(
+    // Far pair: resolved stops exist, and the 2-transfer BFS claims a route
+    const farPair = resolvePlannedJourney(
       "Stasiun Lebak Bulus Grab",
       "Stasiun Kereta Cepat Padalarang",
       TRANSIT_STOPS,
       TRANSIT_LINES
     );
-    expect(journeyHasRoute(unrouted)).toBe(false);
+    expect(journeyHasRoute(farPair)).toBe(true);
 
     // No journey at all is never a route
     expect(journeyHasRoute(null)).toBe(false);
   });
 
-  it("ranks stop suggestions with prefix matches first and caps at six", () => {
-    const suggestions = getStopSuggestions("Halim", TRANSIT_STOPS, TRANSIT_LINES);
+  it("ranks stop suggestions with prefix matches first and caps at six", () => {    const suggestions = getStopSuggestions("Halim", TRANSIT_STOPS, TRANSIT_LINES);
     expect(suggestions.length).toBeGreaterThan(0);
     expect(suggestions.length).toBeLessThanOrEqual(6);
     const names = suggestions.map((s) => s.name);
@@ -169,5 +172,76 @@ describe("Deterministic Journey Planning & Map Binding", () => {
 
     expect(getStopSuggestions("", TRANSIT_STOPS, TRANSIT_LINES)).toEqual([]);
     expect(getStopSuggestions("   ", TRANSIT_STOPS, TRANSIT_LINES)).toEqual([]);
+  });
+
+  it("finds a deterministic 2-transfer itinerary when direct and 1-transfer fail", () => {
+    const stop = (
+      id: string,
+      lineId: string,
+      name: string,
+      lat: number,
+      lng: number,
+    ) => ({
+      id,
+      lineId,
+      name,
+      code: id,
+      latitude: lat,
+      longitude: lng,
+      sequence: 1,
+      isInterchange: false,
+      connectedLineIds: [] as string[],
+      facilities: [] as string[],
+      accessibleElevator: false,
+      tactilePaving: false,
+      wheelchairRamp: false,
+    });
+    const line = (id: string, code: string) => ({
+      id,
+      regionId: "r1",
+      code,
+      name: code,
+      category: "BUS" as const,
+      mode: "TRANSJAKARTA_BRT" as const,
+      colorHex: "#06B6D4",
+      textColorHex: "#ffffff",
+      fareType: "FLAT" as const,
+      baseFareRp: 3500,
+      farePerKmRp: 0,
+      maxFareRp: 3500,
+      headwayMinutes: 5,
+      firstDeparture: "05:00",
+      lastDeparture: "22:00",
+      polylineCoordinates: [],
+    });
+    const stops = [
+      stop("s-o", "line-a", "Origin Terminal", -6.2, 106.8),
+      stop("s-h1a", "line-a", "Hub One", -6.21, 106.81),
+      stop("s-h1b", "line-b", "Hub One", -6.21, 106.81),
+      stop("s-h2b", "line-b", "Hub Two", -6.22, 106.82),
+      stop("s-h2c", "line-c", "Hub Two", -6.22, 106.82),
+      stop("s-d", "line-c", "Destination Terminal", -6.23, 106.83),
+    ];
+    const lines = [line("line-a", "A"), line("line-b", "B"), line("line-c", "C")];
+
+    const journey = resolvePlannedJourney("Origin Terminal", "Destination Terminal", stops, lines);
+
+    expect(journey).not.toBeNull();
+    if (!journey) return;
+    expect(journey.directLines).toHaveLength(0);
+    expect(journey.transferLegs).toBeDefined();
+    expect(journey.transferLegs!.length).toBeGreaterThan(0);
+    expect(journey.transferLegs!.length).toBeLessThanOrEqual(2);
+    expect(journey.transferLegs![0].lines.map((l) => l.id)).toEqual([
+      "line-a",
+      "line-b",
+      "line-c",
+    ]);
+    expect(journey.transferLegs![0].transferStops.map((t) => t.name)).toEqual([
+      "Hub One",
+      "Hub Two",
+    ]);
+    expect(journeyHasRoute(journey)).toBe(true);
+    expect(journey.estimatedFareRp).toBeLessThanOrEqual(10000);
   });
 });
