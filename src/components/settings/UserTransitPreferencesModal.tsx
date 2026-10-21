@@ -158,7 +158,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
             <div className="flex items-center justify-between">
               <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                Active & Pinned Transit Modes ({selectedModes.length} Active)
+                {t.preferences.pinnedModesTitle.replace("{n}", String(selectedModes.length))}
               </label>
               <div className="flex items-center gap-2">
                 <button
@@ -261,7 +261,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
           <div className="space-y-3">
             <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
               <Bell className="w-3.5 h-3.5 text-rose-400" />
-              Disruption Alert Notifications
+              {t.preferences.alertNotifications}
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -273,7 +273,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                 }`}
               >
                 <div className="text-xs">{t.preferences.criticalOnly}</div>
-                <div className="text-[9px] text-slate-400">Severe disruptions</div>
+                <div className="text-[10px] text-slate-400">{t.preferences.criticalOnlyDesc}</div>
               </button>
 
               <button
@@ -285,7 +285,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                 }`}
               >
                 <div className="text-xs">{t.preferences.allBulletins}</div>
-                <div className="text-[9px] text-slate-400">Delays & maintenance</div>
+                <div className="text-[10px] text-slate-400">{t.preferences.allBulletinsDesc}</div>
               </button>
 
               <button
@@ -297,7 +297,7 @@ export const UserTransitPreferencesModal: React.FC<UserTransitPreferencesModalPr
                 }`}
               >
                 <div className="text-xs">{t.preferences.muted}</div>
-                <div className="text-[9px] text-slate-400">No popups</div>
+                <div className="text-[10px] text-slate-400">{t.preferences.mutedDesc}</div>
               </button>
             </div>
           </div>

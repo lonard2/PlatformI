@@ -417,7 +417,11 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                       {trip.ticketNumber}
                     </span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300">
-                      {trip.status}
+                      {trip.status === "COMPLETED"
+                        ? t.ticketing.tripCompleted
+                        : trip.status === "EXPIRED"
+                        ? t.ticketing.tripExpired
+                        : t.ticketing.tripActive}
                     </span>
                   </div>
                   <div className="font-bold text-white">

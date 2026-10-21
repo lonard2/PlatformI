@@ -16,7 +16,7 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 | A | alerts-crowd | Months via Intl (delete ID/EN arrays), time-ago {n} params, cooldown secondShort | DONE (410/410) | — |
 | B1 | map-tooltips | VehicleMarker dead helper + ID tooltip copy, RoutePolyline labels, HubMarker enum mapping, MapControls tile names | DONE (411/411) | — |
 | B2 | system-bar | noMatchingRoutes concat param; SYSTEM_GROUPS per R3 | TODO | — |
-| C | ticket-settings | DynamicQRCode copy, trip.status mapping, prefs modal labels; verify modes/PROMPT_SUGGESTIONS upstream | TODO | — |
+| C | ticket-settings | DynamicQRCode copy, trip.status mapping, prefs modal labels; verify modes/PROMPT_SUGGESTIONS upstream | DONE (412/412) | — |
 | D1 | admin | alerts + fleet pages | TODO | — |
 | D2 | admin+lib | network + timetables pages, layout metadata, timetableMatrix/modes/SIM_SPEED strings | TODO | — |
 | E1 | inspector-enums | acStatus/seat-type/features/photo-tag/fareType enum mappings, gallery aria + Photo by | TODO | — |
@@ -28,3 +28,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - Batch A: R1 applied (WIB kept as timezone designator at 4 sites). Detector on touched files: only 3 pre-existing border-accent advisories, unrelated.
 - Batch B1: detector on touched map files reports 9 design-system (font/radius/color) advisories on pre-existing inline tooltip styles — not copy, not introduced here.
 - Batch B2: R3 resolved — statusText/statusReason have zero render sites (dead data, untouched); name/description/fareText ruled EXEMPT as operator entity data (R5: place-dense descriptors, translation risk > benefit; reversible on request). operatingHours vocabulary mapped; noMatchingRoutes parameterized.
+- Batch C: detector went 7→4 on touched files (fixed three 9px ramps incl. prefs descs); remaining 4 pre-existing (PLTI brand mark etc.). R6: PROMPT_SUGGESTIONS example utterances EXEMPT (sample user input, place-dense). R7: DynamicQRCode t.aiAdvisor.copy reuse left as-is (translated, cross-namespace only).

@@ -85,11 +85,11 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
       <div className="w-full flex items-center justify-between mb-3 text-xs text-slate-300 font-mono">
         <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
           <ShieldCheck className="w-4 h-4" />
-          <span className="text-[11px]">HMAC-SHA256 Active</span>
+          <span className="text-[11px]">{t.ticketing.qrSecurity}</span>
         </div>
         <div className="flex items-center gap-1 text-[11px] text-cyan-400">
           <Lock className="w-3 h-3" />
-          <span>Epoch #{tokenData.timeStep}</span>
+          <span>{t.ticketing.qrEpoch}{tokenData.timeStep}</span>
         </div>
       </div>
 
@@ -158,17 +158,17 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
             </div>
             <div>
               <div className="text-[11px] font-semibold text-slate-200">
-                Rolling Security Token
+                {t.ticketing.qrRollingTitle}
               </div>
               <div className="text-[9px] text-slate-400">
-                Regenerates in {tokenData.secondsRemaining}s
+                {t.ticketing.qrRegenerates.replace("{n}", String(tokenData.secondsRemaining))}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-1 text-[10px] text-slate-400">
             <Clock className="w-3 h-3 text-cyan-400 animate-pulse" />
-            <span>30s Cycle</span>
+            <span>{t.ticketing.qrCycle}</span>
           </div>
         </div>
       )}
@@ -177,7 +177,7 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
       {showPayloadHash && (
         <div className="mt-3 w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-950/80 border border-slate-800/80 font-mono text-[10px] text-slate-400">
           <div className="truncate max-w-[170px] sm:max-w-[200px]">
-            <span className="text-slate-500">Hash: </span>
+            <span className="text-slate-500">{t.ticketing.qrHash} </span>
             <span className="text-cyan-300 font-medium">{tokenData.token}</span>
           </div>
 

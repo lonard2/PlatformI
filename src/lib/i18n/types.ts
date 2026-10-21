@@ -586,6 +586,15 @@ export interface TranslationDictionary {
     stationsSummary: string;
     capApplied: string;
     savePrefix: string;
+    qrSecurity: string;
+    qrEpoch: string;
+    qrRollingTitle: string;
+    qrRegenerates: string;
+    qrCycle: string;
+    qrHash: string;
+    tripActive: string;
+    tripCompleted: string;
+    tripExpired: string;
     selectPayment: string;
     payJaklingko: string;
     payQris: string;
@@ -795,6 +804,10 @@ export interface TranslationDictionary {
     criticalOnly: string;
     allBulletins: string;
     muted: string;
+    pinnedModesTitle: string;
+    criticalOnlyDesc: string;
+    allBulletinsDesc: string;
+    mutedDesc: string;
   };
   skybridge: {
     elevation: string;
