@@ -33,6 +33,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Line, Stop, TimetableRun } from "@/types/transit";
+import { useTranslation } from "@/lib/i18n";
 import {
   computeStationDistances,
   computeRunStringlineTrajectory,
@@ -91,6 +92,7 @@ export function TimetableStringlineChart({
   onSelectRun,
   onEditRun,
 }: TimetableStringlineChartProps) {
+  const { t } = useTranslation();
   // Chart Display Controls
   const [timeWindow, setTimeWindow] = useState<TimeWindowFilter>("ALL");
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>("ALL");
@@ -291,7 +293,7 @@ export function TimetableStringlineChart({
         <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
           <AlertTriangle className="w-6 h-6" />
         </div>
-        <h3 className="text-base font-bold text-white">Stasiun Belum Cukup untuk Grafik Stringline</h3>
+        <h3 className="text-base font-bold text-white">{t.admin.tmStNotEnough}</h3>
         <p className="text-xs text-slate-400 max-w-md mx-auto">
           Grafik Stringline (Marey Chart) memerlukan minimal 2 stasiun berurutan di koridor ini. Tambahkan stasiun melalui Network Studio terlebih dahulu.
         </p>
@@ -328,7 +330,7 @@ export function TimetableStringlineChart({
 
           {/* Direction Filter */}
           <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-950 border border-white/10">
-            <span className="px-2 text-[10px] font-mono text-slate-400 font-bold uppercase">Arah:</span>
+            <span className="px-2 text-[10px] font-mono text-slate-400 font-bold uppercase">{t.admin.tmDirection}</span>
             <button
               type="button"
               onClick={() => setDirectionFilter("ALL")}
@@ -377,7 +379,7 @@ export function TimetableStringlineChart({
                   ? "bg-cyan-500 text-cyan-950 font-bold"
                   : "text-slate-400 hover:text-white"
               }`}
-              title="Jarak sebanding dengan kilometer riil Haversine (kecepatan nyata)"
+              title={t.admin.tmDistProp}
             >
               Jarak Nyata (KM)
             </button>
@@ -389,7 +391,7 @@ export function TimetableStringlineChart({
                   ? "bg-cyan-500 text-cyan-950 font-bold"
                   : "text-slate-400 hover:text-white"
               }`}
-              title="Spasi stasiun seragam untuk stasiun kota yang berdekatan"
+              title={t.admin.tmSpaceUniform}
             >
               Spasi Rata
             </button>
@@ -421,7 +423,7 @@ export function TimetableStringlineChart({
                   ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
                   : "bg-slate-950 text-slate-500 border-white/5"
               }`}
-              title="Pertemuan silang antara KA Arah Hilir dan Arah Mudik"
+              title={t.admin.tmMeetCross}
             >
               <GitBranch className="w-3.5 h-3.5 text-cyan-400" />
               <span>{crossingsCount} Persilangan</span>
@@ -433,7 +435,7 @@ export function TimetableStringlineChart({
                   ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
                   : "bg-slate-950 text-slate-500 border-white/5"
               }`}
-              title="Penyusulan kereta api searah (Express menyalip Regular)"
+              title={t.admin.tmOvertake}
             >
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
               <span>{overtakesCount} Penyusulan</span>
@@ -454,7 +456,7 @@ export function TimetableStringlineChart({
             style={{ height: `${paddingTop}px` }}
             className="px-3 border-b border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400 font-bold uppercase tracking-wider bg-slate-900/90"
           >
-            <span>Stasiun Lintasan</span>
+            <span>{t.admin.tmTrackStation}</span>
             <span>KM</span>
           </div>
 
@@ -477,7 +479,7 @@ export function TimetableStringlineChart({
                       {d.stopName}
                     </span>
                     {d.isInterchange && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" title="Interchange Hub" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" title={t.admin.tmHubBadge} />
                     )}
                   </div>
                   <span className="font-mono text-[10px] text-slate-400 shrink-0">
@@ -811,33 +813,33 @@ export function TimetableStringlineChart({
 
               <div className="space-y-1.5 text-slate-300">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Operator:</span>
+                  <span className="text-slate-400">{t.admin.tmOperator}</span>
                   <span className="font-medium text-white truncate max-w-[160px]">
                     {tooltip.trajectory.run.operatorName}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Relasi:</span>
+                  <span className="text-slate-400">{t.admin.tmRelation}</span>
                   <span className="font-medium text-white truncate max-w-[160px]">
                     {tooltip.trajectory.originName} &rarr; {tooltip.trajectory.destinationName}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Waktu Tempuh:</span>
+                  <span className="text-slate-400">{t.admin.tmTravelTime}</span>
                   <span className="font-mono font-bold text-teal-300">
                     {tooltip.trajectory.run.departureTime} &rarr; {tooltip.trajectory.run.arrivalTime} (
                     {tooltip.trajectory.totalDurationMinutes} min)
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Kecepatan Rerata:</span>
+                  <span className="text-slate-400">{t.admin.tmAvgSpeed}</span>
                   <span className="font-mono text-cyan-300">
                     {tooltip.trajectory.averageSpeedKmh} km/h
                   </span>
                 </div>
                 {tooltip.trajectory.run.tripType && tooltip.trajectory.run.tripType !== "REGULAR" && (
                   <div className="flex items-center justify-between pt-1 border-t border-white/5">
-                    <span className="text-slate-400">Tipologi:</span>
+                    <span className="text-slate-400">{t.admin.tmTypology}</span>
                     <span className="font-mono text-[10px] text-amber-300 uppercase">
                       {tooltip.trajectory.run.tripType}
                     </span>
@@ -846,8 +848,8 @@ export function TimetableStringlineChart({
               </div>
 
               <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
-                <span>Klik untuk inspeksi jadwal</span>
-                <span className="text-teal-400 font-bold">Pola Operasi</span>
+                <span>{t.admin.tmClickInspect}</span>
+                <span className="text-teal-400 font-bold">{t.admin.tmPatternOps}</span>
               </div>
             </>
           )}
@@ -872,13 +874,13 @@ export function TimetableStringlineChart({
 
               <div className="space-y-1.5 text-slate-300">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Lokasi:</span>
+                  <span className="text-slate-400">{t.admin.tmLocation}</span>
                   <span className="font-medium text-white truncate max-w-[160px]">
                     {tooltip.intersection.approxLocationDescription}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Titik KM:</span>
+                  <span className="text-slate-400">{t.admin.tmKmPoint}</span>
                   <span className="font-mono text-cyan-300">
                     {tooltip.intersection.approxKm} KM
                   </span>
@@ -904,19 +906,19 @@ export function TimetableStringlineChart({
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 bg-teal-400 rounded-full" />
-            <span className="text-slate-300 font-medium">Layanan Reguler</span>
+            <span className="text-slate-300 font-medium">{t.admin.tmSvcRegular}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 border-t-2 border-dashed border-indigo-400" />
-            <span className="text-slate-300 font-medium">Stabling Depo Malam</span>
+            <span className="text-slate-300 font-medium">{t.admin.tmNightStable}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 border-t-2 border-dashed border-rose-400" />
-            <span className="text-slate-300 font-medium">Deviasi / Detour Rute</span>
+            <span className="text-slate-300 font-medium">{t.admin.tmDeviate}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-4 h-0.5 bg-amber-400 rounded-full" />
-            <span className="text-slate-300 font-medium">Putar Balik Cepat (Short-Turn)</span>
+            <span className="text-slate-300 font-medium">{t.admin.tmShortTurnFast}</span>
           </div>
         </div>
 
@@ -925,13 +927,13 @@ export function TimetableStringlineChart({
             <svg className="w-3 h-3" viewBox="0 0 12 12">
               <polygon points="6,2 10,6 6,10 2,6" fill="#22d3ee" />
             </svg>
-            <span className="text-slate-300">Persilangan (Meet)</span>
+            <span className="text-slate-300">{t.admin.tmMeet}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <svg className="w-3 h-3" viewBox="0 0 12 12">
               <polygon points="6,2 10,6 6,10 2,6" fill="#fbbf24" />
             </svg>
-            <span className="text-slate-300">Penyusulan (Overtake)</span>
+            <span className="text-slate-300">{t.admin.tmOvertakeEv}</span>
           </div>
           {onEditRun && selectedRunId && (
             <button
@@ -943,7 +945,7 @@ export function TimetableStringlineChart({
               className="px-2.5 py-1 rounded-lg bg-teal-500 text-teal-950 font-bold flex items-center gap-1.5 hover:bg-teal-400 transition"
             >
               <Edit2 className="w-3 h-3" />
-              <span>Edit Perjalanan Terpilih</span>
+              <span>{t.admin.tmEditTrip}</span>
             </button>
           )}
         </div>

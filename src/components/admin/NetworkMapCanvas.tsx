@@ -17,6 +17,7 @@ import L from "leaflet";
 import { Line, Stop, TransitCategory } from "@/types/transit";
 import { TILE_LAYERS, JAKARTA_MAP_CENTER, JAKARTA_DEFAULT_ZOOM } from "@/lib/constants/modes";
 import { TileLayerId } from "@/lib/stores/useTransitStore";
+import { useTranslation } from "@/lib/i18n";
 import {
   Layers,
   Maximize2,
@@ -74,6 +75,7 @@ export function NetworkMapCanvas({
   tempPlacementCoord,
   activeCategory,
 }: NetworkMapCanvasProps) {
+  const { t } = useTranslation();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);

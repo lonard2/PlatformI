@@ -56,6 +56,7 @@ import {
   CorridorHeadwayStats,
   getMatrixPopoverPlacement,
 } from "@/lib/simulation/timetableMatrix";
+import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 
 interface TimetableMatrixGridProps {
@@ -95,6 +96,7 @@ export function TimetableMatrixGrid({
   onOpenCreateModal,
   onEditRun,
 }: TimetableMatrixGridProps) {
+  const { t } = useTranslation();
   const [timeWindow, setTimeWindow] = useState<TimeWindowFilter>("ALL");
   const [direction, setDirection] = useState<CorridorDirection | "ALL">("OUTBOUND");
   const [editingCell, setEditingCell] = useState<InCellEditState | null>(null);
@@ -524,7 +526,7 @@ export function TimetableMatrixGrid({
       <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Time Window Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span className="text-xs text-slate-400 font-semibold shrink-0 mr-1">Timeband:</span>
+          <span className="text-xs text-slate-400 font-semibold shrink-0 mr-1">{t.admin.tmTimeband}</span>
           {(
             [
               { id: "ALL", label: "All Day" },
@@ -564,9 +566,9 @@ export function TimetableMatrixGrid({
                   ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-              title="Arah Hilir / Outbound Departure (Stasiun Awal -> Akhir)"
+              title={t.admin.tmDirOutbound}
             >
-              <span>Arah Hilir</span>
+              <span>{t.admin.tmDirDown}</span>
             </button>
             <button
               type="button"
@@ -576,10 +578,10 @@ export function TimetableMatrixGrid({
                   ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-              title="Arah Mudik / Inbound Return (Stasiun Akhir -> Awal)"
+              title={t.admin.tmDirInbound}
             >
               <ArrowLeftRight className="w-3 h-3" />
-              <span>Arah Mudik</span>
+              <span>{t.admin.tmDirUp}</span>
             </button>
             <button
               type="button"
@@ -589,9 +591,9 @@ export function TimetableMatrixGrid({
                   ? "bg-teal-500 text-teal-950 font-bold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
-              title="Tampilkan semua perjalanan dua arah"
+              title={t.admin.tmDirBoth}
             >
-              <span>Dua Arah</span>
+              <span>{t.admin.tmDirBothTab}</span>
             </button>
           </div>
 
@@ -604,7 +606,7 @@ export function TimetableMatrixGrid({
               title={`Batalkan: ${undoRunStack.description}`}
             >
               <Undo2 className="w-3.5 h-3.5" />
-              <span>Batalkan Edit</span>
+              <span>{t.admin.tmCancelEdit}</span>
             </button>
           )}
 
@@ -614,7 +616,7 @@ export function TimetableMatrixGrid({
             className="px-3.5 py-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/40 text-teal-300 text-xs font-bold flex items-center gap-2 transition btn-tactile"
           >
             <Wand2 className="w-3.5 h-3.5" />
-            <span>Batch Pola Operasi</span>
+            <span>{t.admin.tmBatchPattern}</span>
           </button>
 
           <button
@@ -623,7 +625,7 @@ export function TimetableMatrixGrid({
             className="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs flex items-center gap-1.5 transition btn-tactile"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Single Run</span>
+            <span>{t.admin.ttAddRun}</span>
           </button>
         </div>
       </div>
@@ -681,13 +683,13 @@ export function TimetableMatrixGrid({
             ) : (
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
                 <Check className="w-3 h-3 text-emerald-400" />
-                <span>Interlocking Aman</span>
+                <span>{t.admin.tmSafeInterlock}</span>
               </span>
             )}
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-400">
             <div className="hidden md:flex items-center gap-1.5 font-mono bg-slate-950/80 px-2.5 py-1 rounded-lg border border-white/10">
-              <span className="text-teal-400 font-bold">OCC Keyboard:</span>
+              <span className="text-teal-400 font-bold">{t.admin.tmOccKeyboard}</span>
               <span className="text-slate-300">↑ ↓ ← →</span>
               <span className="text-slate-600">&bull;</span>
               <span className="text-slate-300">[Enter] Edit</span>
@@ -711,14 +713,14 @@ export function TimetableMatrixGrid({
         ) : materializedRuns.length === 0 ? (
           <div className="p-12 text-center text-slate-400 text-xs space-y-3">
             <Clock className="w-6 h-6 mx-auto text-teal-400 animate-pulse" />
-            <p>No scheduled timetable runs found for this line within this time window.</p>
+            <p>{t.admin.tmEmptyRuns}</p>
             <button
               type="button"
               onClick={onOpenBatchModal}
               className="px-4 py-2 rounded-xl bg-teal-500 text-teal-950 font-bold text-xs inline-flex items-center gap-2"
             >
               <Wand2 className="w-4 h-4" />
-              <span>Generate Pola Operasi Sequence</span>
+              <span>{t.admin.tmGenPattern}</span>
             </button>
           </div>
         ) : (
@@ -729,7 +731,7 @@ export function TimetableMatrixGrid({
           >
             <table
               role="grid"
-              aria-label="Stop-by-Trip Timetable Matrix"
+              aria-label={t.admin.tmMatrixTitle}
               className="w-full text-left border-collapse select-none"
             >
               <thead>
@@ -770,7 +772,7 @@ export function TimetableMatrixGrid({
                                 type="button"
                                 onClick={() => onEditRun(run)}
                                 className="text-slate-400 hover:text-cyan-300 transition p-0.5 rounded hover:bg-cyan-950/50"
-                                title="Edit Run Metadata (Trip Code, Operator, Gate/Bay, Class, Notes)"
+                                title={t.admin.tmEditMeta}
                               >
                                 <Edit2 className="w-3 h-3" />
                               </button>
@@ -779,7 +781,7 @@ export function TimetableMatrixGrid({
                               type="button"
                               onClick={() => handleOpenDivergenceModal(run)}
                               className="text-slate-400 hover:text-indigo-300 transition p-0.5 rounded hover:bg-indigo-950/50"
-                              title="Rekayasa Pola Operasi / Dinas Stabling Dipo"
+                              title={t.admin.tmDivertStabling}
                             >
                               <GitBranch className="w-3 h-3" />
                             </button>
@@ -787,7 +789,7 @@ export function TimetableMatrixGrid({
                               type="button"
                               onClick={() => onDeleteRun(run.id)}
                               className="text-slate-500 hover:text-rose-400 transition p-0.5 rounded hover:bg-rose-950/50"
-                              title="Delete Trip"
+                              title={t.admin.tmDeleteTrip}
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -798,12 +800,12 @@ export function TimetableMatrixGrid({
                         {run.tripType === "NIGHT_DEPOT_STABLING" ? (
                           <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-950/90 border border-indigo-500/50 text-indigo-300">
                             <Moon className="w-2.5 h-2.5 text-indigo-400" />
-                            <span>Masuk Dipo</span>
+                            <span>{t.admin.tmDepotEntry}</span>
                           </div>
                         ) : run.tripType === "SHORT_TURN" ? (
                           <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950/90 border border-amber-500/50 text-amber-300">
                             <ArrowRight className="w-2.5 h-2.5 text-amber-400" />
-                            <span>Relasi Pendek</span>
+                            <span>{t.admin.tmShortTurn}</span>
                           </div>
                         ) : run.tripType === "ROUTE_DIVERGENCE" ? (
                           <div
@@ -822,7 +824,7 @@ export function TimetableMatrixGrid({
                         ) : run.tripType === "SPECIAL_KLB" ? (
                           <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-950/90 border border-yellow-500/50 text-yellow-300">
                             <Sparkles className="w-2.5 h-2.5 text-yellow-400" />
-                            <span>KLB Luar Biasa</span>
+                            <span>{t.admin.tmKlb}</span>
                           </div>
                         ) : null}
 
@@ -840,7 +842,7 @@ export function TimetableMatrixGrid({
                             type="button"
                             onClick={() => handleShiftWithUndo(run, -5)}
                             className="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-mono text-slate-300 border border-white/5 transition"
-                            title="Shift entire trip -5 minutes earlier"
+                            title={t.admin.tmShiftMinus}
                           >
                             -5m
                           </button>
@@ -848,7 +850,7 @@ export function TimetableMatrixGrid({
                             type="button"
                             onClick={() => handleShiftWithUndo(run, 5)}
                             className="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] font-mono text-slate-300 border border-white/5 transition"
-                            title="Shift entire trip +5 minutes later"
+                            title={t.admin.tmShiftPlus}
                           >
                             +5m
                           </button>
@@ -1023,7 +1025,7 @@ export function TimetableMatrixGrid({
                                 />
                                 <div
                                   role="dialog"
-                                  aria-label="Edit Stop Time"
+                                  aria-label={t.admin.tmEditCell}
                                   onClick={(e) => e.stopPropagation()}
                                   onKeyDown={(e) => {
                                     if (e.key === "Escape") {
@@ -1062,7 +1064,7 @@ export function TimetableMatrixGrid({
                                       type="button"
                                       onClick={() => setEditingCell(null)}
                                       className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-900"
-                                      aria-label="Tutup editor sel"
+                                      aria-label={t.admin.tmCloseCell}
                                     >
                                       <X className="w-3.5 h-3.5" />
                                     </button>
@@ -1094,7 +1096,7 @@ export function TimetableMatrixGrid({
                                     className="w-full py-1.5 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1.5 bg-indigo-950/60 border border-indigo-500/40 text-indigo-300 hover:bg-indigo-900/60"
                                   >
                                     <GitBranch className="w-3 h-3" />
-                                    <span>Hentikan / Masuk Dipo di Sini</span>
+                                    <span>{t.admin.tmStopHere}</span>
                                   </button>
 
                                   {!editingCell.isBypass && (
@@ -1156,7 +1158,7 @@ export function TimetableMatrixGrid({
                                         <input
                                           type="text"
                                           value={editingCell.peronOrTrack}
-                                          placeholder="Contoh: Peron 1 / Jalur 2"
+                                          placeholder={t.admin.tmPeronExample}
                                           onChange={(e) =>
                                             setEditingCell((prev) =>
                                               prev
@@ -1190,7 +1192,7 @@ export function TimetableMatrixGrid({
                                       }
                                       className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-900 text-teal-500 focus:ring-teal-500"
                                     />
-                                    <span>Geser stasiun downstream</span>
+                                    <span>{t.admin.tmShiftDown}</span>
                                   </label>
 
                                   {cellError && (
@@ -1278,7 +1280,7 @@ export function TimetableMatrixGrid({
                 </div>
                 <div>
                   <h3 id="divergence-dialog-title" className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>Rekayasa Operasi & Stabling</span>
+                    <span>{t.admin.tmRekayasaOps}</span>
                     <span className="font-mono text-teal-400 text-xs">
                       ({configuringRun.tripCode})
                     </span>
@@ -1305,15 +1307,15 @@ export function TimetableMatrixGrid({
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: "REGULAR", label: "Reguler (Full Line)", icon: Clock },
-                    { id: "NIGHT_DEPOT_STABLING", label: "Masuk Dipo (Night Stabling)", icon: Moon },
-                    { id: "SHORT_TURN", label: "Relasi Pendek (Short Turn)", icon: ArrowRight },
+                    { id: "REGULAR", label: t.admin.tmTypeRegular, icon: Clock },
+                    { id: "NIGHT_DEPOT_STABLING", label: t.admin.tmTypeDepot, icon: Moon },
+                    { id: "SHORT_TURN", label: t.admin.tmTypeShort, icon: ArrowRight },
                     {
                       id: "ROUTE_DIVERGENCE",
-                      label: "Rekayasa Operasi (Divergence)",
+                      label: t.admin.tmTypeDivert,
                       icon: AlertTriangle,
                     },
-                    { id: "SPECIAL_KLB", label: "Kereta Luar Biasa (KLB)", icon: Sparkles },
+                    { id: "SPECIAL_KLB", label: t.admin.tmTypeKlb, icon: Sparkles },
                   ].map((item) => {
                     const Icon = item.icon;
                     const isSel = divergenceType === item.id;
@@ -1344,22 +1346,22 @@ export function TimetableMatrixGrid({
               {divergenceType !== "REGULAR" && (
                 <div className="space-y-1">
                   <label className="block text-slate-400 font-semibold">
-                    Alasan Rekayasa / Divergensi
+                    {t.admin.tmReasonLabel}
                   </label>
                   <select
                     value={divergenceReason}
                     onChange={(e) => setDivergenceReason(e.target.value as DivergenceReason)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-indigo-400"
                   >
-                    <option value="NONE">Tanpa Alasan Spesifik</option>
-                    <option value="DEPOT_PULL_IN">Dinas Masuk Dipo / Stabling Malam</option>
+                    <option value="NONE">{t.admin.tmNoReason}</option>
+                    <option value="DEPOT_PULL_IN">{t.admin.tmDepotNight}</option>
                     <option value="INCIDENT_DISRUPTION">
-                      Rekayasa Imbas Kendala Prasarana / Insiden
+                      {t.admin.tmReasonIncident}
                     </option>
                     <option value="NOCTURNAL_MAINTENANCE">
-                      Pengalihan Jalur - Perawatan Rel Malam
+                      {t.admin.tmReasonNocturnal}
                     </option>
-                    <option value="EVENT_DETOUR">Pengalihan Jalur - Acara / Car Free Day</option>
+                    <option value="EVENT_DETOUR">{t.admin.tmDivertCfd}</option>
                   </select>
                 </div>
               )}
@@ -1397,7 +1399,7 @@ export function TimetableMatrixGrid({
                   value={divergenceDesc}
                   onChange={(e) => setDivergenceDesc(e.target.value)}
                   rows={2}
-                  placeholder="e.g. Kereta Berakhir di Stasiun Depok untuk Masuk Dipo. Tidak melayani Cilebut & Bogor."
+                  placeholder={t.admin.tmNoteExample}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-indigo-400"
                 />
               </div>
@@ -1417,7 +1419,7 @@ export function TimetableMatrixGrid({
                 className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-indigo-600/30"
               >
                 <Check className="w-3.5 h-3.5" />
-                <span>Terapkan Rekayasa</span>
+                <span>{t.admin.tmApplyDivert}</span>
               </button>
             </div>
           </div>
