@@ -48,6 +48,7 @@ import { shiftRunSchedule, determineRunDirection } from "@/lib/simulation/timeta
 
 interface QuickTemplate {
   label: string;
+  noteKey: "ttPresetWhooshNotes" | "ttPresetGarudaNotes" | "ttPresetArgoNotes" | "ttPresetShuttleNotes" | "ttPresetAmariNotes";
   category: TransitCategory;
   lineId: string;
   tripCodePrefix: string;
@@ -64,6 +65,7 @@ interface QuickTemplate {
 
 const QUICK_TEMPLATES: QuickTemplate[] = [
   {
+    noteKey: "ttPresetWhooshNotes",
     label: "Whoosh High-Speed Rail (Halim - Tegalluar)",
     category: "RAIL",
     lineId: "line-whoosh-hsr",
@@ -78,6 +80,7 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     notes: "Direct Express 350 km/h with high-speed onboard dining. Boarding closes 5 mins prior.",
   },
   {
+    noteKey: "ttPresetGarudaNotes",
     label: "Garuda Indonesia Flight (CGK - DPS)",
     category: "AVIATION",
     lineId: "line-airport-cgk",
@@ -93,6 +96,7 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     notes: "Complimentary hot meal, in-flight audio-video on demand, and 20kg baggage included.",
   },
   {
+    noteKey: "ttPresetArgoNotes",
     label: "KAI Intercity Express (Gambir - Surabaya)",
     category: "RAIL",
     lineId: "line-kai-intercity",
@@ -107,6 +111,7 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     notes: "Argo Bromo Anggrek. Panoramic window coaches with hot dining car.",
   },
   {
+    noteKey: "ttPresetShuttleNotes",
     label: "Executive Road Shuttle (fX Sudirman - Bandung)",
     category: "BUS",
     lineId: "line-shuttle-daytrans",
@@ -121,6 +126,7 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
     notes: "Direct via Tol Layang MBZ & Cipularang. Maximum luggage allowance 20kg.",
   },
   {
+    noteKey: "ttPresetAmariNotes",
     label: "TransJakarta AMARI 24H (Blok M - Kota)",
     category: "BUS",
     lineId: "line-tj-cor-1",
@@ -136,14 +142,14 @@ const QUICK_TEMPLATES: QuickTemplate[] = [
   },
 ];
 
-const DAYS_OF_WEEK = [
-  { day: 1, label: "Mon", shortLabel: "M" },
-  { day: 2, label: "Tue", shortLabel: "T" },
-  { day: 3, label: "Wed", shortLabel: "W" },
-  { day: 4, label: "Thu", shortLabel: "T" },
-  { day: 5, label: "Fri", shortLabel: "F" },
-  { day: 6, label: "Sat", shortLabel: "S" },
-  { day: 0, label: "Sun", shortLabel: "S" },
+const DAYS_OF_WEEK: { day: number; longKey: "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday"; shortKey: "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat" }[] = [
+  { day: 1, longKey: "monday", shortKey: "mon" },
+  { day: 2, longKey: "tuesday", shortKey: "tue" },
+  { day: 3, longKey: "wednesday", shortKey: "wed" },
+  { day: 4, longKey: "thursday", shortKey: "thu" },
+  { day: 5, longKey: "friday", shortKey: "fri" },
+  { day: 6, longKey: "saturday", shortKey: "sat" },
+  { day: 0, longKey: "sunday", shortKey: "sun" },
 ];
 
 function TimetableStudioContent() {
@@ -205,10 +211,10 @@ function TimetableStudioContent() {
       if (json.success && Array.isArray(json.data)) {
         setTimetableRuns(json.data);
       } else {
-        setError(json.error || "Failed to load timetable runs");
+        setError(json.error || t.admin.ttErrLoad);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      setError(err instanceof Error ? err.message : t.admin.ttErrNetwork);
     } finally {
       setLoading(false);
     }
@@ -231,7 +237,7 @@ function TimetableStudioContent() {
     setFormServiceClass(tpl.serviceClass);
     setFormGateOrBay(tpl.gateOrBay);
     setFormBaggageBelt(tpl.baggageBelt || "");
-    setFormNotes(tpl.notes);
+    setFormNotes(t.admin[tpl.noteKey]);
     setFormDaysOfWeek([1, 2, 3, 4, 5, 6, 0]);
     setFormError(null);
   };
@@ -288,20 +294,20 @@ function TimetableStudioContent() {
     setFormError(null);
 
     if (!formTripCode.trim()) {
-      setFormError("Trip Code is required (e.g. G1012, GA-404, M-101).");
+      setFormError(t.admin.ttErrTripRequired);
       return;
     }
     if (!formOrigin.trim() || !formDestination.trim()) {
-      setFormError("Origin and Destination are required.");
+      setFormError(t.admin.ttErrOdRequired);
       return;
     }
     if (!formOperatorName.trim()) {
-      setFormError("Operator Name is required.");
+      setFormError(t.admin.ttErrOperatorRequired);
       return;
     }
     const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
     if (!timeRegex.test(formDepartureTime) || !timeRegex.test(formArrivalTime)) {
-      setFormError("Departure and Arrival times must be in valid HH:mm format (e.g. 08:30).");
+      setFormError(t.admin.ttErrTimeFormat);
       return;
     }
 
@@ -336,7 +342,7 @@ function TimetableStudioContent() {
           );
           setIsModalOpen(false);
         } else {
-          setFormError(json.error || "Failed to update timetable run");
+          setFormError(json.error || t.admin.ttErrUpdate);
         }
       } else {
         // POST create
@@ -350,11 +356,11 @@ function TimetableStudioContent() {
           setTimetableRuns((prev) => [json.data, ...prev]);
           setIsModalOpen(false);
         } else {
-          setFormError(json.error || "Failed to create timetable run");
+          setFormError(json.error || t.admin.ttErrCreate);
         }
       }
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Submission failed");
+      setFormError(err instanceof Error ? err.message : t.admin.ttErrCreate);
     } finally {
       setIsSubmitting(false);
     }
@@ -390,7 +396,7 @@ function TimetableStudioContent() {
     const run = timetableRuns.find((r) => r.id === runId);
     if (!run) return;
 
-    if (!window.confirm(`Are you sure you want to remove scheduled run ${run.tripCode} (${run.origin} -> ${run.destination})?`)) {
+    if (!window.confirm(t.admin.ttConfirmRemove.replace("{code}", run.tripCode).replace("{from}", run.origin).replace("{to}", run.destination))) {
       return;
     }
 
@@ -535,7 +541,7 @@ function TimetableStudioContent() {
             </span>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl">
-            Author, inspect, and synchronize multi-modal scheduled runs with real-time stop dwell matrix and Pola Operasi generator.
+            {t.admin.ttSubtitle}
           </p>
         </div>
 
@@ -552,7 +558,7 @@ function TimetableStudioContent() {
               }`}
             >
               <Table2 className="w-3.5 h-3.5" />
-              <span>Stop-by-Trip Matrix</span>
+              <span>{t.admin.ttStopMatrix}</span>
             </button>
             <button
               type="button"
@@ -564,7 +570,7 @@ function TimetableStudioContent() {
               }`}
             >
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>Grafik Stringline</span>
+              <span>{t.admin.ttStringline}</span>
             </button>
             <button
               type="button"
@@ -576,7 +582,7 @@ function TimetableStudioContent() {
               }`}
             >
               <LayoutList className="w-3.5 h-3.5" />
-              <span>Master List</span>
+              <span>{t.admin.ttMasterList}</span>
             </button>
           </div>
 
@@ -584,10 +590,10 @@ function TimetableStudioContent() {
             type="button"
             onClick={fetchTimetables}
             className="px-3 py-2 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition btn-tactile"
-            title="Refresh timetable data"
+            title={t.admin.ttRefreshTitle}
           >
             <RotateCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-teal-400" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t.admin.ttRefresh}</span>
           </button>
         </div>
       </div>
@@ -598,7 +604,7 @@ function TimetableStudioContent() {
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-teal-400" />
             <span>
-              Removed scheduled run <strong className="text-white">{lastDeletedRun.tripCode}</strong> ({lastDeletedRun.origin} &rarr; {lastDeletedRun.destination}).
+              {t.admin.ttUndoBanner.replace("{n}", lastDeletedRun.tripCode)} ({lastDeletedRun.origin} &rarr; {lastDeletedRun.destination}).
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -606,9 +612,7 @@ function TimetableStudioContent() {
               type="button"
               onClick={handleUndoDelete}
               className="px-3 py-1 rounded-lg bg-teal-500 text-teal-950 font-bold text-xs hover:bg-teal-400 transition"
-            >
-              Undo
-            </button>
+            >{t.admin.ttUndo}</button>
             <button
               type="button"
               onClick={() => setLastDeletedRun(null)}
@@ -625,7 +629,7 @@ function TimetableStudioContent() {
         {/* Total Runs (Primary Bento Anchor) */}
         <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900/95 to-slate-950/90 border border-teal-500/30 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-teal-400 font-mono tracking-wider">Total Runs</span>
+            <span className="text-[11px] uppercase font-bold text-teal-400 font-mono tracking-wider">{t.admin.ttKpiRuns}</span>
             <div className="p-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/20">
               <Clock className="w-3.5 h-3.5" />
             </div>
@@ -633,13 +637,13 @@ function TimetableStudioContent() {
           <div className="text-2xl sm:text-3xl font-bold font-mono text-white tabular-nums tracking-tight">
             {timetableRuns.length}
           </div>
-          <div className="text-[10px] text-slate-400 text-pretty">Scheduled trips across all modes</div>
+          <div className="text-[10px] text-slate-400 text-pretty">{t.admin.ttKpiRunsDesc}</div>
         </div>
 
         {/* Unique Operators */}
         <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Operators & Airlines</span>
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">{t.admin.ttKpiOperators}</span>
             <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               <Building2 className="w-3.5 h-3.5" />
             </div>
@@ -647,13 +651,13 @@ function TimetableStudioContent() {
           <div className="text-2xl font-bold font-mono text-cyan-300 tabular-nums">
             {uniqueOperatorsCount}
           </div>
-          <div className="text-[10px] text-slate-400 text-pretty">Active transit entities</div>
+          <div className="text-[10px] text-slate-400 text-pretty">{t.admin.ttKpiOperatorsDesc}</div>
         </div>
 
         {/* Gate & Peron Coverage */}
         <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Assigned Gates/Bays</span>
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">{t.admin.ttKpiGates}</span>
             <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <DoorOpen className="w-3.5 h-3.5" />
             </div>
@@ -661,13 +665,13 @@ function TimetableStudioContent() {
           <div className="text-2xl font-bold font-mono text-cyan-400 tabular-nums">
             {assignedGatesCount}
           </div>
-          <div className="text-[10px] text-slate-400 text-pretty">Direct platform assignments</div>
+          <div className="text-[10px] text-slate-400 text-pretty">{t.admin.ttKpiGatesDesc}</div>
         </div>
 
         {/* Line Network Coverage */}
         <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg space-y-1 hover-glass-glow transition">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">Lines Covered</span>
+            <span className="text-[11px] uppercase font-bold text-slate-400 font-mono tracking-wider">{t.admin.ttKpiLines}</span>
             <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <Layers className="w-3.5 h-3.5" />
             </div>
@@ -675,7 +679,7 @@ function TimetableStudioContent() {
           <div className="text-2xl font-bold font-mono text-emerald-300 tabular-nums">
             {uniqueLinesCovered} <span className="text-xs text-slate-500 font-normal">of {allLines.length}</span>
           </div>
-          <div className="text-[10px] text-slate-400 text-pretty">Multi-modal network coverage</div>
+          <div className="text-[10px] text-slate-400 text-pretty">{t.admin.ttKpiLinesDesc}</div>
         </div>
       </div>
 
@@ -703,9 +707,9 @@ function TimetableStudioContent() {
 
             <div className="text-xs text-slate-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Headway: <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} min</strong></span>
+              <span>{t.admin.ttHeadway} <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} {t.map.minuteShort}</strong></span>
               <span>&bull;</span>
-              <span>Span: <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
+              <span>{t.admin.ttSpan} <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
             </div>
           </div>
 
@@ -750,9 +754,9 @@ function TimetableStudioContent() {
             <div className="flex items-center gap-2.5 flex-wrap">
               <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 pr-2 border-r border-white/10">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Headway: <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} min</strong></span>
+                <span>{t.admin.ttHeadway} <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} {t.map.minuteShort}</strong></span>
                 <span>&bull;</span>
-                <span>Span: <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
+                <span>{t.admin.ttSpan} <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
               </div>
 
               <button
@@ -761,7 +765,7 @@ function TimetableStudioContent() {
                 className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:bg-teal-500/20 text-xs font-semibold flex items-center gap-1.5 transition btn-tactile"
               >
                 <Wand2 className="w-3.5 h-3.5" />
-                <span>Pola Operasi Batch</span>
+                <span>{t.admin.ttBatchPattern}</span>
               </button>
               <button
                 type="button"
@@ -769,7 +773,7 @@ function TimetableStudioContent() {
                 className="px-3 py-1.5 rounded-xl bg-teal-500 text-teal-950 hover:bg-teal-400 text-xs font-bold flex items-center gap-1.5 transition btn-tactile"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Tambah Perjalanan</span>
+                <span>{t.admin.ttAddTrip}</span>
               </button>
             </div>
           </div>
@@ -800,20 +804,20 @@ function TimetableStudioContent() {
                   data-hotkey-search="true"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter by Trip Code (G1012), Operator, Origin, Gate, Service Class, or Notes..."
+                  placeholder={t.admin.ttFilterPh}
                   className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 transition"
                 />
               </div>
 
               {/* Line Filter */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-slate-400 font-medium">Line:</span>
+                <span className="text-xs text-slate-400 font-medium">{t.admin.ttLineLabel}</span>
                 <select
                   value={selectedLineId}
                   onChange={(e) => setSelectedLineId(e.target.value)}
                   className="px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-teal-500 transition max-w-[200px] truncate"
                 >
-                  <option value="ALL">All Network Lines</option>
+                  <option value="ALL">{t.admin.ttAllLines}</option>
                   {allLines.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.code} - {l.name}
@@ -824,15 +828,15 @@ function TimetableStudioContent() {
 
               {/* Direction Filter */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-slate-400 font-medium">Direction:</span>
+                <span className="text-xs text-slate-400 font-medium">{t.admin.ttDirection}</span>
                 <select
                   value={selectedDirection}
                   onChange={(e) => setSelectedDirection(e.target.value as "ALL" | "OUTBOUND" | "INBOUND")}
                   className="px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-teal-500 transition"
                 >
-                  <option value="ALL">Semua Arah</option>
-                  <option value="OUTBOUND">Arah Hilir (Outbound)</option>
-                  <option value="INBOUND">Arah Mudik (Inbound)</option>
+                  <option value="ALL">{t.admin.ttDirAll}</option>
+                  <option value="OUTBOUND">{t.admin.ttDirOut}</option>
+                  <option value="INBOUND">{t.admin.ttDirIn}</option>
                 </select>
               </div>
             </div>
@@ -868,7 +872,7 @@ function TimetableStudioContent() {
           <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/40">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white">Scheduled Timetable Registry</h2>
+                <h2 className="text-sm font-bold text-white">{t.admin.ttRegistry}</h2>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300">
                   {filteredRuns.length} Runs
                 </span>
@@ -880,7 +884,7 @@ function TimetableStudioContent() {
                   className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 text-xs font-semibold flex items-center gap-1.5 transition"
                 >
                   <Wand2 className="w-3 h-3" />
-                  <span>Batch Generator</span>
+                  <span>{t.admin.ttBatchGen}</span>
                 </button>
                 <button
                   type="button"
@@ -888,7 +892,7 @@ function TimetableStudioContent() {
                   className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-teal-950 text-xs font-bold flex items-center gap-1.5 transition"
                 >
                   <Plus className="w-3 h-3" />
-                  <span>Add Run</span>
+                  <span>{t.admin.ttAddRun}</span>
                 </button>
               </div>
             </div>
@@ -896,7 +900,7 @@ function TimetableStudioContent() {
             {loading ? (
               <div className="p-12 text-center text-slate-400 text-xs">
                 <Clock className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-400" />
-                <span>Loading scheduled timetable runs...</span>
+                <span>{t.admin.ttLoading}</span>
               </div>
             ) : filteredRuns.length === 0 ? (
               <div className="p-12 text-center space-y-3">
@@ -904,7 +908,7 @@ function TimetableStudioContent() {
                   <Calendar className="w-6 h-6" />
                 </div>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  No scheduled runs found matching your search or filters. Click &quot;Add Scheduled Run&quot; to author a new timetable trip.
+                  {t.admin.ttEmpty}
                 </p>
                 <button
                   type="button"
@@ -912,7 +916,7 @@ function TimetableStudioContent() {
                   className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs inline-flex items-center gap-2 shadow transition"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Create New Run</span>
+                  <span>{t.admin.ttCreateNew}</span>
                 </button>
               </div>
             ) : (
@@ -947,7 +951,7 @@ function TimetableStudioContent() {
                                 : "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
                             }`}
                           >
-                            {runDirection === "OUTBOUND" ? "Arah Hilir" : "Arah Mudik"}
+                            {runDirection === "OUTBOUND" ? t.admin.ttDirOut : t.admin.ttDirIn}
                           </span>
                           <span className="text-xs font-semibold text-slate-300">
                             {run.operatorName}
@@ -988,7 +992,7 @@ function TimetableStudioContent() {
                       <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-xs">
                         {/* Schedule */}
                         <div className="space-y-0.5">
-                          <div className="text-[10px] uppercase font-mono text-slate-400">Schedule</div>
+                          <div className="text-[10px] uppercase font-mono text-slate-400">{t.admin.ttScheduleTab}</div>
                           <div className="font-mono font-bold text-white text-sm flex items-center gap-1.5">
                             <span className="text-emerald-400">{run.departureTime}</span>
                             <span className="text-slate-600">&rarr;</span>
@@ -999,7 +1003,7 @@ function TimetableStudioContent() {
                         {/* Gate / Bay / Peron */}
                         {run.gateOrBay && (
                           <div className="space-y-0.5">
-                            <div className="text-[10px] uppercase font-mono text-slate-400">Boarding</div>
+                            <div className="text-[10px] uppercase font-mono text-slate-400">{t.admin.ttBoardingTab}</div>
                             <div className="font-mono text-xs font-semibold text-amber-300 flex items-center gap-1">
                               <DoorOpen className="w-3.5 h-3.5 text-amber-400" />
                               <span>{run.gateOrBay}</span>
@@ -1010,7 +1014,7 @@ function TimetableStudioContent() {
                         {/* Baggage Belt */}
                         {run.baggageBelt && (
                           <div className="space-y-0.5 hidden sm:block">
-                            <div className="text-[10px] uppercase font-mono text-slate-400">Baggage</div>
+                            <div className="text-[10px] uppercase font-mono text-slate-400">{t.admin.ttBaggageTab}</div>
                             <div className="font-mono text-xs font-semibold text-indigo-300 flex items-center gap-1">
                               <Luggage className="w-3.5 h-3.5 text-indigo-400" />
                               <span>{run.baggageBelt}</span>
@@ -1020,7 +1024,7 @@ function TimetableStudioContent() {
 
                         {/* Days of Week */}
                         <div className="space-y-0.5 hidden md:block">
-                          <div className="text-[10px] uppercase font-mono text-slate-400">Days</div>
+                          <div className="text-[10px] uppercase font-mono text-slate-400">{t.admin.ttDaysTab}</div>
                           <div className="flex items-center gap-1">
                             {DAYS_OF_WEEK.map((d) => {
                               const isActive = run.daysOfWeek?.includes(d.day) ?? true;
@@ -1033,7 +1037,7 @@ function TimetableStudioContent() {
                                       : "bg-slate-950 text-slate-600 border border-white/5"
                                   }`}
                                 >
-                                  {d.shortLabel}
+                                  {t.weekdayShort[d.shortKey]}
                                 </span>
                               );
                             })}
@@ -1047,7 +1051,7 @@ function TimetableStudioContent() {
                           type="button"
                           onClick={() => handleOpenEditModal(run)}
                           className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white transition btn-tactile"
-                          title="Edit Scheduled Run"
+                          title={t.admin.ttEditRunTitle}
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
@@ -1055,7 +1059,7 @@ function TimetableStudioContent() {
                           type="button"
                           onClick={() => handleDeleteRun(run.id)}
                           className="p-2 rounded-xl bg-slate-950/80 border border-white/10 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 hover:border-rose-500/40 transition btn-tactile"
-                          title="Delete Scheduled Run"
+                          title={t.admin.ttDeleteRunTitle}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1088,7 +1092,7 @@ function TimetableStudioContent() {
                   <Clock className="w-4 h-4" />
                 </div>
                 <h3 id="timetable-modal-title" className="text-sm font-bold text-white">
-                  {editingRunId ? "Edit Scheduled Run" : "Add Scheduled Transit Run"}
+                  {editingRunId ? t.admin.ttModalEditTitle : t.admin.ttModalAddTitle}
                 </h3>
               </div>
               <button
@@ -1107,7 +1111,7 @@ function TimetableStudioContent() {
                 <div className="p-3.5 rounded-xl bg-slate-950/60 border border-teal-500/20 space-y-2">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-teal-300">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Quick Fill from Authentic Preset:</span>
+                    <span>{t.admin.ttQuickFill}</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {QUICK_TEMPLATES.map((tpl) => (
@@ -1135,7 +1139,7 @@ function TimetableStudioContent() {
                 {/* Line & Operator */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Transit Line *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttTransitLine}</label>
                     <select
                       value={formLineId}
                       onChange={(e) => setFormLineId(e.target.value)}
@@ -1151,12 +1155,12 @@ function TimetableStudioContent() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Operator / Carrier Name *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttOperatorName}</label>
                     <input
                       type="text"
                       value={formOperatorName}
                       onChange={(e) => setFormOperatorName(e.target.value)}
-                      placeholder="e.g. KCIC, Garuda Indonesia, KAI"
+                      placeholder={t.admin.ttOperatorPh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                       required
                     />
@@ -1166,24 +1170,24 @@ function TimetableStudioContent() {
                 {/* Trip Code & Service Class */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Trip / Flight Code *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttTripCode}</label>
                     <input
                       type="text"
                       value={formTripCode}
                       onChange={(e) => setFormTripCode(e.target.value)}
-                      placeholder="e.g. G1012, GA-404, KA-01, M-101"
+                      placeholder={t.admin.ttTripCodePh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 font-mono uppercase focus:outline-none focus:border-teal-500"
                       required
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Service Class</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttServiceClass}</label>
                     <input
                       type="text"
                       value={formServiceClass}
                       onChange={(e) => setFormServiceClass(e.target.value)}
-                      placeholder="e.g. First Class & Premium Economy"
+                      placeholder={t.admin.ttServiceClassPh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                     />
                   </div>
@@ -1192,24 +1196,24 @@ function TimetableStudioContent() {
                 {/* Origin & Destination */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Origin Station / Terminal *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttOrigin}</label>
                     <input
                       type="text"
                       value={formOrigin}
                       onChange={(e) => setFormOrigin(e.target.value)}
-                      placeholder="e.g. Stasiun Halim HSR"
+                      placeholder={t.admin.ttOriginPh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                       required
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Destination Terminus *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttDestination}</label>
                     <input
                       type="text"
                       value={formDestination}
                       onChange={(e) => setFormDestination(e.target.value)}
-                      placeholder="e.g. Stasiun Tegalluar Summarecon"
+                      placeholder={t.admin.ttDestPh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                       required
                     />
@@ -1219,7 +1223,7 @@ function TimetableStudioContent() {
                 {/* Timing (Departure & Arrival) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Departure Time (HH:mm) *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttDepTime}</label>
                     <input
                       type="text"
                       value={formDepartureTime}
@@ -1232,7 +1236,7 @@ function TimetableStudioContent() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Arrival Time (HH:mm) *</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttArrTime}</label>
                     <input
                       type="text"
                       value={formArrivalTime}
@@ -1248,23 +1252,23 @@ function TimetableStudioContent() {
                 {/* Platform / Gate / Bay & Baggage Belt */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Gate / Bay / Peron</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttGateBay}</label>
                     <input
                       type="text"
                       value={formGateOrBay}
                       onChange={(e) => setFormGateOrBay(e.target.value)}
-                      placeholder="e.g. Gate 1, Peron 2 Jalur 3, Bay 3"
+                      placeholder={t.admin.ttGatePh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-slate-400 font-medium">Baggage Belt (Optional)</label>
+                    <label className="block text-slate-400 font-medium">{t.admin.ttBeltOpt}</label>
                     <input
                       type="text"
                       value={formBaggageBelt}
                       onChange={(e) => setFormBaggageBelt(e.target.value)}
-                      placeholder="e.g. Belt 4"
+                      placeholder={t.admin.ttBeltPh}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
                     />
                   </div>
@@ -1272,7 +1276,7 @@ function TimetableStudioContent() {
 
                 {/* Days of Operation */}
                 <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-medium">Operational Days</label>
+                  <label className="block text-slate-400 font-medium">{t.admin.ttOpDays}</label>
                   <div className="flex items-center gap-2 flex-wrap">
                     {DAYS_OF_WEEK.map((d) => {
                       const isChecked = formDaysOfWeek.includes(d.day);
@@ -1287,7 +1291,7 @@ function TimetableStudioContent() {
                               : "bg-slate-950 text-slate-400 border border-white/10 hover:bg-slate-900"
                           }`}
                         >
-                          {d.label}
+                          {t.weekdays[d.longKey]}
                         </button>
                       );
                     })}
@@ -1296,12 +1300,12 @@ function TimetableStudioContent() {
 
                 {/* Operational Advisory Notes */}
                 <div className="space-y-1">
-                  <label className="block text-slate-400 font-medium">Operational Advisory Notes</label>
+                  <label className="block text-slate-400 font-medium">{t.admin.ttNotes}</label>
                   <textarea
                     rows={2}
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    placeholder="e.g. Boarding gate closes 5 minutes prior to departure. Free onboard Wi-Fi."
+                    placeholder={t.admin.ttNotesPh}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500 resize-none"
                   />
                 </div>
@@ -1323,7 +1327,7 @@ function TimetableStudioContent() {
                 disabled={isSubmitting}
                 className="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-teal-950 font-bold text-xs shadow-lg shadow-teal-500/20 transition btn-tactile"
               >
-                {isSubmitting ? "Saving..." : editingRunId ? "Update Scheduled Run" : "Create Scheduled Run"}
+                {isSubmitting ? t.admin.ttSaving : editingRunId ? t.admin.ttUpdateRun : t.admin.ttCreateRun}
               </button>
             </div>
           </div>

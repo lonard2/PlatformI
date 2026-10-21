@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Line, Stop, TimetableRun } from "@/types/transit";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
+import { useTranslation } from "@/lib/i18n";
 import { generateBatchTimetableRuns } from "@/lib/simulation/timetableMatrix";
 
 interface BatchScheduleModalProps {
@@ -46,6 +47,7 @@ export function BatchScheduleModal({
   existingRuns,
   onRunsGenerated,
 }: BatchScheduleModalProps) {
+  const { t } = useTranslation();
   const defaultLine = initialLineId || lines[0]?.id || "line-mrt-ns";
 
   const [selectedLineId, setSelectedLineId] = useState<string>(defaultLine);
@@ -58,7 +60,7 @@ export function BatchScheduleModal({
   const [startRunNumber, setStartRunNumber] = useState<number>(101);
   const [operatorName, setOperatorName] = useState<string>("PT MRT Jakarta");
   const [serviceClass, setServiceClass] = useState<string>("Standard Metro Commuter");
-  const [notes, setNotes] = useState<string>("Jam Sibuk Pagi - Regular Headway");
+  const [notes, setNotes] = useState<string>(t.admin.tbDefaultNotes);
   const [replaceExisting, setReplaceExisting] = useState<boolean>(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState<boolean>(false);
   const [includeLateNightStabling, setIncludeLateNightStabling] = useState<boolean>(false);
@@ -145,20 +147,20 @@ export function BatchScheduleModal({
 
     const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
     if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
-      setErrorMessage("Start and End times must match valid HH:mm format (e.g. 06:00).");
+      setErrorMessage(t.admin.tbErrTimeFormat);
       return;
     }
 
     if (lineStops.length < 2) {
       setErrorMessage(
-        `Selected line (${selectedLine?.name}) requires at least 2 stops for full matrix timetable generation. Please add stops in Network Studio first.`
+        t.admin.tbErrNeedStops.replace("{name}", selectedLine?.name ?? "")
       );
       return;
     }
 
     if (replaceExisting && existingLineRunsCount > 0 && !confirmOverwrite) {
       setErrorMessage(
-        `Harap centang konfirmasi penimpaan jadwal lama (${existingLineRunsCount} perjalanan pada koridor ini).`
+        t.admin.tbErrOverwrite.replace("{n}", String(existingLineRunsCount))
       );
       return;
     }
@@ -189,7 +191,7 @@ export function BatchScheduleModal({
       });
 
       if (generatedRuns.length === 0) {
-        setErrorMessage("No runs could be generated with the given time window and headway.");
+        setErrorMessage(t.admin.tbErrNoRuns);
         return;
       }
 
@@ -212,10 +214,10 @@ export function BatchScheduleModal({
         onRunsGenerated(json.data);
         onClose();
       } else {
-        setErrorMessage(json.error || "Failed to persist batch generated timetable runs.");
+        setErrorMessage(json.error || t.admin.tbErrPersist);
       }
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Batch generation failed");
+      setErrorMessage(err instanceof Error ? err.message : t.admin.tbErrFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -242,10 +244,10 @@ export function BatchScheduleModal({
             </div>
             <div>
               <h3 id="batch-generator-title" className="text-sm font-bold text-white">
-                Batch Pola Operasi Generator
+                {t.admin.tbTitle}
               </h3>
               <p className="text-[11px] text-slate-400">
-                Generate high-frequency scheduled runs across operational timebands.
+                {t.admin.tbSubtitle}
               </p>
             </div>
           </div>
@@ -270,7 +272,7 @@ export function BatchScheduleModal({
           <form id="batch-generator-form" onSubmit={handleGenerate} className="space-y-4">
             {/* 1. Line Selector */}
             <div className="space-y-1">
-              <label className="block text-slate-400 font-medium">Target Transit Line *</label>
+              <label className="block text-slate-400 font-medium">{t.admin.tbTargetLine}</label>
               <select
                 value={selectedLineId}
                 onChange={(e) => handleLineChange(e.target.value)}
@@ -291,7 +293,7 @@ export function BatchScheduleModal({
             {/* 2. Operational Window (Start & End Time) */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Window Start (HH:mm) *</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbWindowStart}</label>
                 <input
                   type="text"
                   value={startTime}
@@ -304,7 +306,7 @@ export function BatchScheduleModal({
               </div>
 
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Window End (HH:mm) *</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbWindowEnd}</label>
                 <input
                   type="text"
                   value={endTime}
@@ -319,7 +321,7 @@ export function BatchScheduleModal({
 
             {/* 2B. Direction Selector */}
             <div className="space-y-1.5">
-              <label className="block text-slate-400 font-medium">Arah Lintasan Operasi (Corridor Direction) *</label>
+              <label className="block text-slate-400 font-medium">{t.admin.tbCorridorDir}</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
@@ -330,9 +332,9 @@ export function BatchScheduleModal({
                       : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
                   }`}
                 >
-                  <div className="font-bold">Arah Hilir</div>
+                  <div className="font-bold">{t.admin.tbDirDown}</div>
                   <div className="text-[10px] opacity-80 truncate">
-                    {lineStops[0]?.name || "Awal"} &rarr; {lineStops[lineStops.length - 1]?.name || "Akhir"}
+                    {lineStops[0]?.name || t.admin.tbFirstStop} &rarr; {lineStops[lineStops.length - 1]?.name || t.admin.tbLastStop}
                   </div>
                 </button>
                 <button
@@ -344,7 +346,7 @@ export function BatchScheduleModal({
                       : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
                   }`}
                 >
-                  <div className="font-bold">Arah Mudik</div>
+                  <div className="font-bold">{t.admin.tbDirUp}</div>
                   <div className="text-[10px] opacity-80 truncate">
                     {lineStops[lineStops.length - 1]?.name || "Akhir"} &rarr; {lineStops[0]?.name || "Awal"}
                   </div>
@@ -358,8 +360,8 @@ export function BatchScheduleModal({
                       : "bg-slate-950 text-slate-400 border-white/10 hover:border-white/20"
                   }`}
                 >
-                  <div className="font-bold">Dua Arah</div>
-                  <div className="text-[10px] opacity-80">Headway Asimetris</div>
+                  <div className="font-bold">{t.admin.tbDirBoth}</div>
+                  <div className="text-[10px] opacity-80">{t.admin.tbAsymHeadway}</div>
                 </button>
               </div>
             </div>
@@ -368,7 +370,7 @@ export function BatchScheduleModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="block text-slate-400 font-medium">
-                  {direction === "BOTH" ? "Headway Arah Hilir (Outbound) *" : "Headway Interval (menit) *"}
+                  {direction === "BOTH" ? t.admin.tbHeadwayOut : t.admin.tbHeadwayMin}
                 </label>
                 <span className="font-mono text-teal-400 font-bold">{headwayMinutes} min</span>
               </div>
@@ -384,7 +386,7 @@ export function BatchScheduleModal({
                         : "bg-slate-950 text-slate-400 border border-white/10 hover:bg-slate-900"
                     }`}
                   >
-                    {h} min
+                    {h} {t.map.minuteShort}
                   </button>
                 ))}
               </div>
@@ -393,7 +395,7 @@ export function BatchScheduleModal({
                 <div className="pt-2 border-t border-white/5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="block text-cyan-300 font-medium text-xs">
-                      Headway Arah Mudik (Inbound Return) *
+                      {t.admin.tbHeadwayBack}
                     </label>
                     <span className="font-mono text-cyan-400 font-bold">{asymmetricInboundHeadway} min</span>
                   </div>
@@ -428,19 +430,19 @@ export function BatchScheduleModal({
             {/* 4. Run Code Pattern */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Trip Code Prefix *</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbTripPrefix}</label>
                 <input
                   type="text"
                   value={runCodePrefix}
                   onChange={(e) => setRunCodePrefix(e.target.value)}
-                  placeholder="e.g. M-1 or TJ-1"
+                  placeholder={t.admin.tbPrefixPh}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 font-mono uppercase focus:outline-none focus:border-teal-500"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Start Run Number</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbStartRun}</label>
                 <input
                   type="number"
                   min={1}
@@ -455,7 +457,7 @@ export function BatchScheduleModal({
             {/* 5. Operator & Service Class */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Operator Name *</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbOperator}</label>
                 <input
                   type="text"
                   value={operatorName}
@@ -466,7 +468,7 @@ export function BatchScheduleModal({
               </div>
 
               <div className="space-y-1">
-                <label className="block text-slate-400 font-medium">Service Class</label>
+                <label className="block text-slate-400 font-medium">{t.admin.tbServiceClassReuse}</label>
                 <input
                   type="text"
                   value={serviceClass}
@@ -478,12 +480,12 @@ export function BatchScheduleModal({
 
             {/* 6. Notes & Replacement Toggle */}
             <div className="space-y-1">
-              <label className="block text-slate-400 font-medium">Operational Note</label>
+              <label className="block text-slate-400 font-medium">{t.admin.tbOpNote}</label>
               <input
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Regular Headway"
+                placeholder={t.admin.tbNotesPh}
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500"
               />
             </div>
@@ -491,7 +493,7 @@ export function BatchScheduleModal({
             <div className="space-y-2">
               <div className="p-3 rounded-xl bg-slate-950/60 border border-white/10 flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <div className="font-semibold text-slate-200">Replace Existing Line Runs</div>
+                  <div className="font-semibold text-slate-200">{t.admin.tbReplace}</div>
                   <div className="text-[10px] text-slate-500">
                     Deletes current runs on this line before publishing the new sequence.
                   </div>
@@ -545,7 +547,7 @@ export function BatchScheduleModal({
                 <div className="space-y-0.5">
                   <div className="font-semibold text-indigo-200 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Dinas Malam Masuk Dipo (Late-Night Stabling Runs)</span>
+                    <span>{t.admin.tbNightStabling}</span>
                   </div>
                   <div className="text-[10px] text-slate-400">
                     Trips departing at/after night cutoff terminate early at depot/pocket track.
@@ -582,7 +584,7 @@ export function BatchScheduleModal({
                       onChange={(e) => setStablingStopId(e.target.value)}
                       className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-indigo-500/30 text-slate-200 text-xs focus:outline-none focus:border-indigo-400"
                     >
-                      <option value="">Auto (Intermediate Depot ~65%)</option>
+                      <option value="">{t.admin.tbAutoDepot}</option>
                       {lineStops.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.sequence}. {s.name}
@@ -598,18 +600,18 @@ export function BatchScheduleModal({
             <div className="p-3.5 rounded-xl bg-teal-950/40 border border-teal-500/30 flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="text-[10px] uppercase font-mono font-bold text-teal-400">
-                  Synthesis Preview
+                  {t.admin.tbSummaryTitle}
                 </span>
                 <div className="text-white font-mono font-bold text-sm">
-                  {estimatedTripsCount} Scheduled Runs
+                  {t.admin.tbSummaryRuns.replace("{n}", String(estimatedTripsCount))}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {startTime} &rarr; {endTime} ({headwayMinutes} min headway)
+                  {t.admin.tbSummarySpan.replace("{start}", startTime).replace("{end}", endTime).replace("{m}", String(headwayMinutes))}
                 </div>
               </div>
               <div className="text-right font-mono text-[11px] text-teal-300">
                 <span>{runCodePrefix}-{startRunNumber.toString().padStart(3, "0")}</span>
-                <span className="text-slate-500"> to </span>
+                <span className="text-slate-500"> {t.admin.tbSummaryTo} </span>
                 <span>
                   {runCodePrefix}-
                   {(startRunNumber + Math.max(0, estimatedTripsCount - 1))
@@ -628,7 +630,7 @@ export function BatchScheduleModal({
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           {replaceExisting && existingLineRunsCount > 0 ? (
             <button
@@ -640,8 +642,8 @@ export function BatchScheduleModal({
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>
                 {isSubmitting
-                  ? "Menimpa & Membuat..."
-                  : `Konfirmasi Timpa & Buat ${estimatedTripsCount} Jadwal Baru`}
+                  ? t.admin.tbOverwriting
+                  : t.admin.tbConfirmOverwrite.replace("{n}", String(estimatedTripsCount))}
               </span>
             </button>
           ) : (
@@ -653,7 +655,7 @@ export function BatchScheduleModal({
             >
               <Wand2 className="w-3.5 h-3.5" />
               <span>
-                {isSubmitting ? "Generating..." : `Publish ${estimatedTripsCount} Runs`}
+                {isSubmitting ? t.admin.tbGenerating : t.admin.tbPublish.replace("{n}", String(estimatedTripsCount))}
               </span>
             </button>
           )}

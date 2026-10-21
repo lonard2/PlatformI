@@ -31,3 +31,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - Batch C: detector went 7→4 on touched files (fixed three 9px ramps incl. prefs descs); remaining 4 pre-existing (PLTI brand mark etc.). R6: PROMPT_SUGGESTIONS example utterances EXEMPT (sample user input, place-dense). R7: DynamicQRCode t.aiAdvisor.copy reuse left as-is (translated, cross-namespace only).
 - Batch D1: fixed duplicate admin sections (dict merge was correct; types had two — merged into the pre-existing 200-key block). Note: admin section already covered dashboard/scanner/shiftLog surfaces.
 - Batch D2a: network page chrome+toasts+confirms wired (~110 keys). Detector: same 3 pre-existing 9px advisories as base.
+- Batch D2b: timetables page + batch modal wired (~120 keys incl. weekdayShort, preset notes, batch generator). Detector: check below.
