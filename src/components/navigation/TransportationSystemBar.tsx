@@ -45,6 +45,7 @@ import { TransitMode, TransitCategory, ServiceOperatingStatus, DisruptionAlert, 
 import { useTranslation } from "@/lib/i18n";
 import {
   OPERATING_STATUS_CHIP,
+  OPERATING_STATUS_COLORS,
   OperatingStatusMark,
 } from "@/components/alerts/OperatingStatusMark";
 import type { TranslationDictionary } from "@/lib/i18n/types";
@@ -1135,7 +1136,14 @@ export function TransportationSystemBar() {
             {visibleGroups.map((group) => {
               const GroupIcon = group.groupIcon;
               const isCatActive = isCategoryActive(group.category);
-              const isCollapsed = collapsedCategories[group.category] || false;
+              const manualCollapsed = collapsedCategories[group.category];
+              const groupHasAlert = group.items.some(
+                (item) => getLiveItemStatus(item, activeAlerts, allLines) !== "NORMAL"
+              );
+              const groupHasTray =
+                activeItemId !== null && group.items.some((item) => item.id === activeItemId);
+              const isCollapsed =
+                groupHasAlert || groupHasTray ? false : (manualCollapsed ?? true);
 
               return (
                 <motion.div
@@ -1200,8 +1208,39 @@ export function TransportationSystemBar() {
                     </button>
                   </div>
 
-                  {/* Sub-group System Items */}
-                  {!isCollapsed && (
+                  {/* Sub-group System Items: compact dot + code when healthy */}
+                  {isCollapsed ? (
+                    <div className="flex items-center gap-1">
+                      {group.items.map((item) => {
+                        const compactStatus = getLiveItemStatus(item, activeAlerts, allLines);
+                        const compactSelected = activeItemId === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            id={`system-item-${item.id}`}
+                            onClick={(e) => handleItemToggle(item, e)}
+                            title={`${item.name} - ${getLocalizedStatusPhrase(compactStatus, t)}`}
+                            aria-label={`${item.name} - ${getLocalizedStatusPhrase(compactStatus, t)}`}
+                            aria-expanded={compactSelected}
+                            aria-controls={`system-tray-${item.id}`}
+                            className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex items-center gap-1 px-2 py-1 rounded-lg border text-[10px] font-mono font-bold shrink-0 transition ${
+                              compactSelected
+                                ? "bg-cyan-950/95 border-cyan-400 text-white shadow-md"
+                                : "bg-slate-950/70 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-cyan-500/40"
+                            }`}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: OPERATING_STATUS_COLORS[compactStatus] }}
+                            />
+                            {item.shortCode}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
                     <div className="flex items-center gap-1.5">
                       {group.items.map((item) => {
                         const ItemIcon = item.icon;
