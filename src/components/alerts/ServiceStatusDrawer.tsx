@@ -63,35 +63,29 @@ type MainTab = "LIVE" | "HISTORY" | "UPTIME";
 type SeverityFilter = "ALL" | "CRITICAL" | "WARNING" | "INFO" | "NORMAL";
 type UptimeTimeframe = "30_DAYS" | "90_DAYS" | "180_DAYS" | "365_DAYS";
 
-const MONTH_NAMES_ID = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
+/**
+ * Locale-aware month names for all six supported languages. Replaces the
+ * former hardcoded ID/EN arrays so calendar labels localize everywhere.
+ */
+const MONTH_LOCALE_BY_LANGUAGE: Record<string, string> = {
+  id: "id-ID",
+  en: "en-US",
+  ja: "ja-JP",
+  zh: "zh-CN",
+  ko: "ko-KR",
+  ar: "ar-SA",
+};
 
-const MONTH_NAMES_EN = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+function formatMonthName(
+  language: string,
+  monthIndex: number,
+  style: "long" | "short" = "long"
+): string {
+  const locale = MONTH_LOCALE_BY_LANGUAGE[language] ?? "id-ID";
+  return new Intl.DateTimeFormat(locale, { month: style }).format(
+    new Date(2024, monthIndex, 1)
+  );
+}
 
 export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   isOpen,
@@ -134,11 +128,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     ? latestIncident.split("-").map((part) => parseInt(part, 10))
     : null;
   const latestIncidentLabel = latestIncidentParts
-    ? `${latestIncidentParts[2]} ${
-        (language === "id" ? MONTH_NAMES_ID : MONTH_NAMES_EN)[
-          latestIncidentParts[1] - 1
-        ].slice(0, 3)
-      }`
+    ? `${latestIncidentParts[2]} ${formatMonthName(
+        language,
+        latestIncidentParts[1] - 1,
+        "short"
+      )}`
     : "";
 
   const allLines = useTransitStore((state) => state.allLines);
@@ -286,8 +280,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   }, [calendarYear, calendarMonth]);
 
   const monthLabel = useMemo(() => {
-    const names = language === "id" ? MONTH_NAMES_ID : MONTH_NAMES_EN;
-    return `${names[calendarMonth]} ${calendarYear}`;
+    return `${formatMonthName(language, calendarMonth)} ${calendarYear}`;
   }, [calendarMonth, calendarYear, language]);
 
   // Days in selected calendar month
@@ -1343,7 +1336,11 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                              }`}
                            />
                            <span className="text-[10px] font-mono text-slate-400 truncate max-w-full">
-                             {m.monthLabel.split(" ")[0].slice(0, 3)}
+                             {formatMonthName(
+                               language,
+                               parseInt(m.monthKey.split("-")[1] ?? "1", 10) - 1,
+                               "short"
+                             )}
                            </span>
                          </div>
                        );

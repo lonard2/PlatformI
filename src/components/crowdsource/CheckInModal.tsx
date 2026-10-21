@@ -664,7 +664,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               ) : cooldownSeconds > 0 ? (
                 <>
                   <Clock className="w-3.5 h-3.5" />
-                  {`${t.crowdsource.cooldownPrefix} (${cooldownSeconds}s)`}
+                  {`${t.crowdsource.cooldownPrefix} (${cooldownSeconds}${t.crowdsource.secondShort})`}
                 </>
               ) : (
                 <>

@@ -133,10 +133,15 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
     const diffSeconds = Math.floor((Date.now() - timestampMs) / 1000);
     if (diffSeconds < 60) return t.crowdsource.justNow;
     const diffMinutes = Math.floor(diffSeconds / 60);
-    if (diffMinutes < 60) return `${diffMinutes}${t.crowdsource.feedMinAgo}`;
+    if (diffMinutes < 60)
+      return t.crowdsource.feedMinAgo.replace("{n}", String(diffMinutes));
     const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}${t.crowdsource.feedHourAgo}`;
-    return `${Math.floor(diffHours / 24)}${t.crowdsource.feedDayAgo}`;
+    if (diffHours < 24)
+      return t.crowdsource.feedHourAgo.replace("{n}", String(diffHours));
+    return t.crowdsource.feedDayAgo.replace(
+      "{n}",
+      String(Math.floor(diffHours / 24))
+    );
   };
 
   const getDensityBadge = (level: string) => {

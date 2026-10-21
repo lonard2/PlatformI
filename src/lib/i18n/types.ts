@@ -624,6 +624,7 @@ export interface TranslationDictionary {
     feedMinAgo: string;
     feedHourAgo: string;
     feedDayAgo: string;
+    secondShort: string;
     feedL1: string;
     feedL2: string;
     feedL3: string;
