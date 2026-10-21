@@ -101,6 +101,20 @@ export const zh: TranslationDictionary = {
     tileSatellite: "卫星",
     tileStreets: "街道",
   },
+  hours: {
+    hours24: "24小时",
+    perTimetable: "按时刻表",
+    perDocking: "按靠泊计划",
+  },
+  weekdays: {
+    sunday: "星期日",
+    monday: "星期一",
+    tuesday: "星期二",
+    wednesday: "星期三",
+    thursday: "星期四",
+    friday: "星期五",
+    saturday: "星期六",
+  },
   station: {
     tod: "TOD枢纽",
     railStation: "火车站",
@@ -154,6 +168,7 @@ export const zh: TranslationDictionary = {
     routeListHeading: "服务路线与接驳线路:",
     locationRouteCount: "个地点 / 路线",
     noMatchingRoutes: "没有符合搜索条件的路线。",
+    noMatchingRoutesFor: "没有与“{q}”匹配的路线：",
     toggleSectorMap: "在地图上显示/隐藏该板块",
     resetMap: "重置地图",
     serviceNormal: "正常",

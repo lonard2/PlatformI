@@ -101,6 +101,20 @@ export const ar: TranslationDictionary = {
     tileSatellite: "قمر صناعي",
     tileStreets: "شوارع",
   },
+  hours: {
+    hours24: "24 ساعة",
+    perTimetable: "حسب الجدول",
+    perDocking: "حسب جدول الرسو",
+  },
+  weekdays: {
+    sunday: "الأحد",
+    monday: "الاثنين",
+    tuesday: "الثلاثاء",
+    wednesday: "الأربعاء",
+    thursday: "الخميس",
+    friday: "الجمعة",
+    saturday: "السبت",
+  },
   station: {
     tod: "مركز TOD",
     railStation: "محطة قطار",
@@ -154,6 +168,7 @@ export const ar: TranslationDictionary = {
     routeListHeading: "مسارات الخدمة والخطوط المغذية:",
     locationRouteCount: "مواقع / مسارات",
     noMatchingRoutes: "لا توجد مسارات تطابق بحثك.",
+    noMatchingRoutesFor: "لا توجد مسارات تطابق \"{q}\":",
     toggleSectorMap: "إظهار أو إخفاء هذا القطاع على الخريطة",
     resetMap: "إعادة تعيين الخريطة",
     serviceNormal: "طبيعي",

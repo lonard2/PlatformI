@@ -49,6 +49,7 @@ import {
   OperatingStatusMark,
 } from "@/components/alerts/OperatingStatusMark";
 import type { TranslationDictionary } from "@/lib/i18n/types";
+import { formatOperatingHours } from "@/lib/transit/operatingHours";
 
 export interface SystemCorridorDetail {
   code: string;
@@ -1377,7 +1378,7 @@ export function TransportationSystemBar() {
             <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
               <div>
                 <span className="text-slate-400 text-[10px]">{t.navigation.serviceHours}:</span>
-                <div className="text-slate-200 font-bold truncate">{hoveredItem.operatingHours}</div>
+                <div className="text-slate-200 font-bold truncate">{formatOperatingHours(hoveredItem.operatingHours, t)}</div>
               </div>
               <div>
                  <span className="text-slate-400 text-[10px]">{t.navigation.serviceStatus}:</span>
@@ -1461,7 +1462,7 @@ export function TransportationSystemBar() {
                     <p className="text-xs text-slate-400 mt-0.5">
                        {activeItem.description} &bull; {t.navigation.serviceHours}:{" "}
                       <strong className="text-slate-200">
-                        {activeItem.operatingHours}
+                        {formatOperatingHours(activeItem.operatingHours, t)}
                       </strong>
                     </p>
                   </div>
@@ -1558,7 +1559,7 @@ export function TransportationSystemBar() {
                   {filteredCorridors.length === 0 && (
                     <div className="col-span-full p-4 text-center text-xs text-slate-500 font-mono">
                       {corridorSearchQuery
-                        ? `${t.navigation.noMatchingRoutes} (${corridorSearchQuery})`
+                        ? t.navigation.noMatchingRoutesFor.replace("{q}", corridorSearchQuery)
                         : t.navigation.noMatchingRoutes}
                     </div>
                   )}
@@ -1596,7 +1597,7 @@ export function TransportationSystemBar() {
                           <div className="text-[11px] text-slate-400 font-mono space-y-0.5">
                             <div className="flex items-center gap-1.5">
                               <Clock className="w-3 h-3 text-slate-500 shrink-0" />
-                              <span>{corridor.operatingHours}</span>
+                              <span>{formatOperatingHours(corridor.operatingHours, t)}</span>
                               <span>&bull;</span>
                               <span className="text-cyan-400">
                                 {corridor.headwayMinutes} {t.common.minutes}

@@ -101,6 +101,20 @@ export const en: TranslationDictionary = {
     tileSatellite: "Satellite",
     tileStreets: "Streets",
   },
+  hours: {
+    hours24: "24 Hours",
+    perTimetable: "per timetable",
+    perDocking: "per docking schedule",
+  },
+  weekdays: {
+    sunday: "Sunday",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+  },
   station: {
     tod: "Transit-Oriented Hub",
     railStation: "Rail Station",
@@ -154,6 +168,7 @@ export const en: TranslationDictionary = {
     routeListHeading: "Service routes & feeders:",
     locationRouteCount: "locations / routes",
     noMatchingRoutes: "No routes match your search.",
+    noMatchingRoutesFor: "No routes match \"{q}\":",
     toggleSectorMap: "Show or hide this sector on the map",
     resetMap: "Reset Map",
     serviceNormal: "Normal",

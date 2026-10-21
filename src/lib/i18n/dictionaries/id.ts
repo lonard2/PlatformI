@@ -101,6 +101,20 @@ export const id: TranslationDictionary = {
     tileSatellite: "Satelit",
     tileStreets: "Jalan",
   },
+  hours: {
+    hours24: "24 Jam",
+    perTimetable: "Sesuai Gapeka",
+    perDocking: "Sesuai jadwal sandar",
+  },
+  weekdays: {
+    sunday: "Minggu",
+    monday: "Senin",
+    tuesday: "Selasa",
+    wednesday: "Rabu",
+    thursday: "Kamis",
+    friday: "Jumat",
+    saturday: "Sabtu",
+  },
   station: {
     tod: "Kawasan TOD",
     railStation: "Stasiun Kereta",
@@ -154,6 +168,7 @@ export const id: TranslationDictionary = {
     routeListHeading: "Daftar rute layanan & feeder:",
     locationRouteCount: "titik / rute",
     noMatchingRoutes: "Tidak ada rute yang cocok dengan pencarian.",
+    noMatchingRoutesFor: "Tidak ada rute yang cocok untuk \"{q}\":",
     toggleSectorMap: "Aktifkan / nonaktifkan sektor ini di peta",
     resetMap: "Reset Peta",
     serviceNormal: "Normal",

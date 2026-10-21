@@ -101,6 +101,20 @@ export const ko: TranslationDictionary = {
     tileSatellite: "위성",
     tileStreets: "일반",
   },
+  hours: {
+    hours24: "24시간",
+    perTimetable: "시간표대로",
+    perDocking: "접안 일정대로",
+  },
+  weekdays: {
+    sunday: "일요일",
+    monday: "월요일",
+    tuesday: "화요일",
+    wednesday: "수요일",
+    thursday: "목요일",
+    friday: "금요일",
+    saturday: "토요일",
+  },
   station: {
     tod: "TOD 허브",
     railStation: "철도역",
@@ -154,6 +168,7 @@ export const ko: TranslationDictionary = {
     routeListHeading: "운행 노선 및 지선:",
     locationRouteCount: "개 장소 / 노선",
     noMatchingRoutes: "검색 조건에 맞는 노선이 없습니다.",
+    noMatchingRoutesFor: "“{q}”와(과) 일치하는 노선이 없습니다.",
     toggleSectorMap: "지도에서 이 부문 표시/숨기기",
     resetMap: "지도 초기화",
     serviceNormal: "정상",

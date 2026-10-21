@@ -27,3 +27,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - Setup: working on main with per-batch push per user standing norm (revertible).
 - Batch A: R1 applied (WIB kept as timezone designator at 4 sites). Detector on touched files: only 3 pre-existing border-accent advisories, unrelated.
 - Batch B1: detector on touched map files reports 9 design-system (font/radius/color) advisories on pre-existing inline tooltip styles — not copy, not introduced here.
+- Batch B2: R3 resolved — statusText/statusReason have zero render sites (dead data, untouched); name/description/fareText ruled EXEMPT as operator entity data (R5: place-dense descriptors, translation risk > benefit; reversible on request). operatingHours vocabulary mapped; noMatchingRoutes parameterized.

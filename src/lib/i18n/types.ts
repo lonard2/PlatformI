@@ -125,6 +125,20 @@ export interface TranslationDictionary {
     tileSatellite: string;
     tileStreets: string;
   };
+  hours: {
+    hours24: string;
+    perTimetable: string;
+    perDocking: string;
+  };
+  weekdays: {
+    sunday: string;
+    monday: string;
+    tuesday: string;
+    wednesday: string;
+    thursday: string;
+    friday: string;
+    saturday: string;
+  };
   station: {
     tod: string;
     railStation: string;
@@ -178,6 +192,7 @@ export interface TranslationDictionary {
     routeListHeading: string;
     locationRouteCount: string;
     noMatchingRoutes: string;
+    noMatchingRoutesFor: string;
     toggleSectorMap: string;
     resetMap: string;
     serviceNormal: string;

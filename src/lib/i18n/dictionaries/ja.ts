@@ -101,6 +101,20 @@ export const ja: TranslationDictionary = {
     tileSatellite: "衛星",
     tileStreets: "道路",
   },
+  hours: {
+    hours24: "24時間",
+    perTimetable: "時刻表通り",
+    perDocking: "着岸スケジュール通り",
+  },
+  weekdays: {
+    sunday: "日曜日",
+    monday: "月曜日",
+    tuesday: "火曜日",
+    wednesday: "水曜日",
+    thursday: "木曜日",
+    friday: "金曜日",
+    saturday: "土曜日",
+  },
   station: {
     tod: "TOD拠点",
     railStation: "鉄道駅",
@@ -154,6 +168,7 @@ export const ja: TranslationDictionary = {
     routeListHeading: "運行路線・フィーダー:",
     locationRouteCount: "地点 / 路線",
     noMatchingRoutes: "検索条件に一致する路線はありません。",
+    noMatchingRoutesFor: "「{q}」に一致する路線はありません。",
     toggleSectorMap: "この分野を地図に表示/非表示",
     resetMap: "マップをリセット",
     serviceNormal: "平常",
