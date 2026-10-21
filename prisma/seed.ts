@@ -88,7 +88,13 @@ async function main() {
         accessibleElevator: stop.accessibleElevator,
         tactilePaving: stop.tactilePaving,
         wheelchairRamp: stop.wheelchairRamp,
-        platformType: stop.platformType,
+        // Persist explicit typology in the packed platformType encoding
+        // ("platform::stationType::scale") so the API serves dataset values
+        // instead of re-inferring them; falls back to raw platformType.
+        platformType:
+          stop.stationType || stop.scale
+            ? [stop.platformType ?? "", stop.stationType ?? "", stop.scale ?? ""].join("::")
+            : stop.platformType,
       },
     });
   }
