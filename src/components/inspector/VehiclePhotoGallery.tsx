@@ -8,7 +8,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Camera,
   User,
@@ -23,6 +23,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Vehicle, PhotoGalleryItem, TransitMode } from "@/types/transit";
+import { useTranslation } from "@/lib/i18n";
 
 interface VehiclePhotoGalleryProps {
   vehicle: Vehicle;
@@ -195,9 +196,37 @@ function getDefaultPhotoSet(
 }
 
 export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
+  const { t } = useTranslation();
   const photos = getVehiclePhotos(vehicle);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
+  const probedRef = useRef<Set<string>>(new Set());
+
+  // Probe each photo so a dead URL renders a captioned fallback tile
+  // instead of an empty frame. Captions and credits are data, not pixels.
+  useEffect(() => {
+    let cancelled = false;
+    for (const photo of photos) {
+      if (probedRef.current.has(photo.url)) continue;
+      probedRef.current.add(photo.url);
+      const probe = new Image();
+      probe.onerror = () => {
+        if (cancelled) return;
+        setFailedUrls((prev) => {
+          if (prev.has(photo.url)) return prev;
+          const next = new Set(prev);
+          next.add(photo.url);
+          return next;
+        });
+      };
+      probe.src = photo.url;
+    }
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos]);
 
   const activePhoto = photos[currentIndex] || photos[0];
 
@@ -214,13 +243,20 @@ export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
       {/* 1. MAIN CAROUSEL DISPLAY */}
       <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group aspect-video sm:aspect-[16/10]">
         {/* Active Image */}
-        <div
-          className="w-full h-full bg-cover bg-center transition-all duration-300 transform group-hover:scale-[1.02]"
-          style={{ backgroundImage: `url(${activePhoto.url})` }}
-        >
-          {/* Subtle gradient vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/30" />
-        </div>
+        {failedUrls.has(activePhoto.url) ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-900 text-slate-400">
+            <ImageIcon className="w-8 h-8" aria-hidden="true" />
+            <span className="text-[11px] font-mono">{t.vehicleInspector.photoUnavailable}</span>
+          </div>
+        ) : (
+          <div
+            className="w-full h-full bg-cover bg-center transition-all duration-300 transform group-hover:scale-[1.02]"
+            style={{ backgroundImage: `url(${activePhoto.url})` }}
+          >
+            {/* Subtle gradient vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/30" />
+          </div>
+        )}
 
         {/* Carousel Navigation Buttons */}
         {photos.length > 1 && (
@@ -287,9 +323,17 @@ export function VehiclePhotoGallery({ vehicle }: VehiclePhotoGalleryProps) {
               }`}
             >
               <div
-                className="w-full h-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${photo.url})` }}
-              />
+                className="w-full h-full bg-cover bg-center flex items-center justify-center bg-slate-900"
+                style={
+                  failedUrls.has(photo.url)
+                    ? undefined
+                    : { backgroundImage: `url(${photo.url})` }
+                }
+              >
+                {failedUrls.has(photo.url) && (
+                  <ImageIcon className="w-4 h-4 text-slate-600" aria-hidden="true" />
+                )}
+              </div>
             </button>
           ))}
         </div>

@@ -476,6 +476,9 @@ export function VehicleSeatingDiagram({
 
       {showSeatMap && (
       <>
+      <p className="text-[11px] font-mono text-slate-500 px-1">
+        {t.vehicleInspector.seatMapInfo}
+      </p>
       {/* 2. SVG INTERACTIVE CABIN SEATING PLAN */}
       <div className="p-4 bg-[#070b14] rounded-2xl border border-slate-800/90 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
         {/* Front of Vehicle Indicator */}
@@ -490,10 +493,28 @@ export function VehicleSeatingDiagram({
             const isInspectSelected = selectedSeatId === seat.id;
             const isAvailable = seat.status === "AVAILABLE";
 
+            if (!isAvailable && seat.status === "OCCUPIED") {
+              return (
+                <div
+                  key={seat.id}
+                  aria-disabled="true"
+                  aria-label={`${t.vehicleInspector.seat} ${seat.id} - ${t.vehicleInspector.occupied}`}
+                  title={`${t.vehicleInspector.seat} ${seat.id} - ${seat.type}`}
+                  style={{
+                    position: "absolute",
+                    left: `${seat.x}%`,
+                    top: `${seat.y}%`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex flex-col items-center justify-center bg-rose-950/40 border-rose-800/50 text-rose-500 opacity-60 ${isInspectSelected ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950" : ""}`}
+                >
+                  <span className="text-[10px] font-mono font-bold leading-none">{seat.id}</span>
+                </div>
+              );
+            }
+
             let bgClass = "bg-slate-800 border-slate-700 text-slate-400";
-            if (seat.status === "OCCUPIED") {
-              bgClass = "bg-rose-950/40 border-rose-800/50 text-rose-500 opacity-60 cursor-not-allowed";
-            } else if (isUserSelected) {
+            if (isUserSelected) {
               bgClass = "bg-cyan-500 border-cyan-300 text-slate-950 font-bold shadow-lg shadow-cyan-500/50 scale-110";
             } else if (isAvailable) {
               if (seat.type === "SLEEPER_SUITE") {
@@ -509,6 +530,7 @@ export function VehicleSeatingDiagram({
               <button
                 key={seat.id}
                 onClick={() => handleSeatClick(seat)}
+                aria-pressed={isUserSelected}
                 style={{
                   position: "absolute",
                   left: `${seat.x}%`,

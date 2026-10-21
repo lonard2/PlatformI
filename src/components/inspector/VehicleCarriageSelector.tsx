@@ -501,9 +501,24 @@ export function findEmptiestCarIndex(
   return best.carIndex;
 }
 
+/**
+ * Rendered when a vehicle carries no formation data at all. Synthesis in
+ * getVehicleCarriages covers every known mode, so this is a defensive
+ * fallback — but a missing formation must say so, never render nothing.
+ */
+export function CarriageEmptyState() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-4 text-center text-xs font-mono text-slate-400 bg-slate-900/50 rounded-xl border border-slate-800">
+      {t.vehicleInspector.noCarriageData}
+    </div>
+  );
+}
+
 export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProps) {
   const { t } = useTranslation();
   const carriages = getVehicleCarriages(vehicle, t);
+  const isSimulatedTelemetry = !vehicle.carriages || vehicle.carriages.length === 0;
   const [selectedCarIndex, setSelectedCarIndex] = useState<number>(() =>
     findEmptiestCarIndex(carriages)
   );
@@ -511,7 +526,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
   const scrollCanvasRef = useRef<HTMLDivElement | null>(null);
 
   if (!carriages || carriages.length === 0) {
-    return null;
+    return <CarriageEmptyState />;
   }
 
   const selectedCar =
@@ -562,6 +577,13 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
     if (next) setSelectedCarIndex(next.carIndex);
   };
 
+  const handleCarKeyDown = (e: React.KeyboardEvent, carIndex: number) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setSelectedCarIndex(carIndex);
+    }
+  };
+
   const handleScrollLeft = () => {
     if (scrollCanvasRef.current) {
       scrollCanvasRef.current.scrollBy({ left: -220, behavior: "smooth" });
@@ -599,6 +621,14 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
               ? `${t.vehicleInspector.shipDeckTitle} (${carriages.length} ${t.vehicleInspector.unitDeck})`
               : `${t.vehicleInspector.diagramBusZones} (${carriages.length} ${t.vehicleInspector.unitZone})`}
           </h3>
+          {isSimulatedTelemetry && (
+            <span
+              className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800/80 border border-slate-600/40 text-slate-400 shrink-0"
+              title={t.vehicleInspector.simulated}
+            >
+              {t.vehicleInspector.simulated}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {/* Zoom / Fit Toggle for wide formations */}
@@ -730,6 +760,11 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
                   <g
                     key={car.carIndex}
                     onClick={() => setSelectedCarIndex(car.carIndex)}
+                    onKeyDown={(e) => handleCarKeyDown(e, car.carIndex)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    aria-label={`${getPrefixLabel(car.carIndex)} ${car.carCode} ${car.occupancyPercent}%`}
                     className="cursor-pointer transition-all group"
                   >
                     {/* Deck Outline */}
@@ -804,6 +839,11 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
                 <g
                   key={car.carIndex}
                   onClick={() => setSelectedCarIndex(car.carIndex)}
+                  onKeyDown={(e) => handleCarKeyDown(e, car.carIndex)}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
+                  aria-label={`${getPrefixLabel(car.carIndex)} ${car.carCode} ${car.occupancyPercent}%`}
                   className="cursor-pointer transition-all duration-150 group"
                 >
                   {/* Articulation / Coupler between modules */}
@@ -831,7 +871,7 @@ export function VehicleCarriageSelector({ vehicle }: VehicleCarriageSelectorProp
                         stroke={isSelected ? "#67e8f9" : "#f59e0b"}
                         strokeWidth="2.5"
                       />
-                      <circle cx={carX + carWidth / 2} cy="18" r="2.5" fill="#38bdf8" className="animate-ping" />
+                      <circle cx={carX + carWidth / 2} cy="18" r="2.5" fill="#38bdf8" className="animate-ping" aria-hidden="true" />
                     </g>
                   )}
 

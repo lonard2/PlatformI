@@ -303,6 +303,10 @@ export interface TranslationDictionary {
     prevCar: string;
     nextCar: string;
     occupancyLegend: string;
+    seatMapInfo: string;
+    noCarriageData: string;
+    simulated: string;
+    photoUnavailable: string;
     diagramTrain: string;
     diagramDecks: string;
     diagramBusZones: string;
