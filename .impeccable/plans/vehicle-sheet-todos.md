@@ -36,3 +36,7 @@ Ledger lives in this file under "Ledger".
 - T3: Ruling: full offline-state handling out of scope (client sheet, no service worker); covered image-fail + empty-formation + synthesized-data transparency. Cost if wrong: a follow-up harden pass.
 - T4: Ruling: seating-tab label kept ("Carriages & Decks") — T1 disclosure now matches the label and renaming costs 6-locale churn for little gain. Cost if wrong: one rename later.
 - T6: RTL audit: additions are flex/mirror-safe, separators aria-hidden; chevrons follow house-wide non-mirrored pattern (no rtl: usage anywhere). Motion: no new animation added. Detector now 0 findings on inspector/.
+
+Final review (fresh reviewer ses_ea3012a45ffeab8EmBJoLUCvRC): verdict With fixes. Re-grade: Important (occupied-seat AT regression) stands; 7 minors deferred.
+Final: fixed occupied-seat inspection — aria-disabled button + inspect-only click, test RED→GREEN, suite 409/409.
+Final: minor (deferred): single-car stepper functionless; thumbnail buttons unnamed; gallery empty-array guard; disclosure chevron; RTL chevron mirroring; stepper 32px targets; specs-tab render condition omits fleet-only buses.

@@ -62,18 +62,18 @@ function expandSeats() {
 }
 
 describe("Honest seat controls", () => {
-  it("renders occupied seats as non-interactive with aria-disabled, available as buttons", () => {
+  it("announces occupied seats as disabled while keeping them inspectable", () => {
     render(<VehicleSeatingDiagram vehicle={twoSeatVehicle()} />);
     expandSeats();
 
-    const occupied = screen.getByLabelText(/1B/);
-    expect(occupied.tagName).not.toBe("BUTTON");
+    const occupied = screen.getByRole("button", { name: /1B/ });
     expect(occupied).toHaveAttribute("aria-disabled", "true");
 
-    const available = screen.getByRole("button", { name: /1A/ });
-    expect(available).toHaveAttribute("aria-pressed", "false");
-    fireEvent.click(available);
-    expect(available).toHaveAttribute("aria-pressed", "true");
+    // Inspection works: detail card appears…
+    fireEvent.click(occupied);
+    expect(screen.getByText(/Kursi #1B/i)).toBeInTheDocument();
+    // …but nothing is ever booked: no seat toggles into selected state.
+    expect(occupied).toHaveAttribute("aria-pressed", "false");
   });
 
   it("states the map is informational, not a booking", () => {

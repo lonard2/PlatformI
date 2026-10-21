@@ -494,10 +494,16 @@ export function VehicleSeatingDiagram({
             const isAvailable = seat.status === "AVAILABLE";
 
             if (!isAvailable && seat.status === "OCCUPIED") {
+              // Occupied seats stay focusable and inspectable (detail card),
+              // but announce as disabled so nobody reads them as bookable.
+              // The click below only sets inspection state: handleSeatClick
+              // toggles booking selection for AVAILABLE seats exclusively.
               return (
-                <div
+                <button
                   key={seat.id}
+                  onClick={() => handleSeatClick(seat)}
                   aria-disabled="true"
+                  aria-pressed="false"
                   aria-label={`${t.vehicleInspector.seat} ${seat.id} - ${t.vehicleInspector.occupied}`}
                   title={`${t.vehicleInspector.seat} ${seat.id} - ${seat.type}`}
                   style={{
@@ -509,7 +515,7 @@ export function VehicleSeatingDiagram({
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex flex-col items-center justify-center bg-rose-950/40 border-rose-800/50 text-rose-500 opacity-60 ${isInspectSelected ? "ring-2 ring-white ring-offset-2 ring-offset-slate-950" : ""}`}
                 >
                   <span className="text-[10px] font-mono font-bold leading-none">{seat.id}</span>
-                </div>
+                </button>
               );
             }
 
