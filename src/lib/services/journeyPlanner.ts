@@ -13,7 +13,38 @@
 import { Stop, Line } from "@/types/transit";
 import { haversineDistance } from "@/lib/math/geodesy";
 import { calculateLegFare } from "@/lib/services/fareCalculator";
+import { getSegmentSeconds } from "@/lib/services/gtfsSchedule";
 import { PlannedJourney } from "@/lib/stores/useTransitStore";
+
+/**
+ * Measured ride time between two stops on one line, using GTFS median
+ * segment times (arrival-to-arrival, dwells included). Returns undefined when
+ * the line has no derived schedule (rail) or the stops are not ordered along
+ * a derived direction — callers fall back to the flat distance formula.
+ */
+export function estimateRideMinutes(
+  line: Line,
+  from: Stop,
+  to: Stop,
+  allStops: Stop[]
+): number | undefined {
+  const lineStops = allStops.filter((s) => s.lineId === line.id);
+  const match = (anchor: Stop): Stop | undefined =>
+    lineStops.find((s) => s.id === anchor.id) ??
+    lineStops.find(
+      (s) => s.name.trim().toLowerCase() === anchor.name.trim().toLowerCase()
+    );
+  const a = match(from);
+  const b = match(to);
+  if (!a || !b) return undefined;
+  const secs = getSegmentSeconds(line.id, a.code, b.code);
+  return secs === undefined ? undefined : secs / 60;
+}
+
+/** Half-headway expected wait, bounded so sparse night services stay sane. */
+function expectedWaitMinutes(line: Line): number {
+  return Math.min(line.headwayMinutes / 2, 15);
+}
 
 /**
  * Normalizes and finds a matching stop from user input, handling common prefixes like
@@ -149,9 +180,12 @@ export function resolvePlannedJourney(
   if (directLines.length > 0) {
     const primaryLine = directLines[0];
     const estimatedFareRp = calculateLegFare(primaryLine.mode, distanceKm);
+    const rideMinutes =
+      estimateRideMinutes(primaryLine, originStop, destStop, allStops) ??
+      distanceKm * 2.4;
     const estimatedDurationMinutes = Math.max(
       4,
-      Math.round(distanceKm * 2.4 + 3)
+      Math.round(rideMinutes + 3 + expectedWaitMinutes(primaryLine))
     );
 
     return {
@@ -238,7 +272,17 @@ export function resolvePlannedJourney(
     const fare2 = calculateLegFare(secondMode, distanceKm * 0.5);
     // JakLingko 3-hour tariff cap: Rp 10,000 max integrated ceiling
     const estimatedFareRp = Math.min(10000, fare1 + fare2);
-    const estimatedDurationMinutes = Math.max(8, Math.round(distanceKm * 2.8 + 8));
+    const rideMinutes =
+      (estimateRideMinutes(transferOption.firstLine, originStop, transferOption.transferStop, allStops) ??
+        distanceKm * 0.5 * 2.8) +
+      (estimateRideMinutes(transferOption.secondLine, transferOption.transferStop, destStop, allStops) ??
+        distanceKm * 0.5 * 2.8);
+    const estimatedDurationMinutes = Math.max(
+      8,
+      Math.round(
+        rideMinutes + 8 + expectedWaitMinutes(candidateLines[0]) + expectedWaitMinutes(candidateLines[1])
+      )
+    );
 
     return {
       originStop,
@@ -306,7 +350,23 @@ export function resolvePlannedJourney(
     );
     // JakLingko 3-hour tariff cap: Rp 10,000 max integrated ceiling
     const estimatedFareRp = Math.min(10000, fare);
-    const estimatedDurationMinutes = Math.max(12, Math.round(distanceKm * 2.8 + 8) + 5);
+    const legs = [best.lines[0], best.lines[1], best.lines[2]];
+    const anchors: Array<[Stop, Stop]> = [
+      [originStop, best.transferStops[0]],
+      [best.transferStops[0], best.transferStops[1]],
+      [best.transferStops[1], destStop],
+    ];
+    const rideMinutes = legs.reduce(
+      (sum, line, i) =>
+        sum + (estimateRideMinutes(line, anchors[i][0], anchors[i][1], allStops) ?? (distanceKm / 3) * 2.8),
+      0
+    );
+    const estimatedDurationMinutes = Math.max(
+      12,
+      Math.round(
+        rideMinutes + 8 + 5 + legs.reduce((sum, l) => sum + expectedWaitMinutes(l), 0)
+      )
+    );
 
     return {
       originStop,

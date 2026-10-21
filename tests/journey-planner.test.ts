@@ -245,3 +245,49 @@ describe("Deterministic Journey Planning & Map Binding", () => {
     expect(journey.estimatedFareRp).toBeLessThanOrEqual(10000);
   });
 });
+
+describe("GTFS segment-based ETA", () => {
+  it("uses measured segment times on a direct bus leg (Pantai Maju -> Fresh Market PIK)", async () => {
+    const { estimateRideMinutes } = await import("../src/lib/services/journeyPlanner");
+    const { getSegmentSeconds } = await import("../src/lib/services/gtfsSchedule");
+    const line = TRANSIT_LINES.find((l) => l.id === "line-tj-feeder-1a");
+    const from = TRANSIT_STOPS.find((s) => s.code === "B06040P" && s.lineId === "line-tj-feeder-1a");
+    const to = TRANSIT_STOPS.find((s) => s.code === "B00377P" && s.lineId === "line-tj-feeder-1a");
+    expect(line).toBeDefined();
+    expect(from).toBeDefined();
+    expect(to).toBeDefined();
+    if (!line || !from || !to) return;
+
+    const ride = estimateRideMinutes(line, from, to, TRANSIT_STOPS);
+    const expected = (getSegmentSeconds(line.id, from.code, to.code) ?? 0) / 60;
+    expect(ride).toBeDefined();
+    expect(ride).toBeGreaterThan(5);
+    expect(ride).toBeLessThan(90);
+    expect(ride).toBeCloseTo(expected, 6);
+
+    const journey = resolvePlannedJourney("Pantai Maju", "Fresh Market PIK", TRANSIT_STOPS, TRANSIT_LINES);
+    expect(journey).not.toBeNull();
+    if (!journey) return;
+    expect(journey.directLines.length).toBeGreaterThan(0);
+    expect(journey.estimatedDurationMinutes).toBe(
+      Math.max(4, Math.round((ride ?? 0) + 3 + Math.min(line.headwayMinutes / 2, 15)))
+    );
+    expect(journey.estimatedFareRp).toBeGreaterThan(0);
+  });
+
+  it("falls back to the flat formula on rail lines without derived schedules", async () => {
+    const { estimateRideMinutes } = await import("../src/lib/services/journeyPlanner");
+    const line = TRANSIT_LINES.find((l) => l.id === "line-krl-bogor");
+    const lineStops = TRANSIT_STOPS.filter((s) => s.lineId === "line-krl-bogor");
+    expect(line).toBeDefined();
+    expect(lineStops.length).toBeGreaterThan(1);
+    if (!line || lineStops.length < 2) return;
+    expect(estimateRideMinutes(line, lineStops[0], lineStops[1], TRANSIT_STOPS)).toBeUndefined();
+
+    const journey = resolvePlannedJourney("Bogor", "Jakarta Kota", TRANSIT_STOPS, TRANSIT_LINES);
+    expect(journey).not.toBeNull();
+    if (!journey) return;
+    expect(journeyHasRoute(journey)).toBe(true);
+    expect(journey.estimatedFareRp).toBeGreaterThan(0);
+  });
+});
