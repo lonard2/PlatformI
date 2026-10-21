@@ -457,6 +457,18 @@ function VehicleDetailSheetContent({
           >
             {activeTab === "overview" && (
               <div className="space-y-4">
+                {/* Vehicle Photo Gallery leads: the tab promises "Overview & Photos" */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                      {t.vehicleInspector.photoGalleryTitle}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">{t.vehicleInspector.spotterCredit}</span>
+                  </div>
+                  <VehiclePhotoGallery vehicle={vehicle} />
+                </div>
+
                 {/* Live Speed & Heading Gauges */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Speedometer Card */}
@@ -523,42 +535,29 @@ function VehicleDetailSheetContent({
                   </div>
                 </div>
 
-                {/* Route Line Summary */}
+                {/* Route Line Summary: one compact row, nothing removed */}
                 {line && (
-                  <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-3 h-3 rounded-full shrink-0"
-                          style={{ backgroundColor: line.colorHex }}
-                        />
-                        <span className="text-xs font-bold text-white tracking-tight">
-                          {line.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {line.code}
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between pt-1 border-t border-slate-800/80">
-                      <span>{t.vehicleInspector.fareLabel}: {getFareStructureLabel(line.fareType, t)}</span>
-                      <span>{t.vehicleInspector.headwayLabel}: ~{line.headwayMinutes} {t.common.minutes}</span>
-                    </div>
+                  <div className="px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2 text-xs font-mono flex-wrap">
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: line.colorHex }}
+                    />
+                    <span className="font-bold text-white tracking-tight">
+                      {line.name}
+                    </span>
+                    <span className="text-slate-400">
+                      {line.code}
+                    </span>
+                    <span className="text-slate-600" aria-hidden="true">·</span>
+                    <span className="text-slate-300">
+                      {t.vehicleInspector.fareLabel}: {getFareStructureLabel(line.fareType, t)}
+                    </span>
+                    <span className="text-slate-600" aria-hidden="true">·</span>
+                    <span className="text-slate-300">
+                      {t.vehicleInspector.headwayLabel}: ~{line.headwayMinutes} {t.common.minutes}
+                    </span>
                   </div>
                 )}
-
-                {/* Integrated Vehicle Photo Gallery in Overview Tab */}
-                <div className="pt-2 border-t border-slate-800/80 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                      {t.vehicleInspector.photoGalleryTitle}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{t.vehicleInspector.spotterCredit}</span>
-                  </div>
-                  <VehiclePhotoGallery vehicle={vehicle} />
-                </div>
               </div>
             )}
 
