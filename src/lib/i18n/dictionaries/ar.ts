@@ -704,6 +704,8 @@ export const ar: TranslationDictionary = {
     followingTrip: "قيد التتبع",
     gatewayBoardEmpty: "لا توجد رحلات بوابة مجدولة في هذه الفترة.",
     arrivalShort: "وصول",
+    schematicTitle: "تقدم المسار المباشر",
+    schematicPosition: "الموقع الحالي",
   },
   hub: {
     modeFeederNonBrt: "مغذي غير BRT {code}",

@@ -60,6 +60,7 @@ import type { TranslationDictionary } from "@/lib/i18n/types";
 import { localizeRunField, getPresetRunNote } from "@/lib/transit/runTexts";
 import { getStationTypeLabel } from "@/lib/transit/stationLabels";
 import { SkybridgeTransferGuide, SKYBRIDGE_HUBS_DATA } from "./SkybridgeTransferGuide";
+import { IntercitySchematic, computeSchematicFraction } from "./IntercitySchematic";
 import { TimetableDialog, TIMETABLE_OVERFLOW_THRESHOLD } from "./TimetableDialog";
 import { HUB_DESTINATIONS_DATA } from "@/lib/data/hub-destinations";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
@@ -731,6 +732,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const [showEarlier, setShowEarlier] = useState(false);
   const [timetableOpen, setTimetableOpen] = useState(false);
   const [followedRunId, setFollowedRunId] = useState<string | null>(null);
+  const [schematicNow, setSchematicNow] = useState(() => Date.now());
 
   const destinationGroups = stop ? HUB_DESTINATIONS_DATA[stop.id] || null : null;
   const [selectedGroupId, setSelectedGroupId] = useState<string>(
@@ -761,6 +763,14 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   useEffect(() => {
     setFollowedRunId(null);
   }, [stop?.id]);
+
+  // Refresh the schematic position marker on the simulation clock while a
+  // trip is followed; idle otherwise so unfollowed sheets never tick.
+  useEffect(() => {
+    if (!followedRunId) return;
+    const timer = window.setInterval(() => setSchematicNow(Date.now()), 30000);
+    return () => window.clearInterval(timer);
+  }, [followedRunId]);
 
   const departureBoard = useMemo(() => {
     if (!stop) return [];
@@ -1405,6 +1415,14 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                   <span className="text-slate-400 text-[10px] font-mono">{t.hub.routeLabelHub}</span>
                                   <span className="font-semibold text-white truncate">{item.transitStopsSummary}</span>
                                 </div>
+                              )}
+
+                              {/* Outside-region schematic progress for the followed trip */}
+                              {isFollowing && boardRun && (
+                                <IntercitySchematic
+                                  runId={boardRun.id}
+                                  fraction={computeSchematicFraction(boardRun, schematicNow)}
+                                />
                               )}
 
                               {/* Run & Trainset Specifics Grid */}

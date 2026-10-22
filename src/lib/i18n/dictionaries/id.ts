@@ -704,6 +704,8 @@ export const id: TranslationDictionary = {
     followingTrip: "Diikuti",
     gatewayBoardEmpty: "Tidak ada perjalanan gateway yang terjadwal pada rentang ini.",
     arrivalShort: "Tiba",
+    schematicTitle: "Kemajuan rute langsung",
+    schematicPosition: "Posisi saat ini",
   },
   hub: {
     modeFeederNonBrt: "Feeder Non-BRT {code}",

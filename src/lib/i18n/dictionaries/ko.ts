@@ -704,6 +704,8 @@ export const ko: TranslationDictionary = {
     followingTrip: "팔로우 중",
     gatewayBoardEmpty: "이 시간대에는 게이트웨이 운행이 없습니다.",
     arrivalShort: "도착",
+    schematicTitle: "실시간 경로 진행 상황",
+    schematicPosition: "현재 위치",
   },
   hub: {
     modeFeederNonBrt: "비-BRT 피더 {code}",

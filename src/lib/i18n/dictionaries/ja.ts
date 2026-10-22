@@ -704,6 +704,8 @@ export const ja: TranslationDictionary = {
     followingTrip: "フォロー中",
     gatewayBoardEmpty: "この時間帯のゲートウェイ便はありません。",
     arrivalShort: "着",
+    schematicTitle: "ライブ経路の進行状況",
+    schematicPosition: "現在位置",
   },
   hub: {
     modeFeederNonBrt: "ノンBRTフィーダー {code}",

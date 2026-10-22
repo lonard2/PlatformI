@@ -16,6 +16,12 @@ import {
   isGatewayHub,
   getRunIdForBoardItem,
 } from "@/components/inspector/HubDetailSheet";
+import {
+  IntercitySchematic,
+  computeSchematicFraction,
+  getSchematicStops,
+} from "@/components/inspector/IntercitySchematic";
+import type { TimetableRun } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useLanguageStore } from "@/lib/i18n";
 import { TRANSIT_STOPS, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
@@ -124,5 +130,114 @@ describe("Intercity gateway boards", () => {
     expect(
       getRunIdForBoardItem({ tripId: "trip-line-x-0" } as DepartureBoardItem)
     ).toBeNull();
+  });
+
+  it("renders schematic stops with live position", () => {
+    // run-wh-1012 is the Whoosh trip G1012 Halim HSR -> Tegalluar.
+    render(<IntercitySchematic runId="run-wh-1012" fraction={0.5} />);
+    expect(screen.getByText(/Halim/i)).toBeInTheDocument();
+  });
+
+  it("interpolates schematic fraction from timetable times clamped to 0..1", () => {
+    const run = {
+      id: "run-kai-01",
+      lineId: "line-kai-intercity",
+      tripCode: "KA-01",
+      origin: "Stasiun Gambir (GMR)",
+      destination: "Surabaya Pasarturi (SBI)",
+      departureTime: "08:20",
+      arrivalTime: "16:30",
+      operatorName: "PT Kereta Api Indonesia (Persero)",
+    } as TimetableRun;
+    const at = (hhmm: string) =>
+      new Date(`2026-01-15T${hhmm}:00+07:00`).getTime();
+    expect(computeSchematicFraction(run, at("08:20"))).toBe(0);
+    expect(computeSchematicFraction(run, at("12:25"))).toBeCloseTo(0.5, 5);
+    expect(computeSchematicFraction(run, at("16:30"))).toBe(1);
+    expect(computeSchematicFraction(run, at("06:00"))).toBe(0);
+    expect(computeSchematicFraction(run, at("20:00"))).toBe(1);
+  });
+
+  it("handles overnight timetable windows in schematic fraction", () => {
+    const run = {
+      id: "run-night",
+      lineId: "line-tj-cor-1",
+      tripCode: "TJ-108",
+      origin: "Halte Blok M",
+      destination: "Halte Kota",
+      departureTime: "23:30",
+      arrivalTime: "00:25",
+      operatorName: "PT Transportasi Jakarta",
+    } as TimetableRun;
+    const at = (day: string, hhmm: string) =>
+      new Date(`${day}T${hhmm}:00+07:00`).getTime();
+    expect(
+      computeSchematicFraction(run, at("2026-01-15", "23:50"))
+    ).toBeCloseTo(20 / 55, 5);
+    expect(
+      computeSchematicFraction(run, at("2026-01-16", "00:10"))
+    ).toBeCloseTo(40 / 55, 5);
+    expect(computeSchematicFraction(run, at("2026-01-15", "12:00"))).toBe(0);
+  });
+
+  it("renders intermediate stop ticks from stopTimesJson when present", () => {
+    const run = {
+      id: "run-stops",
+      lineId: "line-kai-intercity",
+      tripCode: "KA-99",
+      origin: "Stasiun Gambir (GMR)",
+      destination: "Surabaya Pasarturi (SBI)",
+      departureTime: "08:20",
+      arrivalTime: "16:30",
+      operatorName: "PT Kereta Api Indonesia (Persero)",
+      stopTimes: [
+        {
+          stopId: "s1",
+          stopName: "Stasiun Gambir",
+          stopSequence: 1,
+          arrivalTime: "08:20",
+          departureTime: "08:25",
+        },
+        {
+          stopId: "s2",
+          stopName: "Cirebon",
+          stopSequence: 2,
+          arrivalTime: "11:00",
+          departureTime: "11:05",
+        },
+        {
+          stopId: "s3",
+          stopName: "Surabaya Pasarturi",
+          stopSequence: 3,
+          arrivalTime: "16:30",
+          departureTime: "16:30",
+        },
+      ],
+    } as TimetableRun;
+    expect(getSchematicStops(run, run.id)).toEqual([
+      "Stasiun Gambir",
+      "Cirebon",
+      "Surabaya Pasarturi",
+    ]);
+    const at = (hhmm: string) =>
+      new Date(`2026-01-15T${hhmm}:00+07:00`).getTime();
+    // StopTimes window (08:25 -> 16:30) governs, not the header times.
+    expect(computeSchematicFraction(run, at("08:25"))).toBe(0);
+    expect(computeSchematicFraction(run, at("08:20"))).toBe(0);
+  });
+
+  it("embeds the schematic in the followed trip detail", async () => {
+    render(<HubDetailSheet stopId="stop-kai-gmr" />);
+    await screen.findByText(/KA-01/i);
+    fireEvent.click(
+      screen.getByRole("button", { name: /follow this trip/i })
+    );
+    const rowButton = screen.getByText("KA-01").closest("button");
+    if (!rowButton) throw new Error("trip row button not found");
+    fireEvent.click(rowButton);
+    expect(screen.getByText(/live route progress/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /current position/i })
+    ).toBeInTheDocument();
   });
 });

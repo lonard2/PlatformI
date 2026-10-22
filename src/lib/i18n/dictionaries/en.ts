@@ -704,6 +704,8 @@ export const en: TranslationDictionary = {
     followingTrip: "Following",
     gatewayBoardEmpty: "No gateway trips scheduled in this window.",
     arrivalShort: "Arr",
+    schematicTitle: "Live route progress",
+    schematicPosition: "Current position",
   },
   hub: {
     modeFeederNonBrt: "Non-BRT Feeder {code}",

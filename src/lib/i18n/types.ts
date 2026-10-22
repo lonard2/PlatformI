@@ -728,6 +728,8 @@ export interface TranslationDictionary {
     followingTrip: string;
     gatewayBoardEmpty: string;
     arrivalShort: string;
+    schematicTitle: string;
+    schematicPosition: string;
   };
   hub: {
     modeFeederNonBrt: string;

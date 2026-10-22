@@ -704,6 +704,8 @@ export const zh: TranslationDictionary = {
     followingTrip: "已关注",
     gatewayBoardEmpty: "此时段暂无枢纽车次。",
     arrivalShort: "到",
+    schematicTitle: "实时路线进度",
+    schematicPosition: "当前位置",
   },
   hub: {
     modeFeederNonBrt: "非BRT接驳 {code}",
