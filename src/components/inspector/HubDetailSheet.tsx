@@ -768,6 +768,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   // trip is followed; idle otherwise so unfollowed sheets never tick.
   useEffect(() => {
     if (!followedRunId) return;
+    setSchematicNow(Date.now());
     const timer = window.setInterval(() => setSchematicNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, [followedRunId]);

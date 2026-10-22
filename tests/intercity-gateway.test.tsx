@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import {
   HubDetailSheet,
   isGatewayHub,
@@ -156,6 +156,18 @@ describe("Intercity gateway boards", () => {
     expect(computeSchematicFraction(run, at("16:30"))).toBe(1);
     expect(computeSchematicFraction(run, at("06:00"))).toBe(0);
     expect(computeSchematicFraction(run, at("20:00"))).toBe(1);
+    expect(
+      computeSchematicFraction(
+        { ...run, departureTime: "24:30" } as TimetableRun,
+        at("12:25")
+      )
+    ).toBe(0);
+    expect(
+      computeSchematicFraction(
+        { ...run, arrivalTime: "08:20" } as TimetableRun,
+        at("12:25")
+      )
+    ).toBe(0);
   });
 
   it("handles overnight timetable windows in schematic fraction", () => {
@@ -227,17 +239,19 @@ describe("Intercity gateway boards", () => {
   });
 
   it("embeds the schematic in the followed trip detail", async () => {
-    render(<HubDetailSheet stopId="stop-kai-gmr" />);
+    const { container } = render(<HubDetailSheet stopId="stop-kai-gmr" />);
     await screen.findByText(/KA-01/i);
-    fireEvent.click(
-      screen.getByRole("button", { name: /follow this trip/i })
+    const followButton = container.querySelector(
+      'button[data-run-id="run-kai-01"]'
     );
+    if (!followButton) throw new Error("follow button not found");
+    fireEvent.click(followButton);
     const rowButton = screen.getByText("KA-01").closest("button");
     if (!rowButton) throw new Error("trip row button not found");
     fireEvent.click(rowButton);
-    expect(screen.getByText(/live route progress/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("img", { name: /current position/i })
-    ).toBeInTheDocument();
+    const schematic = screen.getByTestId("intercity-schematic");
+    expect(schematic).toBeInTheDocument();
+    expect(within(schematic).getByRole("img")).toBeInTheDocument();
+    expect(schematic).toHaveTextContent("Surabaya Pasarturi");
   });
 });

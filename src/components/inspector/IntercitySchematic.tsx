@@ -25,11 +25,12 @@ export interface IntercitySchematicProps {
 
 function parseHhMmToMinutes(value: string | undefined | null): number | null {
   if (!value) return null;
-  const match = /^(\d{1,2}):(\d{2})/.exec(value.trim());
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
   if (!match) return null;
   const hours = parseInt(match[1], 10);
   const minutes = parseInt(match[2], 10);
   if (hours > 24 || minutes > 59) return null;
+  if (hours === 24 && minutes !== 0) return null;
   return (hours === 24 ? 0 : hours) * 60 + minutes;
 }
 
@@ -82,11 +83,16 @@ function resolveSchematicWindow(run: TimetableRun): SchematicWindow | null {
   const departureMinutes = parseHhMmToMinutes(departureStr);
   const arrivalMinutes = parseHhMmToMinutes(arrivalStr);
   if (departureMinutes === null || arrivalMinutes === null) return null;
-  let durationMinutes = arrivalMinutes - departureMinutes;
-  const overnight = durationMinutes <= 0;
-  if (overnight) durationMinutes += 1440;
-  if (durationMinutes <= 0) return null;
-  return { departureMinutes, durationMinutes, overnight };
+  const durationMinutes = arrivalMinutes - departureMinutes;
+  // A zero-duration window carries no progress information, so it is
+  // invalid; a negative window crosses midnight into the next day.
+  if (durationMinutes === 0) return null;
+  const overnight = durationMinutes < 0;
+  return {
+    departureMinutes,
+    durationMinutes: overnight ? durationMinutes + 1440 : durationMinutes,
+    overnight,
+  };
 }
 
 /**
@@ -136,6 +142,7 @@ export function IntercitySchematic({ runId, fraction }: IntercitySchematicProps)
   return (
     <section
       aria-label={`${t.hubInspector.schematicTitle}: ${stops[0]} - ${stops[stops.length - 1]}`}
+      data-testid="intercity-schematic"
       className="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 space-y-2"
     >
       <div className="flex items-center justify-between gap-2">
