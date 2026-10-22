@@ -14,6 +14,7 @@ import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
+import { isInsideJabodetabek } from "@/lib/transit/regionBox";
 import { Vehicle, CrowdDensityLevel } from "@/types/transit";
 
 interface VehicleMarkerLayerProps {
@@ -41,6 +42,18 @@ interface MarkerCacheEntry {
   lastCrowdLevel: CrowdDensityLevel;
   lineId: string;
   lastDimmed: boolean;
+}
+
+/**
+ * Returns only vehicles currently inside the Jabodetabek region box.
+ * Filters by current latitude/longitude; returns a new array and never
+ * mutates the simulation list. Intercity trips outside the box render on
+ * the gateway schematic line instead of as Leaflet markers.
+ */
+export function selectVisibleVehicles(vehicles: Vehicle[]): Vehicle[] {
+  return vehicles.filter((v) =>
+    isInsideJabodetabek(v.currentLatitude, v.currentLongitude)
+  );
 }
 
 export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
@@ -224,8 +237,9 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
     const layerGroup = layerGroupRef.current;
     const currentMarkerMap = markerMapRef.current;
     const activeVehicleIds = new Set<string>();
+    const visibleVehicles = selectVisibleVehicles(simulatedVehicles);
 
-    for (const vehicle of simulatedVehicles) {
+    for (const vehicle of visibleVehicles) {
       // Filter out unselected transit modes
       if (!selectedModes.includes(vehicle.mode)) {
         continue;
