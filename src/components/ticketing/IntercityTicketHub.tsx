@@ -315,13 +315,16 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     setIsPaying(true);
     setPayError(null);
     try {
-      const originStopId = `intercity:${selectedRun.id}:origin`;
-      const destinationStopId = `intercity:${selectedRun.id}:destination`;
+      const originStopId = `INTERCITY:${selectedRun.id}:ORIGIN`;
+      const destinationStopId = `INTERCITY:${selectedRun.id}:DESTINATION`;
       const res = await fetch("/api/ticketing/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: "USR-INTERCITY-GUEST",
+          userId: "guest",
+          runId: selectedRun.id,
+          tripCode: selectedRun.tripCode,
+          travelDate: date || undefined,
           originStopId,
           destinationStopId,
           legs: [
@@ -331,12 +334,22 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
               originStopId,
               destinationStopId,
               mode: selectedMode,
-              fareRp,
-              distanceKm: 0,
+              fareRp: fareRp,
             },
           ],
           totalFareRp: fareRp,
           isJakLingkoCapped: false,
+          buyer: {
+            fullName: buyer.fullName,
+            phone: buyer.phone,
+            email: buyer.email,
+            idNumber: buyer.idNumber,
+          },
+          seatId: seatId ?? undefined,
+          serviceClass: selectedRun.serviceClass ?? undefined,
+          meal: buyer.meal ?? undefined,
+          dropOffPointId: buyer.dropOffPointId ?? undefined,
+          paymentResult: "success",
         }),
       });
       if (!res.ok) throw new Error(t.ticketing.errorPaymentFailed);
@@ -346,7 +359,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     } finally {
       setIsPaying(false);
     }
-  }, [selectedRun, buyer, selectedMode, fareRp, t]);
+  }, [selectedRun, buyer, selectedMode, fareRp, date, seatId, t]);
 
   const stepLabels = [
     t.ticketing.hubStepTrip,

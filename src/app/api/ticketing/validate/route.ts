@@ -6,6 +6,7 @@
  * - HMAC-SHA256 security token verification
  * - +/- 1 window (30s) clock skew tolerance
  * - Anti-replay gate protection
+ * - Ticket-number validation with REFUNDED / FAILED / EXPIRED rejection
  * - Gate turnstile state lifecycle (ACTIVE -> IN_JOURNEY -> COMPLETED)
  *
  * Rules: Zero placeholder stubs, zero emojis, strict TypeScript typing (no 'any').
@@ -14,14 +15,78 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { validateRollingQRToken } from "@/lib/services/qrSecurityService";
+import { ticketStateReason } from "@/lib/ticketing/reservationContract";
 
 // In-memory gate scanned nonce store for active replay prevention
 const scannedNoncesCache = new Set<string>();
 
+interface TicketStateRow {
+  ticketNumber: string;
+  status: string;
+  expiresAt: Date;
+}
+
+function denyState(ticketNumber: string, reason: string) {
+  return NextResponse.json(
+    {
+      valid: false,
+      isValid: false,
+      gateAction: "DENY",
+      ticketNumber,
+      reason,
+      errorReason: reason,
+      message: `Turnstile access denied: ${reason}`,
+    },
+    { status: 403 }
+  );
+}
+
+async function validateByTicketNumber(ticketNumber: string) {
+  let record: TicketStateRow | null = null;
+  try {
+    record = await db.ticket.findUnique({
+      where: { ticketNumber },
+      select: { ticketNumber: true, status: true, expiresAt: true },
+    });
+  } catch {
+    record = null;
+  }
+  if (!record) {
+    return NextResponse.json(
+      {
+        valid: false,
+        isValid: false,
+        gateAction: "DENY",
+        ticketNumber,
+        reason: "TICKET_NOT_FOUND",
+        errorReason: "TICKET_NOT_FOUND",
+        message: "Turnstile access denied: TICKET_NOT_FOUND",
+      },
+      { status: 404 }
+    );
+  }
+  const reason = ticketStateReason(record.status, record.expiresAt);
+  if (reason) {
+    return denyState(ticketNumber, reason);
+  }
+  return NextResponse.json({
+    valid: true,
+    isValid: true,
+    gateAction: "OPEN",
+    ticketNumber,
+    status: record.status,
+    message: "Ticket is valid for travel.",
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { qrPayload, stationId = "GATE-MAIN", scanType = "TAP_IN" } = body;
+    const { qrPayload, stationId = "GATE-MAIN", scanType = "TAP_IN", ticketNumber } = body;
+
+    if (typeof ticketNumber === "string" && ticketNumber.trim() !== "") {
+      return validateByTicketNumber(ticketNumber.trim());
+    }
 
     if (!qrPayload) {
       return NextResponse.json(
@@ -63,6 +128,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (ticketRecord) {
+        const reason = ticketStateReason(ticketRecord.status, ticketRecord.expiresAt);
+        if (reason) {
+          return denyState(ticketRecord.ticketNumber, reason);
+        }
         const nextStatus = scanType === "TAP_IN" ? "IN_JOURNEY" : "COMPLETED";
         ticketRecord = await db.ticket.update({
           where: { ticketNumber: validation.ticketId },
