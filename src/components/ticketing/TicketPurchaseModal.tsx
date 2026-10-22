@@ -216,6 +216,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
         createdAt: data.ticket.createdAt,
         expiresAt: data.ticket.expiresAt,
         rollingToken: data.ticket.rollingToken,
+        reservationCode: data.ticket.reservationCode,
       };
 
       setCreatedTicket(ticket);

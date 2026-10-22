@@ -76,7 +76,7 @@ export type VehicleOperationalStatus =
 
 export type DisruptionSeverity = "INFO" | "WARNING" | "CRITICAL";
 
-export type TicketStatus = "ACTIVE" | "IN_JOURNEY" | "COMPLETED" | "EXPIRED" | "CANCELLED";
+export type TicketStatus = "ACTIVE" | "IN_JOURNEY" | "COMPLETED" | "EXPIRED" | "CANCELLED" | "WAITING" | "FAILED" | "REFUNDED";
 
 export type SeatDeck = "SINGLE" | "LOWER" | "UPPER";
 
@@ -388,6 +388,13 @@ export interface Ticket {
   expiresAt: string;
   rollingToken: string;
   gateScannedAt?: string;
+  guestEmail?: string;
+  guestPhone?: string;
+  idNumber?: string;
+  seatId?: string;
+  serviceClass?: string;
+  reservationCode: string;
+  claimedByUserId?: string | null;
 }
 
 export type TripOperationalType =

@@ -166,6 +166,13 @@ model Ticket {
   expiresAt         DateTime
   rollingToken      String
   gateScannedAt     DateTime?
+  guestEmail        String?
+  guestPhone        String?
+  idNumber          String?
+  seatId            String?
+  serviceClass      String?
+  reservationCode   String    @unique @default(cuid())
+  claimedByUserId   String?
 }
 
 model TimetableRun {

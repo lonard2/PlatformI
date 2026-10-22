@@ -80,6 +80,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       rollingToken: "PLATFORMI:TKT-MRT-88219:USR-JAKARTA-01:0:init",
+      reservationCode: "RSV-MRT-88219",
     },
     {
       id: "tkt-tj-02",
@@ -104,6 +105,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
       createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
       expiresAt: new Date(Date.now() + 22 * 3600 * 1000).toISOString(),
       rollingToken: "PLATFORMI:TKT-TJ-44102:USR-JAKARTA-01:0:init",
+      reservationCode: "RSV-TJ-44102",
     },
   ]);
 
