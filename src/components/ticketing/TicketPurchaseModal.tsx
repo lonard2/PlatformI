@@ -39,7 +39,7 @@ import {
   JakLingkoLegInput,
   JakLingkoTripResult,
 } from "@/lib/services/fareCalculator";
-import { Ticket, Stop, Line } from "@/types/transit";
+import { Ticket, Stop, Line, TimetableRun } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
 interface TicketPurchaseModalProps {
@@ -48,6 +48,7 @@ interface TicketPurchaseModalProps {
   onTicketPurchased?: (ticket: Ticket) => void;
   initialOriginStopId?: string | null;
   initialDestinationStopId?: string | null;
+  preselectedIntercityRun?: TimetableRun | null;
 }
 
 export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
@@ -56,6 +57,7 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
   onTicketPurchased,
   initialOriginStopId,
   initialDestinationStopId,
+  preselectedIntercityRun = null,
 }) => {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
@@ -325,6 +327,26 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-500/40 flex items-center gap-2 text-xs text-rose-300">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                   <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* Intercity run preselect from a gateway board */}
+              {preselectedIntercityRun && (
+                <div className="p-3.5 rounded-xl bg-cyan-950/50 border border-cyan-500/40 space-y-1 text-xs">
+                  <p className="font-mono font-bold text-white">
+                    {preselectedIntercityRun.tripCode}
+                  </p>
+                  <p className="text-slate-300">
+                    {preselectedIntercityRun.origin} &rarr; {preselectedIntercityRun.destination}
+                  </p>
+                  <p className="font-mono text-[11px] text-cyan-300">
+                    {preselectedIntercityRun.departureTime}&ndash;{preselectedIntercityRun.arrivalTime} &bull; {preselectedIntercityRun.operatorName}
+                  </p>
+                  {preselectedIntercityRun.serviceClass && (
+                    <p className="text-[11px] text-slate-400">
+                      {preselectedIntercityRun.serviceClass}
+                    </p>
+                  )}
                 </div>
               )}
 
