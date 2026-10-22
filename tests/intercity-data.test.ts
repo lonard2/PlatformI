@@ -22,4 +22,28 @@ describe("intercity data models", () => {
     expect(schema).toContain("operatorId");
     expect(schema).toContain("boardingPointIdsJson");
   });
+
+  it("seed is idempotent on second run", async () => {
+    const { seedIntercity } = await import("../prisma/seed-intercity");
+    const first = await seedIntercity();
+    const second = await seedIntercity();
+    expect(second.runs).toBe(first.runs);
+    expect(second.operators).toBe(first.operators);
+    expect(first.runs).toBeGreaterThan(0);
+  });
+
+  it("seed validation rejects an invalid HH:mm time naming the trip code", async () => {
+    const { validateIntercitySeedRow } = await import("../prisma/seed-intercity");
+    expect(() =>
+      validateIntercitySeedRow({
+        tripCode: "KA-999",
+        lineCode: "KAI",
+        origin: "Stasiun Gambir (GMR)",
+        destination: "Surabaya Pasarturi (SBI)",
+        departureTime: "25:00",
+        arrivalTime: "16:30",
+        operatorCode: "KAI",
+      }),
+    ).toThrow(/KA-999/);
+  });
 });

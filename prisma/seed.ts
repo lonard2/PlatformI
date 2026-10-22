@@ -13,6 +13,7 @@ import {
   VEHICLE_TECHNICAL_SPECS,
   DISRUPTION_ALERTS,
 } from "../src/lib/data/jakarta-dataset";
+import { seedIntercity } from "./seed-intercity";
 
 const prisma = new PrismaClient();
 
@@ -236,6 +237,14 @@ async function main() {
   });
 
   console.log("[PlatformI Seeder] Successfully finished database population!");
+
+  // 10. Seed intercity timetables LAST: the city clean step above wipes lines
+  // (cascading timetable runs), so the versioned intercity ingester runs after
+  // city tables to upsert operators, boarding points, and runs idempotently.
+  const intercity = await seedIntercity(prisma);
+  console.log(
+    `[PlatformI Seeder] Seeded intercity v1: ${intercity.operators} operators, ${intercity.runs} runs.`,
+  );
 }
 
 main()
