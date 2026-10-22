@@ -754,3 +754,22 @@ export const JABODETABEK_EXTENDED_BOUNDS = {
   west: 106.3,
   east: 107.8,
 };
+
+export interface JabodetabekBounds {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+}
+
+/**
+ * Jabodetabek live-map region box: Jakarta plus Bodetabek with a small
+ * margin. Inclusive edges count as inside so edge vehicles do not flicker
+ * between map and schematic rendering.
+ */
+export const JABODEBEK_BOUNDS: JabodetabekBounds = {
+  minLat: -6.9,
+  maxLat: -5.7,
+  minLng: 106.3,
+  maxLng: 107.8,
+};
