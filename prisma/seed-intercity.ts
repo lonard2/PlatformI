@@ -149,6 +149,17 @@ export function validateIntercitySeedRow(row: IntercitySeedRow): void {
       );
     }
   }
+  const operator = INTERCITY_OPERATORS.find((candidate) => candidate.code === row.operatorCode);
+  if (operator) {
+    const valid = new Set(operator.boardingPoints.map((p) => p.code));
+    for (const code of row.boardingPointCodes ?? []) {
+      if (!valid.has(code)) {
+        throw new Error(
+          `Invalid timetable row ${row.tripCode}: unknown boarding point "${code}" for operator "${operator.code}"`,
+        );
+      }
+    }
+  }
 }
 
 export async function seedIntercity(externalClient?: PrismaClient): Promise<SeedIntercityResult> {
@@ -246,6 +257,14 @@ export async function seedIntercity(externalClient?: PrismaClient): Promise<Seed
       const operatorId = operatorRecordId(operator.code);
       const line = TRANSIT_LINES.find((candidate) => candidate.code === row.lineCode);
       if (!line) continue;
+      const valid = new Set(operator.boardingPoints.map((p) => p.code));
+      for (const code of row.boardingPointCodes ?? []) {
+        if (!valid.has(code)) {
+          throw new Error(
+            `Invalid timetable row ${row.tripCode}: unknown boarding point "${code}" for operator "${operator.code}"`,
+          );
+        }
+      }
       const boardingPointIds = (row.boardingPointCodes ?? []).map((code) =>
         boardingPointRecordId(operator.code, code),
       );

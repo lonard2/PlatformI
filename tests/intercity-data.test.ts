@@ -46,6 +46,22 @@ describe("intercity data models", () => {
       }),
     ).toThrow(/KA-999/);
   });
+
+  it("seed validation rejects an unknown boarding point naming trip and point codes", async () => {
+    const { validateIntercitySeedRow } = await import("../prisma/seed-intercity");
+    expect(() =>
+      validateIntercitySeedRow({
+        tripCode: "KA-101",
+        lineCode: "KAI",
+        origin: "Stasiun Gambir (GMR)",
+        destination: "Surabaya Pasarturi (SBI)",
+        departureTime: "08:20",
+        arrivalTime: "16:30",
+        operatorCode: "KAI",
+        boardingPointCodes: ["GMR-GATE-C"],
+      }),
+    ).toThrow(/GMR-GATE-C/);
+  });
 });
 
 describe("intercity lookup APIs", () => {
