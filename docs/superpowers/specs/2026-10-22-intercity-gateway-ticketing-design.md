@@ -10,7 +10,7 @@ The answer is exit doors, not second-class maps. The interior network (MRT, LRT,
 Why this shape: performance (no markers or vehicles rendered outside Jabodetabek), fairness (intercity does not compete visually with daily city transit), and truth (a board plus a schematic line is more honest than a fake precise dot over Surabaya).
 
 ## 2. Goals
-- Every intercity departure and arrival is findable from its Jakarta gateway (Gambir, Pasar Senen, Halim, Soekarno-Hatta CGK, Halim HLP, Pulo Gebang, Kampung Rambutan, Kalideres, Tanjung Priok, Muara Angke and Marina Ancol).
+- Every intercity departure and arrival is findable from its Jakarta gateway (Gambir, Pasar Senen, Halim, Soekarno-Hatta CGK, Halim HLP, Pulo Gebang, Kampung Rambutan, Kalideres, Tanjung Priok, Muara Angke and Marina Ancol), delivered in phased slices, not all at once.
 - Each trip shows a full timetable with stops, plus a followable live status.
 - One ticket hub serves two entries: from a trip board and from search by mode, company, and route.
 - Checkout reuses the existing wallet (TicketPurchaseModal and DigitalPassWallet merged, not a parallel store).
@@ -19,7 +19,7 @@ Why this shape: performance (no markers or vehicles rendered outside Jabodetabek
 - Per-mode preference matrix so no one is offered a fake choice (for example no drop-off on rail, no free meal on Argo Executive).
 
 ## 3. Non-goals
-- No real payment gateway or airline PNR integration in this pass. Checkout produces a consistent reservation record in the wallet that can be inspected and simulated.
+- No real payment gateway or airline PNR integration in this pass. Checkout produces a wallet reservation with code and QR, viewable and cancellable, with successful, waiting, failed, and refund states where feasible.
 - No live GPS outside Jabodetabek. Outside the region the trip is a schematic progress line, not a map marker.
 - No machine translation of operator entity names. Operator, station, and place nouns stay in Indonesian.
 
@@ -41,7 +41,7 @@ Why this shape: performance (no markers or vehicles rendered outside Jabodetabek
 Chosen over a separate Keluar Jakarta tab and over full-map intercity dots. The home map stays interior-only. Each gateway hub owns arrival and departure boards. Each trip has a detail view with stops, status, and a schematic Jakarta to destination line. A Follow this trip action jumps to the timetable detail and schematic, never pans the map to another island. Board rows show operator, trip code, times, and price from.
 
 ### 6.2 Ticket hub: board path plus search path
-Both land in the same checkout and wallet. Search filters by mode (rail, AKAP, shuttle, flight, ship), company (KAI, KCIC, Garuda, Citilink, Lion, Batik, PELNI, Sinar Jaya, DayTrans, Baraya, and others as data), and route (origin, destination, date). Search is open without login. Purchase requires buyer identity.
+Both land in the same checkout and wallet. Search filters by mode (rail, AKAP, shuttle, flight, ship), company (KAI, KCIC, Garuda, Citilink, Lion, Batik, PELNI, Sinar Jaya, DayTrans, Baraya, and others as data), and route (origin, destination, date). Search is open without login. Purchase requires buyer identity. Guests may complete purchase logged out; they keep ticket access through PDF, email, ticket code, or a dedicated lookup page, while logged-out payment details and purchase history are not saved into the app database.
 
 ### 6.3 Buyer profile
 Core from account with manual fallback. Mandatory for every purchase: full name, phone number, email (used for ticket information and retrieval). Optional: sex, address. Conditionally mandatory ID number: required for flights, KAI intercity rail, and PELNI ships; optional for AKAP and shuttle unless the operator requires it. Preferences are per-mode (see matrix), including meal preference, prayer space request, and drop-off note. Phone is the retrieval key for guests.
@@ -60,6 +60,10 @@ Hidden means not shown. Optional means shown but skippable. Required means check
 - Shuttle and travel (DayTrans, Baraya, and peers): seat map plus drop-off as a choice from that operator's own pickup and drop point list. Free address entry is not allowed. Meal only if the operator offers it.
 - PELNI ship and speedboat: deck or cabin choice, meal where served. ID required.
 
+### 6.7 Data and phasing (your calls)
+- Intercity timetables, stops, prices, and company lists are ingested new, replacing existing intercity data where possible, rather than patching the old seed.
+- Delivery is sliced gateway by gateway and mode by mode, never everything at once. Suggested first slice is one rail gateway plus the ticket hub skeleton, then flights, then road and sea.
+- Wallet reservation is the bare minimal contract: code plus QR, view and cancel, with successful, waiting, failed, and refund flows where feasible.
 ### 6.6 Status and tracking
 Trips carry timetable-derived times plus a live state (on time, boarding, delayed, running, arrived). Live map dots render only when the vehicle is inside the region box. Outside, status plus schematic fraction is the tracking surface, fed by the same timetable and headway data already in the app.
 
@@ -72,5 +76,10 @@ Trips carry timetable-derived times plus a live state (on time, boarding, delaye
 - Seat map layouts per vehicle type and how blocked seats are sourced.
 - Analytics for board to search to purchase conversion.
 
-## 8. Open threads for the reviewer
+## 8. Builder-check calls (settled without changing what gets built)
+- Live status outside the region is timetable plus simulation-clock interpolation, no external operator feed. Same engine pattern as the existing simulation, extended to a schematic fraction.
+- Search defaults for this pass: origin defaults to Jakarta gateways, destination is anywhere the dataset covers, date is a single day, company list is data-driven from the dataset.
+- Operator overrides live as data fields per operator and route, not hard-coded branches. ID accepts NIK or passport with basic format checks.
+
+## 9. Open threads for the reviewer
 - None intentionally left. Builder check will surface any.
