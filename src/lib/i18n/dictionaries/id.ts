@@ -698,6 +698,12 @@ export const id: TranslationDictionary = {
     filterBus: "Bus & Feeder",
     filterIntercity: "Antarkota",
     operationalNotes: "Catatan Operasional:",
+    gatewayBoardTitle: "Keberangkatan & Kedatangan Gateway",
+    gatewayBoardSubtitle: "Perjalanan antarkota yang tiba dan berangkat melampaui wilayah metro",
+    followTrip: "Ikuti perjalanan ini",
+    followingTrip: "Diikuti",
+    gatewayBoardEmpty: "Tidak ada perjalanan gateway yang terjadwal pada rentang ini.",
+    arrivalShort: "Tiba",
   },
   hub: {
     modeFeederNonBrt: "Feeder Non-BRT {code}",

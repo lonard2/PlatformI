@@ -698,6 +698,12 @@ export const ko: TranslationDictionary = {
     filterBus: "버스 및 피더",
     filterIntercity: "도시간",
     operationalNotes: "운행 참고사항:",
+    gatewayBoardTitle: "게이트웨이 출발·도착",
+    gatewayBoardSubtitle: "광역권을 넘나드는 장거리 노선의 도착과 출발",
+    followTrip: "이 여정 팔로우",
+    followingTrip: "팔로우 중",
+    gatewayBoardEmpty: "이 시간대에는 게이트웨이 운행이 없습니다.",
+    arrivalShort: "도착",
   },
   hub: {
     modeFeederNonBrt: "비-BRT 피더 {code}",

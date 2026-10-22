@@ -698,6 +698,12 @@ export const ar: TranslationDictionary = {
     filterBus: "الحافلات والتغذية",
     filterIntercity: "بين المدن",
     operationalNotes: "ملاحظات تشغيلية:",
+    gatewayBoardTitle: "مغادرة ووصول البوابة",
+    gatewayBoardSubtitle: "رحلات بين المدن تصل وتغادر خارج المنطقة الحضرية",
+    followTrip: "تتبع هذه الرحلة",
+    followingTrip: "قيد التتبع",
+    gatewayBoardEmpty: "لا توجد رحلات بوابة مجدولة في هذه الفترة.",
+    arrivalShort: "وصول",
   },
   hub: {
     modeFeederNonBrt: "مغذي غير BRT {code}",

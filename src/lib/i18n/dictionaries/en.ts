@@ -698,6 +698,12 @@ export const en: TranslationDictionary = {
     filterBus: "Bus & Feeder",
     filterIntercity: "Intercity",
     operationalNotes: "Operational Notes:",
+    gatewayBoardTitle: "Gateway Departures & Arrivals",
+    gatewayBoardSubtitle: "Intercity trips arriving and departing beyond the metro region",
+    followTrip: "Follow this trip",
+    followingTrip: "Following",
+    gatewayBoardEmpty: "No gateway trips scheduled in this window.",
+    arrivalShort: "Arr",
   },
   hub: {
     modeFeederNonBrt: "Non-BRT Feeder {code}",

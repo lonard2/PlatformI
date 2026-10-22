@@ -722,6 +722,12 @@ export interface TranslationDictionary {
     filterBus: string;
     filterIntercity: string;
     operationalNotes: string;
+    gatewayBoardTitle: string;
+    gatewayBoardSubtitle: string;
+    followTrip: string;
+    followingTrip: string;
+    gatewayBoardEmpty: string;
+    arrivalShort: string;
   };
   hub: {
     modeFeederNonBrt: string;

@@ -698,6 +698,12 @@ export const zh: TranslationDictionary = {
     filterBus: "公交与接驳",
     filterIntercity: "城际",
     operationalNotes: "运营备注:",
+    gatewayBoardTitle: "枢纽到发车次",
+    gatewayBoardSubtitle: "往返都会区以外的城际到发车次",
+    followTrip: "关注此行程",
+    followingTrip: "已关注",
+    gatewayBoardEmpty: "此时段暂无枢纽车次。",
+    arrivalShort: "到",
   },
   hub: {
     modeFeederNonBrt: "非BRT接驳 {code}",

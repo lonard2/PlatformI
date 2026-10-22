@@ -698,6 +698,12 @@ export const ja: TranslationDictionary = {
     filterBus: "バス・フィーダー",
     filterIntercity: "都市間",
     operationalNotes: "運行注記:",
+    gatewayBoardTitle: "ゲートウェイ発着案内",
+    gatewayBoardSubtitle: "都市圏を越える都市間移動の到着と出発",
+    followTrip: "この便をフォロー",
+    followingTrip: "フォロー中",
+    gatewayBoardEmpty: "この時間帯のゲートウェイ便はありません。",
+    arrivalShort: "着",
   },
   hub: {
     modeFeederNonBrt: "ノンBRTフィーダー {code}",

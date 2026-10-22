@@ -45,6 +45,9 @@ import {
   ChevronDown,
   Gauge,
   Radio,
+  Radar,
+  BookmarkPlus,
+  BookmarkCheck,
   ExternalLink,
   Moon,
   Info,
@@ -646,6 +649,44 @@ export function generateDepartureBoard(
   return departures.sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
 }
 
+/**
+ * Gateway hubs whose boards surface intercity arrival/departure rows built
+ * from timetable runs (trip code, operator, times, service class, gate/bay,
+ * status) plus a Follow action carrying the run id for schematic tracking.
+ *
+ * Note: Halim Perdanakusuma (HLP) and Marina Ancol have no dedicated stop
+ * entities in the static dataset yet (only their lines exist), so they
+ * resolve through name/line matching inside generateDepartureBoard once
+ * stop entities are added.
+ */
+export const GATEWAY_HUB_STOP_IDS: readonly string[] = [
+  "stop-kai-gmr", // Gambir
+  "stop-kai-pse", // Pasar Senen
+  "stop-whoosh-hlm", // Halim HSR
+  "stop-shia-t3", // Soekarno-Hatta (CGK)
+  "stop-akap-pgb", // Pulo Gebang
+  "stop-hub-kbr", // Kampung Rambutan
+  "stop-hub-kld", // Kalideres
+  "stop-krl-tpk", // Tanjung Priok
+  "stop-sea-angke", // Muara Angke
+  "stop-maritime-angke", // Muara Angke (duplicate entity)
+];
+
+export function isGatewayHub(stop: Stop | null | undefined): boolean {
+  if (!stop) return false;
+  return GATEWAY_HUB_STOP_IDS.includes(stop.id);
+}
+
+/**
+ * Extracts the timetable run id from a departure board item. Custom-run rows
+ * are built as `tripId: run-<runId>` in generateDepartureBoard; procedural
+ * rows (`trip-<lineId>-<offset>`) carry no run id and return null.
+ */
+export function getRunIdForBoardItem(item: DepartureBoardItem): string | null {
+  if (item.tripId.startsWith("run-")) return item.tripId.slice(4);
+  return null;
+}
+
 function getMatchingSkybridgeId(stop: Stop): string | null {
   const name = stop.name.toLowerCase();
   const id = stop.id.toLowerCase();
@@ -689,6 +730,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const [expandedTripId, setExpandedTripId] = useState<string | null>(null);
   const [showEarlier, setShowEarlier] = useState(false);
   const [timetableOpen, setTimetableOpen] = useState(false);
+  const [followedRunId, setFollowedRunId] = useState<string | null>(null);
 
   const destinationGroups = stop ? HUB_DESTINATIONS_DATA[stop.id] || null : null;
   const [selectedGroupId, setSelectedGroupId] = useState<string>(
@@ -718,6 +760,8 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
     if (!stop) return [];
     return generateDepartureBoard(stop, allLines, t, customTimetables);
   }, [stop, allLines, t, customTimetables]);
+
+  const isGateway = useMemo(() => isGatewayHub(stop), [stop]);
 
   if (!stop) return null;
 
@@ -996,6 +1040,19 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
             {/* TAB 1: REAL-TIME DEPARTURE BOARDS WITH SEARCH & SELECTION */}
             {activeTab === "departures" && (
               <div className="space-y-3">
+                {isGateway && (
+                  <div className="p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-start gap-2.5">
+                    <Radar className="w-4 h-4 text-indigo-300 shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-indigo-200">
+                        {t.hubInspector.gatewayBoardTitle}
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono leading-relaxed">
+                        {t.hubInspector.gatewayBoardSubtitle}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {/* Search & Filter Controls */}
                 <div className="space-y-2">
                   <div className="relative">
@@ -1067,9 +1124,21 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                 )}
 
                 {visibleDepartures.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-slate-400 bg-slate-900/50 rounded-xl border border-slate-800 font-mono">
-                    {t.hubInspector.boardEmpty}
-                  </div>
+                  isGateway ? (
+                    <div className="p-5 text-center bg-slate-900/50 rounded-xl border border-slate-800 space-y-2">
+                      <Radar className="w-5 h-5 text-indigo-300 mx-auto" />
+                      <div className="text-xs font-bold text-slate-200">
+                        {t.hubInspector.gatewayBoardTitle}
+                      </div>
+                      <div className="text-[11px] text-slate-400 font-mono">
+                        {t.hubInspector.gatewayBoardEmpty}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-xs text-slate-400 bg-slate-900/50 rounded-xl border border-slate-800 font-mono">
+                      {t.hubInspector.boardEmpty}
+                    </div>
+                  )
                 ) : (
                   visibleDepartures.map((item, idx) => {
                     const meta = getStandardizedModeMeta(item.mode, item.lineCode, undefined, allLines, t);
@@ -1104,6 +1173,11 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
                     const StatusIcon = statusBadge.icon;
                     const matchedVehicle = (simulatedVehicles || []).find((v) => v.mode === item.mode);
+                    const runId = getRunIdForBoardItem(item);
+                    const boardRun = runId
+                      ? customTimetables.find((r) => r.id === runId)
+                      : undefined;
+                    const isFollowing = runId !== null && followedRunId === runId;
 
                     return (
                       <div
@@ -1114,10 +1188,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                             : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
                         }`}
                       >
-                        {/* Departure Row Header Button */}
+                        {/* Departure Row Header Buttons */}
+                        <div className="flex items-stretch">
                         <button
                           onClick={() => setExpandedTripId(isExpanded ? null : item.tripId)}
-                          className="w-full p-3.5 flex items-center justify-between gap-3 text-left transition"
+                          aria-expanded={isExpanded}
+                          className="flex-1 min-w-0 p-3.5 flex items-center justify-between gap-3 text-left transition"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             {/* Standardized Mode Icon */}
@@ -1165,6 +1241,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                                 <span className="text-slate-300 font-semibold">{item.platform}</span>
                                 <span>&bull;</span>
                                 <span>{t.hubInspector.estPrefix} <strong className="text-cyan-300">{item.estimatedTime} WIB</strong></span>
+                                {boardRun && (
+                                  <>
+                                    <span>&bull;</span>
+                                    <span>{t.hubInspector.arrivalShort} <strong className="text-indigo-300">{boardRun.arrivalTime} WIB</strong></span>
+                                  </>
+                                )}
                                 {item.trainsetNumber && (
                                   <>
                                     <span>&bull;</span>
@@ -1239,6 +1321,36 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                             </span>
                           </div>
                         </button>
+                          {runId && (
+                            <button
+                              type="button"
+                              onClick={() => setFollowedRunId(isFollowing ? null : runId)}
+                              aria-pressed={isFollowing}
+                              aria-label={
+                                isFollowing
+                                  ? `${t.hubInspector.followingTrip} ${item.runNumber ?? ""}`.trim()
+                                  : `${t.hubInspector.followTrip} ${item.runNumber ?? ""}`.trim()
+                              }
+                              title={
+                                isFollowing
+                                  ? t.hubInspector.followingTrip
+                                  : t.hubInspector.followTrip
+                              }
+                              data-run-id={runId}
+                              className={`shrink-0 w-11 my-2 mr-2 rounded-xl border flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                                isFollowing
+                                  ? "bg-indigo-950/80 border-indigo-400/60 text-indigo-200"
+                                  : "bg-slate-950/60 border-slate-700 text-slate-400 hover:text-indigo-200 hover:border-indigo-500/60"
+                              }`}
+                            >
+                              {isFollowing ? (
+                                <BookmarkCheck className="w-4 h-4" />
+                              ) : (
+                                <BookmarkPlus className="w-4 h-4" />
+                              )}
+                            </button>
+                          )}
+                        </div>
 
                         {/* Expandable Live Vehicle, Timetable & Run Detail Drawer */}
                         <AnimatePresence>
