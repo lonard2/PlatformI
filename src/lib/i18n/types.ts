@@ -936,6 +936,17 @@ export interface TranslationDictionary {
     simulateTapOut: string;
     noTrips: string;
     paidPrefix: string;
+    buyerTitle: string;
+    buyerFullName: string;
+    buyerPhone: string;
+    buyerEmail: string;
+    buyerIdNumber: string;
+    buyerMeal: string;
+    buyerMealPlaceholder: string;
+    buyerDropOff: string;
+    buyerDropOffPlaceholder: string;
+    buyerSubmit: string;
+    buyerFixErrors: string;
   };
   crowdsource: {
     liveFeedTitle: string;
