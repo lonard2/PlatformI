@@ -22,6 +22,7 @@ import {
   normalizeStopRef,
   readReservationEnvelope,
   resolveReservationStatus,
+  validateReservationLegs,
   validateStopRefs,
   writeReservationEnvelope,
   type ReservationBuyerInput,
@@ -116,6 +117,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    const legsError = validateReservationLegs(legs, originStopId, destinationStopId, {
+      runId,
+      tripCode,
+    });
+    if (legsError) {
+      return NextResponse.json({ error: legsError }, { status: 400 });
+    }
 
     const dropOffPointId = (body.dropOffPointId ?? "").trim();
     if (dropOffPointId !== "" && !KNOWN_DROP_OFF_POINTS.includes(dropOffPointId)) {
@@ -179,6 +187,7 @@ export async function POST(request: NextRequest) {
       travelDate: travelDate || undefined,
       meal: (body.meal ?? "").trim() || undefined,
       dropOffPointId: dropOffPointId || undefined,
+      buyerFullName: (buyer.fullName ?? "").trim() || undefined,
     });
 
     const record = {

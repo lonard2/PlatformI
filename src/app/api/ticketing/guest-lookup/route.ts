@@ -27,8 +27,11 @@ export async function GET(request: NextRequest) {
     let record = null;
     try {
       record = await db.ticket.findUnique({ where: { reservationCode: code } });
-    } catch {
-      record = null;
+    } catch (err) {
+      return NextResponse.json(
+        { error: "Failed to look up reservation", details: (err as Error).message },
+        { status: 500 }
+      );
     }
     if (!record || (record.guestPhone ?? "") !== phone) {
       return NextResponse.json({ error: "Reservation not found" }, { status: 404 });

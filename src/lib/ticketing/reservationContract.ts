@@ -48,6 +48,8 @@ export interface ReservationTripMeta {
   travelDate?: string;
   meal?: string;
   dropOffPointId?: string;
+  /** Buyer full name persisted here; the Ticket row has no buyer-name column. */
+  buyerFullName?: string;
 }
 
 export interface StoredReservationEnvelope {
@@ -151,6 +153,43 @@ export function validateStopRefs(options: {
   return null;
 }
 
+/** Type guard for a single stored leg; drops malformed entries. */
+function toSafeLeg(value: unknown): ReservationLegInput | null {
+  if (value === null || typeof value !== "object") return null;
+  const leg = value as Partial<ReservationLegInput>;
+  if (typeof leg.lineId !== "string" || typeof leg.mode !== "string") return null;
+  if (typeof leg.originStopId !== "string" || typeof leg.destinationStopId !== "string") {
+    return null;
+  }
+  if (typeof leg.fareRp !== "number" || !Number.isFinite(leg.fareRp)) return null;
+  return {
+    legIndex: typeof leg.legIndex === "number" ? leg.legIndex : 0,
+    lineId: leg.lineId,
+    originStopId: leg.originStopId,
+    destinationStopId: leg.destinationStopId,
+    mode: leg.mode,
+    fareRp: leg.fareRp,
+    distanceKm: typeof leg.distanceKm === "number" ? leg.distanceKm : undefined,
+  };
+}
+
+function toSafeTripMeta(value: unknown): ReservationTripMeta {
+  if (value === null || typeof value !== "object") return {};
+  const trip = value as Partial<ReservationTripMeta>;
+  const pick = (field: keyof ReservationTripMeta): string | undefined => {
+    const raw = trip[field];
+    return typeof raw === "string" && raw.trim() !== "" ? raw : undefined;
+  };
+  return {
+    tripCode: pick("tripCode"),
+    runId: pick("runId"),
+    travelDate: pick("travelDate"),
+    meal: pick("meal"),
+    dropOffPointId: pick("dropOffPointId"),
+    buyerFullName: pick("buyerFullName"),
+  };
+}
+
 /** Parses legsJson written either as a legacy array or a versioned envelope. */
 export function readReservationEnvelope(raw: string): StoredReservationEnvelope {
   const fallback: StoredReservationEnvelope = {
@@ -161,15 +200,18 @@ export function readReservationEnvelope(raw: string): StoredReservationEnvelope 
   try {
     const parsed: unknown = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      return { version: 1, legs: parsed as ReservationLegInput[], trip: {} };
-    }
-    if (parsed !== null && typeof parsed === "object") {
-      const record = parsed as Partial<StoredReservationEnvelope>;
       return {
         version: 1,
-        legs: Array.isArray(record.legs) ? record.legs : [],
-        trip: record.trip ?? {},
+        legs: parsed.map(toSafeLeg).filter((leg): leg is ReservationLegInput => leg !== null),
+        trip: {},
       };
+    }
+    if (parsed !== null && typeof parsed === "object") {
+      const record = parsed as { legs?: unknown; trip?: unknown };
+      const legs = Array.isArray(record.legs)
+        ? record.legs.map(toSafeLeg).filter((leg): leg is ReservationLegInput => leg !== null)
+        : [];
+      return { version: 1, legs, trip: toSafeTripMeta(record.trip) };
     }
   } catch {
     // Malformed payload: treat as empty reservation envelope.
@@ -185,6 +227,50 @@ export function writeReservationEnvelope(
   return JSON.stringify(envelope);
 }
 
+/**
+ * Validates every leg of a reservation: each leg carries usable line/mode
+ * refs, leg endpoints run through the same stop-ref rules as the top-level
+ * endpoints, legs chain without gaps, and the first origin plus last
+ * destination match the reservation endpoints. Returns an English error
+ * message or null when valid.
+ */
+export function validateReservationLegs(
+  legs: ReservationLegInput[],
+  topOriginStopId: string,
+  topDestinationStopId: string,
+  options: { runId?: string; tripCode?: string } = {}
+): string | null {
+  if (legs.length === 0) return null;
+  for (let index = 0; index < legs.length; index += 1) {
+    const leg = legs[index];
+    if (leg.lineId.trim() === "" || leg.mode.trim() === "") {
+      return `Leg ${index} must include lineId and mode`;
+    }
+    if (!Number.isFinite(leg.fareRp) || leg.fareRp < 0) {
+      return `Leg ${index} fareRp must be a non-negative number`;
+    }
+    const legError = validateStopRefs({
+      originStopId: leg.originStopId,
+      destinationStopId: leg.destinationStopId,
+      runId: options.runId,
+      tripCode: options.tripCode,
+    });
+    if (legError) {
+      return `Leg ${index}: ${legError}`;
+    }
+    if (index > 0 && leg.originStopId !== legs[index - 1].destinationStopId) {
+      return `Leg ${index} must start where leg ${index - 1} ends`;
+    }
+  }
+  if (legs[0].originStopId !== topOriginStopId) {
+    return "First leg origin must match the reservation origin";
+  }
+  if (legs[legs.length - 1].destinationStopId !== topDestinationStopId) {
+    return "Last leg destination must match the reservation destination";
+  }
+  return null;
+}
+
 export interface GuestTicketView {
   ticketNumber: string;
   reservationCode: string;
@@ -193,6 +279,7 @@ export interface GuestTicketView {
   destinationStopId: string;
   seatId: string | null;
   serviceClass: string | null;
+  buyerFullName: string | null;
   guestEmail: string | null;
   guestPhone: string | null;
   travelDate: string | null;
@@ -231,6 +318,7 @@ export function sanitizeGuestTicket(record: SanitizableTicket): GuestTicketView 
     destinationStopId: record.destinationStopId,
     seatId: record.seatId,
     serviceClass: record.serviceClass,
+    buyerFullName: envelope.trip.buyerFullName ?? null,
     guestEmail: record.guestEmail,
     guestPhone: record.guestPhone,
     travelDate: envelope.trip.travelDate ?? null,

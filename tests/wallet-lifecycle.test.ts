@@ -5,6 +5,7 @@ import { POST as purchasePost } from "@/app/api/ticketing/purchase/route";
 import { POST as validatePost } from "@/app/api/ticketing/validate/route";
 import { POST as refundPost } from "@/app/api/ticketing/refund/route";
 import { GET as guestLookupGet } from "@/app/api/ticketing/guest-lookup/route";
+import { readReservationEnvelope } from "@/lib/ticketing/reservationContract";
 import { db } from "@/lib/db";
 
 describe("wallet lifecycle model", () => {
@@ -160,6 +161,7 @@ describe("reservation lifecycle APIs", () => {
     expect(stored?.serviceClass).toBe("EXECUTIVE");
     expect(stored?.totalFareRp).toBe(180000);
     expect(stored?.reservationCode).toBe(res.json["reservationCode"]);
+    expect(readReservationEnvelope(stored?.legsJson ?? "").trip.buyerFullName).toBe("Sinta Guest");
   });
 
   it("is idempotent per buyer plus trip plus date", async () => {
@@ -226,8 +228,58 @@ describe("reservation lifecycle APIs", () => {
     const ticket = res.json["ticket"] as Record<string, unknown>;
     expect(ticket["ticketNumber"]).toBe(created.json["ticketNumber"]);
     expect(ticket["reservationCode"]).toBe(created.json["reservationCode"]);
+    expect(ticket["buyerFullName"]).toBe("Sinta Guest");
     expect(ticket["totalFareRp"]).toBeUndefined();
     expect(ticket["rollingToken"]).toBeUndefined();
+  });
+
+  it("returns 500 when the guest lookup database read fails", async () => {
+    const originalFindUnique = db.ticket.findUnique;
+    db.ticket.findUnique = (() => Promise.reject(new Error("db down"))) as typeof db.ticket.findUnique;
+    try {
+      const res = await guestLookup("RSV-ANY", GUEST_PHONE);
+      expect(res.status).toBe(500);
+    } finally {
+      db.ticket.findUnique = originalFindUnique;
+    }
+  });
+
+  it("rejects legs that reference a different run than the endpoints", async () => {
+    const res = await purchaseReservation(
+      intercityPurchase({
+        tripCode: `${TRIP_CODE}-LEG-RUN`,
+        legs: [
+          {
+            legIndex: 0,
+            lineId: "line-akap-test",
+            originStopId: ORIGIN_REF,
+            destinationStopId: "INTERCITY:RUN-OTHER:DESTINATION",
+            mode: "AKAP_INTERCITY_BUS",
+            fareRp: 180000,
+          },
+        ],
+      })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects legs that do not match the reservation endpoints", async () => {
+    const res = await purchaseReservation(
+      intercityPurchase({
+        tripCode: `${TRIP_CODE}-LEG-ENDPOINT`,
+        legs: [
+          {
+            legIndex: 0,
+            lineId: "line-akap-test",
+            originStopId: ORIGIN_REF,
+            destinationStopId: ORIGIN_REF,
+            mode: "AKAP_INTERCITY_BUS",
+            fareRp: 180000,
+          },
+        ],
+      })
+    );
+    expect(res.status).toBe(400);
   });
 
   it("rejects expired tickets at validation with a reason", async () => {
