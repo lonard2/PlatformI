@@ -79,6 +79,39 @@ describe("Intercity gateway boards", () => {
     ).toBeInTheDocument();
   });
 
+  it("resets the followed run when another hub opens", async () => {
+    const { rerender } = render(<HubDetailSheet stopId="stop-kai-gmr" />);
+    await screen.findByText(/KA-01/i);
+    fireEvent.click(
+      screen.getByRole("button", { name: /follow this trip/i })
+    );
+    expect(
+      screen.getByRole("button", { name: /^following/i })
+    ).toHaveAttribute("aria-pressed", "true");
+    rerender(<HubDetailSheet stopId="stop-kai-pse" />);
+    await screen.findByRole("heading", { name: /Pasar Senen/i });
+    expect(
+      screen.queryByRole("button", { name: /^following/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps follow state on the correct row when the board is filtered", async () => {
+    render(<HubDetailSheet stopId="stop-kai-gmr" />);
+    await screen.findByText(/KA-01/i);
+    fireEvent.click(
+      screen.getByRole("button", { name: /follow this trip/i })
+    );
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: "gambir" },
+    });
+    const following = await screen.findByRole("button", {
+      name: /^following/i,
+    });
+    expect(following.getAttribute("data-run-id")).toBe("run-kai-01");
+    expect(
+      screen.queryAllByRole("button", { name: /^following/i })
+    ).toHaveLength(1);
+  });
   it("recognises gateway hubs and extracts run ids from board items", () => {
     const gambir = TRANSIT_STOPS.find((s) => s.id === "stop-kai-gmr") as Stop;
     const dukuhAtas = TRANSIT_STOPS.find((s) => s.id === "stop-mrt-dka") as Stop;

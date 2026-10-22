@@ -756,6 +756,12 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
     };
   }, [stop?.id]);
 
+  // A followed run belongs to the open hub; clear it when another hub opens
+  // so follow state never leaks across sheets.
+  useEffect(() => {
+    setFollowedRunId(null);
+  }, [stop?.id]);
+
   const departureBoard = useMemo(() => {
     if (!stop) return [];
     return generateDepartureBoard(stop, allLines, t, customTimetables);
@@ -1140,7 +1146,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
                     </div>
                   )
                 ) : (
-                  visibleDepartures.map((item, idx) => {
+                  visibleDepartures.map((item) => {
                     const meta = getStandardizedModeMeta(item.mode, item.lineCode, undefined, allLines, t);
                     const ModeIcon = meta.icon;
                     const isExpanded = expandedTripId === item.tripId;
@@ -1181,7 +1187,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
 
                     return (
                       <div
-                        key={idx}
+                        key={item.tripId}
                         className={`rounded-2xl border transition-all overflow-hidden ${
                           isExpanded
                             ? "bg-slate-900/95 border-cyan-500/50 shadow-lg shadow-cyan-950/30"
