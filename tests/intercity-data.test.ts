@@ -47,3 +47,60 @@ describe("intercity data models", () => {
     ).toThrow(/KA-999/);
   });
 });
+
+describe("intercity lookup APIs", () => {
+  it("lists operators", async () => {
+    const { GET } = await import("@/app/api/intercity/operators/route");
+    const res = await GET(new Request("http://localhost/api/intercity/operators"));
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { operators: unknown[] };
+    expect(Array.isArray(body.operators)).toBe(true);
+  });
+
+  it("filters routes by mode and company", async () => {
+    const { GET } = await import("@/app/api/intercity/routes/route");
+    const res = await GET(
+      new Request("http://localhost/api/intercity/routes?mode=KAI_INTERCITY&company=KAI"),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { runs: { operatorName: string }[] };
+    expect(Array.isArray(body.runs)).toBe(true);
+    for (const run of body.runs) {
+      expect(typeof run.operatorName).toBe("string");
+    }
+  });
+
+  it("returns an empty list for unknown companies", async () => {
+    const { GET } = await import("@/app/api/intercity/routes/route");
+    const res = await GET(
+      new Request("http://localhost/api/intercity/routes?company=NO_SUCH_OPERATOR"),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { runs: unknown[] };
+    expect(body.runs).toEqual([]);
+  });
+
+  it("rejects malformed date filters", async () => {
+    const { GET } = await import("@/app/api/intercity/routes/route");
+    const res = await GET(
+      new Request("http://localhost/api/intercity/routes?date=not-a-date"),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("filters runs to a single day", async () => {
+    const { GET } = await import("@/app/api/intercity/routes/route");
+    const res = await GET(
+      new Request("http://localhost/api/intercity/routes?date=2026-10-26"),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { runs: { daysOfWeek?: number[] }[] };
+    expect(Array.isArray(body.runs)).toBe(true);
+    const weekday = new Date("2026-10-26T00:00:00Z").getUTCDay();
+    for (const run of body.runs) {
+      if (run.daysOfWeek) {
+        expect(run.daysOfWeek).toContain(weekday);
+      }
+    }
+  });
+});
