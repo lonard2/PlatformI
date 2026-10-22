@@ -189,6 +189,30 @@ model TimetableRun {
   divergenceDescription String?
   terminatedEarlyStopId String?
   divergedFromStopId    String?
+  operatorId            String?
+  operator              IntercityOperator? @relation(fields: [operatorId], references: [id], onDelete: SetNull)
+  boardingPointIdsJson  String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model IntercityOperator {
+  id              String          @id @default(cuid())
+  name            String
+  mode            String
+  serviceTier     String
+  boardingPoints  BoardingPoint[]
+  timetableRuns   TimetableRun[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model BoardingPoint {
+  id         String            @id @default(cuid())
+  operatorId String
+  operator   IntercityOperator @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  label      String
+  kind       String
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 }

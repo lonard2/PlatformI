@@ -425,6 +425,8 @@ export interface TimetableRun {
   departureTime: string; // HH:mm format
   arrivalTime: string;   // HH:mm format
   operatorName: string;
+  operatorId?: string;
+  boardingPointIds?: string[];
   serviceClass?: string;
   gateOrBay?: string;
   notes?: string;
@@ -483,4 +485,20 @@ export interface IntermodalSkybridgeTransfer {
   hasElevator: boolean;
   hasTravelator: boolean;
   pathDescription: string;
+}
+
+export type BoardingPointKind = "TERMINAL" | "AGEN" | "POOL" | "GATE" | "PIER";
+
+export interface IntercityOperator {
+  id: string;
+  name: string;
+  mode: TransitMode;
+  serviceTier: string;
+}
+
+export interface BoardingPoint {
+  id: string;
+  operatorId: string;
+  label: string;
+  kind: BoardingPointKind;
 }
