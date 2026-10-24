@@ -23,8 +23,10 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleAlert,
+  CreditCard,
   Loader2,
   MapPin,
+  QrCode,
   Search,
   Ticket as TicketIcon,
   TrainFront,
@@ -201,14 +203,23 @@ function classMultiplier(serviceClass: string | undefined): number {
 
 /**
  * Recomputes the intercity fare at the hub layer from mode base, carrier
- * class multiplier, rounded to the nearest thousand rupiah.
+ * class multiplier, rounded to the nearest thousand rupiah. The parts form
+ * is the single source of truth for the fare math shown before payment.
  */
+export function resolveIntercityFareParts(
+  mode: TransitMode,
+  serviceClass: string | undefined
+): { base: number; multiplier: number; total: number } {
+  const base = INTERCITY_BASE_FARES[mode] ?? 150000;
+  const multiplier = classMultiplier(serviceClass);
+  return { base, multiplier, total: Math.round((base * multiplier) / 1000) * 1000 };
+}
+
 export function resolveIntercityFare(
   mode: TransitMode,
   serviceClass: string | undefined
 ): number {
-  const base = INTERCITY_BASE_FARES[mode] ?? 150000;
-  return Math.round((base * classMultiplier(serviceClass)) / 1000) * 1000;
+  return resolveIntercityFareParts(mode, serviceClass).total;
 }
 
 /**
@@ -256,6 +267,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
   const [buyer, setBuyer] = useState<BuyerRecord | null>(null);
   const [isPaying, setIsPaying] = useState<boolean>(false);
   const [payError, setPayError] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"JAKLINGKO_CARD" | "QRIS" | "E_WALLET">("JAKLINGKO_CARD");
   const [purchased, setPurchased] = useState<boolean>(false);
   const [purchasedTicket, setPurchasedTicket] = useState<Ticket | null>(null);
 
@@ -294,6 +306,16 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     () => resolveIntercityFare(selectedMode, selectedRun?.serviceClass),
     [selectedMode, selectedRun]
   );
+  const fareParts = useMemo(
+    () => resolveIntercityFareParts(selectedMode, selectedRun?.serviceClass),
+    [selectedMode, selectedRun]
+  );
+  const paymentMethodLabel =
+    paymentMethod === "JAKLINGKO_CARD"
+      ? t.ticketing.payJaklingko
+      : paymentMethod === "QRIS"
+        ? t.ticketing.payQris
+        : t.ticketing.payEwallet;
 
   const handleSearch = useCallback(async (): Promise<void> => {
     setIsSearching(true);
@@ -383,6 +405,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
           meal: buyer.meal ?? undefined,
           dropOffPointId: buyer.dropOffPointId ?? undefined,
           paymentResult: "success",
+          paymentMethod,
         }),
       });
       if (!res.ok) throw new Error(t.ticketing.errorPaymentFailed);
@@ -432,7 +455,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     } finally {
       setIsPaying(false);
     }
-  }, [selectedRun, buyer, selectedMode, fareRp, date, seatId, t]);
+  }, [selectedRun, buyer, selectedMode, fareRp, date, seatId, paymentMethod, t]);
 
   const stepLabels = [
     t.ticketing.hubStepTrip,
@@ -746,10 +769,56 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
               {t.ticketing.hubBuyerLine.replace("{name}", buyer.fullName)}
             </p>
             <div className="mt-1 flex items-center justify-between border-t border-slate-800 pt-1.5">
+              <span className="text-slate-400">{t.ticketing.hubBaseFare}</span>
+              <span className="font-mono text-xs font-semibold text-slate-200">
+                {formatRupiah(fareParts.base)}
+              </span>
+            </div>
+            <div className="mt-1 flex items-center justify-between">
+              <span className="text-slate-400">
+                {t.ticketing.hubClassMult.replace("{n}", String(fareParts.multiplier))}
+              </span>
+              <span className="font-mono text-xs font-semibold text-slate-200">
+                {selectedRun.serviceClass ?? carrierKey}
+              </span>
+            </div>
+            <div className="mt-1 flex items-center justify-between border-t border-slate-800 pt-1.5">
               <span className="text-slate-400">{t.ticketing.hubPrice}</span>
               <span className="font-mono text-base font-bold text-emerald-400">
                 {formatRupiah(fareRp)}
               </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+              <CreditCard aria-hidden="true" className="h-3.5 w-3.5 text-cyan-400" />
+              <span>{t.ticketing.selectPayment}</span>
+            </p>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.ticketing.selectPayment}>
+              {(
+                [
+                  ["JAKLINGKO_CARD", t.ticketing.payJaklingko, Wallet],
+                  ["QRIS", t.ticketing.payQris, QrCode],
+                  ["E_WALLET", t.ticketing.payEwallet, CreditCard],
+                ] as const
+              ).map(([method, label, Icon]) => (
+                <button
+                  key={method}
+                  type="button"
+                  role="radio"
+                  aria-checked={paymentMethod === method}
+                  onClick={() => setPaymentMethod(method)}
+                  className={`flex flex-col items-center gap-1 rounded-xl border p-2.5 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${
+                    paymentMethod === method
+                      ? "border-cyan-400 bg-cyan-950/60"
+                      : "border-slate-800 bg-slate-900/70 hover:border-slate-700"
+                  }`}
+                >
+                  <Icon aria-hidden="true" className="h-4 w-4 text-cyan-400" />
+                  <span className="text-[11px] font-bold text-slate-200">{label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -767,6 +836,14 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
               <p className="text-xs text-slate-300">{buyer.fullName}</p>
               <p className="font-mono text-[11px] text-slate-400">
                 {t.ticketing.hubPaidFor.replace("{name}", buyer.fullName)} · {formatRupiah(fareRp)}
+              </p>
+              {purchasedTicket && (
+                <p className="font-mono text-[11px] text-cyan-300">
+                  {t.ticketing.hubReservationCode}: {purchasedTicket.reservationCode}
+                </p>
+              )}
+              <p className="text-[11px] text-slate-400">
+                {paymentMethodLabel}
               </p>
             </div>
           ) : (

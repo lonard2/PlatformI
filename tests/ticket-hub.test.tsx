@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { IntercityTicketHub, INTERCITY_MODES, getIntercityModeLabel } from "@/components/ticketing/IntercityTicketHub";
+import { IntercityTicketHub, INTERCITY_MODES, getIntercityModeLabel, resolveIntercityFareParts } from "@/components/ticketing/IntercityTicketHub";
 import { TicketPurchaseModal } from "@/components/ticketing/TicketPurchaseModal";
 import { useLanguageStore } from "@/lib/i18n";
 import type { TimetableRun } from "@/types/transit";

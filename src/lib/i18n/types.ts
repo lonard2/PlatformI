@@ -958,6 +958,9 @@ export interface TranslationDictionary {
     hubModeFlight: string;
     hubModePelni: string;
     hubModeSpeedboat: string;
+    hubReservationCode: string;
+    hubBaseFare: string;
+    hubClassMult: string;
     hubCompany: string;
     hubOrigin: string;
     hubDestination: string;
