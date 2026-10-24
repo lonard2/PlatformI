@@ -1200,18 +1200,18 @@ export default function AdminNetworkStudioPage() {
                                 <div className="text-xs font-semibold text-white truncate flex items-center gap-1.5 flex-wrap">
                                   <span>{stop.name}</span>
                                   {stop.isInterchange && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 font-mono font-bold">
+                                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-950 border border-amber-500/40 text-amber-300 font-mono font-bold">
                                       HUB
                                     </span>
                                   )}
                                   {stop.stationType && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">
+                                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 font-mono">
                                       {stop.stationType.replace("_", " ")}
                                     </span>
                                   )}
                                   {stop.scale && (
                                     <span
-                                      className={`text-[9px] px-1.5 py-0.5 rounded font-mono border ${
+                                      className={`text-[11px] px-1.5 py-0.5 rounded font-mono border ${
                                         stop.scale === "BIG"
                                           ? "bg-purple-950/80 border-purple-500/40 text-purple-300 font-bold"
                                           : stop.scale === "MEDIUM"

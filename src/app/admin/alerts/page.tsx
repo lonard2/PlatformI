@@ -1464,7 +1464,7 @@ export default function AdminAlertsPage() {
                     )}
 
                     {linkedAlertIds.has(alert.id) && (
-                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border bg-indigo-950/80 border-indigo-500/50 text-indigo-300 flex items-center gap-1">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border bg-indigo-950/80 border-indigo-500/50 text-indigo-300 flex items-center gap-1">
                         <Zap className="w-2.5 h-2.5 text-indigo-400" />
                         <span>{t.admin.fleetSynced}</span>
                       </span>
