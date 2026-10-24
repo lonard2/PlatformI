@@ -950,6 +950,14 @@ export interface TranslationDictionary {
     hubTitle: string;
     hubSubtitle: string;
     hubMode: string;
+    hubModeKai: string;
+    hubModeWhoosh: string;
+    hubModeAirportRail: string;
+    hubModeAkap: string;
+    hubModeShuttle: string;
+    hubModeFlight: string;
+    hubModePelni: string;
+    hubModeSpeedboat: string;
     hubCompany: string;
     hubOrigin: string;
     hubDestination: string;

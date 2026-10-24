@@ -36,6 +36,7 @@ import { DigitalPassWallet } from "./DigitalPassWallet";
 import { getSalesRules } from "@/lib/transit/salesMatrix";
 import { formatRupiah } from "@/lib/services/fareCalculator";
 import { useTranslation } from "@/lib/i18n";
+import type { TranslationDictionary } from "@/lib/i18n/types";
 import type { TimetableRun, Ticket, TicketStatus, TransitMode } from "@/types/transit";
 
 export type IntercityHubRun = TimetableRun & { mode?: TransitMode };
@@ -66,6 +67,36 @@ const INTERCITY_BASE_FARES: Record<string, number> = {
   MARITIME_PELNI: 280000,
   MARITIME_SPEEDBOAT: 175000,
 };
+
+/**
+ * Human-readable mode names for the hub filter. Enum codes stay as option
+ * values; only the visible labels localize.
+ */
+export function getIntercityModeLabel(
+  mode: TransitMode,
+  t: TranslationDictionary
+): string {
+  switch (mode) {
+    case "KAI_INTERCITY":
+      return t.ticketing.hubModeKai;
+    case "WHOOSH_HSR":
+      return t.ticketing.hubModeWhoosh;
+    case "KAI_BANDARA":
+      return t.ticketing.hubModeAirportRail;
+    case "AKAP_INTERCITY_BUS":
+      return t.ticketing.hubModeAkap;
+    case "EXECUTIVE_SHUTTLE":
+      return t.ticketing.hubModeShuttle;
+    case "AIRPORT_COMMERCIAL":
+      return t.ticketing.hubModeFlight;
+    case "MARITIME_PELNI":
+      return t.ticketing.hubModePelni;
+    case "MARITIME_SPEEDBOAT":
+      return t.ticketing.hubModeSpeedboat;
+    default:
+      return t.ticketing.hubModeKai;
+  }
+}
 
 /**
  * Infers the intercity mode for a run. Search results carry the mode from
@@ -468,7 +499,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
                 <option value="">{t.common.all}</option>
                 {INTERCITY_MODES.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {getIntercityModeLabel(option, t)}
                   </option>
                 ))}
               </select>

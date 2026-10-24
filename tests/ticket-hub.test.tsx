@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { IntercityTicketHub } from "@/components/ticketing/IntercityTicketHub";
+import { IntercityTicketHub, INTERCITY_MODES, getIntercityModeLabel } from "@/components/ticketing/IntercityTicketHub";
 import { TicketPurchaseModal } from "@/components/ticketing/TicketPurchaseModal";
 import { useLanguageStore } from "@/lib/i18n";
 import type { TimetableRun } from "@/types/transit";
@@ -186,5 +186,29 @@ describe("TicketPurchaseModal intercity preselect", () => {
     );
     expect(screen.getByText("KA-01")).toBeInTheDocument();
     expect(screen.getByText(/Surabaya Pasarturi/)).toBeInTheDocument();
+  });
+});
+
+describe("IntercityTicketHub mode labels", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    mockRoutes([]);
+  });
+
+  it("maps every intercity mode to a localized label without enum underscores", async () => {
+    const { en } = await import("@/lib/i18n/dictionaries/en");
+    for (const mode of INTERCITY_MODES) {
+      const label = getIntercityModeLabel(mode, en);
+      expect(label).toBeTruthy();
+      expect(label).not.toContain("_");
+    }
+  });
+
+  it("shows localized mode names instead of raw enum codes", () => {
+    render(<IntercityTicketHub />);
+    const select = screen.getByLabelText(/mode/i) as HTMLSelectElement;
+    const texts = Array.from(select.options).map((o) => o.textContent ?? "");
+    expect(texts.some((t) => t.includes("KAI_INTERCITY"))).toBe(false);
+    expect(texts.some((t) => /intercity rail/i.test(t))).toBe(true);
   });
 });
