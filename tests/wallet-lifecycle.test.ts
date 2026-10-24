@@ -5,7 +5,11 @@ import { POST as purchasePost } from "@/app/api/ticketing/purchase/route";
 import { POST as validatePost } from "@/app/api/ticketing/validate/route";
 import { POST as refundPost } from "@/app/api/ticketing/refund/route";
 import { GET as guestLookupGet } from "@/app/api/ticketing/guest-lookup/route";
-import { readReservationEnvelope } from "@/lib/ticketing/reservationContract";
+import {
+  readReservationEnvelope,
+  validateReservationLegs,
+  type ReservationLegInput,
+} from "@/lib/ticketing/reservationContract";
 import { db } from "@/lib/db";
 
 describe("wallet lifecycle model", () => {
@@ -296,6 +300,53 @@ describe("reservation lifecycle APIs", () => {
     } finally {
       db.ticket.findUnique = originalFindUnique;
     }
+  });
+
+  it("rejects unpaid WAITING reservations at validation", async () => {
+    const created = await purchaseReservation(
+      intercityPurchase({
+        tripCode: `${TRIP_CODE}-WAITING`,
+      })
+    );
+    expect(created.json["status"]).toBe("WAITING");
+    createdTicketNumbers.push(created.json["ticketNumber"] as string);
+
+    const res = await validateTicket({ ticketNumber: created.json["ticketNumber"] });
+    expect(res["valid"]).toBe(false);
+    expect(res["gateAction"]).toBe("DENY");
+    expect(res["reason"]).toBe("TICKET_WAITING");
+  });
+
+  it("rejects legs with non-string fields instead of throwing", () => {
+    const nonStringMode = {
+      legIndex: 0,
+      lineId: "line-akap-test",
+      originStopId: ORIGIN_REF,
+      destinationStopId: DESTINATION_REF,
+      mode: 42,
+      fareRp: 180000,
+    } as unknown as ReservationLegInput;
+    expect(() =>
+      validateReservationLegs([nonStringMode], ORIGIN_REF, DESTINATION_REF, { runId: RUN_ID })
+    ).not.toThrow();
+    expect(
+      validateReservationLegs([nonStringMode], ORIGIN_REF, DESTINATION_REF, { runId: RUN_ID })
+    ).toBe("Leg 0 must include lineId and mode");
+
+    const nonStringEndpoints = {
+      legIndex: 0,
+      lineId: "line-akap-test",
+      originStopId: 7,
+      destinationStopId: DESTINATION_REF,
+      mode: "AKAP_INTERCITY_BUS",
+      fareRp: 180000,
+    } as unknown as ReservationLegInput;
+    expect(() =>
+      validateReservationLegs([nonStringEndpoints], ORIGIN_REF, DESTINATION_REF, { runId: RUN_ID })
+    ).not.toThrow();
+    expect(
+      validateReservationLegs([nonStringEndpoints], ORIGIN_REF, DESTINATION_REF, { runId: RUN_ID })
+    ).toBe("Leg 0: Missing required fields: originStopId, destinationStopId");
   });
 
   it("rejects legs that reference a different run than the endpoints", async () => {

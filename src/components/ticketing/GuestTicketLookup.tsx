@@ -38,6 +38,8 @@ export interface GuestFoundTicket {
   buyerFullName: string | null;
   travelDate: string | null;
   tripCode: string | null;
+  createdAt: string;
+  expiresAt: string;
 }
 
 export interface GuestTicketLookupProps {

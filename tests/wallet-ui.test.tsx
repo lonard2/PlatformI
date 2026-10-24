@@ -36,6 +36,8 @@ describe("GuestTicketLookup", () => {
 
   it("calls onFound with the guest projection after a code plus phone lookup", async () => {
     const onFound = vi.fn();
+    const createdAt = new Date(Date.now() - 3600 * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + 23 * 3600 * 1000).toISOString();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () =>
@@ -45,6 +47,15 @@ describe("GuestTicketLookup", () => {
             ticketNumber: "TKT-GUEST-01",
             reservationCode: "RSV-ABC123",
             status: "WAITING",
+            originStopId: "STOP-A",
+            destinationStopId: "STOP-B",
+            seatId: null,
+            serviceClass: null,
+            buyerFullName: null,
+            travelDate: "2026-11-01",
+            tripCode: "TRIP-01",
+            createdAt,
+            expiresAt,
           },
         }),
     });
@@ -62,6 +73,10 @@ describe("GuestTicketLookup", () => {
       expect(onFound.mock.calls[0][0]).toMatchObject({
         ticketNumber: "TKT-GUEST-01",
         reservationCode: "RSV-ABC123",
+        travelDate: "2026-11-01",
+        tripCode: "TRIP-01",
+        createdAt,
+        expiresAt,
       });
     } finally {
       vi.unstubAllGlobals();
@@ -163,5 +178,47 @@ describe("DigitalPassWallet reservation states", () => {
     render(<DigitalPassWallet />);
     fireEvent.click(screen.getByText(/trip history/i));
     expect(document.body.textContent).toMatch(/refund/i);
+  });
+
+  it("merges a guest-found ticket with the server expiry instead of a synthetic one", async () => {
+    const expiresAt = new Date(Date.now() + 23 * 3600 * 1000).toISOString();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          success: true,
+          ticket: {
+            ticketNumber: "TKT-GUEST-MERGE",
+            reservationCode: "RSV-MERGE-01",
+            status: "WAITING",
+            originStopId: "STOP-A",
+            destinationStopId: "STOP-B",
+            seatId: null,
+            serviceClass: null,
+            buyerFullName: null,
+            travelDate: "2026-11-01",
+            tripCode: "TRIP-01",
+            createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
+            expiresAt,
+          },
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      render(<DigitalPassWallet />);
+      fireEvent.click(screen.getByText(/find a guest ticket/i));
+      fireEvent.change(screen.getByLabelText(/ticket code/i), {
+        target: { value: "RSV-MERGE-01" },
+      });
+      fireEvent.change(screen.getByLabelText(/phone/i), {
+        target: { value: "081234567890" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: /find ticket/i }));
+      await waitFor(() =>
+        expect(screen.getByText(/RSV-MERGE-01/)).toBeInTheDocument()
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

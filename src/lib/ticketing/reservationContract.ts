@@ -228,11 +228,21 @@ export function writeReservationEnvelope(
 }
 
 /**
+ * Coerces unvalidated runtime input to text. Non-string values become the
+ * empty string so validators return their documented error message instead
+ * of throwing on method access.
+ */
+function coerceText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+/**
  * Validates every leg of a reservation: each leg carries usable line/mode
  * refs, leg endpoints run through the same stop-ref rules as the top-level
  * endpoints, legs chain without gaps, and the first origin plus last
  * destination match the reservation endpoints. Returns an English error
- * message or null when valid.
+ * message or null when valid. Non-string leg fields are coerced to empty
+ * strings so malformed input yields the documented error, never a throw.
  */
 export function validateReservationLegs(
   legs: ReservationLegInput[],
@@ -243,15 +253,17 @@ export function validateReservationLegs(
   if (legs.length === 0) return null;
   for (let index = 0; index < legs.length; index += 1) {
     const leg = legs[index];
-    if (leg.lineId.trim() === "" || leg.mode.trim() === "") {
+    const lineId = coerceText(leg.lineId);
+    const mode = coerceText(leg.mode);
+    if (lineId.trim() === "" || mode.trim() === "") {
       return `Leg ${index} must include lineId and mode`;
     }
     if (!Number.isFinite(leg.fareRp) || leg.fareRp < 0) {
       return `Leg ${index} fareRp must be a non-negative number`;
     }
     const legError = validateStopRefs({
-      originStopId: leg.originStopId,
-      destinationStopId: leg.destinationStopId,
+      originStopId: coerceText(leg.originStopId),
+      destinationStopId: coerceText(leg.destinationStopId),
       runId: options.runId,
       tripCode: options.tripCode,
     });
@@ -436,5 +448,6 @@ export function ticketStateReason(
   if (expiresAt.getTime() <= now.getTime() || status === "EXPIRED") {
     return "TICKET_EXPIRED";
   }
+  if (status === "WAITING") return "TICKET_WAITING";
   return null;
 }

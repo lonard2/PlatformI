@@ -201,6 +201,9 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
   const [activeTicketId, setActiveTicketId] = useState<string>("tkt-mrt-01");
   const [activeTab, setActiveTab] = useState<"ACTIVE_PASSES" | "TRIP_HISTORY" | "GUEST_LOOKUP">("ACTIVE_PASSES");
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState<boolean>(false);
+  // Ticket numbers imported via guest lookup: the guest-safe projection
+  // carries no fare data, so their amounts render as absent, never Rp 0.
+  const [guestUnknownFareIds, setGuestUnknownFareIds] = useState<ReadonlySet<string>>(new Set());
 
   // Turnstile Gate Simulator State
   const [isValidatingGate, setIsValidatingGate] = useState<boolean>(false);
@@ -300,18 +303,22 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
       userId: "guest",
       originStopId: found.originStopId,
       destinationStopId: found.destinationStopId,
+      // Legs and fare are absent from the guest-safe projection, so keep
+      // the structural placeholders and mark the ticket fare-unknown for
+      // display (history renders no fabricated amount for these tickets).
       legs: [],
       totalFareRp: 0,
       isJakLingkoCapped: false,
       status: found.status,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      createdAt: found.createdAt,
+      expiresAt: found.expiresAt,
       rollingToken: "",
       reservationCode: found.reservationCode,
       seatId: found.seatId ?? undefined,
       serviceClass: found.serviceClass ?? undefined,
       claimedByUserId: null,
     };
+    setGuestUnknownFareIds((prev) => new Set(prev).add(found.ticketNumber));
     setTickets((prev) =>
       prev.some((t) => t.ticketNumber === guestTicket.ticketNumber)
         ? prev.map((t) => (t.ticketNumber === guestTicket.ticketNumber ? guestTicket : t))
@@ -649,9 +656,15 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   </div>
                   <div className="flex justify-between items-center pt-1 border-t border-slate-800/60 text-[11px]">
                     <span className="text-slate-400">{t.ticketing.paidPrefix}</span>
-                    <span className="font-mono font-bold text-emerald-400">
-                      {formatRupiah(trip.totalFareRp)}
-                    </span>
+                    {guestUnknownFareIds.has(trip.ticketNumber) ? (
+                      <span className="font-mono text-slate-500" aria-label={t.ticketing.paidPrefix}>
+                        &mdash;
+                      </span>
+                    ) : (
+                      <span className="font-mono font-bold text-emerald-400">
+                        {formatRupiah(trip.totalFareRp)}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
