@@ -14,7 +14,7 @@ Ledger in this file; rulings inline.
 | 1 | layout event stream | Split Advisories vs telemetry pings; never truncate advisory text; checks only for acknowledged items | DONE (514/514) | — |
 | 2 | harden login credentials | Presets fill ID only (or gate switcher behind non-prod flag); no plaintext passkeys | TODO | — |
 | 3 | harden broadcast safety | Blast-radius confirm; persistent DENIED until dismissed; visible shift-log receipt | TODO | — |
-| 4 | clarify verbs | Freeze one verb set across nav, hero, headings, i18n keys | TODO | — |
+| 4 | clarify verbs | Freeze one verb set across nav, hero, headings, i18n keys | DONE (521/521) | — |
 | 5 | clarify health percentages | Single labeled definition for the two health percentages | TODO | — |
 | 6 | typeset micro-type | Four 9px badge usages up to DESIGN.md ramp (or documented exemption) | TODO | — |
 | 7 | polish final pass | Whole-portal pass per polish.md triage order; detector clean | TODO | — |
@@ -25,3 +25,4 @@ Ledger in this file; rulings inline.
 - Todo 1: advisories show ALL active alerts sorted critical-first (no silent cap); telemetry keeps its sample. Ruling: removed the check icon instead of adding ack state (the icon meant nothing; a real ack workflow is a separate feature). Test-id slip (missing alert- prefix) caught by RED run and fixed in test, not code.
 - Todo 2: presets still fill ID only (handleSelectPreset already cleared passkey); the rendered secret line is gone. Ruling: kept demo login working from documented credentials instead of gating behind env — the page is already the demo surface and IDs stay discoverable.
 - Todo 3: confirm dialog follows the existing escalation-confirm pattern (role=alert, Escape, focus in/out). Ruling: DENIED stays until next scan or dismiss; GRANTED keeps the 3.5s auto-clear (success is transient, denial is evidence). Detector delta zero (1 pre-existing 9px pill, untouched).
+- Todo 4: frozen names are the existing nav labels (no new strings). Ruling: removed 3 now-dead keys (broadcastAlert, qrScannerSimulator, manageFleet) to keep dictionaries honest; preset-section label keeps testTurnstileValidator as it describes presets, not the module.

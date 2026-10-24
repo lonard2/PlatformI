@@ -1233,11 +1233,9 @@ export interface TranslationDictionary {
     gateScanner: string;
     networkStudio: string;
     timetableManager: string;
-    broadcastAlert: string;
     activeVehicles: string;
     validateTicket: string;
     scanResult: string;
-    qrScannerSimulator: string;
     fleetStatusOverview: string;
     dispatchNewAlert: string;
     heroTitle: string;
@@ -1260,7 +1258,6 @@ export interface TranslationDictionary {
     busSector: string;
     aviationSector: string;
     maritimeSector: string;
-    manageFleet: string;
     manageAlerts: string;
     searchFleetPlaceholder: string;
     vehicleCode: string;

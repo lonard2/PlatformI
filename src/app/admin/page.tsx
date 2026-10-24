@@ -209,14 +209,14 @@ export default function AdminDashboardPage() {
             className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition shadow-md btn-tactile"
           >
             <Radio className="w-3.5 h-3.5 text-amber-400" />
-            <span>{t.admin.broadcastAlert}</span>
+            <span>{t.admin.disruptionManager}</span>
           </Link>
           <Link
             href="/admin/scanner"
             className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold flex items-center gap-1.5 transition shadow-md btn-tactile"
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>{t.admin.testTurnstileValidator}</span>
+            <span>{t.admin.gateScanner}</span>
           </Link>
         </div>
       </div>

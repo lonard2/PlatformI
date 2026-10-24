@@ -216,7 +216,7 @@ export default function AdminScannerPage() {
             <span className="text-xs text-slate-400 font-mono">{t.admin.liveTelemetryBadge}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
-            {t.admin.qrScannerSimulator}
+            {t.admin.gateScanner}
           </h2>
           <p className="text-xs sm:text-sm text-slate-400">
             {t.admin.scannerSubtitle}
