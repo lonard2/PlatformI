@@ -10,7 +10,7 @@ One commit + push per step. Ledger in this file.
 | 1 | package.json bumps (latest stable; prisma 7.x not RC) + install | DONE | — |
 | 2 | Tailwind v3→v4 migration (CSS-first, @tailwindcss/postcss, dark variant) | TODO | — |
 | 3 | Fix fallout: Next 16, TS 7, vitest 5, prisma 7, framer-motion 14, lucide 1.x, jest-dom 7, jsdom 30 | DONE (511/511, build green) | — |
-| 4 | Full verification: tsc + tests + next build + detect | TODO | — |
+| 4 | Full verification: tsc + tests + next build + detect | DONE | — |
 
 ## Ledger
 - Setup: standing norm is direct-to-main per-task commits with push.
