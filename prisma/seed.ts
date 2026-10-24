@@ -5,6 +5,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import {
   JABODETABEK_REGION,
   TRANSIT_LINES,
@@ -13,9 +14,12 @@ import {
   VEHICLE_TECHNICAL_SPECS,
   DISRUPTION_ALERTS,
 } from "../src/lib/data/jakarta-dataset";
+import { resolveSqliteFile } from "../src/lib/db";
 import { seedIntercity } from "./seed-intercity";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaBetterSqlite3({ url: resolveSqliteFile() }),
+});
 
 async function main() {
   console.log("[PlatformI Seeder] Starting database population...");

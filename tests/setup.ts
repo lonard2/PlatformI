@@ -5,7 +5,7 @@
 
 import { vi } from 'vitest';
 import crypto from 'node:crypto';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Polyfill Web Crypto API if needed
 if (typeof globalThis.crypto === 'undefined' || !globalThis.crypto.subtle) {

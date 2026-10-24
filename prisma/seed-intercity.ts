@@ -15,9 +15,11 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 import type { BoardingPointKind, TransitMode } from "../src/types/transit";
 import { JABODETABEK_REGION, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
+import { resolveSqliteFile } from "../src/lib/db";
 
 export const INTERCITY_SEED_VERSION = 1;
 
@@ -163,7 +165,11 @@ export function validateIntercitySeedRow(row: IntercitySeedRow): void {
 }
 
 export async function seedIntercity(externalClient?: PrismaClient): Promise<SeedIntercityResult> {
-  const client = externalClient ?? new PrismaClient();
+  const client =
+    externalClient ??
+    new PrismaClient({
+      adapter: new PrismaBetterSqlite3({ url: resolveSqliteFile() }),
+    });
   try {
     for (const row of INTERCITY_RUNS) {
       validateIntercitySeedRow(row);
