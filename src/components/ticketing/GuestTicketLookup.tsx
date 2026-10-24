@@ -15,6 +15,7 @@ import {
   TicketCheck,
   Phone,
   CalendarDays,
+  ChevronDown,
   IdCard,
   Building2,
   Route,
@@ -168,9 +169,14 @@ export const GuestTicketLookup: React.FC<GuestTicketLookupProps> = ({
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-500">{t.ticketing.guestSupportHint}</p>
+        <details className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-semibold text-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 [&::-webkit-details-marker]:hidden">
+            <ChevronDown aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
+            <span>{t.ticketing.guestLookupFallbackTitle}</span>
+          </summary>
+          <p className="mt-2 text-[11px] text-slate-500">{t.ticketing.guestSupportHint}</p>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label
               htmlFor="guest-trip-date"
@@ -261,6 +267,7 @@ export const GuestTicketLookup: React.FC<GuestTicketLookupProps> = ({
             />
           </div>
         </div>
+        </details>
 
         {error && (
           <p

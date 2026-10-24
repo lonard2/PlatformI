@@ -970,6 +970,7 @@ export const zh: TranslationDictionary = {
     hubMealPaidNote: "餐食可在途中付费购买。",
     hubBagPaidNote: "托运行李需付费办理。",
     guestLookupTitle: "查找访客票",
+    guestLookupFallbackTitle: "找不到预订代码？",
     guestLookupSubtitle: "未登录的购票人可凭票码和电话找回预订。",
     guestTicketCode: "票码",
     guestTripDate: "出行日期",

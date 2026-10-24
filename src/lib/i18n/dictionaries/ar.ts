@@ -970,6 +970,7 @@ export const ar: TranslationDictionary = {
     hubMealPaidNote: "الوجبات متاحة للشراء على متن الرحلة.",
     hubBagPaidNote: "الأمتعة المسجلة متاحة مقابل رسوم.",
     guestLookupTitle: "البحث عن تذكرة ضيف",
+    guestLookupFallbackTitle: "فقدت الرمز؟",
     guestLookupSubtitle: "يمكن للمشترين غير المسجلين استرجاع الحجز بالرمز ورقم الهاتف.",
     guestTicketCode: "رمز التذكرة",
     guestTripDate: "تاريخ الرحلة",

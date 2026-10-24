@@ -970,6 +970,7 @@ export const ja: TranslationDictionary = {
     hubMealPaidNote: "機内・車内食は有料でご利用いただけます。",
     hubBagPaidNote: "受託手荷物は有料でご利用いただけます。",
     guestLookupTitle: "ゲストチケットを探す",
+    guestLookupFallbackTitle: "コードを紛失した場合",
     guestLookupSubtitle: "ログインしていない購入者はコードと電話番号で予約を取得できます。",
     guestTicketCode: "チケットコード",
     guestTripDate: "旅行日",

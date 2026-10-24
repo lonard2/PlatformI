@@ -994,6 +994,7 @@ export interface TranslationDictionary {
     hubMealPaidNote: string;
     hubBagPaidNote: string;
     guestLookupTitle: string;
+    guestLookupFallbackTitle: string;
     guestLookupSubtitle: string;
     guestTicketCode: string;
     guestTripDate: string;

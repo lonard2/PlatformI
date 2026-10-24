@@ -970,6 +970,7 @@ export const en: TranslationDictionary = {
     hubMealPaidNote: "Meals available for purchase onboard.",
     hubBagPaidNote: "Checked baggage available for a fee.",
     guestLookupTitle: "Find a guest ticket",
+    guestLookupFallbackTitle: "Lost your code?",
     guestLookupSubtitle: "Logged-out buyers can retrieve a reservation with code plus phone.",
     guestTicketCode: "Ticket code",
     guestTripDate: "Trip date",

@@ -970,6 +970,7 @@ export const id: TranslationDictionary = {
     hubMealPaidNote: "Makanan tersedia untuk dibeli di perjalanan.",
     hubBagPaidNote: "Bagasi tercatat tersedia dengan biaya.",
     guestLookupTitle: "Temukan tiket tamu",
+    guestLookupFallbackTitle: "Kode hilang?",
     guestLookupSubtitle: "Pembeli tanpa akun dapat mengambil reservasi dengan kode plus telepon.",
     guestTicketCode: "Kode tiket",
     guestTripDate: "Tanggal perjalanan",

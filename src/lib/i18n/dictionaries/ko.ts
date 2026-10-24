@@ -970,6 +970,7 @@ export const ko: TranslationDictionary = {
     hubMealPaidNote: "기내·차내식은 유료로 이용 가능합니다.",
     hubBagPaidNote: "위탁 수하물은 유료로 이용 가능합니다.",
     guestLookupTitle: "게스트 티켓 찾기",
+    guestLookupFallbackTitle: "코드를 분실하셨나요?",
     guestLookupSubtitle: "로그인하지 않은 구매자는 코드와 전화번호로 예약을 조회할 수 있습니다.",
     guestTicketCode: "티켓 코드",
     guestTripDate: "여행 날짜",

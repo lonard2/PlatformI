@@ -222,3 +222,18 @@ describe("DigitalPassWallet reservation states", () => {
     }
   });
 });
+
+describe("GuestTicketLookup progressive disclosure", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+  });
+
+  it("hides support fallback fields behind a disclosure until opened", () => {
+    const { container } = render(<GuestTicketLookup onFound={() => {}} />);
+    const details = container.querySelector("details");
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText(/lost your code/i));
+    expect(details).toHaveAttribute("open");
+  });
+});
