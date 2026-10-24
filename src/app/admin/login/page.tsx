@@ -256,9 +256,6 @@ function AdminLoginForm() {
                     ? t.admin.roleLine
                     : t.admin.roleSecurity}
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono truncate">
-                  {preset.demoPasskey}
-                </div>
               </button>
             ))}
           </div>

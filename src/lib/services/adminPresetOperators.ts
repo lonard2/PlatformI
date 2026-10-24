@@ -3,15 +3,14 @@ import type { OperatorProfile } from "./adminAuthService";
 /**
  * Client-safe operator presets for the demo OCC console.
  *
- * Includes demoPasskey BY DESIGN: this is a simulation product and the
- * login page displays demo credentials under the "Demo Credentials"
- * grid so first-time operators are not dead-ended by an empty passkey
- * field. ponytail: literals are duplicated deliberately instead of
- * importing adminAuthService — that import chain previously shipped the
- * whole REGISTERED_OPERATORS catalog; the test suite documents both the
- * demoPasskey contract and the import-chain severance. Pre-fill of the
- * passkey field stays forbidden (one human keystroke is still required
- * to authenticate).
+ * Presets fill the operator ID only; the passkey field always starts empty
+ * and must be typed by a human. demoPasskey literals live here (never the
+ * auth-record `passkey`) so demo login stays possible from documented
+ * credentials without rendering secrets on the login card. ponytail:
+ * literals are duplicated deliberately instead of importing
+ * adminAuthService — that import chain previously shipped the whole
+ * REGISTERED_OPERATORS catalog; the test suite documents both the
+ * demoPasskey contract and the import-chain severance.
  */
 
 export type OperatorPreset = OperatorProfile & { demoPasskey: string };

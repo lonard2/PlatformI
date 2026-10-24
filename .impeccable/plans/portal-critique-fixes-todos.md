@@ -23,3 +23,4 @@ Ledger in this file; rulings inline.
 - Setup: working on main with per-task push per user standing norm (all prior SDD work did the same).
 - Pre-flight: todos 1/4/5 touch overlapping dashboard files (page.tsx, layout.tsx); executed sequentially inline so no interface drift. No shared-test conflicts.
 - Todo 1: advisories show ALL active alerts sorted critical-first (no silent cap); telemetry keeps its sample. Ruling: removed the check icon instead of adding ack state (the icon meant nothing; a real ack workflow is a separate feature). Test-id slip (missing alert- prefix) caught by RED run and fixed in test, not code.
+- Todo 2: presets still fill ID only (handleSelectPreset already cleared passkey); the rendered secret line is gone. Ruling: kept demo login working from documented credentials instead of gating behind env — the page is already the demo surface and IDs stay discoverable.

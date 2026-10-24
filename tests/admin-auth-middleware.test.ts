@@ -137,7 +137,8 @@ describe("Admin Route-Level Authentication & Middleware Guard", () => {
     it("ensures presets document demo passkeys and keep the import chain severed", () => {
       expect(PUBLIC_OPERATOR_PRESETS.length).toBeGreaterThan(0);
       PUBLIC_OPERATOR_PRESETS.forEach((preset: OperatorProfile & { demoPasskey?: string }) => {
-        // demoPasskey is displayed on the login page by design (demo surface);
+        // demoPasskey lives on the preset object so demo login stays possible,
+        // but the login card renders IDs only — passkeys are typed, never shown.
         // the auth-record `passkey` field itself must never ship on the preset
         expect((preset as unknown as { passkey?: string }).passkey).toBeUndefined();
         expect(preset.demoPasskey).toBeTruthy();
