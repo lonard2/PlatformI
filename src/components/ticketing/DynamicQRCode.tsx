@@ -161,7 +161,7 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
         {/* Center Watermark Emblem */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-10 h-10 rounded-lg bg-slate-950/90 border border-cyan-400/60 flex items-center justify-center shadow-lg shadow-black/40">
-            <span className="text-[9px] font-black text-cyan-400 tracking-tighter font-mono">
+            <span className="text-[11px] font-black text-cyan-400 tracking-tighter font-mono">
               PLTI
             </span>
           </div>
@@ -202,7 +202,7 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
               <div className="text-[11px] font-semibold text-slate-200">
                 {t.ticketing.qrRollingTitle}
               </div>
-              <div className="text-[9px] text-slate-400">
+              <div className="text-[10px] text-slate-400">
                 {t.ticketing.qrRegenerates.replace("{n}", String(tokenData.secondsRemaining))}
               </div>
             </div>

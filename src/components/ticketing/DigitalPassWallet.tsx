@@ -525,7 +525,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   <div className="pt-2 md:pt-0 border-t md:border-t-0 md:border-l border-slate-800 md:pl-3 space-y-2">
                     <div className="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
                       <span>{t.ticketing.simulateGate}</span>
-                      <span className="text-[9px] text-slate-500 font-mono">
+                      <span className="text-[11px] text-slate-500 font-mono">
                         {t.ticketing.stationPrefix} {originStop?.code || "CSW"}
                       </span>
                     </div>

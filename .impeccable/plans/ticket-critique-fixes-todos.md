@@ -26,3 +26,4 @@ Ledger in this file; rulings inline.
 - Todo 3: per-field errors are plain paragraphs (no extra live regions beyond the existing summary alert). Ruling: required marker is a visual asterisk only; screen readers already hear the required attribute. ID marker follows rules.idRequired.
 - Todo 4: native details/summary keeps it keyboard-operable for free. Ruling: hint text moved inside the disclosure; no separate collapsed-state copy.
 - Todo 5: seat row keeps the existing Seat label key and omits itself when no seat is picked. Ruling: masking keeps first-4/last-2 for phones and first-char plus domain for emails; no unmask control by design.
+- Todo 6: mono usages to 11px, metadata line to 10px per DESIGN.md ramp (10/11/14/16). Ruling: left the #3B82F6 fallback finding alone — runtime value, documented false positive from the critique.
