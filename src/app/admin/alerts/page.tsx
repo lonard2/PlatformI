@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Radio,
   AlertTriangle,
@@ -56,6 +56,9 @@ export default function AdminAlertsPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
   const [broadcastToast, setBroadcastToast] = useState<string | null>(null);
+  const [confirmingBroadcast, setConfirmingBroadcast] = useState<boolean>(false);
+  const broadcastConfirmRef = useRef<HTMLButtonElement | null>(null);
+  const broadcastSubmitRef = useRef<HTMLButtonElement | null>(null);
   const [mutatingAlertId, setMutatingAlertId] = useState<string | null>(null);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [linkToOperations, setLinkToOperations] = useState<boolean>(true);
@@ -458,9 +461,26 @@ export default function AdminAlertsPage() {
     notify(t.admin.normalizeOpsToast.replace("{n}", String(targetVehicles.length)));
   };
 
+  // Move focus into the broadcast confirmation when it opens; restore to
+  // the publish trigger on cancel or Escape.
+  useEffect(() => {
+    if (confirmingBroadcast) broadcastConfirmRef.current?.focus();
+  }, [confirmingBroadcast]);
+
+  const closeBroadcastConfirm = useCallback(() => {
+    setConfirmingBroadcast(false);
+    broadcastSubmitRef.current?.focus();
+  }, []);
+
   const handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
+
+    // Blast-radius confirmation first: the POST only fires from the dialog.
+    if (!confirmingBroadcast) {
+      setConfirmingBroadcast(true);
+      return;
+    }
 
     setIsPublishing(true);
     setBroadcastError(null);
@@ -508,6 +528,7 @@ export default function AdminAlertsPage() {
             },
           });
           notify(t.admin.publishAlert + ": " + data.data.title);
+        setConfirmingBroadcast(false);
         }
       } else {
         const data = await res.json().catch(() => ({}));
@@ -1133,6 +1154,7 @@ export default function AdminAlertsPage() {
             {/* Submit Button */}
             <button
               type="submit"
+              ref={broadcastSubmitRef}
               disabled={isPublishing || !title.trim() || !description.trim()}
               aria-busy={isPublishing}
               className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 text-xs font-bold shadow-xl flex items-center justify-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed btn-tactile min-h-[44px]"
@@ -1151,6 +1173,53 @@ export default function AdminAlertsPage() {
             </button>
           </form>
         </div>
+
+            {/* Blast-radius confirmation: audience, vehicles, and stops in scope */}
+            {confirmingBroadcast && (
+              <div
+                role="alert"
+                aria-label={t.admin.broadcastConfirmTitle}
+                aria-describedby="broadcast-confirm-body"
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.stopPropagation();
+                    closeBroadcastConfirm();
+                  }
+                }}
+                className="w-full flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl bg-amber-950/60 border border-amber-500/50"
+              >
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                <p id="broadcast-confirm-body" className="text-xs text-amber-100 flex-1">
+                  <strong>{t.admin.broadcastConfirmTitle}</strong>:{" "}
+                  {t.admin.broadcastConfirmBody
+                    .replace("{severity}", severity)
+                    .replace("{audience}", selectedLine?.name ?? targetLineId)
+                    .replace(
+                      "{vehicles}",
+                      String(simulatedVehicles.filter((v) => v.lineId === targetLineId).length)
+                    )
+                    .replace("{stops}", String(affectedStops.length))}
+                </p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    ref={broadcastConfirmRef}
+                    onClick={() => void handleBroadcast(new Event("submit") as unknown as React.FormEvent)}
+                    disabled={isPublishing}
+                    className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold transition disabled:opacity-50 min-h-[40px] btn-tactile"
+                  >
+                    {isPublishing ? t.admin.publishing : t.admin.broadcastConfirmTitle}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeBroadcastConfirm}
+                    className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition min-h-[40px] btn-tactile"
+                  >
+                    {t.common.cancel}
+                  </button>
+                </div>
+              </div>
+            )}
 
         {/* Right Column: Live Broadcast Preview */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl flex flex-col justify-between">

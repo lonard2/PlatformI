@@ -1278,6 +1278,8 @@ export interface TranslationDictionary {
     disruptionType: string;
     impactDescription: string;
     publishAlert: string;
+    broadcastConfirmTitle: string;
+    broadcastConfirmBody: string;
     activeDisruptions: string;
     pastResolvedAlerts: string;
     resolveDisruption: string;
@@ -1286,6 +1288,8 @@ export interface TranslationDictionary {
     qrValidationResult: string;
     accessGranted: string;
     accessDenied: string;
+    gateDismiss: string;
+    shiftLogReceipt: string;
     ticketId: string;
     userId: string;
     fareDeducted: string;

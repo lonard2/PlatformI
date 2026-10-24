@@ -193,11 +193,15 @@ export default function AdminScannerPage() {
       },
     });
 
-    // Reset gate animation after 3.5 seconds
+    // Reset gate animation after 3.5 seconds — GRANTED only. A DENIED
+    // result persists until the next scan or an explicit dismiss so the
+    // reason cannot auto-clear unnoticed on a noisy floor.
     if (gateResetTimerRef.current) clearTimeout(gateResetTimerRef.current);
-    gateResetTimerRef.current = setTimeout(() => {
-      setGateStatus("IDLE");
-    }, 3500);
+    if (isGateOpen) {
+      gateResetTimerRef.current = setTimeout(() => {
+        setGateStatus("IDLE");
+      }, 3500);
+    }
   };
 
   return (
@@ -427,6 +431,16 @@ export default function AdminScannerPage() {
                     <div className="mt-2 text-[10px] text-slate-400 font-mono">
                       {t.ticketing.gateInstruction}
                     </div>
+                    <p className="text-[10px] text-slate-500 font-mono">
+                      {t.admin.shiftLogReceipt}: {auditLog[0]?.timestamp ?? "—"}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setGateStatus("IDLE")}
+                      className="mx-auto mt-1 flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 min-h-[40px]"
+                    >
+                      {t.admin.gateDismiss}
+                    </button>
                   </div>
                 </div>
               )}
