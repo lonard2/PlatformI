@@ -19,7 +19,6 @@ import {
   Truck,
   ArrowRight,
   DollarSign,
-  CheckCircle2,
   QrCode,
   TrendingUp,
 } from "lucide-react";
@@ -113,15 +112,16 @@ export default function AdminDashboardPage() {
   const criticalAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "CRITICAL").length, [activeAlerts]);
   const warningAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "WARNING").length, [activeAlerts]);
 
-  // Dynamic live event stream constructed from live telemetry and active alerts, sorted by recency
-  const liveEvents = useMemo(() => {
+  // Live telemetry pings sampled from the fleet. Advisory disruptions live
+  // in a separate prioritized list below so a critical bulletin can never
+  // read as routine traffic.
+  const telemetryEvents = useMemo(() => {
     const events: {
       id: string;
       timestamp: number;
       time: string;
       text: string;
       badge: string;
-      color: string;
     }[] = [];
 
     // 1. In-service moving vehicles reporting telemetry
@@ -159,39 +159,6 @@ export default function AdminDashboardPage() {
         time,
         text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${getVehicleStatusLabel(v.status)}]`,
         badge: line?.code || v.category,
-        color: "text-cyan-300 border-cyan-500/40 bg-cyan-950/40",
-      });
-    });
-
-    // 2. Active advisory disruptions
-    activeAlerts.slice(0, 3).forEach((a) => {
-      const line = allLines.find((l) => l.id === a.lineId);
-      const parsed = a.startTime ? new Date(a.startTime).getTime() : NaN;
-      const timestamp = !isNaN(parsed) ? parsed : simulationTime - 30000;
-      const time = new Date(timestamp).toLocaleTimeString(currentLanguageMeta.locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Jakarta",
-      });
-
-      events.push({
-        id: `alert-${a.id}`,
-        timestamp,
-        time,
-        text: `${a.title}: ${a.description}`,
-        badge:
-          line?.code ||
-          (a.severity === "CRITICAL"
-            ? t.admin.sevCritical
-            : a.severity === "WARNING"
-            ? t.admin.sevWarning
-            : t.admin.sevInfo),
-        color:
-          a.severity === "CRITICAL"
-            ? "text-rose-300 border-rose-500/40 bg-rose-950/40"
-            : "text-amber-300 border-amber-500/40 bg-amber-950/40",
       });
     });
 
@@ -199,7 +166,21 @@ export default function AdminDashboardPage() {
     events.sort((a, b) => b.timestamp - a.timestamp);
 
     return events;
-  }, [simulatedVehicles, allLines, activeAlerts, simulationTime, currentLanguageMeta.locale, t]);
+  }, [simulatedVehicles, allLines, simulationTime, currentLanguageMeta.locale, t]);
+
+  // Advisory disruptions, critical first: an incident queue must never
+  // silently cap or truncate the actionable clause.
+  const advisories = useMemo(() => {
+    const rank = (severity: DisruptionAlert["severity"]): number =>
+      severity === "CRITICAL" ? 0 : severity === "WARNING" ? 1 : 2;
+    return [...activeAlerts].sort((a, b) => {
+      const order = rank(a.severity) - rank(b.severity);
+      if (order !== 0) return order;
+      const timeA = a.startTime ? new Date(a.startTime).getTime() : NaN;
+      const timeB = b.startTime ? new Date(b.startTime).getTime() : NaN;
+      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+    });
+  }, [activeAlerts]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -426,20 +407,72 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
+          <h4 className="text-xs font-bold text-white">{t.admin.eventAdvisoriesTitle}</h4>
           <div className="space-y-2.5">
-            {liveEvents.map((event) => (
+            {advisories.length === 0 ? (
+              <p className="rounded-xl border border-white/5 bg-slate-950/60 px-3 py-4 text-center text-xs text-slate-500">
+                {t.admin.noActiveAdvisories}
+              </p>
+            ) : (
+              advisories.map((a) => {
+                const line = allLines.find((l) => l.id === a.lineId);
+                const parsed = a.startTime ? new Date(a.startTime).getTime() : NaN;
+                const time = !isNaN(parsed)
+                  ? new Date(parsed).toLocaleTimeString(currentLanguageMeta.locale, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: false,
+                      timeZone: "Asia/Jakarta",
+                    })
+                  : null;
+                const badge =
+                  line?.code ||
+                  (a.severity === "CRITICAL"
+                    ? t.admin.sevCritical
+                    : a.severity === "WARNING"
+                    ? t.admin.sevWarning
+                    : t.admin.sevInfo);
+                const color =
+                  a.severity === "CRITICAL"
+                    ? "text-rose-300 border-rose-500/40 bg-rose-950/40"
+                    : "text-amber-300 border-amber-500/40 bg-amber-950/40";
+                return (
+                  <div
+                    key={`alert-${a.id}`}
+                    className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-start gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {time && (
+                        <span className="text-[10px] font-mono text-slate-400 shrink-0">{time}</span>
+                      )}
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 ${color}`}>
+                        {badge}
+                      </span>
+                      <span data-testid={`advisory-text-${a.id}`} className="text-slate-200">
+                        {a.title}: {a.description}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <h4 className="text-xs font-bold text-white pt-1">{t.admin.eventTelemetryTitle}</h4>
+          <div className="space-y-2.5">
+            {telemetryEvents.map((event) => (
               <div
                 key={event.id}
                 className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-3 text-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-[10px] font-mono text-slate-400 shrink-0">{event.time}</span>
-                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 ${event.color}`}>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 text-cyan-300 border-cyan-500/40 bg-cyan-950/40">
                     {event.badge}
                   </span>
                   <span className="text-slate-300 truncate">{event.text}</span>
                 </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 shrink-0" />
               </div>
             ))}
           </div>

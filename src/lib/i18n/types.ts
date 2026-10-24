@@ -1301,6 +1301,9 @@ export interface TranslationDictionary {
     noScansYet: string;
     scanTimestamp: string;
     eventStreamTitle: string;
+    eventAdvisoriesTitle: string;
+    eventTelemetryTitle: string;
+    noActiveAdvisories: string;
     previewTitle: string;
     fleetSubtitle: string;
     alertsSubtitle: string;
