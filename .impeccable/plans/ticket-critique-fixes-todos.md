@@ -17,7 +17,7 @@ Ledger in this file; rulings inline.
 | 4 | layout guest lookup | Progressive disclosure: code+phone first, collapsible fallback fields | DONE (509/509) | — |
 | 5 | clarify step-4 summary | Humanized class/seat, masked contact, Edit links to steps 2/3 | DONE (511/511) | — |
 | 6 | typeset micro-type | Three `text-[9px]` usages up to DESIGN.md ramp (or documented exemption) | TODO | — |
-| 7 | polish final pass | Whole-path pass per polish.md triage order; detector clean | TODO | — |
+| 7 | polish final pass | Whole-path pass per polish.md triage order; detector clean | DONE (511/511) | — |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm.
@@ -27,3 +27,4 @@ Ledger in this file; rulings inline.
 - Todo 4: native details/summary keeps it keyboard-operable for free. Ruling: hint text moved inside the disclosure; no separate collapsed-state copy.
 - Todo 5: seat row keeps the existing Seat label key and omits itself when no seat is picked. Ruling: masking keeps first-4/last-2 for phones and first-char plus domain for emails; no unmask control by design.
 - Todo 6: mono usages to 11px, metadata line to 10px per DESIGN.md ramp (10/11/14/16). Ruling: left the #3B82F6 fallback finding alone — runtime value, documented false positive from the critique.
+- Todo 7: branch diff scanned for console/TODO/hack debris: none. Ruling: modal focus-trap/Esc gap stays out of scope (Sam red flag, not in the approved 5+micro-type list; pre-existing behavior). No code change in this todo.
