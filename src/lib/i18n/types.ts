@@ -1348,6 +1348,7 @@ export interface TranslationDictionary {
     logoutTitle: string;
     logoutFull: string;
     telemetryLabel: string;
+    telemetryBasis: string;
     mobileNav: string;
     languageSwitcher: string;
     telemetryLiveBadge: string;

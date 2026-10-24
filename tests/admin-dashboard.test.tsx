@@ -127,3 +127,31 @@ describe("Admin portal frozen module names", () => {
     expect(await screen.findByRole("heading", { name: heroName })).toBeInTheDocument();
   });
 });
+
+describe("Admin health definitions", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: [],
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ success: true, data: [] }) })
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("labels fleet availability distinctly from header telemetry", async () => {
+    render(<AdminDashboardPage />);
+    expect(await screen.findByText(/fleet availability/i)).toBeInTheDocument();
+    expect(screen.getByText(/excl\. congestion hold/i)).toBeInTheDocument();
+  });
+});

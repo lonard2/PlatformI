@@ -297,7 +297,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             <div className="hidden md:flex items-center gap-2 text-xs font-mono text-slate-400">
               <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse motion-reduce:animate-none" />
-              <span>
+              <span title={t.admin.telemetryBasis}>
                 {t.admin.telemetryLabel}{" "}
                 <strong className="text-emerald-400">{telemetryUptime}</strong>
               </span>
