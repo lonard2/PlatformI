@@ -17,7 +17,7 @@ Ledger in this file; rulings inline.
 | 4 | clarify verbs | Freeze one verb set across nav, hero, headings, i18n keys | DONE (521/521) | — |
 | 5 | clarify health percentages | Single labeled definition for the two health percentages | TODO | — |
 | 6 | typeset micro-type | Four 9px badge usages up to DESIGN.md ramp (or documented exemption) | TODO | — |
-| 7 | polish final pass | Whole-portal pass per polish.md triage order; detector clean | TODO | — |
+| 7 | polish final pass | Whole-portal pass per polish.md triage order; detector clean | DONE (522/522, build green) | — |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm (all prior SDD work did the same).
@@ -28,3 +28,4 @@ Ledger in this file; rulings inline.
 - Todo 4: frozen names are the existing nav labels (no new strings). Ruling: removed 3 now-dead keys (broadcastAlert, qrScannerSimulator, manageFleet) to keep dictionaries honest; preset-section label keeps testTurnstileValidator as it describes presets, not the module.
 - Todo 5: header keeps its label with a basis tooltip; KPI keeps its visible basis line. Ruling: script-generated non-en values had a stray trailing quote artifact — caught by tsc, repaired, zero leftovers verified across all six dicts.
 - Todo 6: mono badges to 11px per ramp. Ruling: bump rather than exempt — enum-code badges are UI text, not data; detector now 0 on the portal.
+- Todo 7: branch diff clean (170 added lines, no console/TODO/any); production build green. No further findings; nothing left parked.
