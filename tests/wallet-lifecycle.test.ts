@@ -80,9 +80,10 @@ function refundTicket(ticketNumber: string): Promise<{ status: number; json: Rec
   return postJson(refundPost, "http://localhost:3000/api/ticketing/refund", { ticketNumber });
 }
 
-function guestLookup(code: string, phone: string): Promise<{ status: number; json: Record<string, unknown> }> {
+function guestLookup(code: string, phone: string, extra: Record<string, string> = {}): Promise<{ status: number; json: Record<string, unknown> }> {
+  const params = new URLSearchParams({ code, phone, ...extra });
   const req = new NextRequest(
-    `http://localhost:3000/api/ticketing/guest-lookup?code=${encodeURIComponent(code)}&phone=${encodeURIComponent(phone)}`
+    `http://localhost:3000/api/ticketing/guest-lookup?${params.toString()}`
   );
   return (guestLookupGet(req) as Promise<Response>).then(async (res) => ({
     status: res.status,
@@ -231,6 +232,59 @@ describe("reservation lifecycle APIs", () => {
     expect(ticket["buyerFullName"]).toBe("Sinta Guest");
     expect(ticket["totalFareRp"]).toBeUndefined();
     expect(ticket["rollingToken"]).toBeUndefined();
+  });
+
+  it("finds a guest ticket by phone plus support fallback when the code is unreadable", async () => {
+    const created = await purchaseReservation(
+      intercityPurchase({ tripCode: `${TRIP_CODE}-FALLBACK` })
+    );
+    createdTicketNumbers.push(created.json["ticketNumber"] as string);
+
+    const res = await guestLookup(`WRONG-${RUN_TAG}`, GUEST_PHONE, {
+      tripDate: TRAVEL_DATE,
+      idNumber: "3174050101900001",
+      operator: `${TRIP_CODE}-FALLBACK`,
+      journey: RUN_ID,
+      routeName: "line-akap-test",
+    });
+    expect(res.status).toBe(200);
+    const ticket = res.json["ticket"] as Record<string, unknown>;
+    expect(ticket["ticketNumber"]).toBe(created.json["ticketNumber"]);
+    expect(ticket["reservationCode"]).toBe(created.json["reservationCode"]);
+    expect(ticket["totalFareRp"]).toBeUndefined();
+    expect(ticket["rollingToken"]).toBeUndefined();
+  });
+
+  it("returns 404 when support fallback matches no reservation", async () => {
+    const res = await guestLookup("", GUEST_PHONE, { tripDate: "2026-12-31" });
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 404 when support fallback matches more than one reservation", async () => {
+    const otherPhone = `+62891${Date.now().toString().slice(-7)}`;
+    const otherBuyer = {
+      fullName: "Budi Guest",
+      phone: otherPhone,
+      email: `budi-${Date.now().toString(36)}@example.com`,
+      idNumber: "3174050101900002",
+    };
+    for (const suffix of ["AMB-A", "AMB-B"]) {
+      const created = await purchaseReservation(
+        intercityPurchase({ tripCode: `${TRIP_CODE}-${suffix}`, buyer: otherBuyer })
+      );
+      createdTicketNumbers.push(created.json["ticketNumber"] as string);
+    }
+    const res = await guestLookup("", otherPhone, { tripDate: TRAVEL_DATE });
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 when phone is missing and when neither code nor fallback is given", async () => {
+    const missingPhone = await guestLookup(`${TRIP_CODE}-FALLBACK`, "", {
+      tripDate: TRAVEL_DATE,
+    });
+    expect(missingPhone.status).toBe(400);
+    const missingBoth = await guestLookup("", GUEST_PHONE);
+    expect(missingBoth.status).toBe(400);
   });
 
   it("returns 500 when the guest lookup database read fails", async () => {

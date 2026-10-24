@@ -271,6 +271,99 @@ export function validateReservationLegs(
   return null;
 }
 
+/**
+ * Support fallback fields for assisted guest lookup when the reservation
+ * code is unreadable. Phone stays the identity anchor; these fields only
+ * narrow the candidate set, never widen it.
+ */
+export interface GuestLookupFallback {
+  tripDate?: string;
+  idNumber?: string;
+  operator?: string;
+  journey?: string;
+  routeName?: string;
+}
+
+/** True when at least one support fallback field carries a value. */
+export function hasGuestLookupFallback(fallback: GuestLookupFallback): boolean {
+  return (
+    (fallback.tripDate ?? "").trim() !== "" ||
+    (fallback.idNumber ?? "").trim() !== "" ||
+    (fallback.operator ?? "").trim() !== "" ||
+    (fallback.journey ?? "").trim() !== "" ||
+    (fallback.routeName ?? "").trim() !== ""
+  );
+}
+
+function containsNeedle(haystack: string, needle: string): boolean {
+  return haystack.toLowerCase().includes(needle.trim().toLowerCase());
+}
+
+/**
+ * Matches a stored reservation against the provided support fallback
+ * fields with AND semantics: every supplied field must match.
+ * - tripDate matches the envelope travelDate exactly (YYYY-MM-DD).
+ * - idNumber matches the stored buyer ID number exactly.
+ * - operator/journey/routeName match case-insensitively as substrings of
+ *   the reservation's own trip, leg, and endpoint references.
+ * Returns false when no fallback field is supplied.
+ */
+export function matchesGuestLookupFallback(
+  record: {
+    idNumber: string | null;
+    originStopId: string;
+    destinationStopId: string;
+    serviceClass: string | null;
+    legsJson: string;
+  },
+  fallback: GuestLookupFallback
+): boolean {
+  if (!hasGuestLookupFallback(fallback)) return false;
+  const envelope = readReservationEnvelope(record.legsJson);
+
+  const tripDate = (fallback.tripDate ?? "").trim();
+  if (tripDate !== "" && (envelope.trip.travelDate ?? "") !== tripDate) return false;
+
+  const idNumber = (fallback.idNumber ?? "").trim();
+  if (idNumber !== "" && (record.idNumber ?? "") !== idNumber) return false;
+
+  const operatorRefs = [
+    envelope.trip.tripCode ?? "",
+    envelope.trip.runId ?? "",
+    record.serviceClass ?? "",
+    ...envelope.legs.flatMap((leg) => [leg.lineId, leg.mode]),
+  ];
+  const operator = (fallback.operator ?? "").trim();
+  if (operator !== "" && !operatorRefs.some((ref) => containsNeedle(ref, operator))) {
+    return false;
+  }
+
+  const journeyRefs = [
+    record.originStopId,
+    record.destinationStopId,
+    envelope.trip.tripCode ?? "",
+    envelope.trip.runId ?? "",
+  ];
+  const journey = (fallback.journey ?? "").trim();
+  if (journey !== "" && !journeyRefs.some((ref) => containsNeedle(ref, journey))) {
+    return false;
+  }
+
+  const routeRefs = [
+    ...envelope.legs.map((leg) => leg.lineId),
+    envelope.trip.tripCode ?? "",
+    envelope.trip.runId ?? "",
+    record.originStopId,
+    record.destinationStopId,
+  ];
+  const routeName = (fallback.routeName ?? "").trim();
+  if (routeName !== "" && !routeRefs.some((ref) => containsNeedle(ref, routeName))) {
+    return false;
+  }
+
+  return true;
+}
+
 export interface GuestTicketView {
   ticketNumber: string;
   reservationCode: string;

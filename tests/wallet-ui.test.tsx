@@ -63,8 +63,64 @@ describe("GuestTicketLookup", () => {
         ticketNumber: "TKT-GUEST-01",
         reservationCode: "RSV-ABC123",
       });
-      expect(fetchMock.mock.calls[0][0]).toContain("code=RSV-ABC123");
-      expect(fetchMock.mock.calls[0][0]).toContain("phone=");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("appends non-empty fallback fields to the lookup query", async () => {
+    const onFound = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          success: true,
+          ticket: {
+            ticketNumber: "TKT-GUEST-02",
+            reservationCode: "RSV-XYZ789",
+            status: "WAITING",
+          },
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      render(<GuestTicketLookup onFound={onFound} />);
+      fireEvent.change(screen.getByLabelText(/phone/i), {
+        target: { value: "081234567890" },
+      });
+      fireEvent.change(screen.getByLabelText(/trip date/i), {
+        target: { value: "2026-11-01" },
+      });
+      fireEvent.change(screen.getByLabelText(/id number/i), {
+        target: { value: "3174050101900001" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: /find ticket/i }));
+      await waitFor(() => expect(onFound).toHaveBeenCalledTimes(1));
+      const url = fetchMock.mock.calls[0][0] as string;
+      expect(url).toContain("phone=");
+      expect(url).toContain("tripDate=2026-11-01");
+      expect(url).toContain("idNumber=3174050101900001");
+      expect(url).not.toContain("operator=");
+      expect(url).not.toContain("journey=");
+      expect(url).not.toContain("routeName=");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("blocks search without a code and without support details", () => {
+    const onFound = vi.fn();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      render(<GuestTicketLookup onFound={onFound} />);
+      fireEvent.change(screen.getByLabelText(/phone/i), {
+        target: { value: "081234567890" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: /find ticket/i }));
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(onFound).not.toHaveBeenCalled();
+      expect(screen.getByRole("alert")).toBeInTheDocument();
     } finally {
       vi.unstubAllGlobals();
     }

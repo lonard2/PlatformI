@@ -24,6 +24,7 @@ import {
   Search,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { hasGuestLookupFallback } from "@/lib/ticketing/reservationContract";
 import type { TicketStatus } from "@/types/transit";
 
 export interface GuestFoundTicket {
@@ -61,7 +62,14 @@ export const GuestTicketLookup: React.FC<GuestTicketLookupProps> = ({
 
   const handleSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    if (code.trim() === "" || phone.trim() === "") {
+    const fallback = {
+      tripDate: tripDate.trim() || undefined,
+      idNumber: idNumber.trim() || undefined,
+      operator: operator.trim() || undefined,
+      journey: journey.trim() || undefined,
+      routeName: routeName.trim() || undefined,
+    };
+    if (phone.trim() === "" || (code.trim() === "" && !hasGuestLookupFallback(fallback))) {
       setError(t.ticketing.guestLookupError);
       return;
     }
@@ -69,9 +77,14 @@ export const GuestTicketLookup: React.FC<GuestTicketLookupProps> = ({
     setError(null);
     try {
       const params = new URLSearchParams({
-        code: code.trim(),
         phone: phone.trim(),
       });
+      if (code.trim() !== "") params.set("code", code.trim());
+      if (fallback.tripDate) params.set("tripDate", fallback.tripDate);
+      if (fallback.idNumber) params.set("idNumber", fallback.idNumber);
+      if (fallback.operator) params.set("operator", fallback.operator);
+      if (fallback.journey) params.set("journey", fallback.journey);
+      if (fallback.routeName) params.set("routeName", fallback.routeName);
       const res = await fetch(`/api/ticketing/guest-lookup?${params.toString()}`);
       const data = (await res.json()) as {
         success?: boolean;
@@ -126,7 +139,6 @@ export const GuestTicketLookup: React.FC<GuestTicketLookupProps> = ({
               aria-label={t.ticketing.guestTicketCode}
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              required
               autoComplete="off"
               className={`${inputClass} font-mono uppercase`}
               placeholder="RSV-XXXXXX"
