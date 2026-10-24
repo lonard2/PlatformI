@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { IntercityTicketHub, resolveIntercityFareParts } from "@/components/ticketing/IntercityTicketHub";
+import { IntercityTicketHub, resolveIntercityFareParts, maskContactPhone, maskContactEmail } from "@/components/ticketing/IntercityTicketHub";
 import { useLanguageStore } from "@/lib/i18n";
 import type { TimetableRun } from "@/types/transit";
 
@@ -36,6 +36,49 @@ function mockPayFlow(): void {
     )
   );
 }
+
+describe("IntercityTicketHub step-4 summary", () => {
+  it("masks contact details instead of printing them raw", () => {
+    expect(maskContactPhone("081234567890")).toBe("0812••••90");
+    expect(maskContactPhone("12")).toBe("••");
+    expect(maskContactEmail("siti@example.com")).toBe("s•••@example.com");
+    expect(maskContactEmail("not-an-email")).toBe("•••");
+  });
+
+  it("shows the picked seat, masked contact, and edit links back to steps 2 and 3", async () => {
+    useLanguageStore.getState().setLanguage("en");
+    mockPayFlow();
+    render(
+      <IntercityTicketHub
+        preselectedRun={{ ...KAI_RUN_PAY, serviceClass: undefined } as TimetableRun}
+        initialMode="KAI_INTERCITY"
+      />
+    );
+    fireEvent.click(await screen.findByLabelText(/1B/));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.change(await screen.findByLabelText(/full name/i), {
+      target: { value: "Siti Rahayu" },
+    });
+    fireEvent.change(screen.getByLabelText(/phone/i), {
+      target: { value: "081234567890" },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: "siti@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/id number/i), {
+      target: { value: "3174050101900001" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+    await screen.findByText("4. Wallet");
+    expect(screen.queryByText(/seat #-/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/seat 1b/i)).toBeInTheDocument();
+    expect(screen.getByText(/0812••••90/)).toBeInTheDocument();
+    expect(screen.getByText(/s•••@example\.com/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /edit buyer/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /edit seat/i }));
+    expect(await screen.findByText(/class and seat/i)).toBeInTheDocument();
+  });
+});
 
 describe("IntercityTicketHub pay reassurance", () => {
   it("splits the fare into base, multiplier, and rounded total", () => {

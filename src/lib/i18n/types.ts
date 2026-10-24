@@ -966,6 +966,9 @@ export interface TranslationDictionary {
     hubReservationCode: string;
     hubBaseFare: string;
     hubClassMult: string;
+    hubEditSeat: string;
+    hubEditBuyer: string;
+    hubBuyerContact: string;
     hubCompany: string;
     hubOrigin: string;
     hubDestination: string;

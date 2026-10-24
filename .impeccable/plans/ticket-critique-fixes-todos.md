@@ -15,7 +15,7 @@ Ledger in this file; rulings inline.
 | 2 | clarify Pay reassurance | 3-way method picker, fare math, reservationCode in success card | DONE (505/505) | — |
 | 3 | harden buyer errors | Inline per-field errors + aria-describedby, focus first invalid, visible required markers | DONE (508/508) | — |
 | 4 | layout guest lookup | Progressive disclosure: code+phone first, collapsible fallback fields | DONE (509/509) | — |
-| 5 | clarify step-4 summary | Humanized class/seat, masked contact, Edit links to steps 2/3 | TODO | — |
+| 5 | clarify step-4 summary | Humanized class/seat, masked contact, Edit links to steps 2/3 | DONE (511/511) | — |
 | 6 | typeset micro-type | Three `text-[9px]` usages up to DESIGN.md ramp (or documented exemption) | TODO | — |
 | 7 | polish final pass | Whole-path pass per polish.md triage order; detector clean | TODO | — |
 
@@ -25,3 +25,4 @@ Ledger in this file; rulings inline.
 - Todo 2: RED caught a real stale-closure bug (handlePay deps lacked paymentMethod; payload always sent JAKLINGKO). Fixed + covered. Ruling: payload keeps paymentResult success and adds paymentMethod; server ignores unknown keys (verified read of route). Note: success-block method label uses render-scope value, payload verified via debug fetch log (since removed).
 - Todo 3: per-field errors are plain paragraphs (no extra live regions beyond the existing summary alert). Ruling: required marker is a visual asterisk only; screen readers already hear the required attribute. ID marker follows rules.idRequired.
 - Todo 4: native details/summary keeps it keyboard-operable for free. Ruling: hint text moved inside the disclosure; no separate collapsed-state copy.
+- Todo 5: seat row keeps the existing Seat label key and omits itself when no seat is picked. Ruling: masking keeps first-4/last-2 for phones and first-char plus domain for emails; no unmask control by design.

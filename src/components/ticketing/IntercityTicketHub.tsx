@@ -166,6 +166,22 @@ export function resolveCarrierKey(run: IntercityHubRun): string {
   return [run.operatorName, run.serviceClass].filter(Boolean).join(" ").trim();
 }
 
+/**
+ * Masks contact details for the pre-payment summary so full phone numbers
+ * and email addresses are not printed on screen.
+ */
+export function maskContactPhone(phone: string): string {
+  const digits = phone.trim();
+  if (digits.length <= 4) return "••";
+  return `${digits.slice(0, 4)}••••${digits.slice(-2)}`;
+}
+
+export function maskContactEmail(email: string): string {
+  const [local, domain] = email.trim().split("@");
+  if (!domain || local.length === 0) return "•••";
+  return `${local[0]}•••@${domain}`;
+}
+
 /** Maps an intercity mode to a SeatMap vehicle class for layout switching. */
 export function resolveIntercityVehicleType(mode: TransitMode): string {
   switch (mode) {
@@ -763,10 +779,15 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
               {selectedRun.origin} → {selectedRun.destination}
             </p>
             <p className="font-mono text-[11px] text-slate-500">
-              {t.ticketing.hubClass}: {selectedRun.serviceClass ?? carrierKey} · {t.vehicleInspector.seat} #{seatId ?? "-"}
+              {t.ticketing.hubClass}: {selectedRun.serviceClass ?? carrierKey}
+              {seatId ? ` · ${t.vehicleInspector.seat} ${seatId}` : ""}
             </p>
             <p className="mt-1 text-[11px] text-slate-400">
               {t.ticketing.hubBuyerLine.replace("{name}", buyer.fullName)}
+            </p>
+            <p className="font-mono text-[11px] text-slate-500">
+              {t.ticketing.hubBuyerContact}: {maskContactPhone(buyer.phone)} ·{" "}
+              {maskContactEmail(buyer.email)}
             </p>
             <div className="mt-1 flex items-center justify-between border-t border-slate-800 pt-1.5">
               <span className="text-slate-400">{t.ticketing.hubBaseFare}</span>
@@ -819,6 +840,24 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
                   <span className="text-[11px] font-bold text-slate-200">{label}</span>
                 </button>
               ))}
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="flex items-center gap-1 rounded-xl border border-slate-700 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+              >
+                <ArrowLeft aria-hidden="true" className="h-3 w-3" />
+                <span>{t.ticketing.hubEditSeat}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="flex items-center gap-1 rounded-xl border border-slate-700 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+              >
+                <ArrowLeft aria-hidden="true" className="h-3 w-3" />
+                <span>{t.ticketing.hubEditBuyer}</span>
+              </button>
             </div>
           </div>
 
