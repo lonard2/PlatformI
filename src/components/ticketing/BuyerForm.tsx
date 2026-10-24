@@ -12,7 +12,7 @@
 
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CircleAlert,
@@ -82,6 +82,24 @@ export function resolveDropOffPoints(): string[] {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Fixed tab order for error focus; only visible fields can be invalid. */
+const FIELD_ORDER = [
+  "fullName",
+  "phone",
+  "email",
+  "idNumber",
+  "dropOffPointId",
+] as const;
+
+/** Visible required marker; screen readers already hear the required attribute. */
+function RequiredMark(): React.ReactElement {
+  return (
+    <span aria-hidden="true" className="text-rose-400">
+      {" *"}
+    </span>
+  );
+}
+
 const inputClass = (invalid: boolean): string =>
   `w-full rounded-xl border bg-slate-900/80 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-2 focus:outline-offset-1 focus:outline-cyan-400 ${
     invalid ? "border-rose-500/70" : "border-slate-700"
@@ -112,6 +130,12 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
   const [meal, setMeal] = useState<string>("");
   const [dropOffPointId, setDropOffPointId] = useState<string>("");
   const [invalidFields, setInvalidFields] = useState<string[]>([]);
+  const fieldRefs = useRef<Partial<Record<string, HTMLElement | null>>>({});
+  const setFieldRef =
+    (field: string) =>
+    (element: HTMLElement | null): void => {
+      fieldRefs.current[field] = element;
+    };
 
   // Account prefill may arrive after mount; fill only fields the buyer has
   // not typed into yet so late account data never clobbers manual fallback.
@@ -121,7 +145,38 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
     if (prefill?.email && email === "") setEmail(prefill.email);
   }, [prefill, fullName, phone, email]);
 
+  // Move keyboard and screen-reader focus to the first problem on submit.
+  useEffect(() => {
+    for (const field of FIELD_ORDER) {
+      if (invalidFields.includes(field)) {
+        fieldRefs.current[field]?.focus();
+        break;
+      }
+    }
+  }, [invalidFields]);
+
   const isInvalid = (field: string): boolean => invalidFields.includes(field);
+
+  const fieldErrorId = (field: string): string | undefined =>
+    isInvalid(field) ? `buyer-err-${field}` : undefined;
+
+  const fieldErrorMessage = (field: string): string | null => {
+    if (!isInvalid(field)) return null;
+    switch (field) {
+      case "fullName":
+        return t.ticketing.buyerFullNameError;
+      case "phone":
+        return t.ticketing.buyerPhoneError;
+      case "email":
+        return t.ticketing.buyerEmailError;
+      case "idNumber":
+        return t.ticketing.buyerIdNumberError;
+      case "dropOffPointId":
+        return t.ticketing.buyerDropOffError;
+      default:
+        return null;
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -183,6 +238,7 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
           >
             <UserRound aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
             {t.ticketing.buyerFullName}
+            <RequiredMark />
           </label>
           <input
             id="buyer-full-name"
@@ -191,9 +247,16 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
             required
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
+            ref={setFieldRef("fullName")}
             aria-invalid={isInvalid("fullName")}
+            aria-describedby={fieldErrorId("fullName")}
             className={inputClass(isInvalid("fullName"))}
           />
+          {fieldErrorMessage("fullName") && (
+            <p id="buyer-err-fullName" className="mt-1 text-[11px] text-rose-300">
+              {fieldErrorMessage("fullName")}
+            </p>
+          )}
         </div>
 
         <div>
@@ -203,6 +266,7 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
           >
             <Phone aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
             {t.ticketing.buyerPhone}
+            <RequiredMark />
           </label>
           <input
             id="buyer-phone"
@@ -211,9 +275,16 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
             required
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
+            ref={setFieldRef("phone")}
             aria-invalid={isInvalid("phone")}
+            aria-describedby={fieldErrorId("phone")}
             className={inputClass(isInvalid("phone"))}
           />
+          {fieldErrorMessage("phone") && (
+            <p id="buyer-err-phone" className="mt-1 text-[11px] text-rose-300">
+              {fieldErrorMessage("phone")}
+            </p>
+          )}
         </div>
 
         <div>
@@ -223,6 +294,7 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
           >
             <Mail aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
             {t.ticketing.buyerEmail}
+            <RequiredMark />
           </label>
           <input
             id="buyer-email"
@@ -231,9 +303,16 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            ref={setFieldRef("email")}
             aria-invalid={isInvalid("email")}
+            aria-describedby={fieldErrorId("email")}
             className={inputClass(isInvalid("email"))}
           />
+          {fieldErrorMessage("email") && (
+            <p id="buyer-err-email" className="mt-1 text-[11px] text-rose-300">
+              {fieldErrorMessage("email")}
+            </p>
+          )}
         </div>
 
         <div>
@@ -243,6 +322,7 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
           >
             <IdCard aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
             {t.ticketing.buyerIdNumber}
+            {rules.idRequired && <RequiredMark />}
           </label>
           <input
             id="buyer-id-number"
@@ -251,9 +331,16 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
             required={rules.idRequired}
             value={idNumber}
             onChange={(event) => setIdNumber(event.target.value)}
+            ref={setFieldRef("idNumber")}
             aria-invalid={isInvalid("idNumber")}
+            aria-describedby={fieldErrorId("idNumber")}
             className={inputClass(isInvalid("idNumber"))}
           />
+          {fieldErrorMessage("idNumber") && (
+            <p id="buyer-err-idNumber" className="mt-1 text-[11px] text-rose-300">
+              {fieldErrorMessage("idNumber")}
+            </p>
+          )}
         </div>
 
         {showMeal && (
@@ -286,13 +373,16 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
           >
             <MapPin aria-hidden="true" className="h-3.5 w-3.5 text-slate-500" />
             {t.ticketing.buyerDropOff}
+            <RequiredMark />
           </label>
           <select
             id="buyer-drop-off"
             required
             value={dropOffPointId}
             onChange={(event) => setDropOffPointId(event.target.value)}
+            ref={setFieldRef("dropOffPointId")}
             aria-invalid={isInvalid("dropOffPointId")}
+            aria-describedby={fieldErrorId("dropOffPointId")}
             className={inputClass(isInvalid("dropOffPointId"))}
           >
             <option value="">{t.ticketing.buyerDropOffPlaceholder}</option>
@@ -302,6 +392,11 @@ export const BuyerForm: React.FC<BuyerFormProps> = ({
               </option>
             ))}
           </select>
+          {fieldErrorMessage("dropOffPointId") && (
+            <p id="buyer-err-dropOffPointId" className="mt-1 text-[11px] text-rose-300">
+              {fieldErrorMessage("dropOffPointId")}
+            </p>
+          )}
         </div>
       )}
 

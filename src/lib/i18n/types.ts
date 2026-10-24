@@ -947,6 +947,11 @@ export interface TranslationDictionary {
     buyerDropOffPlaceholder: string;
     buyerSubmit: string;
     buyerFixErrors: string;
+    buyerFullNameError: string;
+    buyerPhoneError: string;
+    buyerEmailError: string;
+    buyerIdNumberError: string;
+    buyerDropOffError: string;
     hubTitle: string;
     hubSubtitle: string;
     hubMode: string;

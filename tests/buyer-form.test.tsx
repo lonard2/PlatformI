@@ -139,3 +139,38 @@ describe("BuyerForm prefill, validation, and submit", () => {
     expect(screen.getByText(/購入者情報/)).toBeInTheDocument();
   });
 });
+
+describe("BuyerForm error recovery", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+  });
+
+  it("names each problem inline and links inputs to their errors", () => {
+    render(<BuyerForm mode="KAI_INTERCITY" serviceClass="Eksekutif" onValid={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+    const nameInput = screen.getByLabelText(/full name/i);
+    expect(nameInput.getAttribute("aria-describedby")).toContain("buyer-err-fullName");
+    expect(screen.getByText("Enter your full name.")).toBeInTheDocument();
+    expect(screen.getByText("Enter a valid email address.")).toBeInTheDocument();
+  });
+
+  it("moves focus to the first invalid field on submit", () => {
+    render(<BuyerForm mode="KAI_INTERCITY" serviceClass="Eksekutif" onValid={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+    expect(document.activeElement).toBe(screen.getByLabelText(/full name/i));
+  });
+
+  it("marks required labels visibly and only when required", () => {
+    const { unmount } = render(
+      <BuyerForm mode="KAI_INTERCITY" serviceClass="Eksekutif" onValid={() => {}} />
+    );
+    const nameLabel = document.querySelector('label[for="buyer-full-name"]');
+    expect(nameLabel?.textContent).toContain("*");
+    const idLabel = document.querySelector('label[for="buyer-id-number"]');
+    expect(idLabel?.textContent).toContain("*");
+    unmount();
+    render(<BuyerForm mode="EXECUTIVE_SHUTTLE" serviceClass="VIP" onValid={() => {}} />);
+    const idLabelOptional = document.querySelector('label[for="buyer-id-number"]');
+    expect(idLabelOptional?.textContent).not.toContain("*");
+  });
+});
