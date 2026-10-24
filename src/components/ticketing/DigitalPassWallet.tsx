@@ -32,8 +32,10 @@ import {
   History,
   Check,
   Loader2,
+  TicketCheck,
 } from "lucide-react";
 import { DynamicQRCode } from "./DynamicQRCode";
+import { GuestTicketLookup, GuestFoundTicket } from "./GuestTicketLookup";
 import { TicketPurchaseModal } from "./TicketPurchaseModal";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { formatRupiah } from "@/lib/services/fareCalculator";
@@ -44,12 +46,15 @@ interface DigitalPassWalletProps {
   isOpen?: boolean;
   onClose?: () => void;
   className?: string;
+  /** Freshly purchased pass injected by the intercity hub checkout. */
+  injectedTicket?: Ticket | null;
 }
 
 export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
   isOpen = true,
   onClose,
   className = "",
+  injectedTicket = null,
 }) => {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
@@ -107,10 +112,94 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
       rollingToken: "PLATFORMI:TKT-TJ-44102:USR-JAKARTA-01:0:init",
       reservationCode: "RSV-TJ-44102",
     },
+    {
+      id: "tkt-wait-03",
+      ticketNumber: "TKT-AKAP-77310",
+      userId: "guest",
+      originStopId: "INTERCITY:RUN-AKAP-01:ORIGIN",
+      destinationStopId: "INTERCITY:RUN-AKAP-01:DESTINATION",
+      legs: [
+        {
+          legIndex: 0,
+          lineId: "line-akap-test",
+          originStopId: "INTERCITY:RUN-AKAP-01:ORIGIN",
+          destinationStopId: "INTERCITY:RUN-AKAP-01:DESTINATION",
+          mode: "AKAP_INTERCITY_BUS",
+          fareRp: 180000,
+          distanceKm: 320,
+        },
+      ],
+      totalFareRp: 180000,
+      isJakLingkoCapped: false,
+      status: "WAITING",
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      rollingToken: "PLATFORMI:TKT-AKAP-77310:guest:0:init",
+      reservationCode: "RSV-WAIT-77310",
+      guestPhone: "+6281234567890",
+      guestEmail: "guest@example.com",
+      seatId: "12A",
+      serviceClass: "EXECUTIVE",
+      claimedByUserId: null,
+    },
+    {
+      id: "tkt-fail-04",
+      ticketNumber: "TKT-AKAP-77410",
+      userId: "guest",
+      originStopId: "INTERCITY:RUN-AKAP-02:ORIGIN",
+      destinationStopId: "INTERCITY:RUN-AKAP-02:DESTINATION",
+      legs: [
+        {
+          legIndex: 0,
+          lineId: "line-akap-test",
+          originStopId: "INTERCITY:RUN-AKAP-02:ORIGIN",
+          destinationStopId: "INTERCITY:RUN-AKAP-02:DESTINATION",
+          mode: "AKAP_INTERCITY_BUS",
+          fareRp: 180000,
+          distanceKm: 320,
+        },
+      ],
+      totalFareRp: 180000,
+      isJakLingkoCapped: false,
+      status: "FAILED",
+      createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + 21 * 3600 * 1000).toISOString(),
+      rollingToken: "PLATFORMI:TKT-AKAP-77410:guest:0:init",
+      reservationCode: "RSV-FAIL-77410",
+      guestPhone: "+6281234567890",
+      claimedByUserId: null,
+    },
+    {
+      id: "tkt-ref-05",
+      ticketNumber: "TKT-AKAP-77510",
+      userId: "guest",
+      originStopId: "INTERCITY:RUN-AKAP-03:ORIGIN",
+      destinationStopId: "INTERCITY:RUN-AKAP-03:DESTINATION",
+      legs: [
+        {
+          legIndex: 0,
+          lineId: "line-akap-test",
+          originStopId: "INTERCITY:RUN-AKAP-03:ORIGIN",
+          destinationStopId: "INTERCITY:RUN-AKAP-03:DESTINATION",
+          mode: "AKAP_INTERCITY_BUS",
+          fareRp: 180000,
+          distanceKm: 320,
+        },
+      ],
+      totalFareRp: 180000,
+      isJakLingkoCapped: false,
+      status: "REFUNDED",
+      createdAt: new Date(Date.now() - 26 * 3600 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      rollingToken: "PLATFORMI:TKT-AKAP-77510:guest:0:init",
+      reservationCode: "RSV-REF-77510",
+      guestPhone: "+6281234567890",
+      claimedByUserId: null,
+    },
   ]);
 
   const [activeTicketId, setActiveTicketId] = useState<string>("tkt-mrt-01");
-  const [activeTab, setActiveTab] = useState<"ACTIVE_PASSES" | "TRIP_HISTORY">("ACTIVE_PASSES");
+  const [activeTab, setActiveTab] = useState<"ACTIVE_PASSES" | "TRIP_HISTORY" | "GUEST_LOOKUP">("ACTIVE_PASSES");
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState<boolean>(false);
 
   // Turnstile Gate Simulator State
@@ -193,8 +282,85 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
     setIsPurchaseModalOpen(false);
   };
 
+  // Fresh pass injected by the intercity hub checkout after payment.
+  useEffect(() => {
+    if (!injectedTicket) return;
+    setTickets((prev) =>
+      prev.some((t) => t.ticketNumber === injectedTicket.ticketNumber)
+        ? prev
+        : [injectedTicket, ...prev]
+    );
+    setActiveTicketId(injectedTicket.id);
+  }, [injectedTicket]);
+
+  const handleGuestFound = (found: GuestFoundTicket) => {
+    const guestTicket: Ticket = {
+      id: `guest-${found.ticketNumber}`,
+      ticketNumber: found.ticketNumber,
+      userId: "guest",
+      originStopId: found.originStopId,
+      destinationStopId: found.destinationStopId,
+      legs: [],
+      totalFareRp: 0,
+      isJakLingkoCapped: false,
+      status: found.status,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      rollingToken: "",
+      reservationCode: found.reservationCode,
+      seatId: found.seatId ?? undefined,
+      serviceClass: found.serviceClass ?? undefined,
+      claimedByUserId: null,
+    };
+    setTickets((prev) =>
+      prev.some((t) => t.ticketNumber === guestTicket.ticketNumber)
+        ? prev.map((t) => (t.ticketNumber === guestTicket.ticketNumber ? guestTicket : t))
+        : [guestTicket, ...prev]
+    );
+    setActiveTicketId(guestTicket.id);
+    setActiveTab("ACTIVE_PASSES");
+  };
+
+  const statusBadge = (status: TicketStatus): { label: string; className: string } => {
+    switch (status) {
+      case "IN_JOURNEY":
+        return { label: t.ticketing.statusInJourney, className: "bg-amber-950/70 border-amber-500/40 text-amber-300" };
+      case "WAITING":
+        return { label: t.ticketing.statusWaiting, className: "bg-sky-950/70 border-sky-500/40 text-sky-300" };
+      case "FAILED":
+        return { label: t.ticketing.statusFailed, className: "bg-rose-950/70 border-rose-500/40 text-rose-300" };
+      case "REFUNDED":
+        return { label: t.ticketing.statusRefunded, className: "bg-slate-800/70 border-slate-600/40 text-slate-300" };
+      case "COMPLETED":
+        return { label: t.ticketing.tripCompleted, className: "bg-emerald-950/70 border-emerald-500/40 text-emerald-300" };
+      case "EXPIRED":
+        return { label: t.ticketing.tripExpired, className: "bg-slate-800/70 border-slate-600/40 text-slate-400" };
+      case "CANCELLED":
+        return { label: t.ticketing.statusCancelled, className: "bg-slate-800/70 border-slate-600/40 text-slate-400" };
+      default:
+        return { label: t.ticketing.statusReadyToTap, className: "bg-emerald-950/70 border-emerald-500/40 text-emerald-300" };
+    }
+  };
+
+  /** Effective QR status: a lapsed expiry suppresses the QR with the expired reason. */
+  const resolveQrStatus = (ticket: Ticket): TicketStatus => {
+    if (
+      (ticket.status === "ACTIVE" ||
+        ticket.status === "IN_JOURNEY" ||
+        ticket.status === "WAITING") &&
+      new Date(ticket.expiresAt).getTime() <= Date.now()
+    ) {
+      return "EXPIRED";
+    }
+    return ticket.status;
+  };
+
   const activePasses = tickets.filter((t) => t.status === "ACTIVE" || t.status === "IN_JOURNEY");
-  const pastTrips = tickets.filter((t) => t.status === "COMPLETED" || t.status === "EXPIRED");
+  const waitingPasses = tickets.filter((t) => t.status === "WAITING");
+  const failedPasses = tickets.filter((t) => t.status === "FAILED");
+  const pastTrips = tickets.filter(
+    (t) => t.status === "COMPLETED" || t.status === "EXPIRED" || t.status === "REFUNDED" || t.status === "CANCELLED"
+  );
 
   return (
     <div
@@ -265,6 +431,18 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           <History className="w-3.5 h-3.5" />
           <span>{t.ticketing.tripHistory} ({pastTrips.length})</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab("GUEST_LOOKUP")}
+          className={`px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
+            activeTab === "GUEST_LOOKUP"
+              ? "bg-cyan-950 text-cyan-300 border border-cyan-500/30 shadow-sm"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          <TicketCheck className="w-3.5 h-3.5" />
+          <span>{t.ticketing.guestLookupTitle}</span>
+        </button>
       </div>
 
       {/* Wallet Body */}
@@ -319,27 +497,25 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                     </div>
 
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium border ${
-                        activeTicket.status === "IN_JOURNEY"
-                          ? "bg-amber-950/70 border-amber-500/40 text-amber-300"
-                          : "bg-emerald-950/70 border-emerald-500/40 text-emerald-300"
-                      }`}
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium border ${statusBadge(activeTicket.status).className}`}
                     >
-                      {activeTicket.status === "IN_JOURNEY" ? t.ticketing.statusInJourney : t.ticketing.statusReadyToTap}
+                      {statusBadge(activeTicket.status).label}
                     </span>
                   </div>
 
-                  {/* 30s Dynamic Rolling QR Component */}
+                  {/* 30s Dynamic Rolling QR Component + gate panel: stacked sheet on mobile, split-view on tablet+ */}
+                  <div className="grid gap-3 md:grid-cols-2 md:items-start">
                   <DynamicQRCode
                     ticketId={activeTicket.ticketNumber}
                     userId={activeTicket.userId}
                     size={190}
                     showTimerRing={true}
                     showPayloadHash={true}
+                    status={resolveQrStatus(activeTicket)}
                   />
 
                   {/* Gate Scanner Simulator Panel */}
-                  <div className="pt-2 border-t border-slate-800 space-y-2">
+                  <div className="pt-2 md:pt-0 border-t md:border-t-0 md:border-l border-slate-800 md:pl-3 space-y-2">
                     <div className="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
                       <span>{t.ticketing.simulateGate}</span>
                       <span className="text-[9px] text-slate-500 font-mono">
@@ -396,11 +572,56 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                       </button>
                     </div>
                   </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Waiting reservations: QR withheld until payment succeeds */}
+              {waitingPasses.length > 0 && (
+                <div className="space-y-2">
+                  {waitingPasses.map((w) => (
+                    <div
+                      key={w.id}
+                      className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs space-y-1.5"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-sky-300 text-[10px]">
+                          {w.ticketNumber} · {w.reservationCode}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(w.status).className}`}>
+                          {statusBadge(w.status).label}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-sky-200/80">{t.ticketing.qrReasonWaiting}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Failed payments: QR withheld with the failure reason */}
+              {failedPasses.length > 0 && (
+                <div className="space-y-2">
+                  {failedPasses.map((f) => (
+                    <div
+                      key={f.id}
+                      className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs space-y-1.5"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-rose-300 text-[10px]">
+                          {f.ticketNumber} · {f.reservationCode}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(f.status).className}`}>
+                          {statusBadge(f.status).label}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-rose-200/80">{t.ticketing.qrReasonFailed}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
           )
-        ) : (
+        ) : activeTab === "TRIP_HISTORY" ? (
           /* Trip History */
           <div className="space-y-2.5">
             {pastTrips.length === 0 ? (
@@ -418,12 +639,8 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                     <span className="font-mono text-slate-400 text-[10px]">
                       {trip.ticketNumber}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-300">
-                      {trip.status === "COMPLETED"
-                        ? t.ticketing.tripCompleted
-                        : trip.status === "EXPIRED"
-                        ? t.ticketing.tripExpired
-                        : t.ticketing.tripActive}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(trip.status).className}`}>
+                      {statusBadge(trip.status).label}
                     </span>
                   </div>
                   <div className="font-bold text-white">
@@ -440,6 +657,9 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
               ))
             )}
           </div>
+        ) : (
+          /* Guest lookup: code plus phone with support fallback fields */
+          <GuestTicketLookup onFound={handleGuestFound} />
         )}
       </div>
 

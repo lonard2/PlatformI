@@ -36,7 +36,7 @@ import { DigitalPassWallet } from "./DigitalPassWallet";
 import { getSalesRules } from "@/lib/transit/salesMatrix";
 import { formatRupiah } from "@/lib/services/fareCalculator";
 import { useTranslation } from "@/lib/i18n";
-import type { TimetableRun, TransitMode } from "@/types/transit";
+import type { TimetableRun, Ticket, TicketStatus, TransitMode } from "@/types/transit";
 
 export type IntercityHubRun = TimetableRun & { mode?: TransitMode };
 
@@ -226,6 +226,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
   const [isPaying, setIsPaying] = useState<boolean>(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [purchased, setPurchased] = useState<boolean>(false);
+  const [purchasedTicket, setPurchasedTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
     if (initialMode) setMode(initialMode);
@@ -304,6 +305,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
       setSeatId(null);
       setBuyer(null);
       setPurchased(false);
+      setPurchasedTicket(null);
       setPayError(null);
       setStep(2);
     },
@@ -353,6 +355,46 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
         }),
       });
       if (!res.ok) throw new Error(t.ticketing.errorPaymentFailed);
+      const data = (await res.json()) as {
+        ticketNumber?: string;
+        reservationCode?: string;
+        status?: TicketStatus;
+      };
+      if (!data.ticketNumber || !data.reservationCode) {
+        throw new Error(t.ticketing.errorPaymentFailed);
+      }
+      // Inject the fresh pass into the wallet so checkout never loses it.
+      setPurchasedTicket({
+        id: `hub-${data.ticketNumber}`,
+        ticketNumber: data.ticketNumber,
+        userId: "guest",
+        originStopId,
+        destinationStopId,
+        legs: [
+          {
+            legIndex: 0,
+            lineId: selectedRun.lineId,
+            originStopId,
+            destinationStopId,
+            mode: selectedMode,
+            fareRp,
+            distanceKm: 0,
+          },
+        ],
+        totalFareRp: fareRp,
+        isJakLingkoCapped: false,
+        status: data.status ?? "ACTIVE",
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        rollingToken: `PLATFORMI:${data.ticketNumber}:guest:0:hub`,
+        guestEmail: buyer.email,
+        guestPhone: buyer.phone,
+        idNumber: buyer.idNumber,
+        seatId: seatId ?? undefined,
+        serviceClass: selectedRun.serviceClass ?? undefined,
+        reservationCode: data.reservationCode,
+        claimedByUserId: null,
+      });
       setPurchased(true);
     } catch (err) {
       setPayError(err instanceof Error ? err.message : t.ticketing.errorPaymentFailed);
@@ -714,7 +756,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
             </button>
           )}
 
-          <DigitalPassWallet />
+          <DigitalPassWallet injectedTicket={purchasedTicket} />
         </div>
       )}
     </section>

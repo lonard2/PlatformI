@@ -20,6 +20,7 @@ import {
   Check,
   Lock,
   RefreshCw,
+  Ban,
 } from "lucide-react";
 import {
   generateRollingQRToken,
@@ -27,6 +28,7 @@ import {
   RollingQRTokenResult,
 } from "@/lib/services/qrSecurityService";
 import { useTranslation } from "@/lib/i18n";
+import type { TicketStatus } from "@/types/transit";
 
 interface DynamicQRCodeProps {
   ticketId: string;
@@ -34,7 +36,16 @@ interface DynamicQRCodeProps {
   size?: number;
   showTimerRing?: boolean;
   showPayloadHash?: boolean;
+  /** Reservation status; QR renders only for ACTIVE and IN_JOURNEY. */
+  status?: TicketStatus;
+  /** Explicit unavailability reason; derived from status when omitted. */
+  reason?: string | null;
   className?: string;
+}
+
+/** Reservations that may present a scannable QR at the gate. */
+export function isQrEligibleStatus(status: TicketStatus): boolean {
+  return status === "ACTIVE" || status === "IN_JOURNEY";
 }
 
 export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
@@ -43,9 +54,23 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
   size = 220,
   showTimerRing = true,
   showPayloadHash = true,
+  status = "ACTIVE",
+  reason = null,
   className = "",
 }) => {
   const { t } = useTranslation();
+  const qrEligible = isQrEligibleStatus(status);
+  const inactiveReason =
+    reason ??
+    (status === "REFUNDED"
+      ? t.ticketing.qrReasonRefunded
+      : status === "EXPIRED"
+      ? t.ticketing.qrReasonExpired
+      : status === "FAILED"
+      ? t.ticketing.qrReasonFailed
+      : status === "WAITING"
+      ? t.ticketing.qrReasonWaiting
+      : t.ticketing.gateDenied);
   const [tokenData, setTokenData] = useState<RollingQRTokenResult>(() =>
     generateRollingQRToken(ticketId, userId, Date.now())
   );
@@ -76,6 +101,23 @@ export const DynamicQRCode: React.FC<DynamicQRCodeProps> = ({
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (tokenData.secondsRemaining / 30) * circumference;
+
+  if (!qrEligible) {
+    return (
+      <div
+        className={`flex flex-col items-center justify-center gap-2 p-5 rounded-2xl bg-slate-900/90 border border-white/10 shadow-2xl backdrop-blur-xl text-center ${className}`}
+      >
+        <div className="w-10 h-10 rounded-lg bg-slate-950/90 border border-slate-700 flex items-center justify-center text-slate-500">
+          <Ban aria-hidden="true" className="w-5 h-5" />
+        </div>
+        <p className="text-xs font-semibold text-slate-200">{inactiveReason}</p>
+        <p className="text-[10px] font-mono text-slate-500">
+          {t.ticketing.ticketPrefix}
+          {ticketId}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
