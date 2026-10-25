@@ -68,7 +68,7 @@ describe("Broadcast confirmation", () => {
       target: { value: "Flooding at the depot entrance" },
     });
     fireEvent.click(screen.getByRole("button", { name: /broadcast alert to public/i }));
-    const dialog = await screen.findByRole("alert", { name: /confirm broadcast/i });
+    const dialog = await screen.findByRole("alertdialog", { name: /confirm broadcast/i });
     expect(within(dialog).getByText(/ratangga/i)).toBeInTheDocument();
     expect(posted).toHaveLength(0);
   });
@@ -82,7 +82,8 @@ describe("Broadcast confirmation", () => {
       target: { value: "Flooding at the depot entrance" },
     });
     fireEvent.click(screen.getByRole("button", { name: /broadcast alert to public/i }));
-    fireEvent.click(await screen.findByRole("button", { name: /confirm broadcast/i }));
+    const dialog = await screen.findByRole("alertdialog", { name: /confirm broadcast/i });
+    fireEvent.click(within(dialog).getByRole("button", { name: /broadcast alert to public/i }));
     await waitFor(() => expect(posted).toHaveLength(1));
     expect(JSON.parse((posted[0].body as string) as string).title).toBe("Test blockage");
   });

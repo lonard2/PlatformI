@@ -1174,53 +1174,6 @@ export default function AdminAlertsPage() {
           </form>
         </div>
 
-            {/* Blast-radius confirmation: audience, vehicles, and stops in scope */}
-            {confirmingBroadcast && (
-              <div
-                role="alert"
-                aria-label={t.admin.broadcastConfirmTitle}
-                aria-describedby="broadcast-confirm-body"
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    e.stopPropagation();
-                    closeBroadcastConfirm();
-                  }
-                }}
-                className="w-full flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl bg-amber-950/60 border border-amber-500/50"
-              >
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                <p id="broadcast-confirm-body" className="text-xs text-amber-100 flex-1">
-                  <strong>{t.admin.broadcastConfirmTitle}</strong>:{" "}
-                  {t.admin.broadcastConfirmBody
-                    .replace("{severity}", severity)
-                    .replace("{audience}", selectedLine?.name ?? targetLineId)
-                    .replace(
-                      "{vehicles}",
-                      String(simulatedVehicles.filter((v) => v.lineId === targetLineId).length)
-                    )
-                    .replace("{stops}", String(affectedStops.length))}
-                </p>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    ref={broadcastConfirmRef}
-                    onClick={() => void handleBroadcast(new Event("submit") as unknown as React.FormEvent)}
-                    disabled={isPublishing}
-                    className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold transition disabled:opacity-50 min-h-[40px] btn-tactile"
-                  >
-                    {isPublishing ? t.admin.publishing : t.admin.broadcastConfirmTitle}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={closeBroadcastConfirm}
-                    className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition min-h-[40px] btn-tactile"
-                  >
-                    {t.common.cancel}
-                  </button>
-                </div>
-              </div>
-            )}
-
         {/* Right Column: Live Broadcast Preview */}
         <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl flex flex-col justify-between">
           <div className="space-y-4">
@@ -1322,6 +1275,77 @@ export default function AdminAlertsPage() {
           </div>
         </div>
       </div>
+
+      {/* Blast-radius confirmation: modal alertdialog out of grid flow so the
+          authoring/preview comparison never shifts underneath the decision. */}
+      {confirmingBroadcast && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeBroadcastConfirm();
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-label={t.admin.broadcastConfirmTitle}
+            aria-describedby="broadcast-confirm-body"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.stopPropagation();
+                closeBroadcastConfirm();
+              }
+              if (e.key === "Tab") {
+                const buttons = Array.from(e.currentTarget.querySelectorAll("button"));
+                if (buttons.length === 0) return;
+                const first = buttons[0];
+                const last = buttons[buttons.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault();
+                  last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault();
+                  first.focus();
+                }
+              }
+            }}
+            className="w-full max-w-lg p-5 rounded-2xl bg-slate-900 border border-amber-500/50 shadow-2xl space-y-3 animate-in zoom-in-95 duration-200"
+          >
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+              <p id="broadcast-confirm-body" className="text-xs text-amber-100 flex-1">
+                <strong>{t.admin.broadcastConfirmTitle}</strong>:{" "}
+                {t.admin.broadcastConfirmBody
+                  .replace("{severity}", severity)
+                  .replace("{audience}", selectedLine?.name ?? targetLineId)
+                  .replace(
+                    "{vehicles}",
+                    String(simulatedVehicles.filter((v) => v.lineId === targetLineId).length)
+                  )
+                  .replace("{stops}", String(affectedStops.length))}
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeBroadcastConfirm}
+                className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition min-h-[40px] btn-tactile"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                ref={broadcastConfirmRef}
+                onClick={() => void handleBroadcast(new Event("submit") as unknown as React.FormEvent)}
+                disabled={isPublishing}
+                className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold transition disabled:opacity-50 min-h-[40px] btn-tactile"
+              >
+                {isPublishing ? t.admin.publishing : t.admin.publishAlert}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3. ACTIVE DISRUPTIONS MANAGEMENT FEED */}
       {/* Design Standard (Semantic Undo Theming):
