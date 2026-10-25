@@ -70,6 +70,11 @@ export default function AdminAlertsPage() {
   const escalateTriggerRef = useRef<HTMLElement | null>(null);
   const escalateCancelRef = useRef<HTMLButtonElement | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Screen-reader finalizer: undo banners announce once on insert via their
+  // own role=status; this region announces once when a grace window closes
+  // (deletion executed or mutation confirmed). The ticking countdowns stay
+  // aria-hidden + aria-live=off so they never re-announce.
+  const [finalAnnouncement, setFinalAnnouncement] = useState<string>("");
 
   // Generalized mutation grace: resolve, demote, and reopen support 5s reverse-PATCH undo
   const [pendingMutations, setPendingMutations] = useState<Record<string, PendingAlertMutation>>({});
@@ -165,6 +170,10 @@ export default function AdminAlertsPage() {
           prev.some((a) => a.id === id) ? prev : [alertToDelete, ...prev]
         );
         setBroadcastError(data.error || t.admin.deleteHttp);
+      } else {
+        setFinalAnnouncement(
+          t.admin.alertDeleteFinal.replace("{title}", alertToDelete.title)
+        );
       }
     } catch {
       setAlerts((prev) =>
@@ -216,6 +225,13 @@ export default function AdminAlertsPage() {
         .filter(([, m]) => m.expiry <= now)
         .map(([id]) => id);
       if (dueMutations.length > 0) {
+        // One closing announcement for the batch (batched render, last wins).
+        const lastMutation = pendingMutationsRef.current[dueMutations[dueMutations.length - 1]];
+        if (lastMutation) {
+          setFinalAnnouncement(
+            t.admin.alertMutationFinal.replace("{title}", lastMutation.alertTitle)
+          );
+        }
         for (const id of dueMutations) {
           const undoBtn = mutationUndoRefs.current.get(id);
           const hadFocus =
@@ -991,6 +1007,16 @@ export default function AdminAlertsPage() {
         </div>
       )}
 
+      {/* Undo-finalizer announcements: single-shot, never ticking */}
+      <div
+        role="status"
+        aria-live="polite"
+        data-testid="alerts-sr-announcer"
+        className="sr-only"
+      >
+        {finalAnnouncement}
+      </div>
+
       {/* 2. MAIN 2-COLUMN AUTHORING & PREVIEW GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Authoring Form */}
@@ -1380,7 +1406,7 @@ export default function AdminAlertsPage() {
                 className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
               >
                 {t.common.undo}
-                <span aria-hidden="true">
+                <span aria-hidden="true" aria-live="off" data-testid="undo-countdown">
                   {" "}
                   ({Math.max(0, Math.ceil(((deleteExpiries[deletedAlert.id] ?? nowTick) - nowTick) / 1000))}s)
                 </span>
@@ -1420,7 +1446,7 @@ export default function AdminAlertsPage() {
                 className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
               >
                 {t.common.undo}
-                <span aria-hidden="true">
+                <span aria-hidden="true" aria-live="off" data-testid="undo-countdown">
                   {" "}
                   ({Math.max(0, Math.ceil((mutation.expiry - nowTick) / 1000))}s)
                 </span>

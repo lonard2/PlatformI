@@ -1417,6 +1417,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     sevInfo: "Info",
     pausedLabel: "Paused",
     pendingUndo: "Action pending - Undo",
+    alertDeleteFinal: "Deletion finalized: {title}",
+    alertMutationFinal: "Action confirmed: {title}",
     reopenAlert: "Reopen Alert",
     ariaReopen: "Reopen operational disruption",
     skipToContent: "Skip to main content",

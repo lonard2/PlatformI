@@ -11,8 +11,8 @@ Ledger in this file; rulings inline.
 
 | # | Todo | Scope | Status | Commit |
 |---|------|-------|--------|--------|
-| 1 | layout broadcast confirm as modal | alertdialog overlay out of grid flow, focus trap, restated blast radius + verb button | DONE (538/538) | — |
-| 2 | harden undo live-regions | Announce once on create/finalize; ticking countdown aria-hidden + live off | TODO | — |
+| 1 | layout broadcast confirm as modal | alertdialog overlay out of grid flow, focus trap, restated blast radius + verb button | DONE (538/538) | 1f42acf |
+| 2 | harden undo live-regions | Announce once on create/finalize; ticking countdown aria-hidden + live off | DONE (540/540) | — |
 | 3 | clarify delete control | Labeled Delete text button, wider gap from Resolve | TODO | — |
 | 4 | colorize amber collision + copy bug | Reserve amber for WARNING; re-theme delete-undo + fleet-restore; fix demote INFO→WARNING; severity legend row | TODO | — |
 | 5 | audit empty/filter/sync honesty | Empty state + CTA, skeleton rows, status/severity/line filter + search, aggregate sync toasts, disclose 10-run cap | TODO | — |
@@ -23,3 +23,4 @@ Ledger in this file; rulings inline.
 - Pre-flight: todos 1-5 all touch src/app/admin/alerts/page.tsx; executed sequentially inline so no interface drift. Todo 4's undo re-theme must not clash with todo 2's live-region change (different attributes: classes vs aria) — checked, no conflict. Todo 5 consumes the sync aggregation paths but changes no interfaces earlier todos need.
 - TDD + verification-before-completion loaded and governing.
 - Todo 1: modal lives after the grid (fixed overlay, backdrop-click + Escape close, Tab trap, autofocus retained). Ruling: confirm button reuses publishAlert verb key instead of a new i18n key — the verb already exists in all 6 locales and means the same action. Existing admin-ops-safety tests updated to alertdialog (they encoded the old role=alert behavior the critique condemned).
+- Todo 2: banners keep role=status (announce-on-insert preserved); countdowns get aria-live=off + testid; sr-only announcer fires once at delete-execute and mutation-finalize (batched, last wins). Ruling: no finalize message on failed DELETE — the restored row plus assertive error banner already announce that path; a success chime on top would double-announce. New keys alertDeleteFinal/alertMutationFinal x6 locales.

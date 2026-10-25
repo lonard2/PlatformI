@@ -1417,6 +1417,8 @@ export const ar: TranslationDictionary = {
     sevInfo: "معلومات",
     pausedLabel: "متوقف مؤقتًا",
     pendingUndo: "الإجراء قيد الانتظار - تراجع",
+    alertDeleteFinal: "تم تأكيد الحذف: {title}",
+    alertMutationFinal: "تم تأكيد الإجراء: {title}",
     reopenAlert: "إعادة فتح التنبيه",
     ariaReopen: "إعادة فتح تنبيه تعطل العمليات",
     skipToContent: "الانتقال إلى المحتوى الرئيسي",

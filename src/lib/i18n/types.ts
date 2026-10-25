@@ -1427,6 +1427,8 @@ export interface TranslationDictionary {
     sevInfo: string;
     pausedLabel: string;
     pendingUndo: string;
+    alertDeleteFinal: string;
+    alertMutationFinal: string;
     reopenAlert: string;
     ariaReopen: string;
     skipToContent: string;

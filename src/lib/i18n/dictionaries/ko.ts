@@ -1417,6 +1417,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     sevInfo: "정보",
     pausedLabel: "일시중지",
     pendingUndo: "작업 보류 중 - 실행 취소",
+    alertDeleteFinal: "삭제가 확정되었습니다: {title}",
+    alertMutationFinal: "작업이 확정되었습니다: {title}",
     reopenAlert: "알림 다시 열기",
     ariaReopen: "운행 장애 알림 다시 열기",
     skipToContent: "본문으로 바로가기",

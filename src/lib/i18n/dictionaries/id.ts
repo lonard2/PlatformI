@@ -1417,6 +1417,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     sevInfo: "Info",
     pausedLabel: "Dijeda",
     pendingUndo: "Perubahan ditunda - Urungkan",
+    alertDeleteFinal: "Penghapusan difinalisasi: {title}",
+    alertMutationFinal: "Aksi dikonfirmasi: {title}",
     reopenAlert: "Buka Kembali",
     ariaReopen: "Buka kembali gangguan operasional",
     skipToContent: "Lewati ke konten utama",

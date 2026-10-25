@@ -1417,6 +1417,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     sevInfo: "情報",
     pausedLabel: "一時停止",
     pendingUndo: "処理を保留中 - 元に戻す",
+    alertDeleteFinal: "削除が確定しました：{title}",
+    alertMutationFinal: "操作が確定しました：{title}",
     reopenAlert: "アラートを再開",
     ariaReopen: "運行支障アラートを再開",
     skipToContent: "メインコンテンツへスキップ",

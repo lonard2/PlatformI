@@ -89,3 +89,75 @@ describe("Broadcast confirm modal", () => {
     expect(document.activeElement).toBe(buttons[0]);
   });
 });
+
+describe("Undo live-regions", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("marks the ticking countdown as live-off so it never re-announces", async () => {
+    seedAlertsApi();
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(DISRUPTION_ALERTS[0].title);
+    const row = target.closest("div[class*='rounded-xl']") ?? target.parentElement;
+    expect(row).not.toBeNull();
+    const deleteBtn = within(row as HTMLElement).getByRole("button", {
+      name: /delete disruption bulletin for/i,
+    });
+    fireEvent.click(deleteBtn);
+    const countdowns = await screen.findAllByTestId("undo-countdown");
+    expect(countdowns.length).toBeGreaterThan(0);
+    for (const cd of countdowns) {
+      expect(cd).toHaveAttribute("aria-hidden", "true");
+      expect(cd).toHaveAttribute("aria-live", "off");
+    }
+  });
+
+  it("announces once when a deletion finalizes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).startsWith("/api/alerts") && init?.method === "DELETE") {
+          return okJson({ success: true, data: {} });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(DISRUPTION_ALERTS[0].title);
+    const row = target.closest("div[class*='rounded-xl']") ?? target.parentElement;
+    const deleteBtn = within(row as HTMLElement).getByRole("button", {
+      name: /delete disruption bulletin for/i,
+    });
+    // Freeze time only after the board is up: the tick engine must be born faked.
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(deleteBtn);
+      expect(screen.getByTestId("alerts-sr-announcer")).toHaveTextContent("");
+      // The undo button steals focus on click, which pauses grace by design
+      // (WCAG 2.2.1): move focus away so the window can actually expire.
+      await vi.advanceTimersByTimeAsync(50);
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      await vi.advanceTimersByTimeAsync(6000);
+      expect(screen.getByTestId("alerts-sr-announcer")).toHaveTextContent(
+        new RegExp(`Deletion finalized: ${DISRUPTION_ALERTS[0].title}`)
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
