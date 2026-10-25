@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import AdminDashboardPage from "@/app/admin/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS, DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
@@ -125,6 +125,55 @@ describe("Telemetry stream honesty", () => {
     expect(screen.queryByText(/tracking at/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/km\/h/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/°/).length).toBeGreaterThan(0);
+  });
+});
+
+describe("Loading, empty, and stale states", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 12),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("shows skeleton rows while advisories load", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => new Promise(() => {}))
+    );
+    render(<AdminDashboardPage />);
+    expect(screen.getAllByTestId("advisory-skeleton")).toHaveLength(3);
+  });
+
+  it("declares an empty telemetry stream instead of rendering silence", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: [],
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    render(<AdminDashboardPage />);
+    expect(await screen.findByText(/No live telemetry/)).toBeInTheDocument();
+  });
+
+  it("retries the alerts fetch from the stale banner", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error("network down"));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<AdminDashboardPage />);
+    fireEvent.click(await screen.findByRole("button", { name: /retry sync/i }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   });
 });
 

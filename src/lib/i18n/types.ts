@@ -1466,6 +1466,7 @@ export interface TranslationDictionary {
     viewAllInFleet: string;
     kpiWorstCorridor: string;
     kpiNoHeldVehicles: string;
+    telemetryEmpty: string;
     helpTitle: string;
     helpSubtitle: string;
     helpShortcutsTitle: string;

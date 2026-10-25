@@ -23,7 +23,6 @@ import {
   Siren,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import type { DisruptionAlert, VehicleOperationalStatus } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
@@ -31,21 +30,32 @@ export default function AdminDashboardPage() {
   const { t, currentLanguageMeta } = useTranslation();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
   const allLines = useTransitStore((state) => state.allLines);
-  const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
+  const [alerts, setAlerts] = useState<DisruptionAlert[]>([]);
+  const [isAlertsLoading, setIsAlertsLoading] = useState<boolean>(true);
   const [isAlertsStale, setIsAlertsStale] = useState<boolean>(false);
 
+  // Board truth comes from the server; seeds never masquerade as live data.
+  // The stale banner carries the only retry path when the fetch fails.
+  const loadAlerts = async () => {
+    setIsAlertsLoading(true);
+    setIsAlertsStale(false);
+    try {
+      const res = await fetch("/api/alerts");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setAlerts(data.data);
+      } else {
+        setIsAlertsStale(true);
+      }
+    } catch {
+      setIsAlertsStale(true);
+    } finally {
+      setIsAlertsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/alerts")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data)) {
-          setAlerts(data.data);
-          setIsAlertsStale(false);
-        } else {
-          setIsAlertsStale(true);
-        }
-      })
-      .catch(() => setIsAlertsStale(true));
+    void loadAlerts();
   }, []);
 
   // Dynamic calculations from live store data
@@ -307,10 +317,19 @@ export default function AdminDashboardPage() {
       {isAlertsStale && (
         <div
           role="alert"
-          className="flex items-center gap-2 p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-300"
+          className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-300"
         >
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <span>{t.admin.telemetryStale}</span>
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{t.admin.telemetryStale}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => void loadAlerts()}
+            className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+          >
+            {t.admin.retrySync}
+          </button>
         </div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -505,7 +524,23 @@ export default function AdminDashboardPage() {
 
           <h4 className="text-xs font-bold text-white">{t.admin.eventAdvisoriesTitle}</h4>
           <div className="space-y-2.5">
-            {advisories.length === 0 ? (
+            {isAlertsLoading && alerts.length === 0 ? (
+              <div role="status" aria-live="polite">
+                <span className="sr-only">{t.admin.alertFeedLoading}</span>
+                <div className="space-y-2.5" aria-hidden="true">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      data-testid="advisory-skeleton"
+                      className="p-3 rounded-xl border border-white/10 bg-slate-950/60 space-y-2 animate-pulse"
+                    >
+                      <div className="h-3 w-2/3 rounded bg-slate-800" />
+                      <div className="h-3 w-full rounded bg-slate-800" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : advisories.length === 0 ? (
               <p className="rounded-xl border border-white/5 bg-slate-950/60 px-3 py-4 text-center text-xs text-slate-500">
                 {t.admin.noActiveAdvisories}
               </p>
@@ -558,7 +593,12 @@ export default function AdminDashboardPage() {
 
           <h4 className="text-xs font-bold text-white pt-1">{t.admin.eventTelemetryTitle}</h4>
           <div className="space-y-2.5">
-            {telemetryFeed.events.map((event) => (
+            {telemetryFeed.events.length === 0 ? (
+              <p className="rounded-xl border border-white/5 bg-slate-950/60 px-3 py-4 text-center text-xs text-slate-500">
+                {t.admin.telemetryEmpty}
+              </p>
+            ) : (
+              telemetryFeed.events.map((event) => (
               <div
                 key={event.id}
                 className="p-3 rounded-xl bg-slate-950/60 border border-white/5 grid grid-cols-2 sm:grid-cols-[auto_auto_1fr_auto_auto] items-center gap-x-3 gap-y-1 text-xs"
@@ -580,7 +620,8 @@ export default function AdminDashboardPage() {
                   {event.headingDegrees}°
                 </span>
               </div>
-            ))}
+            ))
+            )}
           </div>
 
           <div className="flex justify-end">
