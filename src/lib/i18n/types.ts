@@ -1337,6 +1337,7 @@ export interface TranslationDictionary {
     loginShowPasskey: string;
     loginHidePasskey: string;
     loginCapsLock: string;
+    loginEntering: string;
     loginErrorRequired: string;
     loginErrorInvalid: string;
     loginErrorNetwork: string;

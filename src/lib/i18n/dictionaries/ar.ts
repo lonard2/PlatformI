@@ -1319,6 +1319,7 @@ export const ar: TranslationDictionary = {
     loginDemoCredentials: "بيانات اعتماد العرض التوضيحي:",
     loginReturnPassengerView: "العودة إلى عرض خطوط النقل للركاب",
     loginLoading: "جارٍ تحميل طرفية مصادقة OCC...",
+    loginEntering: "جارٍ الدخول إلى",
     loginShowPasskey: "إظهار كلمة المرور",
     loginHidePasskey: "إخفاء كلمة المرور",
     loginCapsLock: "Caps Lock مفعّل",

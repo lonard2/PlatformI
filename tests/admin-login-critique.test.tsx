@@ -9,8 +9,10 @@ import React from "react";
 import { render, screen, fireEvent, within, waitFor, act } from "@testing-library/react";
 import { useLanguageStore } from "@/lib/i18n";
 
+const { mockPush } = vi.hoisted(() => ({ mockPush: vi.fn() }));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
   useSearchParams: () => ({ get: () => null }),
 }));
 
@@ -168,5 +170,71 @@ describe("Preset identity preview", () => {
     expect(screen.getByTestId("auth-identity-line")).toHaveTextContent(
       "Authorizing as OCC-X-99"
     );
+  });
+});
+
+function okJson(data: unknown): Promise<Response> {
+  return Promise.resolve({
+    ok: true,
+    json: async () => data,
+  } as Response);
+}
+
+describe("Readable success landing", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    mockPush.mockClear();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        okJson({
+          success: true,
+          operator: {
+            id: "OCC-DKA-01",
+            name: "Raden Budi Santoso",
+            role: "CHIEF_DISPATCHER",
+          },
+        })
+      )
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("names the operator and the landing surface in the success banner", async () => {
+    render(<AdminLoginPage />);
+    fillCredentials("OCC-DKA-01", "transitopps2026");
+    fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+    const banner = await screen.findByRole("status");
+    expect(banner.textContent).toMatch(/Raden Budi Santoso/);
+    expect(banner.textContent).toMatch(/Entering/);
+    expect(banner.textContent).toMatch(/Operations Control Center/);
+  });
+
+  it("holds the success readable for ~1.2s before redirecting", async () => {
+    vi.useFakeTimers();
+    try {
+      render(<AdminLoginPage />);
+      fillCredentials("OCC-DKA-01", "transitopps2026");
+      fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(50);
+      });
+      expect(screen.getByRole("status").textContent).toMatch(/Raden Budi Santoso/);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(700);
+      });
+      expect(mockPush).not.toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(600);
+      });
+      expect(mockPush).toHaveBeenCalledWith("/admin");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

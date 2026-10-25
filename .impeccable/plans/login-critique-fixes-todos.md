@@ -13,8 +13,8 @@ Ledger in this file; rulings inline.
 |---|------|-------|--------|--------|
 | 1 | clarify preset identity | Hub sublabel on presets + "Authorizing as {name} — {role} @ {hub}" pre-submit line | DONE (561/561) | 978c846 |
 | 2 | harden auth guardrails | Attempt-aware errors + client lockout, session-scope line, supervisor contact | DONE (564/564) | 6fc4cec |
-| 3 | polish passkey UX | Show/hide toggle, preserve passkey unless ID changed, caps-lock hint | DONE (568/568) | — |
-| 4 | animate success landing | ~1200ms readable success + "Entering → {surface}" chip from callbackUrl | TODO | — |
+| 3 | polish passkey UX | Show/hide toggle, preserve passkey unless ID changed, caps-lock hint | DONE (568/568) | a3c0c45 |
+| 4 | animate success landing | ~1200ms readable success + "Entering → {surface}" chip from callbackUrl | DONE (570/570) | — |
 | 5 | distill prod/demo identity | ENV badge, demo switcher behind demo flag, drop version tag | TODO | — |
 | 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | TODO | — |
 
@@ -25,3 +25,4 @@ Ledger in this file; rulings inline.
 - Todo 1: role ternary extracted to roleLabelFor (was inline in buttons, now shared with identity line). Ruling: hub rides as a third truncated line in existing 10px style rather than a new size — no new detector size class introduced.
 - Todo 2: attempt counter in component state; lockout text at >=5, form stays usable (server enforces). Ruling: NO client-side disable/timer lockout — the client cannot enforce it, so it counts and advises instead of pretending; every further rejection re-states the lockout. Session-scope copy verified against the auth route (HTTP-only, 8h maxAge) before writing it.
 - Todo 3: toggle is icon-only with aria-label + aria-pressed; input type switches; caps hint via getModifierState on keydown+keyup, cleared on blur; same-ID re-tap preserves, different-ID clears. Ruling: caps-lock test dispatches a real KeyboardEvent with stubbed getModifierState inside act() — fireEvent drops the non-standard property and raw dispatch does not flush; the probe proved the handler correct and only the harness needed fixing.
+- Todo 4: landing label maps the 6 known /admin routes to existing admin keys, fallback dashboard; composed into the success sentence (no new chip component). Ruling: the 1200ms timing test drives fake timers from submit — real timers cannot assert a future non-event without waiting it out.

@@ -1319,6 +1319,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     loginDemoCredentials: "Demo Credentials:",
     loginReturnPassengerView: "Return to Passenger Transit View",
     loginLoading: "Loading OCC Authentication Terminal...",
+    loginEntering: "Entering",
     loginShowPasskey: "Show passkey",
     loginHidePasskey: "Hide passkey",
     loginCapsLock: "Caps Lock is on",

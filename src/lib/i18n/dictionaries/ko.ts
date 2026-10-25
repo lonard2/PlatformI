@@ -1319,6 +1319,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     loginDemoCredentials: "데모 자격 증명:",
     loginReturnPassengerView: "승객 노선 화면으로 돌아가기",
     loginLoading: "OCC 인증 터미널 불러오는 중...",
+    loginEntering: "이동 중",
     loginShowPasskey: "비밀번호 표시",
     loginHidePasskey: "비밀번호 숨기기",
     loginCapsLock: "Caps Lock이 켜져 있습니다",

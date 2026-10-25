@@ -1319,6 +1319,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     loginDemoCredentials: "Kredensial Demo:",
     loginReturnPassengerView: "Kembali ke Tampilan Transit Penumpang",
     loginLoading: "Memuat Terminal Autentikasi OCC...",
+    loginEntering: "Memasuki",
     loginShowPasskey: "Tampilkan kata sandi",
     loginHidePasskey: "Sembunyikan kata sandi",
     loginCapsLock: "Caps Lock aktif",

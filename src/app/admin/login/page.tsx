@@ -68,6 +68,21 @@ function AdminLoginForm() {
     ? t.admin.loginAuthorizingAsId.replace("{id}", operatorId.trim())
     : "";
 
+  // Landing preview: name the surface the deep link resolves to so the
+  // success banner ends with context instead of a blind teleport.
+  const landingLabel = (() => {
+    const target = callbackUrl.startsWith("/admin") ? callbackUrl : "/admin";
+    const labels: Record<string, string> = {
+      "/admin": t.admin.dashboard,
+      "/admin/alerts": t.admin.disruptionManager,
+      "/admin/fleet": t.admin.fleetControl,
+      "/admin/network": t.admin.networkStudio,
+      "/admin/timetables": t.admin.timetableManager,
+      "/admin/scanner": t.admin.gateScanner,
+    };
+    return labels[target] ?? t.admin.dashboard;
+  })();
+
   useEffect(() => {
     return () => {
       if (redirectTimerRef.current) {
@@ -120,19 +135,20 @@ function AdminLoginForm() {
       }
 
       setSuccessMessage(
-        `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing}`
+        `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing} ${t.admin.loginEntering} → ${landingLabel}.`
       );
 
       if (data.operator?.id) {
         setActiveOperatorId(data.operator.id);
       }
 
-      // Brief pause to display success state before transition
+      // Readable pause: the operator registers the welcome and the landing
+      // surface before the context switch.
       redirectTimerRef.current = setTimeout(() => {
         const target = callbackUrl.startsWith("/admin") ? callbackUrl : "/admin";
         router.push(target);
         router.refresh();
-      }, 500);
+      }, 1200);
     } catch {
       setErrorMessage(t.admin.loginErrorNetwork);
       setIsLoading(false);
