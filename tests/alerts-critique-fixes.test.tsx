@@ -336,8 +336,7 @@ describe("Feed empty, filter, and sync honesty", () => {
     expect(toast.textContent).toMatch(/\d+\/\d+ vehicles/);
   });
 
-  it("discloses the 10-run timetable cap in the sync toast", async () => {
-    useTransitStore.setState({
+  it("discloses the 10-run timetable cap in the sync toast", async () => {    useTransitStore.setState({
       simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8).map((v) => ({
         ...v,
         lineId: "line-tj-cor-1",
@@ -365,6 +364,115 @@ describe("Feed empty, filter, and sync honesty", () => {
     const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
     fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
     expect(await screen.findByText(/First 10 of 12 runs linked/i)).toBeInTheDocument();
+  });
+});
+
+describe("Resolve and normalize honesty", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8).map((v) => ({
+        ...v,
+        lineId: "line-tj-cor-1",
+      })),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("resolve emits one combined closure toast, not a fleet count that overwrites it", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).startsWith("/api/network/timetables")) {
+          return okJson({ success: true, data: [] });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(
+      within(row).getByRole("button", { name: /mark.*resolved/i })
+    );
+    const toast = await screen.findByTestId("broadcast-toast");
+    await waitFor(() => expect(toast.textContent).toMatch(/vehicles/));
+    expect(toast.textContent).toMatch(/Resolved/);
+  });
+
+  it("normalize toast aggregates vehicle and schedule counts with failures", async () => {
+    let puts = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url) === "/api/fleet/vehicles" && init?.method === "PUT") {
+          puts += 1;
+          if (puts === 10) return Promise.reject(new Error("network down"));
+          return okJson({ success: true, data: {} });
+        }
+        if (String(url).startsWith("/api/network/timetables")) {
+          return okJson({ success: true, data: [] });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
+    const restore = await within(row).findByRole("button", {
+      name: /synced \(restore\)/i,
+    });
+    fireEvent.click(restore);
+    const toast = await screen.findByTestId("broadcast-toast");
+    await waitFor(() => expect(toast.textContent).toMatch(/Normalized/));
+    expect(toast.textContent).toMatch(/\(1 failed\)/);
+  });
+
+  it("a failed delete execution announces nothing and restores the row", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).startsWith("/api/alerts") && init?.method === "DELETE") {
+          return Promise.reject(new Error("network down"));
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(
+        within(row).getByRole("button", { name: /^delete: /i })
+      );
+      await vi.advanceTimersByTimeAsync(50);
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      await vi.advanceTimersByTimeAsync(6000);
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(screen.getByTestId("alerts-sr-announcer")).toHaveTextContent("");
+    expect(
+      await screen.findByText(/Network error deleting/i)
+    ).toBeInTheDocument();
   });
 });
 

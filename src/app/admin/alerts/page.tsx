@@ -487,8 +487,14 @@ export default function AdminAlertsPage() {
     notify(message);
   };
 
-  // Restore line operations back to normal (aggregated counts, same honesty rule)
-  const handleNormalizeOperations = async (lineId: string, alertId?: string) => {
+  // Restore line operations back to normal (aggregated counts, same honesty rule).
+  // Returns the aggregate message so callers can fold it into their own toast
+  // instead of firing two toasts in sequence; pass silent to skip notifying.
+  const handleNormalizeOperations = async (
+    lineId: string,
+    alertId?: string,
+    options?: { silent?: boolean }
+  ): Promise<string> => {
     const targetVehicles = simulatedVehicles.filter(
       (v) => !lineId || lineId === "ALL" || v.lineId === lineId
     );
@@ -571,14 +577,16 @@ export default function AdminAlertsPage() {
       });
     }
     const failed = vehiclesFailed + (schedTotal - schedOk);
-    notify(
-      t.admin.normalizeAggregateToast
-        .replace("{ok}", String(vehiclesOk))
-        .replace("{total}", String(targetVehicles.length))
-        .replace("{schedOk}", String(schedOk))
-        .replace("{schedTotal}", String(schedTotal))
-        .replace("{failed}", String(failed))
-    );
+    const message = t.admin.normalizeAggregateToast
+      .replace("{ok}", String(vehiclesOk))
+      .replace("{total}", String(targetVehicles.length))
+      .replace("{schedOk}", String(schedOk))
+      .replace("{schedTotal}", String(schedTotal))
+      .replace("{failed}", String(failed));
+    if (!options?.silent) {
+      notify(message);
+    }
+    return message;
   };
 
   // Move focus into the broadcast confirmation when it opens; restore to
@@ -701,9 +709,15 @@ export default function AdminAlertsPage() {
           },
         });
         if (alert.lineId) {
-          void handleNormalizeOperations(alert.lineId, alert.id);
+          const normalizedMessage = await handleNormalizeOperations(alert.lineId, alert.id, {
+            silent: true,
+          });
+          notify(
+            `${t.admin.resolved}${alert.title ? `: ${alert.title}` : ""} — ${normalizedMessage}`
+          );
+        } else {
+          notify(t.admin.resolved + (alert.title ? `: ${alert.title}` : ""));
         }
-        notify(t.admin.resolved + (alert.title ? `: ${alert.title}` : ""));
       } else {
         const data = await res.json().catch(() => ({}));
         setBroadcastError(data.error || t.admin.resolveFailed);
@@ -1094,6 +1108,7 @@ export default function AdminAlertsPage() {
         <div
           role="status"
           aria-live="polite"
+          data-testid="broadcast-toast"
           className="p-4 rounded-xl bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
         >
           <div className="flex items-center gap-2">
