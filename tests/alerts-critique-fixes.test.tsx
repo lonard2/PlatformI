@@ -718,3 +718,34 @@ describe("Undo live-regions", () => {
     }
   });
 });
+
+describe("Deep-link anchors", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    seedAlertsApi();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("exposes focusable broadcast and bulletin anchors for dashboard links", async () => {
+    const { container } = render(<AdminAlertsPage />);
+    await screen.findByText(DISRUPTION_ALERTS[0].title);
+    const form = container.querySelector("#broadcast-form") as HTMLElement | null;
+    expect(form).not.toBeNull();
+    expect(form?.getAttribute("tabindex")).toBe("-1");
+    const row = container.querySelector(`#alert-${DISRUPTION_ALERTS[0].id}`) as HTMLElement | null;
+    expect(row).not.toBeNull();
+    expect(row?.getAttribute("tabindex")).toBe("-1");
+  });
+});
