@@ -15,7 +15,7 @@ Ledger in this file; rulings inline.
 | 2 | harden sync visibility | Header-linked sync with last-sync timestamp, explicit Sync now, pending-changes indicator | DONE (528/528) | 6e5c1a5 |
 | 3 | layout bulk operations | Row checkboxes + bulk status/crowd bar, sort by code/line/speed/status | DONE (531/531) | 9795306 |
 | 4 | clarify couplings + defaults | Visible status/speed coupling, pre-submit summary with duplicate-code warning | DONE (534/534) | 1d33be5 |
-| 5 | polish final pass | Whole fleet-surface pass; detector clean; final review via fresh subagent | DONE (536/536) | — |
+| 5 | polish final pass | Whole fleet-surface pass; detector clean; final review via fresh subagent | DONE (536/536) | ac03d6b |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm.
