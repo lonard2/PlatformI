@@ -26,6 +26,8 @@ import {
   CheckCircle2,
   Loader2,
   Terminal,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { setActiveOperatorId } from "@/lib/services/shiftLogService";
@@ -43,6 +45,8 @@ function AdminLoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  const [showPasskey, setShowPasskey] = useState<boolean>(false);
+  const [capsLockOn, setCapsLockOn] = useState<boolean>(false);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const roleLabelFor = (presetId: string): string =>
@@ -137,8 +141,18 @@ function AdminLoginForm() {
 
   const handleSelectPreset = (presetId: string) => {
     setOperatorId(presetId);
-    setPasskey("");
+    // Same-operator mis-tap keeps the typed passkey; switching operators
+    // clears it so one operator's token is never submitted as another's.
+    if (presetId !== operatorId.trim()) {
+      setPasskey("");
+    }
     setErrorMessage(null);
+  };
+
+  const handlePasskeyKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (typeof e.getModifierState === "function") {
+      setCapsLockOn(e.getModifierState("CapsLock"));
+    }
   };
 
   return (
@@ -226,18 +240,39 @@ function AdminLoginForm() {
               </span>
               <span className="text-[10px] text-slate-500 font-mono">{t.admin.loginShiftToken}</span>
             </label>
-            <input
-              id="operator-passkey"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={passkey}
-              onChange={(e) => setPasskey(e.target.value)}
-              placeholder="••••••••••••"
-              disabled={isLoading}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
-            />
+            <div className="relative">
+              <input
+                id="operator-passkey"
+                name="password"
+                type={showPasskey ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={passkey}
+                onChange={(e) => setPasskey(e.target.value)}
+                onKeyDown={handlePasskeyKey}
+                onKeyUp={handlePasskeyKey}
+                onBlur={() => setCapsLockOn(false)}
+                placeholder="••••••••••••"
+                disabled={isLoading}
+                aria-describedby="operator-passkey-caps"
+                className="w-full px-3.5 py-2.5 pr-11 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasskey((v) => !v)}
+                aria-label={showPasskey ? t.admin.loginHidePasskey : t.admin.loginShowPasskey}
+                aria-pressed={showPasskey}
+                disabled={isLoading}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition min-w-[36px] min-h-[36px] flex items-center justify-center disabled:opacity-50"
+              >
+                {showPasskey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          <div className="relative -mt-2">
+            <span id="operator-passkey-caps" className="text-[10px] text-amber-300 font-mono">
+              {capsLockOn ? t.admin.loginCapsLock : ""}
+            </span>
           </div>
 
           {/* Who is being authorized: named operator or typed badge ID */}

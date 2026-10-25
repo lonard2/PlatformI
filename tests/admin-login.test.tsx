@@ -33,6 +33,6 @@ describe("AdminLogin credential hygiene", () => {
     render(<AdminLoginPage />);
     fireEvent.click(screen.getByText("OCC-MRT-02"));
     expect(screen.getByLabelText(/operator id|badge id/i)).toHaveValue("OCC-MRT-02");
-    expect(screen.getByLabelText(/passkey/i)).toHaveValue("");
+    expect(screen.getByLabelText(/security passkey/i)).toHaveValue("");
   });
 });
