@@ -11,8 +11,8 @@ Ledger in this file; rulings inline.
 
 | # | Todo | Scope | Status | Commit |
 |---|------|-------|--------|--------|
-| 1 | clarify preset identity | Hub sublabel on presets + "Authorizing as {name} — {role} @ {hub}" pre-submit line | DONE (561/561) | — |
-| 2 | harden auth guardrails | Attempt-aware errors + client lockout, session-scope line, supervisor contact | TODO | — |
+| 1 | clarify preset identity | Hub sublabel on presets + "Authorizing as {name} — {role} @ {hub}" pre-submit line | DONE (561/561) | 978c846 |
+| 2 | harden auth guardrails | Attempt-aware errors + client lockout, session-scope line, supervisor contact | DONE (564/564) | — |
 | 3 | polish passkey UX | Show/hide toggle, preserve passkey unless ID changed, caps-lock hint | TODO | — |
 | 4 | animate success landing | ~1200ms readable success + "Entering → {surface}" chip from callbackUrl | TODO | — |
 | 5 | distill prod/demo identity | ENV badge, demo switcher behind demo flag, drop version tag | TODO | — |
@@ -23,3 +23,4 @@ Ledger in this file; rulings inline.
 - Pre-flight: todos 1-5 all touch src/app/admin/login/page.tsx; executed sequentially inline so no interface drift. Todo 5's demo-flag gating changes which elements render — todos 1-4 tests must not assume demo switcher visibility in a way todo 5 breaks; ordering (identity last) avoids rework.
 - TDD + verification-before-completion loaded and governing.
 - Todo 1: role ternary extracted to roleLabelFor (was inline in buttons, now shared with identity line). Ruling: hub rides as a third truncated line in existing 10px style rather than a new size — no new detector size class introduced.
+- Todo 2: attempt counter in component state; lockout text at >=5, form stays usable (server enforces). Ruling: NO client-side disable/timer lockout — the client cannot enforce it, so it counts and advises instead of pretending; every further rejection re-states the lockout. Session-scope copy verified against the auth route (HTTP-only, 8h maxAge) before writing it.

@@ -42,6 +42,7 @@ function AdminLoginForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState<number>(0);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const roleLabelFor = (presetId: string): string =>
@@ -71,6 +72,11 @@ function AdminLoginForm() {
     };
   }, []);
 
+  // Client-visible attempt discipline: the count advises, the supervisor
+  // contact escalates; only the server can truly lock the account, so the
+  // form stays usable and every further rejection re-states the lockout.
+  const MAX_LOGIN_ATTEMPTS = 5;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!operatorId.trim() || !passkey.trim()) {
@@ -96,7 +102,15 @@ function AdminLoginForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setErrorMessage(data.error || t.admin.loginErrorInvalid);
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        setErrorMessage(
+          nextAttempts >= MAX_LOGIN_ATTEMPTS
+            ? t.admin.loginAttemptLockout
+            : `${data.error || t.admin.loginErrorInvalid} ${t.admin.loginAttemptCount
+                .replace("{n}", String(nextAttempts))
+                .replace("{max}", String(MAX_LOGIN_ATTEMPTS))}`
+        );
         setIsLoading(false);
         return;
       }
@@ -254,6 +268,11 @@ function AdminLoginForm() {
               </>
             )}
           </button>
+
+          {/* Session scope: what this login actually grants */}
+          <p className="text-center text-[10px] text-slate-500">
+            {t.admin.loginSessionScope}
+          </p>
         </form>
 
         {/* Quick Credentials Switcher */}

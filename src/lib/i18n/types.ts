@@ -1331,6 +1331,9 @@ export interface TranslationDictionary {
     loginLoading: string;
     loginAuthorizingAs: string;
     loginAuthorizingAsId: string;
+    loginAttemptCount: string;
+    loginAttemptLockout: string;
+    loginSessionScope: string;
     loginErrorRequired: string;
     loginErrorInvalid: string;
     loginErrorNetwork: string;
