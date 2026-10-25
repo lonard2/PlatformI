@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor, act } from "@testing-library/react";
 import AdminAlertsPage from "@/app/admin/alerts/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS, DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
@@ -473,6 +473,177 @@ describe("Resolve and normalize honesty", () => {
     expect(
       await screen.findByText(/Network error deleting/i)
     ).toBeInTheDocument();
+  });
+});
+
+describe("Deferred minors batch", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8).map((v) => ({
+        ...v,
+        lineId: "line-tj-cor-1",
+      })),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("announces loading once for the skeleton set, not once per row", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => okJson({ success: true, data: [] }))
+    );
+    render(<AdminAlertsPage />);
+    await screen.findByTestId("feed-empty-state");
+    fireEvent.click(screen.getByRole("button", { name: /sync telemetry/i }));
+    expect(
+      screen.getAllByRole("status", { name: /loading bulletins/i })
+    ).toHaveLength(1);
+    expect(screen.getAllByTestId("alert-skeleton")).toHaveLength(3);
+  });
+
+  it("clears the finalizer so a repeated finalize announces again", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).startsWith("/api/alerts") && init?.method === "DELETE") {
+          return okJson({ success: true, data: {} });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(
+        within(row).getByRole("button", { name: /^delete: /i })
+      );
+      // Timer-callback state updates only flush inside act().
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(50);
+      });
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(6000);
+      });
+      expect(screen.getByTestId("alerts-sr-announcer")).toHaveTextContent(
+        /Deletion finalized/
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(6000);
+      });
+      expect(screen.getByTestId("alerts-sr-announcer")).toBeEmptyDOMElement();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("moves focus to the feed after a successful broadcast", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url) === "/api/alerts" && init?.method === "POST") {
+          return okJson({
+            success: true,
+            data: {
+              id: "alert-new-9",
+              lineId: "line-tj-cor-1",
+              title: "Depot drill",
+              description: "Planned drill",
+              severity: "INFO",
+              status: "ACTIVE",
+              affectedStops: [],
+              startTime: new Date().toISOString(),
+            },
+          });
+        }
+        if (String(url).startsWith("/api/network/timetables")) {
+          return okJson({ success: true, data: [] });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    fireEvent.change(screen.getByLabelText("Alert Title"), {
+      target: { value: "Depot drill" },
+    });
+    fireEvent.change(screen.getByLabelText("Impact & OCC Engineering Mitigation"), {
+      target: { value: "Planned drill" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Broadcast Alert to Public" }));
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Broadcast Alert to Public" })
+    );
+    await screen.findByText("Depot drill");
+    expect(document.activeElement?.getAttribute("data-testid")).toBe("alerts-feed");
+  });
+
+  it("focuses Cancel first, marks background inert, and locks scroll", async () => {
+    seedAlertsApi();
+    render(<AdminAlertsPage />);
+    fireEvent.change(screen.getByLabelText("Alert Title"), {
+      target: { value: "Depot drill" },
+    });
+    fireEvent.change(screen.getByLabelText("Impact & OCC Engineering Mitigation"), {
+      target: { value: "Planned drill" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Broadcast Alert to Public" }));
+    await screen.findByRole("alertdialog");
+    await waitFor(() =>
+      expect(document.activeElement?.textContent).toBe("Cancel")
+    );
+    expect(document.querySelector("[inert]")).not.toBeNull();
+    expect(document.body.style.overflow).toBe("hidden");
+  });
+
+  it("rolls back the optimistic fleet update when its PUT fails", async () => {
+    const failingCode = TRANSIT_VEHICLES[2].vehicleCode;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url) === "/api/fleet/vehicles" && init?.method === "PUT") {
+          const body = JSON.parse(String(init?.body ?? "{}")) as { vehicleCode?: string };
+          if (body.vehicleCode === failingCode) {
+            return Promise.reject(new Error("network down"));
+          }
+          return okJson({ success: true, data: {} });
+        }
+        if (String(url).startsWith("/api/network/timetables")) {
+          return okJson({ success: true, data: [] });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const failingId = TRANSIT_VEHICLES[2].id;
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
+    await waitFor(() => {
+      const state = useTransitStore.getState().simulatedVehicles;
+      expect(state.find((v) => v.id === failingId)?.delayMinutes).toBeUndefined();
+    });
+    const state = useTransitStore.getState().simulatedVehicles;
+    expect(
+      state.find((v) => v.id === TRANSIT_VEHICLES[0].id)?.delayMinutes
+    ).toBe(15);
   });
 });
 

@@ -16,7 +16,8 @@ Ledger in this file; rulings inline.
 | 3 | clarify delete control | Labeled Delete text button, wider gap from Resolve | DONE (541/541) | 447629b |
 | 4 | colorize amber collision + copy bug | Reserve amber for WARNING; re-theme delete-undo + fleet-restore; fix demote INFO→WARNING; severity legend row | DONE (546/546) | 8fbbdaf |
 | 5 | audit empty/filter/sync honesty | Empty state + CTA, skeleton rows, status/severity/line filter + search, aggregate sync toasts, disclose 10-run cap | DONE (551/551) | d7f6e12 |
-| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (554/554) | — |
+| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (554/554) | 68d1361 |
+| 7 | polish deferred minors batch | ko typo, skeleton single-announce, clear finalizer, success focus, cancel-first+inert+scroll-lock, PUT-failure rollback, extract publish() | IN PROGRESS | — |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm (established in fleet/ticket/portal sessions; push to shared main is the norm here, not an ask-first side effect).
@@ -39,3 +40,5 @@ Final: Ruling: visual/aesthetic outcome unjudged (no browser; /admin/alerts logi
 Final: Ruling: screen-reader announcement behavior unjudged beyond jsdom attributes — aria-hidden/live-off produce no jsdom signal; NVDA/VoiceOver pass still needed for the P0 claim. Cost if wrong: per-second spam persists for real users.
 Final: Ruling: ar/id/ja/zh translation quality spot-checked only (placeholders verified, not fluency) — accepted; full fluency review needs native speakers. Cost if wrong: awkward phrasing in 4 locales.
 Final: Ruling: PUT fan-out perf at full-fleet scale unjudged — Promise.all over up to N vehicles matches pre-existing sync pattern; acceptable until fleet exceeds ~50/line. Cost if wrong: slow sync on huge lines.
+- Todo 7: M1 ko 検索→검색 (static string, verified by grep; no behavior test exists for dictionary values). M2 single live wrapper + aria-hidden visual rows. M3 announceFinal auto-clears after 5s. M4 success focuses feed container (new alerts-feed testid). M5 Cancel-first autofocus + inert root + body scroll-lock with cleanup. M6 link+normalize revert optimistic update on PUT failure. M7 publishBroadcast extracted; confirm button calls it directly, no synthetic submit event.
+Ruling: timer-callback setStates in tests require act() flushing — without it the DOM goes stale and the test lies (observed: clear timer fired, DOM unchanged). Double executeDelete under act() is a deferred-flush artifact of the test harness; production flushes state in microtasks so the second tick sees a clean registry (single fire). Cost if wrong: duplicate DELETE on a loaded main thread — server-side idempotent, row already removed locally.

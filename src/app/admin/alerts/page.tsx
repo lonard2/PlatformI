@@ -73,8 +73,15 @@ export default function AdminAlertsPage() {
   // Screen-reader finalizer: undo banners announce once on insert via their
   // own role=status; this region announces once when a grace window closes
   // (deletion executed or mutation confirmed). The ticking countdowns stay
-  // aria-hidden + aria-live=off so they never re-announce.
+  // aria-hidden + aria-live=off so they never re-announce. The message
+  // clears after the grace window so an identical finalize announces again.
   const [finalAnnouncement, setFinalAnnouncement] = useState<string>("");
+  const announceFinal = (message: string) => {
+    setFinalAnnouncement(message);
+    window.setTimeout(() => {
+      setFinalAnnouncement("");
+    }, 5000);
+  };
 
   // Generalized mutation grace: resolve, demote, and reopen support 5s reverse-PATCH undo
   const [pendingMutations, setPendingMutations] = useState<Record<string, PendingAlertMutation>>({});
@@ -116,6 +123,15 @@ export default function AdminAlertsPage() {
   // escalation the trigger unmounts (severity flips CRITICAL) — fall back
   // to the feed container so focus stays inside the changed region.
   const feedContainerRef = useRef<HTMLDivElement>(null);
+  // Background inert + scroll lock while the broadcast modal is open.
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    rootRef.current?.toggleAttribute("inert", confirmingBroadcast);
+    document.body.style.overflow = confirmingBroadcast ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [confirmingBroadcast]);
   useEffect(() => {
     if (escalateConfirmId) {
       requestAnimationFrame(() => {
@@ -171,7 +187,7 @@ export default function AdminAlertsPage() {
         );
         setBroadcastError(data.error || t.admin.deleteHttp);
       } else {
-        setFinalAnnouncement(
+        announceFinal(
           t.admin.alertDeleteFinal.replace("{title}", alertToDelete.title)
         );
       }
@@ -228,7 +244,7 @@ export default function AdminAlertsPage() {
         // One closing announcement for the batch (batched render, last wins).
         const lastMutation = pendingMutationsRef.current[dueMutations[dueMutations.length - 1]];
         if (lastMutation) {
-          setFinalAnnouncement(
+          announceFinal(
             t.admin.alertMutationFinal.replace("{title}", lastMutation.alertTitle)
           );
         }
@@ -397,6 +413,7 @@ export default function AdminAlertsPage() {
     let vehiclesFailed = 0;
     await Promise.all(
       targetVehicles.map(async (vehicle) => {
+        const previous = vehicle;
         const updated: Vehicle = {
           ...vehicle,
           delayMinutes,
@@ -405,7 +422,8 @@ export default function AdminAlertsPage() {
         };
         updateSingleVehicle(updated);
 
-        // Persist to SQLite fleet API
+        // Persist to SQLite fleet API; revert the optimistic update when the
+        // server rejects it so the map never shows unpersisted slowdowns.
         try {
           const res = await fetch("/api/fleet/vehicles", {
             method: "PUT",
@@ -419,9 +437,13 @@ export default function AdminAlertsPage() {
             }),
           });
           if (res.ok) vehiclesOk += 1;
-          else vehiclesFailed += 1;
+          else {
+            vehiclesFailed += 1;
+            updateSingleVehicle(previous);
+          }
         } catch {
           vehiclesFailed += 1;
+          updateSingleVehicle(previous);
         }
       })
     );
@@ -503,6 +525,7 @@ export default function AdminAlertsPage() {
     let vehiclesFailed = 0;
     await Promise.all(
       targetVehicles.map(async (vehicle) => {
+        const previous = vehicle;
         const updated: Vehicle = {
           ...vehicle,
           delayMinutes: 0,
@@ -524,9 +547,13 @@ export default function AdminAlertsPage() {
             }),
           });
           if (res.ok) vehiclesOk += 1;
-          else vehiclesFailed += 1;
+          else {
+            vehiclesFailed += 1;
+            updateSingleVehicle(previous);
+          }
         } catch {
           vehiclesFailed += 1;
+          updateSingleVehicle(previous);
         }
       })
     );
@@ -589,10 +616,11 @@ export default function AdminAlertsPage() {
     return message;
   };
 
-  // Move focus into the broadcast confirmation when it opens; restore to
-  // the publish trigger on cancel or Escape.
+  // Move focus into the broadcast confirmation when it opens, starting on
+  // Cancel so an accidental Enter never fires the irreversible action.
+  const broadcastCancelRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
-    if (confirmingBroadcast) broadcastConfirmRef.current?.focus();
+    if (confirmingBroadcast) broadcastCancelRef.current?.focus();
   }, [confirmingBroadcast]);
 
   const closeBroadcastConfirm = useCallback(() => {
@@ -604,12 +632,16 @@ export default function AdminAlertsPage() {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
 
-    // Blast-radius confirmation first: the POST only fires from the dialog.
+    // Blast-radius confirmation first: the POST fires from publishBroadcast.
     if (!confirmingBroadcast) {
       setConfirmingBroadcast(true);
       return;
     }
 
+    void publishBroadcast();
+  };
+
+  const publishBroadcast = async () => {
     setIsPublishing(true);
     setBroadcastError(null);
 
@@ -656,7 +688,10 @@ export default function AdminAlertsPage() {
             },
           });
           notify(t.admin.publishAlert + ": " + data.data.title);
-        setConfirmingBroadcast(false);
+          // The publish trigger unmounts its enabled state with the cleared
+          // form, so land focus on the feed instead of dropping it to body.
+          setConfirmingBroadcast(false);
+          feedContainerRef.current?.focus();
         }
       } else {
         const data = await res.json().catch(() => ({}));
@@ -1032,7 +1067,7 @@ export default function AdminAlertsPage() {
   const lineStops = selectedLine?.stops || allStops.filter((s) => s.lineId === targetLineId);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+    <div ref={rootRef} className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -1473,6 +1508,7 @@ export default function AdminAlertsPage() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
+                ref={broadcastCancelRef}
                 onClick={closeBroadcastConfirm}
                 className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition min-h-[40px] btn-tactile"
               >
@@ -1481,7 +1517,7 @@ export default function AdminAlertsPage() {
               <button
                 type="button"
                 ref={broadcastConfirmRef}
-                onClick={() => void handleBroadcast(new Event("submit") as unknown as React.FormEvent)}
+                onClick={() => void publishBroadcast()}
                 disabled={isPublishing}
                 className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold transition disabled:opacity-50 min-h-[40px] btn-tactile"
               >
@@ -1578,6 +1614,7 @@ export default function AdminAlertsPage() {
       <div
         ref={feedContainerRef}
         tabIndex={-1}
+        data-testid="alerts-feed"
         className="rounded-2xl bg-slate-900/80 border border-white/10 p-5 space-y-4 shadow-xl focus:outline-none"
       >
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -1652,21 +1689,21 @@ export default function AdminAlertsPage() {
 
         <div className="space-y-3">
           {isLoading && alerts.length === 0 ? (
-            <>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  data-testid="alert-skeleton"
-                  role="status"
-                  aria-label={t.admin.alertFeedLoading}
-                  className="p-4 rounded-xl border border-white/10 bg-slate-950/70 space-y-2 animate-pulse"
-                >
-                  <div className="h-3 w-2/3 rounded bg-slate-800" />
-                  <div className="h-3 w-full rounded bg-slate-800" />
-                  <span className="sr-only">{t.admin.alertFeedLoading}</span>
-                </div>
-              ))}
-            </>
+            <div role="status" aria-live="polite" aria-label={t.admin.alertFeedLoading}>
+              <span className="sr-only">{t.admin.alertFeedLoading}</span>
+              <div className="space-y-3" aria-hidden="true">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    data-testid="alert-skeleton"
+                    className="p-4 rounded-xl border border-white/10 bg-slate-950/70 space-y-2 animate-pulse"
+                  >
+                    <div className="h-3 w-2/3 rounded bg-slate-800" />
+                    <div className="h-3 w-full rounded bg-slate-800" />
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : visibleAlerts.length === 0 ? (
             <div
               data-testid="feed-empty-state"

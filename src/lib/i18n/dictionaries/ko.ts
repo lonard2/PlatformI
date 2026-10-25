@@ -1419,7 +1419,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     pendingUndo: "작업 보류 중 - 실행 취소",
     alertFeedEmpty: "표시할 속보가 없습니다",
     alertFeedEmptyHint: "필터를 조정하거나 아래에서 첫 속보를 작성하세요.",
-    alertSearchPlaceholder: "제목, 노선 또는 정류장 検색…",
+    alertSearchPlaceholder: "제목, 노선 또는 정류장 검색…",
     alertFilterStatus: "상태별 필터",
     alertFilterSeverity: "심각도별 필터",
     alertFeedLoading: "속보를 불러오는 중…",
