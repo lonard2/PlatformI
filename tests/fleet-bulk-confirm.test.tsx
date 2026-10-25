@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import AdminFleetPage from "@/app/admin/fleet/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
@@ -185,5 +185,57 @@ describe("Bulk confirm gate", () => {
     expect(
       screen.queryByRole("button", { name: /action pending - undo/i })
     ).not.toBeInTheDocument();
+  });
+
+  it("preserves an unrelated-field undo when a bulk supersedes its own field", async () => {
+    render(<AdminFleetPage />);
+    await screen.findByRole("table");
+    // Stage a per-vehicle crowd undo on A through its own row control.
+    const crowdSelect = document.getElementById(`crowd-select-${A.id}`) as HTMLSelectElement | null;
+    expect(crowdSelect).not.toBeNull();
+    fireEvent.change(crowdSelect!, { target: { value: "LEVEL_3_STANDING_ONLY" } });
+    await screen.findByText(/Action pending - Undo/i);
+    // Bulk-apply a *status* change to both vehicles and confirm it.
+    await selectBoth();
+    const bulkBar = await screen.findByTestId("fleet-bulk-bar");
+    fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
+      target: { value: "CONGESTION_HOLD" },
+    });
+    fireEvent.click(await screen.findByRole("button", { name: /^apply$/i }));
+    // Two undos survive: the aggregate status bulk plus the crowd single.
+    expect(screen.getAllByRole("button", { name: /action pending - undo/i })).toHaveLength(2);
+    // Undoing the bulk restores statuses; the crowd undo is still queued.
+    const undoButtons = screen.getAllByRole("button", { name: /action pending - undo/i });
+    fireEvent.click(undoButtons[undoButtons.length - 1]);
+    const state = useTransitStore.getState().simulatedVehicles;
+    expect(state.find((v) => v.id === A.id)?.status).toBe("IN_SERVICE");
+    expect(screen.getAllByRole("button", { name: /action pending - undo/i })).toHaveLength(1);
+  });
+
+  it("moves focus into the confirm and back to the opener on escape", async () => {
+    render(<AdminFleetPage />);
+    await selectBoth();
+    const bulkBar = await screen.findByTestId("fleet-bulk-bar");
+    const statusSelect = within(bulkBar).getByLabelText(/bulk status/i) as HTMLElement;
+    statusSelect.focus();
+    fireEvent.change(statusSelect, { target: { value: "CONGESTION_HOLD" } });
+    const dialog = await screen.findByRole("alert", { name: /confirm bulk change/i });
+    const applyBtn = within(dialog).getByRole("button", { name: /^apply$/i });
+    expect(document.activeElement).toBe(applyBtn);
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(document.activeElement).toBe(statusSelect);
+  });
+
+  it("returns focus to the bulk bar after apply", async () => {
+    render(<AdminFleetPage />);
+    await selectBoth();
+    const bulkBar = await screen.findByTestId("fleet-bulk-bar");
+    fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
+      target: { value: "CONGESTION_HOLD" },
+    });
+    fireEvent.click(await screen.findByRole("button", { name: /^apply$/i }));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("fleet-bulk-bar"));
+    });
   });
 });

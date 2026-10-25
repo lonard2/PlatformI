@@ -18,7 +18,7 @@ Ledger in this file; rulings inline.
 | 3 | distill coupling callout | Inline coupling microcopy at status control + telemetry modal callout | TODO | — |
 | 4 | quieter focus + finalizer | Stop per-row focus steal, fleet single-shot finalizer mirroring alerts | DONE (622/622) | — |
 | 5 | layout empty/loading/mobile | Empty state + Clear filters, skeleton rows, 24px checkboxes, frozen columns | DONE (626/626) | — |
-| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | TODO | — |
+| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (629/629) | — |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm.
@@ -29,3 +29,15 @@ Ledger in this file; rulings inline.
 - Todo 3: row caption renders only on non-IN_SERVICE rows (short key); table footnote deleted; modal note became a bordered amber callout with testid. Ruling: superseded round-1 footnote test deleted rather than adapted — adapting it would assert a UI that no longer exists; the 3 new tests cover the replacement behavior. Ruling: detector flagged the callout border-l-2 as side-tab slop, so the callout uses a full subtle border instead — detector stays at 0 by design, not by suppression.
 - Todo 4: removed the 3 per-row rAF focus steals (status/crowd/speed); delete/add/bulk flows keep theirs. Ruling (ledgered pre-task interface ruling): bulk-bar focus contract preserved — focusBulkBar is untouched and now uncontested since silent bulk updates never scheduled steals. Finalizer mirrors alerts announce-then-clear-after-5s exactly, including the test pattern (real timers for queries, fake timers only for time passage — findBy* under fake timers deadlocks).
 - Todo 5: empty state replaces the table card (message + Clear that resets search/category/selection); single-announcement skeleton on first unconfirmed pull; 24px hit areas (w-12 columns); sticky Code (left-12) + Actions columns with opaque bgs. Ruling: empty state replaces rather than appends to the table card — one board state at a time, never a table plus an explanation. Ruling: skeleton shows whenever the board is unconfirmed (hasSyncedOnce false + syncing), even with seeds present — seeds are data, not confirmation. Ruling: test mock for useSearchParams must return a STABLE object or the URL-sync effect resets the query on every render; unstable mocks made typing impossible.
+- Final review ses_e8ea1ebfdffeO7A3F85H3qYxqn: accept, no Critical. Final: fixed I1 (field-scoped bulk eviction: only same-field per-row undos are superseded) — RED (1 banner) then GREEN (2 banners). Final: locked I2 focus contract with activeElement assertions (open→Apply, Escape→opener, Apply→bulk bar); behavior already correct, tests pin it.
+Final: minor (deferred): hardcoded "N vehicles" in bulk undo entry vehicleCode/badge/params (banner label itself is localized; surfaces only in shift-log internals).
+Final: minor (deferred): announceFinal timer can clobber a newer announcement; no unmount guard.
+Final: minor (deferred): bulk return-to-service wears destructive amber + 15s window.
+Final: minor (deferred): confirm preview has a zero-eligible dead end when board state moves between open and Apply.
+Final: minor (deferred): unknown lineId falls back to raw id via ?? chain (already handled; reviewer misread "lines" as possibly empty — empty only when eligible is empty, which auto-closes).
+Final: minor (deferred): bulk undo over-claims on partial restore (skipped vehicles still counted in the shift-log summary).
+Final: minor (deferred): expiry effect closes over stale t — announceFinal speaks the locale from open time.
+Final: minor (deferred): leftover cheap items — telemetry slider aria-describedby, select-all scope disclosure, sortSpec URL sync, last-sync date, "{n} pending" wording, seat/stand split, add-speed min mismatch, slider PUT debounce.
+Final: Ruling: rendered/visual behavior unjudged (no browser in review); detector-0 on the target file verified independently. Suite count taken as recorded pre-review evidence per review instructions.
+Final: Ruling: server-side bulk N-PUT load and two-console write conflicts out of diff scope — the N-PUT pattern predates this work; no new coordination introduced.
+Final: Ruling: APPROACHING_STOP sort rank kept as implemented (dwell-adjacent, between BOARDING and IN_SERVICE); deferred to Transit Domain Researcher role for a live-ops priority call.

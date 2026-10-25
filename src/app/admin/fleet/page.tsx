@@ -841,12 +841,14 @@ function FleetManagementContent() {
     setPendingUndos((prev) => {
       const next = new Map(prev);
       for (const id of targets.map((v) => v.id)) {
-        next.delete(id);
-        undoButtonRefs.current.delete(id);
+        if (next.get(id)?.field === "status") {
+          next.delete(id);
+          undoButtonRefs.current.delete(id);
+        }
       }
       return next;
     });
-    const bulkId = `bulk-${Date.now().toString(36)}`;
+    const bulkId = `bulk-status-${Date.now().toString(36)}`;
     const label = t.admin.fleetBulkUndo
       .replace("{n}", String(snapshots.length))
       .replace("{target}", getStatusLabel(newStatus));
@@ -894,12 +896,14 @@ function FleetManagementContent() {
     setPendingUndos((prev) => {
       const next = new Map(prev);
       for (const id of targets.map((v) => v.id)) {
-        next.delete(id);
-        undoButtonRefs.current.delete(id);
+        if (next.get(id)?.field === "crowdLevel") {
+          next.delete(id);
+          undoButtonRefs.current.delete(id);
+        }
       }
       return next;
     });
-    const bulkId = `bulk-${Date.now().toString(36)}`;
+    const bulkId = `bulk-crowd-${Date.now().toString(36)}`;
     const label = t.admin.fleetBulkUndo
       .replace("{n}", String(snapshots.length))
       .replace("{target}", getCrowdLabel(newCrowd));
