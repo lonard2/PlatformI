@@ -11,6 +11,7 @@ import AdminDashboardPage from "@/app/admin/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS, DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useLanguageStore } from "@/lib/i18n";
+import type { Vehicle } from "@/types/transit";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
@@ -35,6 +36,66 @@ function seedDashboard(): void {
     )
   );
 }
+
+describe("Worst-corridor KPI", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 12).map(
+        (v, i): Vehicle => ({
+          ...v,
+          lineId: "line-tj-cor-1",
+          status: i < 3 ? "CONGESTION_HOLD" : "IN_SERVICE",
+        })
+      ),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({ success: true, data: DISRUPTION_ALERTS }) })
+      )
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("names the corridor holding the most vehicles", async () => {
+    render(<AdminDashboardPage />);
+    const card = await screen.findByTestId("kpi-worst-corridor");
+    const lineCode = TRANSIT_LINES.find((l) => l.id === "line-tj-cor-1")?.code ?? "";
+    expect(within(card).getByText("Worst Corridor")).toBeInTheDocument();
+    expect(within(card).getByText(lineCode)).toBeInTheDocument();
+    expect(within(card).getByText(/\(3\)/)).toBeInTheDocument();
+  });
+
+  it("declares no held vehicles when the board is clear", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 12).map(
+        (v): Vehicle => ({
+          ...v,
+          status: "IN_SERVICE",
+        })
+      ),
+    });
+    render(<AdminDashboardPage />);
+    const card = await screen.findByTestId("kpi-worst-corridor");
+    expect(within(card).getByText("No held vehicles")).toBeInTheDocument();
+  });
+
+  it("retires the fare-volume KPI from the ops board", async () => {
+    render(<AdminDashboardPage />);
+    await screen.findByTestId("kpi-worst-corridor");
+    expect(screen.queryByText("Est. Occupied-Cabin Value")).not.toBeInTheDocument();
+  });
+});
 
 describe("Telemetry stream honesty", () => {
   beforeEach(seedDashboard);

@@ -18,9 +18,9 @@ import {
   Users,
   Truck,
   ArrowRight,
-  DollarSign,
   QrCode,
   TrendingUp,
+  Siren,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
@@ -73,20 +73,25 @@ export default function AdminDashboardPage() {
     return `${Math.round((optimal / simulatedVehicles.length) * 100)}%`;
   }, [simulatedVehicles]);
 
-  // Real derivation: est. fare-gate volume = live passenger load (summed
-  // across carriages) x the BRT flat fare constant (3500, per fareCalculator's
-  // road-mode base)
-  const fareVolumeRp = useMemo(
-    () =>
-      simulatedVehicles.reduce(
-        (sum, v) =>
-          sum +
-          (v.carriages?.reduce((load, c) => load + c.passengerCount, 0) ?? 0) *
-            3500,
-        0
-      ),
-    [simulatedVehicles]
-  );
+  // Worst-corridor posture: the line holding the most vehicles, so the
+  // board answers "where hurts most" without mental math across KPIs.
+  const worstCorridor = useMemo(() => {
+    const heldByLine = new Map<string, number>();
+    for (const v of simulatedVehicles) {
+      if (v.status === "CONGESTION_HOLD" || v.status === "OUT_OF_SERVICE") {
+        heldByLine.set(v.lineId, (heldByLine.get(v.lineId) ?? 0) + 1);
+      }
+    }
+    let worst: { lineId: string; count: number } | null = null;
+    for (const [lineId, count] of heldByLine) {
+      if (!worst || count > worst.count) worst = { lineId, count };
+    }
+    if (!worst) return null;
+    return {
+      line: allLines.find((l) => l.id === worst.lineId),
+      count: worst.count,
+    };
+  }, [simulatedVehicles, allLines]);
 
   const crowdStats = useMemo(() => {
     const l1 = simulatedVehicles.filter((v) => v.crowdLevel === "LEVEL_1_MANY_SEATS").length;
@@ -370,19 +375,24 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        {/* KPI 4: Estimated Occupied-Cabin Value */}
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
+        {/* KPI 4: Worst Corridor Posture */}
+        <div
+          data-testid="kpi-worst-corridor"
+          className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.kpiOccupiedCabinValue}</span>
-            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-cyan-400">
-              <DollarSign className="w-4 h-4" />
+            <span className="text-xs uppercase font-bold text-slate-400 font-mono">{t.admin.kpiWorstCorridor}</span>
+            <div className="p-2 rounded-xl bg-slate-950 border border-white/10 text-rose-400">
+              <Siren className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-cyan-300 font-mono">
-            Rp {new Intl.NumberFormat(currentLanguageMeta.locale, { notation: "compact", maximumFractionDigits: 1 }).format(fareVolumeRp)}
+          <div className={`text-2xl font-bold font-mono ${worstCorridor ? "text-rose-300" : "text-slate-400"}`}>
+            {worstCorridor?.line?.code ?? "—"}
           </div>
-          <div className="text-[11px] text-slate-400 font-mono pt-1">
-            {t.admin.kpiOccupiedCabinValueBasis}
+          <div className="text-[11px] text-slate-400 font-mono pt-1 truncate">
+            {worstCorridor && worstCorridor.line
+              ? `${worstCorridor.line.name} (${worstCorridor.count})`
+              : t.admin.kpiNoHeldVehicles}
           </div>
         </div>
       </div>

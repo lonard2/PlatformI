@@ -1448,6 +1448,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     kpiFleetNotHeldBasis: "Basis: Active fleet excl. congestion hold & depot",
     kpiOccupiedCabinValue: "Est. Occupied-Cabin Value",
     kpiOccupiedCabinValueBasis: "Basis: Live onboard load × Rp 3,500 base fare",
+    kpiWorstCorridor: "Worst Corridor",
+    kpiNoHeldVehicles: "No held vehicles",
     telemetrySampleCount: "Showing {n} of {m}",
     viewAllInFleet: "View all in Fleet",
     dashboardPostureOk: "All clear",

@@ -14,7 +14,7 @@ Ledger in this file; rulings inline.
 | 1 | layout operate actions | Per-card "Open incident queue" CTA, advisory rows as links to /admin/alerts, hero broadcast entry | DONE (584/584) | c5ce44b |
 | 2 | distill posture hero | Hero posture strip (state word + worst-severity chip + WIB clock), demoted subtitle | DONE (588/588) | b1f5dbb |
 | 3 | clarify telemetry stream | Structured columns, disclosed N-of-M basis, "View all in Fleet" cap | DONE (591/591) | — |
-| 4 | bolder fourth KPI | Sector/worst-corridor posture KPI replaces fare volume; fare moves off-board | TODO | — |
+| 4 | bolder fourth KPI | Sector/worst-corridor posture KPI replaces fare volume; fare moves off-board | DONE (594/594) | — |
 | 5 | harden states | Loading skeletons, telemetry-empty state, retry on stale banner | TODO | — |
 | 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | TODO | — |
 
@@ -25,3 +25,4 @@ Ledger in this file; rulings inline.
 - Todo 1: anchors live on the alerts page (broadcast-form card id, per-row alert-{id}); dashboard links to them. Ruling: hero broadcast reuses publishAlert verb key (same action, all 6 locales) instead of a new string; per-card CTA got the one new key.
 - Todo 2: worstActiveSeverity memo shared with todo 4 (single derivation). Ruling: INFO maps to the Degraded word — any active bulletin means the network is not clear; the chip still names the exact tier so no information is lost. Subtitle demoted via color/size only, copy untouched.
 - Todo 3: events carry code/status/speed/heading fields; render is a responsive grid (2 cols mobile, 5 desktop). Ruling: telemetryTracking key left dead per R3 precedent (fleet page keeps using telemetryHeading; only the dashboard concatenation is gone). telemetryFeed memo returns {events, total} so the count and the cap share one derivation.
+- Todo 4: worst-corridor memo counts holds per lineId (CONGESTION_HOLD + OUT_OF_SERVICE). Ruling: basis line shows line NAME + count in parens ("Koridor 1 (3)") — operator entity data stays untranslated per i18n precedent, and no new count-word key was needed. Ruling: fare KPI deleted outright, not relocated — the scanner checkout flow owns fares; an ops board must not carry revenue math. kpiOccupiedCabinValue(+Basis) now dead per R3. HOLD color for the count is rose only when a corridor is actually held.
