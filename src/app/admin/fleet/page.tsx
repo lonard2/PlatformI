@@ -435,6 +435,40 @@ function FleetManagementContent() {
     }
   }, [modeSpecs, newCoachbuilder, newChassis]);
 
+  // Add-form preview: the summary shows exactly what commit will store,
+  // including the uppercase normalization and the auto-derived capacity.
+  const normalizedNewCode = newVehicleCode.trim().toUpperCase();
+  const isDuplicateCode =
+    normalizedNewCode.length > 0 &&
+    simulatedVehicles.some((v) => v.vehicleCode.toUpperCase() === normalizedNewCode);
+  const addSummary = useMemo(() => {
+    const line = selectedLineForAdd;
+    const coachbuilder =
+      newCoachbuilder === "__CUSTOM__" ? customCoachbuilder.trim() || t.admin.customKaroseri : newCoachbuilder;
+    const chassis =
+      newChassis === "__CUSTOM__" ? customChassis.trim() || t.admin.customChassis : newChassis;
+    let diagramSeats: number | null = null;
+    if (seatingLayoutChoice === "SLEEPER_1_1_1") {
+      diagramSeats = generateSleeper111Seats("preview").totalSeats;
+    } else if (seatingLayoutChoice === "SUPER_EXEC_2_1") {
+      diagramSeats = generateSuperExec21Seats("preview").totalSeats;
+    } else if (seatingLayoutChoice === "EXEC_2_2") {
+      diagramSeats = generateExecutive22Seats("preview").totalSeats;
+    } else if (seatingLayoutChoice === "HIACE_VIP") {
+      diagramSeats = generateHiAceCaptainSeats("preview").totalSeats;
+    } else if (seatingLayoutChoice === "COMMUTER_LONGITUDINAL") {
+      diagramSeats = generateCommuterLongitudinalSeats("preview").totalSeats;
+    }
+    const seatCap = diagramSeats ?? (line?.category === "RAIL" ? 312 : 36);
+    const standCap = line?.category === "RAIL" ? 800 : line?.mode === "MIKROTRANS" ? 0 : 45;
+    return {
+      lineCode: line?.code ?? "-",
+      coachbuilder,
+      chassis,
+      capacity: seatCap + standCap,
+    };
+  }, [selectedLineForAdd, newCoachbuilder, customCoachbuilder, newChassis, customChassis, seatingLayoutChoice, t]);
+
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
     return simulatedVehicles.filter((v) => {
@@ -986,6 +1020,8 @@ function FleetManagementContent() {
   const handleAddVehicle = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVehicleCode.trim() || !newName.trim()) return;
+    // Duplicate codes would fork the board from SQLite: block, don't merge.
+    if (isDuplicateCode) return;
 
     const assignedLine = allLines.find((l) => l.id === newLineId) || allLines[0];
     const newId = `veh-custom-${Date.now().toString(36)}`;
@@ -1653,6 +1689,10 @@ function FleetManagementContent() {
           </table>
         </div>
       </div>
+      {/* Status/speed coupling, stated where the board is read */}
+      <p className="text-[11px] text-slate-500 font-mono px-1">
+        {t.admin.fleetStatusSpeedNote}
+      </p>
 
       {/* 4. DETAIL INSPECTOR DRAWER / MODAL */}
       {selectedVehicle && (
@@ -1813,6 +1853,9 @@ function FleetManagementContent() {
                     )
                   )}
                 </div>
+                <p className="text-[11px] text-slate-500">
+                  {t.admin.fleetStatusSpeedNote}
+                </p>
               </div>
             </div>
 
@@ -2059,6 +2102,30 @@ function FleetManagementContent() {
                 />
               </div>
 
+              {/* Pre-submit summary: what commit will actually store */}
+              <div
+                data-testid="fleet-add-summary"
+                className="rounded-xl bg-slate-950/70 border border-white/10 px-3.5 py-3 space-y-1"
+              >
+                <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wide">
+                  {t.admin.fleetAddSummary}
+                </div>
+                <div className="font-mono text-[11px] text-slate-300">
+                  [{addSummary.lineCode}] {normalizedNewCode || t.admin.vehicleCodePh}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  {addSummary.coachbuilder} • {addSummary.chassis}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  {t.admin.capacityAndDensity}: {addSummary.capacity}
+                </div>
+                {isDuplicateCode && (
+                  <div role="alert" className="text-[11px] font-semibold text-rose-300">
+                    {t.admin.fleetDuplicateCode.replace("{code}", normalizedNewCode)}
+                  </div>
+                )}
+              </div>
+
               {/* Submit Buttons */}
               <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
                 <button
@@ -2070,7 +2137,8 @@ function FleetManagementContent() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-cyan-950 shadow-md transition btn-tactile min-h-[40px]"
+                  disabled={isDuplicateCode}
+                  className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold text-cyan-950 shadow-md transition btn-tactile min-h-[40px]"
                 >
                   {t.common.save}
                 </button>

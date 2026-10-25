@@ -1417,6 +1417,9 @@ export interface TranslationDictionary {
     fleetSortLine: string;
     fleetSortSpeed: string;
     fleetSortStatus: string;
+    fleetStatusSpeedNote: string;
+    fleetAddSummary: string;
+    fleetDuplicateCode: string;
     ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;

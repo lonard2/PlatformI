@@ -13,8 +13,8 @@ Ledger in this file; rulings inline.
 |---|------|-------|--------|--------|
 | 1 | harden delete safety | In-app destructive confirm, longer undo for add/delete, inline API failure with retry | DONE (525/525) | 5aab68f |
 | 2 | harden sync visibility | Header-linked sync with last-sync timestamp, explicit Sync now, pending-changes indicator | DONE (528/528) | 6e5c1a5 |
-| 3 | layout bulk operations | Row checkboxes + bulk status/crowd bar, sort by code/line/speed/status | DONE (531/531) | — |
-| 4 | clarify couplings + defaults | Visible status/speed coupling, pre-submit summary with duplicate-code warning | TODO | — |
+| 3 | layout bulk operations | Row checkboxes + bulk status/crowd bar, sort by code/line/speed/status | DONE (531/531) | 9795306 |
+| 4 | clarify couplings + defaults | Visible status/speed coupling, pre-submit summary with duplicate-code warning | DONE (534/534) | — |
 | 5 | polish final pass | Whole fleet-surface pass; detector clean; final review via fresh subagent | TODO | — |
 
 ## Ledger
@@ -24,3 +24,4 @@ Ledger in this file; rulings inline.
 - Todo 1: confirm lives in the row/modal (no new route); undo windows are named constants. Ruling: failed-sync banner has Retry but no dismiss — an unresolved sync must stay visible, not be hideable. Modal delete goes through the same confirm state as the row.
 - Todo 2: syncFleet is the single pull path (mount + button) with lastSyncAt/pull-count/error in header; pending badge counts failedSyncs only, not undoable edits. Ruling: successful pulls update timestamp even with 0 new — the timestamp answers truth, the count answers delta.
 - Todo 3: bulk reuses single-row status/crowd paths (undo + shift-log + sync-failure per vehicle); selection survives apply so holds chain into crowds. Ruling: default board order is code-asc for deterministic triage, not dataset order.
+- Todo 4: coupling note lives under the table and in the telemetry modal (same key, both visible). Ruling: duplicate codes block submit (disabled + guard) rather than warn-and-merge — forking the board from SQLite is the worse failure. Summary derives capacity with the same generator calls as commit, so preview cannot drift.
