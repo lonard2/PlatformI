@@ -1448,6 +1448,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     kpiFleetNotHeldBasis: "基準: 混雑待機および車庫待機を除く稼働編成",
     kpiOccupiedCabinValue: "推定客室占有価値",
     kpiOccupiedCabinValueBasis: "基準: リアルタイム乗車人数 × 基本運賃 Rp 3,500",
+    advisoriesUnknown: "速報の状態は不明 — フィードの読み込みに失敗しました。",
     telemetryEmpty: "ライブテレメトリなし — 車両がありません。",
     kpiWorstCorridor: "ワースト回廊",
     kpiNoHeldVehicles: "停滞車両なし",

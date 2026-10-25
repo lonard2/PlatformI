@@ -541,9 +541,15 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             ) : advisories.length === 0 ? (
-              <p className="rounded-xl border border-white/5 bg-slate-950/60 px-3 py-4 text-center text-xs text-slate-500">
-                {t.admin.noActiveAdvisories}
-              </p>
+              isAlertsStale && alerts.length === 0 ? (
+                <p className="rounded-xl border border-amber-500/40 bg-amber-950/40 px-3 py-4 text-center text-xs text-amber-300">
+                  {t.admin.advisoriesUnknown}
+                </p>
+              ) : (
+                <p className="rounded-xl border border-white/5 bg-slate-950/60 px-3 py-4 text-center text-xs text-slate-500">
+                  {t.admin.noActiveAdvisories}
+                </p>
+              )
             ) : (
               advisories.map((a) => {
                 const line = allLines.find((l) => l.id === a.lineId);

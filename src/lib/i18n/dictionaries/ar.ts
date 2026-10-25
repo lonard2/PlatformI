@@ -1448,6 +1448,7 @@ export const ar: TranslationDictionary = {
     kpiFleetNotHeldBasis: "الأساس: الأسطول النشط باستثناء احتجاز الازدحام والمستودع",
     kpiOccupiedCabinValue: "قيمة إشغال المقصورة المقدرة",
     kpiOccupiedCabinValueBasis: "الأساس: حمولة الركاب المباشرة × الأجرة الأساسية 3,500 روبية",
+    advisoriesUnknown: "حالة النشرات غير معروفة — تعذر تحميل الموجز.",
     telemetryEmpty: "لا يوجد قياس عن بُعد — الأسطول فارغ.",
     kpiWorstCorridor: "الممر الأكثر ازدحاما",
     kpiNoHeldVehicles: "لا مركبات متوقفة",

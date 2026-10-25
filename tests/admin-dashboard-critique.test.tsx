@@ -175,6 +175,16 @@ describe("Loading, empty, and stale states", () => {
     fireEvent.click(await screen.findByRole("button", { name: /retry sync/i }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   });
+
+  it("never reports all-clear when the first load fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.reject(new Error("network down")))
+    );
+    render(<AdminDashboardPage />);
+    await screen.findByText(/Advisory state unknown/);
+    expect(screen.queryByText("No active advisories.")).not.toBeInTheDocument();
+  });
 });
 
 describe("Posture hero", () => {

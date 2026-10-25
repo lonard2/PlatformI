@@ -1448,6 +1448,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     kpiFleetNotHeldBasis: "Basis: Armada aktif di luar hambatan macet & depo",
     kpiOccupiedCabinValue: "Estimasi Nilai Okupansi Kabin",
     kpiOccupiedCabinValueBasis: "Basis: Okupansi kabin langsung × tarif dasar Rp 3.500",
+    advisoriesUnknown: "Status buletin tidak diketahui — feed gagal dimuat.",
     telemetryEmpty: "Tidak ada telemetri langsung — armada kosong.",
     kpiWorstCorridor: "Koridor Terpadat",
     kpiNoHeldVehicles: "Tidak ada kendaraan tertahan",
