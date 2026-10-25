@@ -39,15 +39,29 @@ function AdminLoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
-  const [operatorId, setOperatorId] = useState<string>("OCC-DKA-01");
+  const [operatorId, setOperatorId] = useState<string>("");
   const [passkey, setPasskey] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [failedAttempts, setFailedAttempts] = useState<number>(0);
+  // Attempt counting lives in a ref so two submits racing the same render
+  // each record their own attempt instead of clobbering to the same number.
+  const failedAttemptsRef = useRef<number>(0);
   const [showPasskey, setShowPasskey] = useState<boolean>(false);
   const [capsLockOn, setCapsLockOn] = useState<boolean>(false);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Banners announce via live regions; moving focus to them makes the
+  // message keyboard- and SR-operable instead of a drive-by announcement.
+  const errorBannerRef = useRef<HTMLDivElement | null>(null);
+  const successBannerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (errorMessage) errorBannerRef.current?.focus();
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (successMessage) successBannerRef.current?.focus();
+  }, [successMessage]);
 
   const roleLabelFor = (presetId: string): string =>
     presetId === "OCC-DKA-01"
@@ -125,8 +139,8 @@ function AdminLoginForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        const nextAttempts = failedAttempts + 1;
-        setFailedAttempts(nextAttempts);
+        failedAttemptsRef.current += 1;
+        const nextAttempts = failedAttemptsRef.current;
         setErrorMessage(
           nextAttempts >= MAX_LOGIN_ATTEMPTS
             ? t.admin.loginAttemptLockout
@@ -139,7 +153,7 @@ function AdminLoginForm() {
       }
 
       setSuccessMessage(
-        `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing} ${t.admin.loginEntering} → ${landingLabel}.`
+        `${t.admin.loginWelcomePrefix}, ${data.operator?.name || t.admin.operatorFallback}. ${t.admin.loginAuthorizing} ${t.admin.loginEnteringSurface.replace("{surface}", landingLabel)}`
       );
 
       if (data.operator?.id) {
@@ -166,7 +180,11 @@ function AdminLoginForm() {
     if (presetId !== operatorId.trim()) {
       setPasskey("");
     }
-    setErrorMessage(null);
+    // A lockout is account-safety information, not form state: tapping
+    // around presets must not dismiss the supervisor guidance.
+    if (failedAttemptsRef.current < MAX_LOGIN_ATTEMPTS) {
+      setErrorMessage(null);
+    }
   };
 
   const handlePasskeyKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -180,7 +198,7 @@ function AdminLoginForm() {
       {/* Brand Header */}
       <div className="text-center space-y-2">
         <div className="w-12 h-12 mx-auto rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
-          <Train className="w-6 h-6" />
+          <Train aria-hidden="true" className="w-6 h-6" />
         </div>
         <div className="flex items-center justify-center gap-2">
           <h1 className="text-xl font-bold text-white tracking-tight">PlatformI OCC</h1>
@@ -197,7 +215,7 @@ function AdminLoginForm() {
       <div className="p-6 rounded-2xl bg-slate-900/90 border border-white/15 shadow-2xl backdrop-blur-xl space-y-5">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
-            <Lock className="w-4 h-4 text-cyan-400" />
+            <Lock aria-hidden="true" className="w-4 h-4 text-cyan-400" />
             <span>{t.admin.loginDispatcherAuth}</span>
           </div>
           <span
@@ -214,11 +232,13 @@ function AdminLoginForm() {
         {/* Error Banner */}
         {errorMessage && (
           <div
+            ref={errorBannerRef}
+            tabIndex={-1}
             role="alert"
             aria-live="assertive"
             className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-300 flex items-start gap-2.5 animate-in fade-in duration-150"
           >
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+            <AlertCircle aria-hidden="true" className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -226,11 +246,13 @@ function AdminLoginForm() {
         {/* Success Banner */}
         {successMessage && (
           <div
+            ref={successBannerRef}
+            tabIndex={-1}
             role="status"
             aria-live="polite"
             className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 flex items-start gap-2.5 animate-in fade-in duration-150"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <CheckCircle2 aria-hidden="true" className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>{successMessage}</span>
           </div>
         )}
@@ -240,10 +262,10 @@ function AdminLoginForm() {
           <div className="space-y-1.5">
             <label htmlFor="operator-badge-id" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
+                <UserCheck aria-hidden="true" className="w-3.5 h-3.5 text-cyan-400" />
                 {t.admin.loginBadgeId}
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">{t.admin.loginBadgeExample}</span>
+              <span id="operator-badge-hint" className="text-[10px] text-slate-500 font-mono">{t.admin.loginBadgeExample}</span>
             </label>
             <input
               id="operator-badge-id"
@@ -251,19 +273,28 @@ function AdminLoginForm() {
               type="text"
               autoComplete="username"
               required
+              list="operator-id-list"
               value={operatorId}
               onChange={(e) => setOperatorId(e.target.value)}
               placeholder="OCC-DKA-01"
               disabled={isLoading}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
+              aria-describedby="operator-badge-hint"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
             />
+            <datalist id="operator-id-list">
+              {PUBLIC_OPERATOR_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name}
+                </option>
+              ))}
+            </datalist>
           </div>
 
           {/* Passkey */}
           <div className="space-y-1.5">
             <label htmlFor="operator-passkey" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
+                <KeyRound aria-hidden="true" className="w-3.5 h-3.5 text-cyan-400" />
                 {t.admin.loginPasskey}
               </span>
               <span className="text-[10px] text-slate-500 font-mono">{t.admin.loginShiftToken}</span>
@@ -283,7 +314,7 @@ function AdminLoginForm() {
                 placeholder="••••••••••••"
                 disabled={isLoading}
                 aria-describedby="operator-passkey-caps"
-                className="w-full px-3.5 py-2.5 pr-11 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition"
+                className="w-full px-3.5 py-2.5 pr-11 rounded-xl bg-slate-950/80 border border-slate-700/80 text-xs font-mono text-white placeholder-slate-500 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
               />
               <button
                 type="button"
@@ -291,9 +322,9 @@ function AdminLoginForm() {
                 aria-label={showPasskey ? t.admin.loginHidePasskey : t.admin.loginShowPasskey}
                 aria-pressed={showPasskey}
                 disabled={isLoading}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition min-w-[36px] min-h-[36px] flex items-center justify-center disabled:opacity-50"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition min-w-[36px] min-h-[36px] flex items-center justify-center disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
               >
-                {showPasskey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPasskey ? <EyeOff aria-hidden="true" className="w-4 h-4" /> : <Eye aria-hidden="true" className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -309,7 +340,7 @@ function AdminLoginForm() {
               data-testid="auth-identity-line"
               className="text-[11px] text-slate-300 font-mono truncate"
             >
-              {identityLine}
+              <bdi>{identityLine}</bdi>
             </p>
           )}
 
@@ -317,17 +348,17 @@ function AdminLoginForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-md flex items-center justify-center gap-2 btn-tactile transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            className="w-full py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-md flex items-center justify-center gap-2 btn-tactile transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
                 <span>{t.admin.loginAuthorizing}</span>
               </>
             ) : (
               <>
                 <span>{t.admin.loginAccessDashboard}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight aria-hidden="true" className="w-4 h-4" />
               </>
             )}
           </button>
@@ -343,7 +374,7 @@ function AdminLoginForm() {
           <div className="pt-3 border-t border-white/10 space-y-2">
             <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
               <span className="flex items-center gap-1">
-                <Terminal className="w-3 h-3 text-cyan-400" />
+                <Terminal aria-hidden="true" className="w-3 h-3 text-cyan-400" />
                 {t.admin.loginDemoCredentials}
               </span>
             </div>
@@ -354,7 +385,7 @@ function AdminLoginForm() {
                   key={preset.id}
                   type="button"
                   onClick={() => handleSelectPreset(preset.id)}
-                  className={`p-2 rounded-lg border text-left transition btn-tactile min-h-[44px] ${
+                  className={`p-2 rounded-lg border text-left transition btn-tactile min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 ${
                     operatorId === preset.id
                       ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 font-bold"
                       : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -380,7 +411,7 @@ function AdminLoginForm() {
           href="/"
           className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-300 transition"
         >
-          <Compass className="w-3.5 h-3.5" />
+          <Compass aria-hidden="true" className="w-3.5 h-3.5" />
           <span>{t.admin.loginReturnPassengerView}</span>
         </Link>
       </div>
@@ -391,11 +422,11 @@ function AdminLoginForm() {
 export default function AdminLoginPage() {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen w-screen bg-[#070b14] flex items-center justify-center p-4 selection:bg-cyan-500/30">
+    <div className="min-h-screen w-full bg-[#070b14] flex items-center justify-center p-4 selection:bg-cyan-500/30">
       <Suspense
         fallback={
           <div className="p-8 text-center text-xs text-slate-400 font-mono flex items-center justify-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+            <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin text-cyan-400" />
             <span>{t.admin.loginLoading}</span>
           </div>
         }

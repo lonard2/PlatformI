@@ -6,14 +6,17 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, within, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { useLanguageStore } from "@/lib/i18n";
 
-const { mockPush } = vi.hoisted(() => ({ mockPush: vi.fn() }));
+const { mockPush, mockGet } = vi.hoisted(() => ({
+  mockPush: vi.fn(),
+  mockGet: vi.fn((): string | null => null),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
-  useSearchParams: () => ({ get: () => null }),
+  useSearchParams: () => ({ get: mockGet }),
 }));
 
 import AdminLoginPage from "@/app/admin/login/page";
@@ -100,6 +103,9 @@ describe("Passkey humanity", () => {
 
   it("preserves a typed passkey when re-tapping the same preset", () => {
     render(<AdminLoginPage />);
+    fireEvent.change(screen.getByLabelText(/badge id|operator id/i), {
+      target: { value: "OCC-DKA-01" },
+    });
     fireEvent.change(screen.getByLabelText(/security passkey/i), {
       target: { value: "secret123" },
     });
@@ -164,6 +170,10 @@ describe("Preset identity preview", () => {
 
   it("states who is being authorized before submit, falling back to typed ID", () => {
     render(<AdminLoginPage />);
+    expect(screen.queryByTestId("auth-identity-line")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/badge id|operator id/i), {
+      target: { value: "OCC-DKA-01" },
+    });
     expect(screen.getByTestId("auth-identity-line")).toHaveTextContent(
       "Raden Budi Santoso"
     );
@@ -265,5 +275,168 @@ describe("Environment identity", () => {
     render(<AdminLoginPage />);
     expect(screen.getByText("ENV: DEMO")).toBeInTheDocument();
     expect(screen.getByText("Demo Credentials:")).toBeInTheDocument();
+  });
+});
+
+describe("Deferred minors batch", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    process.env.NEXT_PUBLIC_DEMO_MODE = "1";
+    mockGet.mockReset();
+    mockGet.mockReturnValue(null);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    mockGet.mockReset();
+  });
+
+  it("counts rapid double-submits as two attempts", async () => {
+    const resolvers: Array<(v: Response) => void> = [];
+    const fail401 = {
+      ok: false,
+      status: 401,
+      json: async () => ({ success: false, error: "Invalid operator credentials." }),
+    } as Response;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolvers.push(resolve);
+          })
+      )
+    );
+    const { container } = render(<AdminLoginPage />);
+    fillCredentials("OCC-DKA-01", "wrong-pass");
+    const submitBtn = () =>
+      container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    // Both dispatches land before React re-renders: the button cannot
+    // disable fast enough, so each submit must still count on its own.
+    act(() => {
+      submitBtn().dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true })
+      );
+      submitBtn().dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true })
+      );
+    });
+    resolvers.forEach((resolve) => resolve(fail401));
+    expect(await screen.findByText(/Attempt 2 of 5/)).toBeInTheDocument();
+  });
+
+  it("keeps the lockout guidance when tapping a preset", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          ok: false,
+          status: 401,
+          json: async () => ({ success: false, error: "Invalid operator credentials." }),
+        } as Response)
+      )
+    );
+    render(<AdminLoginPage />);
+    for (let i = 0; i < 4; i++) {
+      fillCredentials("OCC-DKA-01", `wrong-pass-${i}`);
+      fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+      await screen.findByText(new RegExp(`Attempt ${i + 1} of 5`));
+    }
+    fillCredentials("OCC-DKA-01", "wrong-pass-4");
+    fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+    await screen.findByText(/contact your shift supervisor/i);
+    fireEvent.click(
+      screen.getByRole("button", { name: /OCC-MRT-02.*Line Controller/i })
+    );
+    expect(
+      screen.getByText(/contact your shift supervisor/i)
+    ).toBeInTheDocument();
+  });
+
+  it("moves focus to the error banner when it appears", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          ok: false,
+          status: 401,
+          json: async () => ({ success: false, error: "Invalid operator credentials." }),
+        } as Response)
+      )
+    );
+    render(<AdminLoginPage />);
+    fillCredentials("OCC-DKA-01", "wrong-pass");
+    fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+    const banner = await screen.findByRole("alert");
+    expect(document.activeElement).toBe(banner);
+  });
+
+  it("links the badge hint to the input for screen readers", () => {
+    render(<AdminLoginPage />);
+    const input = screen.getByLabelText(/badge id|operator id/i);
+    expect(input.getAttribute("aria-describedby")).toBe("operator-badge-hint");
+    expect(document.getElementById("operator-badge-hint")).toHaveTextContent(
+      /OCC-DKA-01/
+    );
+  });
+
+  it("hides every decorative icon from assistive technology", () => {
+    const { container } = render(<AdminLoginPage />);
+    const svgs = container.querySelectorAll("svg");
+    expect(svgs.length).toBeGreaterThan(0);
+    for (const svg of Array.from(svgs)) {
+      expect(svg.getAttribute("aria-hidden")).toBe("true");
+    }
+  });
+
+  it("isolates the identity line for bidirectional text", () => {
+    render(<AdminLoginPage />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /OCC-DKA-01.*Chief Dispatcher/i })
+    );
+    const line = screen.getByTestId("auth-identity-line");
+    expect(line.querySelector("bdi")).not.toBeNull();
+  });
+
+  it("starts empty with a preset datalist instead of a prefilled ID", () => {
+    render(<AdminLoginPage />);
+    expect(screen.getByLabelText(/badge id|operator id/i)).toHaveValue("");
+    expect(screen.queryByTestId("auth-identity-line")).not.toBeInTheDocument();
+    const list = document.getElementById("operator-id-list");
+    expect(list?.querySelectorAll("option")).toHaveLength(3);
+  });
+
+  it("samples caps lock on Ctrl+V keydown before the paste lands", () => {
+    render(<AdminLoginPage />);
+    const input = screen.getByLabelText(/security passkey/i);
+    const ctrlV = new KeyboardEvent("keydown", { key: "v", bubbles: true });
+    Object.defineProperty(ctrlV, "getModifierState", {
+      value: () => true,
+      configurable: true,
+    });
+    act(() => {
+      input.dispatchEvent(ctrlV);
+    });
+    expect(screen.getByText("Caps Lock is on")).toBeInTheDocument();
+  });
+
+  it("falls back to the dashboard label for unknown admin routes", async () => {
+    mockGet.mockReturnValue("/admin/nonexistent");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        okJson({
+          success: true,
+          operator: { id: "OCC-DKA-01", name: "Raden Budi Santoso" },
+        })
+      )
+    );
+    render(<AdminLoginPage />);
+    fillCredentials("OCC-DKA-01", "transitopps2026");
+    fireEvent.click(screen.getByRole("button", { name: /access occ dashboard/i }));
+    const banner = await screen.findByRole("status");
+    expect(banner.textContent).toMatch(/Operations Control Center/);
   });
 });

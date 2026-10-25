@@ -16,7 +16,8 @@ Ledger in this file; rulings inline.
 | 3 | polish passkey UX | Show/hide toggle, preserve passkey unless ID changed, caps-lock hint | DONE (568/568) | a3c0c45 |
 | 4 | animate success landing | ~1200ms readable success + "Entering → {surface}" chip from callbackUrl | DONE (570/570) | f31ed08 |
 | 5 | distill prod/demo identity | ENV badge, demo switcher behind demo flag, drop version tag | DONE (572/572) | 84f2591 |
-| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (572/572) | — |
+| 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (572/572) | 26f39b5 |
+| 7 | polish all deferred minors | Review minors 1-8 + cheap-safe misses (banner focus, describedby, aria-hidden, bdi, w-screen, empty default+datalist, focus-visible; supervisor tel ruled out) | IN PROGRESS | — |
 
 ## Ledger
 - Setup: working on main with per-task push per user standing norm.
@@ -40,3 +41,4 @@ Final: Ruling: 1200ms dwell is taste, not correctness — the timer test pins wh
 Final: Ruling: NEXT_PUBLIC_DEMO_MODE branch coverage via process.env mutation is valid under Vitest; release-build flag state is a deploy concern, verified at deploy, not in unit tests.
 Final: Ruling: server-side lockout/auth behavior out of scope — client renders data.error into an escaped React text node; no injection vector introduced here.
 Final: Ruling: visual/contrast claims accepted as reported by the browser-enabled critique; this diff introduces no new size or color tokens (verified in review). Cost if wrong: pre-existing 10px/low-contrast findings persist — owned by a future typeset pass.
+- Todo 7: ref-counted attempts survive same-tick double submits (verified RED by forcing constant-1); lockout survives preset taps; banner focus on error+success; badge describedby; all icons aria-hidden; bdi identity line; empty default + preset datalist; focus-visible rings; w-screen removed. Ruling: NO fabricated supervisor contact — no tel:, no extension, no roster artifact invented; the lockout copy already directs to the supervisor and anything more needs a real number from the user. Ruling: prefill removed (was a valid-credential leak); identity test now types the badge first. Ruling: caps-lock paste path — keydown covers Ctrl+V; context-menu/autofill paste has no web-platform caps signal, so the hint test pins the detectable path and the gap stands documented, not silently unhandled.
