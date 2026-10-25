@@ -1434,6 +1434,7 @@ export interface TranslationDictionary {
     fleetSortSpeed: string;
     fleetSortStatus: string;
     fleetStatusSpeedNote: string;
+    fleetStatusSpeedShort: string;
     fleetAddSummary: string;
     fleetDuplicateCode: string;
     fleetTableCaption: string;

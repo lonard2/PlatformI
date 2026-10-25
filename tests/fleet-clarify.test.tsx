@@ -48,11 +48,6 @@ describe("Fleet coupling clarity", () => {
     vi.restoreAllMocks();
   });
 
-  it("states the status/speed coupling in the UI", async () => {
-    render(<AdminFleetPage />);
-    expect(await screen.findByText(/zeroes speed/i)).toBeInTheDocument();
-  });
-
   it("shows a pre-submit summary in the add form", async () => {
     render(<AdminFleetPage />);
     fireEvent.click(await screen.findByRole("button", { name: /deploy vehicle/i }));

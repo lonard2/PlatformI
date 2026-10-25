@@ -1425,6 +1425,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     fleetSortSpeed: "Tercepat dulu",
     fleetSortStatus: "Status (butuh perhatian dulu)",
     fleetStatusSpeedNote: "Keluar dari layanan menolkan kecepatan — nilai sebelumnya disimpan dan Undo mengembalikannya. Kembali berdinas mengembalikan 40 km/jam saat kecepatan 0.",
+    fleetStatusSpeedShort: "Kecepatan → 0 — Undo mengembalikan nilai sebelumnya",
     fleetAddSummary: "Ringkasan",
     fleetDuplicateCode: "Kode {code} sudah ada di armada",
     fleetTableCaption: "Papan inventaris armada",

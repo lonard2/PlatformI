@@ -2016,6 +2016,11 @@ function FleetManagementContent() {
                         <option value="CONGESTION_HOLD">{t.admin.hold}</option>
                         <option value="OUT_OF_SERVICE">{t.common.inactive}</option>
                       </select>
+                      {vehicle.status !== "IN_SERVICE" && (
+                        <div className="text-[10px] text-slate-500 font-mono mt-1">
+                          {t.admin.fleetStatusSpeedShort}
+                        </div>
+                      )}
                     </td>
 
                     {/* Capacity & Crowd Density */}
@@ -2120,11 +2125,6 @@ function FleetManagementContent() {
           </table>
         </div>
       </div>
-      {/* Status/speed coupling, stated where the board is read */}
-      <p className="text-[11px] text-slate-500 font-mono px-1">
-        {t.admin.fleetStatusSpeedNote}
-      </p>
-
       {/* 4. DETAIL INSPECTOR DRAWER / MODAL */}
       {selectedVehicle && (
         <div
@@ -2284,9 +2284,15 @@ function FleetManagementContent() {
                     )
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  {t.admin.fleetStatusSpeedNote}
-                </p>
+                <div
+                  data-testid="status-coupling-callout"
+                  className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-950/30 px-3 py-2"
+                >
+                  <CircleAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-amber-200/90">
+                    {t.admin.fleetStatusSpeedNote}
+                  </p>
+                </div>
               </div>
             </div>
 
