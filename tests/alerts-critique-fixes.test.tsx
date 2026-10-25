@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import AdminAlertsPage from "@/app/admin/alerts/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_VEHICLES, TRANSIT_LINES, TRANSIT_STOPS, DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
@@ -116,6 +116,119 @@ describe("Delete control clarity", () => {
     const del = within(row).getByRole("button", { name: /^delete: /i });
     expect(del.textContent).toMatch(/^Delete/);
     expect(del.className).toMatch(/ml-2/);
+  });
+});
+
+describe("Severity color honesty", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    seedAlertsApi();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("paints INFO bulletins cyan, never amber", async () => {
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Pemeliharaan Wesel Jalur 9 Stasiun Sentral Manggarai"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    const badge = within(row).getByText("Info");
+    expect(badge.className).toMatch(/cyan/);
+    expect(badge.className).not.toMatch(/amber/);
+  });
+
+  it("shows a severity legend on the feed", async () => {
+    render(<AdminAlertsPage />);
+    const legend = await screen.findByTestId("severity-legend");
+    for (const label of ["Critical", "Warning", "Info"]) {
+      expect(within(legend).getByText(label)).toBeInTheDocument();
+    }
+  });
+
+  it("keeps the delete-undo banner neutral instead of amber", async () => {
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Peringatan Gelombang Tinggi Perairan Kepulauan Seribu Utara"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(
+      within(row).getByRole("button", { name: /^delete: /i })
+    );
+    const banner = await screen.findByText(/Disruption notice deleted:/);
+    const bannerBox = banner.closest("div[class*='rounded-xl']") as HTMLElement;
+    expect(bannerBox.className).toMatch(/slate/);
+    expect(bannerBox.className).not.toMatch(/amber/);
+  });
+
+  it("keeps the linked-restore control indigo instead of amber", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) =>
+        String(url).startsWith("/api/network/timetables")
+          ? okJson({ success: true, data: [] })
+          : okJson({ success: true, data: DISRUPTION_ALERTS })
+      )
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
+    const restore = await within(row).findByRole("button", {
+      name: /synced \(restore\)/i,
+    });
+    expect(restore.className).toMatch(/indigo/);
+    expect(restore.className).not.toMatch(/amber/);
+  });
+
+  it("records demote handover as WARNING, not INFO", async () => {
+    const { clearShiftLog, getShiftLog } = await import(
+      "@/lib/services/shiftLogService"
+    );
+    clearShiftLog();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) =>
+        String(url).startsWith("/api/alerts") && init?.method === "PATCH"
+          ? okJson({ success: true, data: {} })
+          : okJson({ success: true, data: DISRUPTION_ALERTS })
+      )
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(
+      within(row).getByRole("button", { name: /escalate.*critical/i })
+    );
+    const confirms = await within(row).findAllByRole("button", {
+      name: /escalate.*critical/i,
+    });
+    fireEvent.click(confirms[confirms.length - 1]);
+    fireEvent.click(
+      await within(row).findByRole("button", { name: /demote.*warning/i })
+    );
+    const demoteEntry = await waitFor(() => {
+      const entry = getShiftLog().find((e) => e.actionType === "ALERT_DEMOTE");
+      expect(entry).toBeDefined();
+      return entry;
+    });
+    expect(demoteEntry?.summary).toMatch(/WARNING/);
+    expect(demoteEntry?.summary).not.toMatch(/INFO/);
   });
 });
 

@@ -686,7 +686,7 @@ export default function AdminAlertsPage() {
         requestAnimationFrame(() => mutationUndoRefs.current.get(id)?.focus());
         recordShiftAction({
           actionType: "ALERT_DEMOTE",
-          summary: `Demoted alert: "${alert.title}" to INFO`,
+          summary: `Demoted alert: "${alert.title}" to WARNING`,
           badge: "DEMOTED",
           params: {
             title: alert.title,
@@ -1375,8 +1375,9 @@ export default function AdminAlertsPage() {
 
       {/* 3. ACTIVE DISRUPTIONS MANAGEMENT FEED */}
       {/* Design Standard (Semantic Undo Theming):
-          - Amber is explicitly reserved for DESTRUCTIVE DELETION undos.
-          - Cyan is reserved for NON-DESTRUCTIVE STATE MUTATION undos (resolve/demote/reopen).
+          - Amber is explicitly reserved for WARNING severity.
+          - Deletion undos are neutral slate; state mutations stay cyan.
+          - Fleet sync/restore is indigo only.
       */}
       {(Object.values(pendingDeletes).length > 0 || Object.values(pendingMutations).length > 0) && (
         <div className="space-y-2">
@@ -1385,10 +1386,10 @@ export default function AdminAlertsPage() {
               key={deletedAlert.id}
               role="status"
               aria-live="polite"
-              className="p-4 rounded-xl bg-slate-900 border border-amber-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
+              className="p-4 rounded-xl bg-slate-900 border border-slate-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200"
             >
               <div className="flex items-center gap-2 truncate">
-                <Trash2 className="w-4 h-4 text-amber-400 shrink-0" />
+                <Trash2 className="w-4 h-4 text-slate-300 shrink-0" />
                 <span className="truncate">
                   {t.admin.deletedNotice} <strong>{deletedAlert.title}</strong>
                 </span>
@@ -1403,7 +1404,7 @@ export default function AdminAlertsPage() {
                 onBlur={() => setUndoPaused(false)}
                 onClick={() => handleUndoDelete(deletedAlert.id)}
                 aria-label={`${t.admin.ariaUndoDeletion} ${deletedAlert.title}`}
-                className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
+                className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-white active:bg-slate-300 text-slate-950 font-bold text-xs transition btn-tactile min-h-[36px] shrink-0"
               >
                 {t.common.undo}
                 <span aria-hidden="true" aria-live="off" data-testid="undo-countdown">
@@ -1470,6 +1471,25 @@ export default function AdminAlertsPage() {
           </span>
         </div>
 
+        {/* Severity legend: amber means WARNING only */}
+        <div
+          data-testid="severity-legend"
+          className="flex flex-wrap items-center gap-2 text-[10px] font-mono font-bold"
+        >
+          <span className="px-2 py-0.5 rounded-md border bg-rose-900/80 text-rose-300 border-rose-500/40">
+            {severityLabel.CRITICAL}
+          </span>
+          <span className="px-2 py-0.5 rounded-md border bg-amber-900/80 text-amber-300 border-amber-500/40">
+            {severityLabel.WARNING}
+          </span>
+          <span className="px-2 py-0.5 rounded-md border bg-cyan-900/80 text-cyan-300 border-cyan-500/40">
+            {severityLabel.INFO}
+          </span>
+          <span className="px-2 py-0.5 rounded-md border bg-slate-800 text-slate-400 border-slate-700">
+            {t.admin.resolved}
+          </span>
+        </div>
+
         <div className="space-y-3">
           {orderedAlerts.map((alert: DisruptionAlert) => {
             const line = allLines.find((l) => l.id === alert.lineId);
@@ -1494,7 +1514,9 @@ export default function AdminAlertsPage() {
                           ? "bg-slate-800 text-slate-400 border-slate-700"
                           : alert.severity === "CRITICAL"
                           ? "bg-rose-900/80 text-rose-300 border-rose-500/40"
-                          : "bg-amber-900/80 text-amber-300 border-amber-500/40"
+                          : alert.severity === "WARNING"
+                          ? "bg-amber-900/80 text-amber-300 border-amber-500/40"
+                          : "bg-cyan-900/80 text-cyan-300 border-cyan-500/40"
                       }`}
                     >
                       {isResolved ? t.admin.resolved : severityLabel[alert.severity]}
@@ -1622,13 +1644,13 @@ export default function AdminAlertsPage() {
                         }
                         className={`px-3 py-2 rounded-xl border text-xs font-semibold transition min-h-[40px] flex items-center gap-1.5 btn-tactile ${
                           linkedAlertIds.has(alert.id)
-                            ? "bg-amber-950/80 border-amber-500/60 text-amber-300 hover:bg-amber-900"
+                            ? "bg-indigo-950/80 border-indigo-500/60 text-indigo-300 hover:bg-indigo-900"
                             : "bg-indigo-950/80 border-indigo-500/40 text-indigo-300 hover:bg-indigo-900"
                         }`}
                       >
                         {linkedAlertIds.has(alert.id) ? (
                           <>
-                            <CheckCheck className="w-3.5 h-3.5 text-amber-400" />
+                            <CheckCheck className="w-3.5 h-3.5 text-indigo-400" />
                             <span className="hidden sm:inline">{t.admin.syncedRestore}</span>
                             <span className="sm:hidden">{t.admin.restoreShort}</span>
                           </>
