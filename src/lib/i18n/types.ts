@@ -1338,6 +1338,8 @@ export interface TranslationDictionary {
     loginHidePasskey: string;
     loginCapsLock: string;
     loginEntering: string;
+    loginEnvProduction: string;
+    loginEnvDemo: string;
     loginErrorRequired: string;
     loginErrorInvalid: string;
     loginErrorNetwork: string;

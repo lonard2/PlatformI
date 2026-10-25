@@ -1319,6 +1319,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     loginDemoCredentials: "デモ用認証情報:",
     loginReturnPassengerView: "乗客向け路線表示に戻る",
     loginLoading: "OCC認証ターミナルを読み込み中...",
+    loginEnvProduction: "ENV: PRODUCTION",
+    loginEnvDemo: "ENV: DEMO",
     loginEntering: "移動先",
     loginShowPasskey: "パスワードを表示",
     loginHidePasskey: "パスワードを非表示",

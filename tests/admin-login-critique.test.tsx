@@ -30,6 +30,7 @@ function fillCredentials(id: string, passkey: string): void {
 describe("Auth guardrails", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
     vi.stubGlobal(
       "fetch",
       vi.fn().mockImplementation(() =>
@@ -77,6 +78,7 @@ describe("Auth guardrails", () => {
 describe("Passkey humanity", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
+    process.env.NEXT_PUBLIC_DEMO_MODE = "1";
   });
 
   afterEach(() => {
@@ -146,6 +148,7 @@ describe("Passkey humanity", () => {
 describe("Preset identity preview", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
+    process.env.NEXT_PUBLIC_DEMO_MODE = "1";
   });
 
   afterEach(() => {
@@ -183,6 +186,7 @@ function okJson(data: unknown): Promise<Response> {
 describe("Readable success landing", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
     mockPush.mockClear();
     vi.stubGlobal(
       "fetch",
@@ -236,5 +240,30 @@ describe("Readable success landing", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("Environment identity", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+  });
+
+  it("defaults to production: env badge, no demo switcher, no version tag", () => {
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    useLanguageStore.getState().setLanguage("en");
+    render(<AdminLoginPage />);
+    expect(screen.getByText("ENV: PRODUCTION")).toBeInTheDocument();
+    expect(screen.queryByText("v1.0.0-PROD")).not.toBeInTheDocument();
+    expect(screen.queryByText("Demo Credentials:")).not.toBeInTheDocument();
+  });
+
+  it("shows the demo switcher only behind the demo flag", () => {
+    process.env.NEXT_PUBLIC_DEMO_MODE = "1";
+    useLanguageStore.getState().setLanguage("en");
+    render(<AdminLoginPage />);
+    expect(screen.getByText("ENV: DEMO")).toBeInTheDocument();
+    expect(screen.getByText("Demo Credentials:")).toBeInTheDocument();
   });
 });

@@ -56,6 +56,10 @@ function AdminLoginForm() {
       ? t.admin.roleLine
       : t.admin.roleSecurity;
 
+  // Demo presets live behind an explicit flag so production builds never
+  // advertise them: run local dev with NEXT_PUBLIC_DEMO_MODE=1 to onboard.
+  const isDemoEnv = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
   const matchedPreset = PUBLIC_OPERATOR_PRESETS.find(
     (p) => p.id === operatorId.trim()
   );
@@ -196,7 +200,15 @@ function AdminLoginForm() {
             <Lock className="w-4 h-4 text-cyan-400" />
             <span>{t.admin.loginDispatcherAuth}</span>
           </div>
-          <span className="text-[10px] font-mono text-slate-400">v1.0.0-PROD</span>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold ${
+              isDemoEnv
+                ? "bg-amber-950/80 border-amber-500/40 text-amber-300"
+                : "bg-slate-950/60 border-slate-700 text-slate-400"
+            }`}
+          >
+            {isDemoEnv ? t.admin.loginEnvDemo : t.admin.loginEnvProduction}
+          </span>
         </div>
 
         {/* Error Banner */}
@@ -326,38 +338,40 @@ function AdminLoginForm() {
           </p>
         </form>
 
-        {/* Quick Credentials Switcher */}
-        <div className="pt-3 border-t border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span className="flex items-center gap-1">
-              <Terminal className="w-3 h-3 text-cyan-400" />
-              {t.admin.loginDemoCredentials}
-            </span>
-          </div>
+        {/* Quick Credentials Switcher (demo environments only) */}
+        {isDemoEnv && (
+          <div className="pt-3 border-t border-white/10 space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span className="flex items-center gap-1">
+                <Terminal className="w-3 h-3 text-cyan-400" />
+                {t.admin.loginDemoCredentials}
+              </span>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px] font-mono">
-            {PUBLIC_OPERATOR_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handleSelectPreset(preset.id)}
-                className={`p-2 rounded-lg border text-left transition btn-tactile min-h-[44px] ${
-                  operatorId === preset.id
-                    ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 font-bold"
-                    : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                <div className="font-bold truncate">{preset.id}</div>
-                <div className="text-[10px] text-slate-400 truncate">
-                  {roleLabelFor(preset.id)}
-                </div>
-                <div className="text-[10px] text-slate-500 truncate">
-                  {preset.stationHub}
-                </div>
-              </button>
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px] font-mono">
+              {PUBLIC_OPERATOR_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleSelectPreset(preset.id)}
+                  className={`p-2 rounded-lg border text-left transition btn-tactile min-h-[44px] ${
+                    operatorId === preset.id
+                      ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300 font-bold"
+                      : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <div className="font-bold truncate">{preset.id}</div>
+                  <div className="text-[10px] text-slate-400 truncate">
+                    {roleLabelFor(preset.id)}
+                  </div>
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {preset.stationHub}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Footer Return Link */}

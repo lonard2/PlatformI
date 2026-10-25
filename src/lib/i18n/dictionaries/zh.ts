@@ -1319,6 +1319,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     loginDemoCredentials: "演示凭据：",
     loginReturnPassengerView: "返回乘客线路视图",
     loginLoading: "正在加载 OCC 认证终端...",
+    loginEnvProduction: "ENV: PRODUCTION",
+    loginEnvDemo: "ENV: DEMO",
     loginEntering: "前往",
     loginShowPasskey: "显示密码",
     loginHidePasskey: "隐藏密码",

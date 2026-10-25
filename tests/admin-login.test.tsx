@@ -4,7 +4,7 @@
  * never render on the login card (no shoulder-surfable secrets).
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useLanguageStore } from "@/lib/i18n";
@@ -19,6 +19,12 @@ import AdminLoginPage from "@/app/admin/login/page";
 describe("AdminLogin credential hygiene", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
+    // These tests exercise the demo switcher: opt into demo mode explicitly.
+    process.env.NEXT_PUBLIC_DEMO_MODE = "1";
+  });
+
+  afterEach(() => {
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
   });
 
   it("shows preset operator IDs without rendering any passkey", () => {
