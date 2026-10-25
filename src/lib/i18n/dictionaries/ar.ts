@@ -1319,6 +1319,8 @@ export const ar: TranslationDictionary = {
     loginDemoCredentials: "بيانات اعتماد العرض التوضيحي:",
     loginReturnPassengerView: "العودة إلى عرض خطوط النقل للركاب",
     loginLoading: "جارٍ تحميل طرفية مصادقة OCC...",
+    loginAuthorizingAs: "جارٍ التفويض باسم {name} — {role} @ {hub}",
+    loginAuthorizingAsId: "جارٍ التفويض باسم {id}",
     loginErrorRequired: "أدخل معرّف الشارة ومفتاح المرور الأمني.",
     loginErrorInvalid: "فشلت المصادقة. بيانات اعتماد المشغل غير صالحة.",
     loginErrorNetwork: "خطأ في الشبكة عند الاتصال ببوابة مصادقة OCC.",

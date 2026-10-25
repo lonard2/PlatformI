@@ -1319,6 +1319,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     loginDemoCredentials: "Kredensial Demo:",
     loginReturnPassengerView: "Kembali ke Tampilan Transit Penumpang",
     loginLoading: "Memuat Terminal Autentikasi OCC...",
+    loginAuthorizingAs: "Mengotorisasi sebagai {name} — {role} @ {hub}",
+    loginAuthorizingAsId: "Mengotorisasi sebagai {id}",
     loginErrorRequired: "Masukkan ID Lencana Operator dan Kata Sandi Keamanan.",
     loginErrorInvalid: "Autentikasi gagal. Kredensial operator tidak valid.",
     loginErrorNetwork: "Kesalahan jaringan saat menghubungi gateway autentikasi OCC.",

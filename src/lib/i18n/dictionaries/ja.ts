@@ -1319,6 +1319,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     loginDemoCredentials: "デモ用認証情報:",
     loginReturnPassengerView: "乗客向け路線表示に戻る",
     loginLoading: "OCC認証ターミナルを読み込み中...",
+    loginAuthorizingAs: "{name}（{role} @ {hub}）として認証",
+    loginAuthorizingAsId: "{id}として認証",
     loginErrorRequired: "オペレーターIDとパスキーを入力してください。",
     loginErrorInvalid: "認証に失敗しました。認証情報が無効です。",
     loginErrorNetwork: "OCC認証ゲートウェイへの接続エラー。",

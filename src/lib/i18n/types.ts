@@ -1329,6 +1329,8 @@ export interface TranslationDictionary {
     loginDemoCredentials: string;
     loginReturnPassengerView: string;
     loginLoading: string;
+    loginAuthorizingAs: string;
+    loginAuthorizingAsId: string;
     loginErrorRequired: string;
     loginErrorInvalid: string;
     loginErrorNetwork: string;

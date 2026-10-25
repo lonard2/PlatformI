@@ -1319,6 +1319,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     loginDemoCredentials: "演示凭据：",
     loginReturnPassengerView: "返回乘客线路视图",
     loginLoading: "正在加载 OCC 认证终端...",
+    loginAuthorizingAs: "正以{name}（{role} @ {hub}）身份授权",
+    loginAuthorizingAsId: "正以{id}身份授权",
     loginErrorRequired: "请输入操作员工牌号和安全通行密钥。",
     loginErrorInvalid: "认证失败。操作员凭据无效。",
     loginErrorNetwork: "连接 OCC 认证网关时发生网络错误。",

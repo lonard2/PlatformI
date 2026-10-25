@@ -44,6 +44,25 @@ function AdminLoginForm() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const roleLabelFor = (presetId: string): string =>
+    presetId === "OCC-DKA-01"
+      ? t.admin.roleChief
+      : presetId === "OCC-MRT-02"
+      ? t.admin.roleLine
+      : t.admin.roleSecurity;
+
+  const matchedPreset = PUBLIC_OPERATOR_PRESETS.find(
+    (p) => p.id === operatorId.trim()
+  );
+  const identityLine = matchedPreset
+    ? t.admin.loginAuthorizingAs
+        .replace("{name}", matchedPreset.name)
+        .replace("{role}", roleLabelFor(matchedPreset.id))
+        .replace("{hub}", matchedPreset.stationHub)
+    : operatorId.trim()
+    ? t.admin.loginAuthorizingAsId.replace("{id}", operatorId.trim())
+    : "";
+
   useEffect(() => {
     return () => {
       if (redirectTimerRef.current) {
@@ -207,6 +226,16 @@ function AdminLoginForm() {
             />
           </div>
 
+          {/* Who is being authorized: named operator or typed badge ID */}
+          {identityLine && (
+            <p
+              data-testid="auth-identity-line"
+              className="text-[11px] text-slate-300 font-mono truncate"
+            >
+              {identityLine}
+            </p>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -250,11 +279,10 @@ function AdminLoginForm() {
               >
                 <div className="font-bold truncate">{preset.id}</div>
                 <div className="text-[10px] text-slate-400 truncate">
-                  {preset.id === "OCC-DKA-01"
-                    ? t.admin.roleChief
-                    : preset.id === "OCC-MRT-02"
-                    ? t.admin.roleLine
-                    : t.admin.roleSecurity}
+                  {roleLabelFor(preset.id)}
+                </div>
+                <div className="text-[10px] text-slate-500 truncate">
+                  {preset.stationHub}
                 </div>
               </button>
             ))}

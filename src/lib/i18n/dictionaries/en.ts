@@ -1319,6 +1319,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     loginDemoCredentials: "Demo Credentials:",
     loginReturnPassengerView: "Return to Passenger Transit View",
     loginLoading: "Loading OCC Authentication Terminal...",
+    loginAuthorizingAs: "Authorizing as {name} — {role} @ {hub}",
+    loginAuthorizingAsId: "Authorizing as {id}",
     loginErrorRequired: "Please enter both Operator Badge ID and Security Passkey.",
     loginErrorInvalid: "Authentication failed. Invalid operator credentials.",
     loginErrorNetwork: "Network error connecting to OCC authentication gateway.",

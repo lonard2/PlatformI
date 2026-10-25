@@ -1319,6 +1319,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     loginDemoCredentials: "데모 자격 증명:",
     loginReturnPassengerView: "승객 노선 화면으로 돌아가기",
     loginLoading: "OCC 인증 터미널 불러오는 중...",
+    loginAuthorizingAs: "{name}({role} @ {hub})(으)로 인증",
+    loginAuthorizingAsId: "{id}(으)로 인증",
     loginErrorRequired: "운영자 배지 ID와 보안 패스키를 모두 입력하세요.",
     loginErrorInvalid: "인증 실패. 운영자 자격 증명이 잘못되었습니다.",
     loginErrorNetwork: "OCC 인증 게이트웨이 연결 네트워크 오류.",
