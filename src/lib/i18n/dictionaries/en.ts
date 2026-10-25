@@ -1426,6 +1426,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     fleetSortStatus: "Status (needs attention first)",
     fleetStatusSpeedNote: "Leaving service zeroes speed — the previous value is saved and Undo restores it. Returning to service restores 40 km/h when speed is 0.",
     fleetStatusSpeedShort: "Speed → 0 — Undo restores prior value",
+    fleetUndoFinalized: "Change finalized: {label}",
     fleetAddSummary: "Summary",
     fleetDuplicateCode: "Code {code} is already in the fleet",
     fleetTableCaption: "Fleet inventory board",

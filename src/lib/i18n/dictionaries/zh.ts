@@ -1426,6 +1426,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     fleetSortStatus: "状态（需优先处理）",
     fleetStatusSpeedNote: "离开营运状态会将速度清零 — 保存之前的值，撤销可恢复。返回营运且速度为0时恢复为40公里/小时。",
     fleetStatusSpeedShort: "速度 → 0 — 撤销可恢复之前的值",
+    fleetUndoFinalized: "更改已确定：{label}",
     fleetAddSummary: "摘要",
     fleetDuplicateCode: "编号{code}已在车队中",
     fleetTableCaption: "车队库存看板",

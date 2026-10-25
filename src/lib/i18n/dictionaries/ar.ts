@@ -1426,6 +1426,7 @@ export const ar: TranslationDictionary = {
     fleetSortStatus: "الحالة (تحتاج إلى انتباه أولا)",
     fleetStatusSpeedNote: "مغادرة الخدمة تصفّر السرعة — تُحفظ القيمة السابقة ويستعيدها التراجع. العودة إلى الخدمة تستعيد 40 كم/ساعة عندما تكون السرعة 0.",
     fleetStatusSpeedShort: "السرعة → 0 — التراجع يستعيد القيمة السابقة",
+    fleetUndoFinalized: "تم تأكيد التغيير: {label}",
     fleetAddSummary: "الملخص",
     fleetDuplicateCode: "الرمز {code} موجود بالفعل في الأسطول",
     fleetTableCaption: "لوحة مخزون الأسطول",

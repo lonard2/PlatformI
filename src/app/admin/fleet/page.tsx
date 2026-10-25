@@ -335,6 +335,17 @@ function FleetManagementContent() {
   const undoButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const lastTriggerRef = useRef<HTMLElement | null>(null);
   const bulkBarRef = useRef<HTMLDivElement | null>(null);
+  // Single-shot finalizer: undo banners announce on insert via their own
+  // role=status; this region announces once when a grace window expires
+  // silently, mirroring the alerts-page finalizer. It clears after 5s so a
+  // repeated finalize announces again.
+  const [finalAnnouncement, setFinalAnnouncement] = useState<string>("");
+  const announceFinal = (message: string): void => {
+    setFinalAnnouncement(message);
+    window.setTimeout(() => {
+      setFinalAnnouncement("");
+    }, 5000);
+  };
 
   useEffect(() => {
     if (pendingUndos.size === 0) return;
@@ -375,6 +386,14 @@ function FleetManagementContent() {
           }
           undoButtonRefs.current.delete(id);
         });
+
+        // Silent finalization still deserves one announcement.
+        const expiredLabels = expiredIds
+          .map((id) => currentMap.get(id)?.label)
+          .filter((label): label is string => Boolean(label));
+        if (expiredLabels.length > 0) {
+          announceFinal(t.admin.fleetUndoFinalized.replace("{label}", expiredLabels.join(", ")));
+        }
 
         setPendingUndos((prev) => {
           const next = new Map(prev);
@@ -636,7 +655,6 @@ function FleetManagementContent() {
         });
         return next;
       });
-      requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
     }
   };
 
@@ -701,14 +719,13 @@ function FleetManagementContent() {
         });
         return next;
       });
-      requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
     }
   };
 
   // Bulk triage reuses the single-row paths so undo, shift log, and sync
   // stay consistent; the selection survives so holds can chain into crowds.
-  // Focus moves once to the bulk bar: per-row undo-button steals are
-  // scheduled first, so this later frame wins and keyboard triage continues.
+  // Focus moves once to the bulk bar. Single-row edits steal nothing, so the
+  // operator's keyboard position is never yanked mid-triage.
   const focusBulkBar = (): void => {
     requestAnimationFrame(() => bulkBarRef.current?.focus());
   };
@@ -1048,7 +1065,6 @@ function FleetManagementContent() {
       });
       return next;
     });
-    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
   };
 
   // Failed server syncs stay visible with a retry instead of failing silently.
@@ -1752,6 +1768,11 @@ function FleetManagementContent() {
           </button>
         </div>
       )}
+
+      {/* 2.4b FINALIZER: single-shot announcement when an undo window expires */}
+      <div role="status" aria-live="polite" data-testid="fleet-finalizer" className="sr-only">
+        {finalAnnouncement}
+      </div>
 
       {/* 2.5 UNDO RESTORE BANNERS (pausable window per vehicle: short for edits, long for add/delete) */}
       {/* Design Standard (Semantic Undo Theming):

@@ -1426,6 +1426,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     fleetSortStatus: "ステータス（要対応順）",
     fleetStatusSpeedNote: "非サービス状態にすると速度はゼロになります — 以前の値は保存され、元に戻すで復元されます。サービス復帰時は速度が0の場合は40 km/hに戻ります。",
     fleetStatusSpeedShort: "速度 → 0 — 元に戻すで前回値を復元",
+    fleetUndoFinalized: "変更が確定しました：{label}",
     fleetAddSummary: "摘要",
     fleetDuplicateCode: "コード{code}はすでにフリートにあります",
     fleetTableCaption: "フリート在庫ボード",

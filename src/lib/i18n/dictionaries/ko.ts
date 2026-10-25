@@ -1426,6 +1426,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     fleetSortStatus: "상태(주의 필요 순)",
     fleetStatusSpeedNote: "비운행 상태로 바꾸면 속도가 0이 됩니다 — 이전 값은 저장되고 실행 취소로 복원됩니다. 운행 복귀 시 속도가 0이면 40km/h로 되돌아옵니다.",
     fleetStatusSpeedShort: "속도 → 0 — 실행 취소로 이전 값 복원",
+    fleetUndoFinalized: "변경이 확정되었습니다: {label}",
     fleetAddSummary: "요약",
     fleetDuplicateCode: "코드 {code}이(가) 이미 함대에 있습니다",
     fleetTableCaption: "함대 인벤토리 보드",
