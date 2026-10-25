@@ -1423,7 +1423,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     fleetSortCodeDesc: "Code Z-A",
     fleetSortLine: "Line",
     fleetSortSpeed: "Fastest first",
-    fleetSortStatus: "Status",
+    fleetSortStatus: "Status (needs attention first)",
     fleetStatusSpeedNote: "Leaving service zeroes speed — the previous value is saved and Undo restores it. Returning to service restores 40 km/h when speed is 0.",
     fleetAddSummary: "Summary",
     fleetDuplicateCode: "Code {code} is already in the fleet",

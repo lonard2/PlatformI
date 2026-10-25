@@ -1423,7 +1423,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     fleetSortCodeDesc: "コード Z–A",
     fleetSortLine: "路線",
     fleetSortSpeed: "速度が速い順",
-    fleetSortStatus: "ステータス",
+    fleetSortStatus: "ステータス（要対応順）",
     fleetStatusSpeedNote: "非サービス状態にすると速度はゼロになります — 以前の値は保存され、元に戻すで復元されます。サービス復帰時は速度が0の場合は40 km/hに戻ります。",
     fleetAddSummary: "摘要",
     fleetDuplicateCode: "コード{code}はすでにフリートにあります",

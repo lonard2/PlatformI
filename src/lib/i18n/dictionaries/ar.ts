@@ -1423,7 +1423,7 @@ export const ar: TranslationDictionary = {
     fleetSortCodeDesc: "الرمز Z–A",
     fleetSortLine: "الخط",
     fleetSortSpeed: "الأسرع أولا",
-    fleetSortStatus: "الحالة",
+    fleetSortStatus: "الحالة (تحتاج إلى انتباه أولا)",
     fleetStatusSpeedNote: "مغادرة الخدمة تصفّر السرعة — تُحفظ القيمة السابقة ويستعيدها التراجع. العودة إلى الخدمة تستعيد 40 كم/ساعة عندما تكون السرعة 0.",
     fleetAddSummary: "الملخص",
     fleetDuplicateCode: "الرمز {code} موجود بالفعل في الأسطول",

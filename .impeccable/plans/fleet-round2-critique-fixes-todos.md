@@ -13,8 +13,8 @@ Ledger in this file; rulings inline.
 
 | # | Todo | Scope | Status | Commit |
 |---|------|-------|--------|--------|
-| 1 | harden bulk ops | Bulk-hold confirm dialog (delete-confirm idiom) + single aggregate undo entry | DONE (615/615) | — |
-| 2 | clarify sort + legend | Needs-attention-first status ordering, color legend for amber collision | TODO | — |
+| 1 | harden bulk ops | Bulk-hold confirm dialog (delete-confirm idiom) + single aggregate undo entry | DONE (615/615) | be3981d |
+| 2 | clarify sort + legend | Needs-attention-first status ordering, color legend for amber collision | DONE (617/617) | — |
 | 3 | distill coupling callout | Inline coupling microcopy at status control + telemetry modal callout | TODO | — |
 | 4 | quieter focus + finalizer | Stop per-row focus steal, fleet single-shot finalizer mirroring alerts | TODO | — |
 | 5 | layout empty/loading/mobile | Empty state + Clear filters, skeleton rows, 24px checkboxes, frozen columns | TODO | — |
@@ -25,3 +25,4 @@ Ledger in this file; rulings inline.
 - Pre-flight: todos 1-5 all touch src/app/admin/fleet/page.tsx; executed sequentially inline so no interface drift. Todo 1's aggregate undo consumes handleUpdateStatus/handleUpdateCrowd paths; todo 4 removes their per-row focus steals — todo 4 must preserve the bulk-bar focus contract todo 1 relies on. Ruling recorded under todo 4.
 - TDD + verification-before-completion loaded and governing.
 - Todo 1: selects only stage intent (eligible = would-change); confirm shows count/lines/target with Tab trap + Escape + focus restore; Apply runs silent per-vehicle mutations under one DESTRUCTIVE (status, 15s) or short (crowd, 5s) aggregate undo; superseded per-vehicle undos are dropped with the apply (mirrors escalate-clears-pending-mutation precedent). Ruling: failed PUTs still surface per vehicle — aggregate undo never implies aggregate sync.
+- Todo 2: status sort is HOLD > OUT > BOARDING > APPROACHING_STOP > IN_SERVICE with code tiebreak; legend reuses existing scale labels (zero new copy keys) with dots matching table chips. Ruling: APPROACHING_STOP ranks between BOARDING and IN_SERVICE (dwell-adjacent, not free-flowing); it never appears in the edit selects, only from simulation. Ruling: sort option label renamed (fleetSortStatus text changed in all 6 locales) so the control promises triage, not alphabet.

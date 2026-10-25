@@ -1423,7 +1423,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     fleetSortCodeDesc: "코드 Z–A",
     fleetSortLine: "노선",
     fleetSortSpeed: "빠른 순",
-    fleetSortStatus: "상태",
+    fleetSortStatus: "상태(주의 필요 순)",
     fleetStatusSpeedNote: "비운행 상태로 바꾸면 속도가 0이 됩니다 — 이전 값은 저장되고 실행 취소로 복원됩니다. 운행 복귀 시 속도가 0이면 40km/h로 되돌아옵니다.",
     fleetAddSummary: "요약",
     fleetDuplicateCode: "코드 {code}이(가) 이미 함대에 있습니다",

@@ -510,9 +510,18 @@ function FleetManagementContent() {
       case "speed":
         next.sort((a, b) => b.speedKmh - a.speedKmh || a.vehicleCode.localeCompare(b.vehicleCode));
         break;
-      case "status":
-        next.sort((a, b) => a.status.localeCompare(b.status) || a.vehicleCode.localeCompare(b.vehicleCode));
+      case "status": {
+        // Triage order: worst operational state first, then code.
+        const rank: Record<VehicleOperationalStatus, number> = {
+          CONGESTION_HOLD: 0,
+          OUT_OF_SERVICE: 1,
+          BOARDING: 2,
+          APPROACHING_STOP: 3,
+          IN_SERVICE: 4,
+        };
+        next.sort((a, b) => rank[a.status] - rank[b.status] || a.vehicleCode.localeCompare(b.vehicleCode));
         break;
+      }
       case "code-asc":
       default:
         next.sort((a, b) => a.vehicleCode.localeCompare(b.vehicleCode));
@@ -1825,6 +1834,47 @@ function FleetManagementContent() {
           ))}
         </div>
       )}
+
+      {/* 2.7 COLOR LEGEND: status and crowd scales share amber with different meanings */}
+      <div
+        data-testid="fleet-legend"
+        className="flex flex-wrap items-center gap-x-3 gap-y-1.5 px-1 text-[11px] text-slate-400"
+      >
+        <span className="font-semibold text-slate-300">{t.admin.currentStatus}:</span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>{t.admin.moving}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-cyan-500" />
+          <span>{t.admin.boarding}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-amber-500" />
+          <span>{t.admin.hold}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-slate-500" />
+          <span>{t.common.inactive}</span>
+        </span>
+        <span className="font-semibold text-slate-300">{t.admin.capacityAndDensity}:</span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>{t.crowdsource.densitySeatsAvailable}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-amber-500" />
+          <span>{t.crowdsource.densityFewSeats}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-orange-500" />
+          <span>{t.crowdsource.densityStandingOnly}</span>
+        </span>
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-rose-500" />
+          <span>{t.crowdsource.densityFullCrowded}</span>
+        </span>
+      </div>
 
       {/* 3. FLEET TABLE */}
       <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">

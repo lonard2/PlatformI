@@ -1423,7 +1423,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     fleetSortCodeDesc: "Kode Z-A",
     fleetSortLine: "Jalur",
     fleetSortSpeed: "Tercepat dulu",
-    fleetSortStatus: "Status",
+    fleetSortStatus: "Status (butuh perhatian dulu)",
     fleetStatusSpeedNote: "Keluar dari layanan menolkan kecepatan — nilai sebelumnya disimpan dan Undo mengembalikannya. Kembali berdinas mengembalikan 40 km/jam saat kecepatan 0.",
     fleetAddSummary: "Ringkasan",
     fleetDuplicateCode: "Kode {code} sudah ada di armada",
