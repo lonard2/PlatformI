@@ -90,6 +90,35 @@ describe("Broadcast confirm modal", () => {
   });
 });
 
+describe("Delete control clarity", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    seedAlertsApi();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("labels Delete with visible text and separates it from Resolve", async () => {
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(DISRUPTION_ALERTS[0].title);
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    const del = within(row).getByRole("button", { name: /^delete: /i });
+    expect(del.textContent).toMatch(/^Delete/);
+    expect(del.className).toMatch(/ml-2/);
+  });
+});
+
 describe("Undo live-regions", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");
@@ -116,7 +145,7 @@ describe("Undo live-regions", () => {
     const row = target.closest("div[class*='rounded-xl']") ?? target.parentElement;
     expect(row).not.toBeNull();
     const deleteBtn = within(row as HTMLElement).getByRole("button", {
-      name: /delete disruption bulletin for/i,
+      name: /^delete: /i,
     });
     fireEvent.click(deleteBtn);
     const countdowns = await screen.findAllByTestId("undo-countdown");
@@ -141,7 +170,7 @@ describe("Undo live-regions", () => {
     const target = await screen.findByText(DISRUPTION_ALERTS[0].title);
     const row = target.closest("div[class*='rounded-xl']") ?? target.parentElement;
     const deleteBtn = within(row as HTMLElement).getByRole("button", {
-      name: /delete disruption bulletin for/i,
+      name: /^delete: /i,
     });
     // Freeze time only after the board is up: the tick engine must be born faked.
     vi.useFakeTimers();

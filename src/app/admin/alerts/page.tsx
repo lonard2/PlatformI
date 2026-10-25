@@ -1668,10 +1668,11 @@ export default function AdminAlertsPage() {
                     onClick={() => handleDeleteAlert(alert)}
                     disabled={mutatingAlertId === alert.id}
                     title={`${t.admin.deleteAlertTitle} ${alert.title}`}
-                    aria-label={`${t.admin.ariaDelete} ${alert.title}`}
-                    className="p-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 hover:text-rose-100 transition min-w-[40px] min-h-[40px] flex items-center justify-center btn-tactile"
+                    aria-label={`${t.admin.fleetDeleteButton}: ${alert.title}`}
+                    className="ml-2 px-3 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 hover:text-rose-100 text-xs font-semibold transition min-h-[40px] flex items-center gap-1.5 justify-center btn-tactile"
                   >
                     <Trash2 className="w-4 h-4" />
+                    <span>{t.admin.fleetDeleteButton}</span>
                   </button>
                 </div>
 
