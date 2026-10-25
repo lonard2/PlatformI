@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useMemo, Suspense, useEffect, useRef } from "react";
+import React, { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Truck,
@@ -23,6 +23,7 @@ import {
   Gauge,
   RotateCcw,
   Trash2,
+  CircleAlert,
 } from "lucide-react";
 import {
   Vehicle,
@@ -53,6 +54,19 @@ interface PendingFleetUndo {
   previousVehicle?: Vehicle;
   label: string;
   expiry: number;
+}
+
+/** Field edits tolerate a short undo window; add/delete get a longer one. */
+const UNDO_WINDOW_MS = 5000;
+const DESTRUCTIVE_UNDO_WINDOW_MS = 15000;
+
+interface FailedFleetSync {
+  id: string;
+  vehicleId: string;
+  vehicleCode: string;
+  kind: "delete" | "add" | "restore" | "update";
+  vehicle?: Vehicle;
+  update?: Record<string, unknown>;
 }
 
 interface ModeSpecOption {
@@ -281,13 +295,17 @@ function FleetManagementContent() {
     };
   }, []);
 
-  // Operational status & crowd density grace undo: field-scoped Map registry with 5s pausable window
+  // Operational status & crowd density grace undo: field-scoped Map registry.
+  // Field edits keep a short window; add/delete get the destructive window.
   const [pendingUndos, setPendingUndos] = useState<Map<string, PendingFleetUndo>>(() => new Map());
   const pendingUndosRef = useRef(pendingUndos);
   pendingUndosRef.current = pendingUndos;
   const [undoPaused, setUndoPaused] = useState<boolean>(false);
   const undoPausedRef = useRef(false);
   undoPausedRef.current = undoPaused;
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const confirmDeleteButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [failedSyncs, setFailedSyncs] = useState<FailedFleetSync[]>([]);
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
   const undoButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const lastTriggerRef = useRef<HTMLElement | null>(null);
@@ -478,7 +496,18 @@ function FleetManagementContent() {
         status: updated.status,
         speedKmh: updated.speedKmh,
       }),
-    }).catch(() => {});
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: {
+          vehicleCode: vehicle.vehicleCode,
+          status: updated.status,
+          speedKmh: updated.speedKmh,
+        },
+      });
+    });
 
     recordShiftAction({
       actionType: "FLEET_STATUS",
@@ -499,7 +528,7 @@ function FleetManagementContent() {
         previous: previousStatus,
         previousSpeedKmh,
         label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(previousStatus)} → ${getStatusLabel(newStatus)}`,
-        expiry: Date.now() + 5000,
+        expiry: Date.now() + UNDO_WINDOW_MS,
       });
       return next;
     });
@@ -534,7 +563,14 @@ function FleetManagementContent() {
         vehicleCode: vehicle.vehicleCode,
         crowdLevel: newCrowd,
       }),
-    }).catch(() => {});
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: { vehicleCode: vehicle.vehicleCode, crowdLevel: newCrowd },
+      });
+    });
 
     recordShiftAction({
       actionType: "FLEET_CROWD",
@@ -554,7 +590,7 @@ function FleetManagementContent() {
         field: "crowdLevel",
         previous: previousCrowd,
         label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(previousCrowd)} → ${getCrowdLabel(newCrowd)}`,
-        expiry: Date.now() + 5000,
+        expiry: Date.now() + UNDO_WINDOW_MS,
       });
       return next;
     });
@@ -589,7 +625,14 @@ function FleetManagementContent() {
         vehicleCode: vehicle.vehicleCode,
         speedKmh: newSpeedKmh,
       }),
-    }).catch(() => {});
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: { vehicleCode: vehicle.vehicleCode, speedKmh: newSpeedKmh },
+      });
+    });
 
     recordShiftAction({
       actionType: "FLEET_SPEED",
@@ -609,19 +652,69 @@ function FleetManagementContent() {
         field: "speed",
         previousSpeedKmh,
         label: `${vehicle.vehicleCode} • ${t.vehicleInspector.speed}: ${Math.round(previousSpeedKmh)} → ${Math.round(newSpeedKmh)} km/h`,
-        expiry: Date.now() + 5000,
+        expiry: Date.now() + UNDO_WINDOW_MS,
       });
       return next;
     });
     requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
   };
 
-  const handleDeleteVehicle = (
-    vehicle: Vehicle,
-    triggerEl?: HTMLElement | null
-  ) => {
-    if (!window.confirm(`${t.admin.confirmDeleteVehicle}: ${vehicle.vehicleCode}?`)) return;
+  // Failed server syncs stay visible with a retry instead of failing silently.
+  // Undoing a vehicle reroutes its state, so its failures clear with it.
+  const reportSyncFailure = (entry: Omit<FailedFleetSync, "id">): void => {
+    const id = `${entry.vehicleId}-${entry.kind}-${Date.now().toString(36)}`;
+    setFailedSyncs((prev) => [
+      ...prev.filter((e) => !(e.vehicleId === entry.vehicleId && e.kind === entry.kind)),
+      { ...entry, id },
+    ]);
+  };
 
+  const retryFailedSync = async (entry: FailedFleetSync): Promise<void> => {
+    try {
+      let res: Response;
+      if (entry.kind === "delete") {
+        res = await fetch(`/api/fleet/vehicles?id=${encodeURIComponent(entry.vehicleId)}`, {
+          method: "DELETE",
+        });
+      } else if (entry.kind === "add" || entry.kind === "restore") {
+        if (!entry.vehicle) throw new Error("missing vehicle");
+        res = await fetch("/api/fleet/vehicles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(entry.vehicle),
+        });
+      } else {
+        res = await fetch("/api/fleet/vehicles", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: entry.vehicleId, ...entry.update }),
+        });
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setFailedSyncs((prev) => prev.filter((e) => e.id !== entry.id));
+    } catch {
+      // Stays listed: the operator still needs to know the sync is pending.
+    }
+  };
+
+  const openDeleteConfirm = (vehicle: Vehicle, trigger: HTMLElement | null): void => {
+    if (trigger) {
+      lastTriggerRef.current = trigger;
+    }
+    setConfirmDeleteId(vehicle.id);
+  };
+
+  const closeDeleteConfirm = useCallback((): void => {
+    setConfirmDeleteId(null);
+    lastTriggerRef.current?.focus();
+  }, []);
+
+  // Move focus into the delete confirmation; Escape returns it to delete.
+  useEffect(() => {
+    if (confirmDeleteId) confirmDeleteButtonRef.current?.focus();
+  }, [confirmDeleteId]);
+
+  const handleDeleteVehicle = (vehicle: Vehicle, triggerEl?: HTMLElement | null) => {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
@@ -632,10 +725,16 @@ function FleetManagementContent() {
       setSelectedVehicle(null);
     }
 
-    // Call API DELETE
+    // Call API DELETE; a failed sync stays visible with a retry.
     fetch(`/api/fleet/vehicles?id=${encodeURIComponent(vehicle.id)}`, {
       method: "DELETE",
-    }).catch(() => {});
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "delete",
+      });
+    });
 
     recordShiftAction({
       actionType: "FLEET_DELETE",
@@ -656,7 +755,7 @@ function FleetManagementContent() {
         field: "delete",
         previousVehicle: vehicle,
         label: undoLabel,
-        expiry: Date.now() + 5000,
+        expiry: Date.now() + DESTRUCTIVE_UNDO_WINDOW_MS,
       });
       return next;
     });
@@ -666,6 +765,9 @@ function FleetManagementContent() {
   const handleUndo = (vehicleId: string) => {
     const pending = pendingUndos.get(vehicleId);
     if (!pending) return;
+    // Undo reroutes this vehicle's state, so its sync failures clear with it;
+    // a failed restore re-registers below.
+    setFailedSyncs((prev) => prev.filter((e) => e.vehicleId !== vehicleId));
 
     if (pending.field === "add") {
       updateSimulatedVehicles(simulatedVehicles.filter((v) => v.id !== vehicleId));
@@ -675,7 +777,13 @@ function FleetManagementContent() {
       // Revert from backend via DELETE
       fetch(`/api/fleet/vehicles?id=${encodeURIComponent(vehicleId)}`, {
         method: "DELETE",
-      }).catch(() => {});
+      }).catch(() => {
+        reportSyncFailure({
+          vehicleId,
+          vehicleCode: pending.vehicleCode,
+          kind: "delete",
+        });
+      });
     } else if (pending.field === "delete" && pending.previousVehicle) {
       // Recreate vehicle in store and database
       const restored = pending.previousVehicle;
@@ -684,7 +792,14 @@ function FleetManagementContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(restored),
-      }).catch(() => {});
+      }).catch(() => {
+        reportSyncFailure({
+          vehicleId,
+          vehicleCode: restored.vehicleCode,
+          kind: "restore",
+          vehicle: restored,
+        });
+      });
     } else {
       // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
       const current = simulatedVehicles.find((v) => v.id === vehicleId);
@@ -889,7 +1004,14 @@ function FleetManagementContent() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newUnit),
-    }).catch(() => {});
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: newUnit.id,
+        vehicleCode: newUnit.vehicleCode,
+        kind: "add",
+        vehicle: newUnit,
+      });
+    });
 
     recordShiftAction({
       actionType: "FLEET_ADD",
@@ -909,7 +1031,7 @@ function FleetManagementContent() {
         vehicleCode: newUnit.vehicleCode,
         field: "add",
         label: undoLabel,
-        expiry: Date.now() + 5000,
+        expiry: Date.now() + DESTRUCTIVE_UNDO_WINDOW_MS,
       });
       return next;
     });
@@ -1028,7 +1150,7 @@ function FleetManagementContent() {
         </div>
       </div>
 
-      {/* 2.5 UNDO RESTORE BANNERS (5s Pausable Window per Vehicle) */}
+      {/* 2.5 UNDO RESTORE BANNERS (pausable window per vehicle: short for edits, long for add/delete) */}
       {/* Design Standard (Semantic Undo Theming):
           - Amber is used for destructive/removal undos (e.g. canceling vehicle creation).
           - Cyan is used for non-destructive state changes (operational status, crowd density).
@@ -1073,10 +1195,37 @@ function FleetManagementContent() {
                 }`}
               >
                 {t.common.undo}
-                <span aria-hidden="true">
+                <span aria-hidden="true" data-testid="undo-countdown">
                   {" "}
                   ({Math.max(0, Math.ceil((undo.expiry - nowTick) / 1000))}s)
                 </span>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 2.6 FAILED SERVER SYNCS: never silent, retry keeps the record */}
+      {failedSyncs.length > 0 && (
+        <div className="space-y-2">
+          {failedSyncs.map((entry) => (
+            <div
+              key={entry.id}
+              role="alert"
+              className="p-3.5 rounded-xl bg-slate-900 border border-rose-500/40 text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl gap-3"
+            >
+              <div className="flex items-center gap-2 truncate">
+                <CircleAlert className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="truncate">
+                  {t.admin.fleetSyncFailed.replace("{code}", entry.vehicleCode)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => void retryFailedSync(entry)}
+                className="px-3 py-1.5 rounded-lg font-bold text-xs transition btn-tactile min-h-[36px] shrink-0 bg-rose-500 hover:bg-rose-400 active:bg-rose-600 text-white"
+              >
+                {t.admin.retrySync}
               </button>
             </div>
           ))}
@@ -1225,22 +1374,60 @@ function FleetManagementContent() {
                     {/* Action */}
                     <td className="sticky right-0 z-10 py-3.5 px-4 text-right bg-slate-900/95 group-hover:bg-[#131b2e] backdrop-blur-md shadow-[-12px_0_16px_-4px_rgba(0,0,0,0.6)] before:content-[''] before:absolute before:inset-y-0 before:-left-4 before:w-4 before:bg-gradient-to-r before:from-transparent before:to-slate-900/95 group-hover:before:to-[#131b2e] before:pointer-events-none transition-colors">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          type="button"
-                          aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}
-                          onClick={() => openTelemetryModal(vehicle)}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
-                        >
-                          {t.admin.viewTelemetry}
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={`${t.admin.ariaDeleteVehicle} ${vehicle.vehicleCode}`}
-                          onClick={(e) => handleDeleteVehicle(vehicle, e.currentTarget)}
-                          className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 hover:border-rose-500/60 text-rose-400 hover:text-rose-200 text-[11px] transition btn-tactile min-h-[36px] min-w-[36px] flex items-center justify-center"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {confirmDeleteId === vehicle.id ? (
+                          <span
+                            role="alert"
+                            aria-label={`${t.admin.fleetDeleteConfirmTitle}: ${vehicle.vehicleCode}`}
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") {
+                                e.stopPropagation();
+                                closeDeleteConfirm();
+                              }
+                            }}
+                            className="flex items-center gap-1.5 rounded-lg border border-rose-500/50 bg-rose-950/60 px-2 py-1"
+                          >
+                            <span className="text-[11px] font-semibold text-rose-200 whitespace-nowrap">
+                              {t.admin.fleetDeleteConfirm.replace("{code}", vehicle.vehicleCode)}
+                            </span>
+                            <button
+                              type="button"
+                              ref={confirmDeleteButtonRef}
+                              onClick={() => {
+                                setConfirmDeleteId(null);
+                                handleDeleteVehicle(vehicle, lastTriggerRef.current);
+                              }}
+                              className="px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition btn-tactile min-h-[36px]"
+                            >
+                              {t.admin.fleetDeleteButton}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={closeDeleteConfirm}
+                              className="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-300 hover:bg-slate-700 transition btn-tactile min-h-[36px]"
+                            >
+                              {t.common.cancel}
+                            </button>
+                          </span>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              aria-label={`${t.admin.viewTelemetryFor} ${vehicle.vehicleCode}`}
+                              onClick={() => openTelemetryModal(vehicle)}
+                              className="px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/30 hover:border-cyan-500/60 text-cyan-300 hover:text-cyan-100 text-[11px] font-medium transition btn-tactile min-h-[36px]"
+                            >
+                              {t.admin.viewTelemetry}
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`${t.admin.ariaDeleteVehicle} ${vehicle.vehicleCode}`}
+                              onClick={(e) => openDeleteConfirm(vehicle, e.currentTarget)}
+                              className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 hover:border-rose-500/60 text-rose-400 hover:text-rose-200 text-[11px] transition btn-tactile min-h-[36px] min-w-[36px] flex items-center justify-center"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1422,18 +1609,54 @@ function FleetManagementContent() {
 
             {/* Footer */}
             <div className="p-4 bg-slate-950 border-t border-white/10 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={(e) => {
-                  const target = selectedVehicle;
-                  closeTelemetryModal();
-                  handleDeleteVehicle(target, e.currentTarget);
-                }}
-                className="px-3.5 py-2 rounded-xl bg-rose-950/50 border border-rose-500/40 hover:bg-rose-900/60 text-xs text-rose-300 hover:text-rose-100 font-semibold transition btn-tactile min-h-[36px] flex items-center gap-1.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>{t.admin.deleteVehicle}</span>
-              </button>
+              {selectedVehicle && confirmDeleteId === selectedVehicle.id ? (
+                <span
+                  role="alert"
+                  aria-label={`${t.admin.fleetDeleteConfirmTitle}: ${selectedVehicle.vehicleCode}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.stopPropagation();
+                      closeDeleteConfirm();
+                    }
+                  }}
+                  className="flex items-center gap-2 rounded-xl border border-rose-500/50 bg-rose-950/60 px-3 py-2"
+                >
+                  <span className="text-xs font-semibold text-rose-200">
+                    {t.admin.fleetDeleteConfirm.replace("{code}", selectedVehicle.vehicleCode)}
+                  </span>
+                  <button
+                    type="button"
+                    ref={confirmDeleteButtonRef}
+                    onClick={() => {
+                      const target = selectedVehicle;
+                      setConfirmDeleteId(null);
+                      closeTelemetryModal();
+                      handleDeleteVehicle(target, null);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition btn-tactile min-h-[36px]"
+                  >
+                    {t.admin.fleetDeleteButton}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeDeleteConfirm}
+                    className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-700 transition btn-tactile min-h-[36px]"
+                  >
+                    {t.common.cancel}
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    if (selectedVehicle) openDeleteConfirm(selectedVehicle, e.currentTarget);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-rose-950/50 border border-rose-500/40 hover:bg-rose-900/60 text-xs text-rose-300 hover:text-rose-100 font-semibold transition btn-tactile min-h-[36px] flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{t.admin.deleteVehicle}</span>
+                </button>
+              )}
 
               <button
                 type="button"

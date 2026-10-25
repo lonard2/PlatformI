@@ -1395,7 +1395,10 @@ export interface TranslationDictionary {
     closeTelemetryDialog: string;
     closeAddVehicleDialog: string;
     deleteVehicle: string;
-    confirmDeleteVehicle: string;
+    fleetDeleteConfirmTitle: string;
+    fleetDeleteConfirm: string;
+    fleetDeleteButton: string;
+    fleetSyncFailed: string;
     ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;
