@@ -232,6 +232,142 @@ describe("Severity color honesty", () => {
   });
 });
 
+describe("Feed empty, filter, and sync honesty", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("shows an empty state with a CTA that focuses the authoring form", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => okJson({ success: true, data: [] }))
+    );
+    render(<AdminAlertsPage />);
+    const empty = await screen.findByTestId("feed-empty-state");
+    expect(within(empty).getByText("No bulletins to show")).toBeInTheDocument();
+    fireEvent.click(
+      within(empty).getByRole("button", { name: /create service alert/i })
+    );
+    expect(document.activeElement?.id).toBe("alert-title-input");
+  });
+
+  it("shows skeleton rows while a refresh is in flight", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => okJson({ success: true, data: [] }))
+    );
+    render(<AdminAlertsPage />);
+    await screen.findByTestId("feed-empty-state");
+    fireEvent.click(screen.getByRole("button", { name: /sync telemetry/i }));
+    expect(screen.getAllByTestId("alert-skeleton")).toHaveLength(3);
+  });
+
+  it("filters the feed by severity and search text", async () => {
+    seedAlertsApi();
+    render(<AdminAlertsPage />);
+    await screen.findByText(
+      "Peringatan Gelombang Tinggi Perairan Kepulauan Seribu Utara"
+    );
+    fireEvent.change(screen.getByLabelText("Filter by severity"), {
+      target: { value: "INFO" },
+    });
+    expect(
+      screen.queryByText("Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Pemeliharaan Wesel Jalur 9 Stasiun Sentral Manggarai")
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Filter by severity"), {
+      target: { value: "ALL" },
+    });
+    fireEvent.change(screen.getByLabelText("Search title, line, or stop…"), {
+      target: { value: "Manggarai" },
+    });
+    expect(
+      screen.queryByText("Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Pemeliharaan Wesel Jalur 9 Stasiun Sentral Manggarai")
+    ).toBeInTheDocument();
+  });
+
+  it("toasts honest vehicle counts when a fleet sync partially fails", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8).map((v) => ({
+        ...v,
+        lineId: "line-tj-cor-1",
+      })),
+    });
+    let puts = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url) === "/api/fleet/vehicles" && init?.method === "PUT") {
+          puts += 1;
+          if (puts === 1) return Promise.reject(new Error("network down"));
+          return okJson({ success: true, data: {} });
+        }
+        if (String(url).startsWith("/api/network/timetables")) {
+          return okJson({ success: true, data: [] });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
+    const toast = await screen.findByText(/vehicles.*\(1 failed\)/i);
+    expect(toast.textContent).toMatch(/\d+\/\d+ vehicles/);
+  });
+
+  it("discloses the 10-run timetable cap in the sync toast", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 8).map((v) => ({
+        ...v,
+        lineId: "line-tj-cor-1",
+      })),
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).startsWith("/api/network/timetables")) {
+          if (!init?.method || init.method === "GET") {
+            return okJson({
+              success: true,
+              data: Array.from({ length: 12 }, (_, i) => ({ id: `run-${i}` })),
+            });
+          }
+          return okJson({ success: true, data: {} });
+        }
+        return okJson({ success: true, data: DISRUPTION_ALERTS });
+      })
+    );
+    render(<AdminAlertsPage />);
+    const target = await screen.findByText(
+      "Rekayasa Pengalihan Rute Monas Imbas Kegiatan Nasional"
+    );
+    const row = target.closest("div[class*='rounded-xl']") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /sync fleet/i }));
+    expect(await screen.findByText(/First 10 of 12 runs linked/i)).toBeInTheDocument();
+  });
+});
+
 describe("Undo live-regions", () => {
   beforeEach(() => {
     useLanguageStore.getState().setLanguage("en");

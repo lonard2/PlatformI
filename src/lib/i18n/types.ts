@@ -1429,6 +1429,15 @@ export interface TranslationDictionary {
     pendingUndo: string;
     alertDeleteFinal: string;
     alertMutationFinal: string;
+    alertFeedEmpty: string;
+    alertFeedEmptyHint: string;
+    alertSearchPlaceholder: string;
+    alertFilterStatus: string;
+    alertFilterSeverity: string;
+    alertFeedLoading: string;
+    syncAggregateToast: string;
+    normalizeAggregateToast: string;
+    syncCapNote: string;
     reopenAlert: string;
     ariaReopen: string;
     skipToContent: string;

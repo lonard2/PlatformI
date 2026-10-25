@@ -326,6 +326,12 @@ export default function AdminAlertsPage() {
     loadAlerts();
   }, []);
 
+  // Feed filters: status, severity, and free text over title, line, and stops.
+  // Text search covers the line dimension, so no fourth control is needed.
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "RESOLVED">("ALL");
+  const [severityFilter, setSeverityFilter] = useState<DisruptionSeverity | "ALL">("ALL");
+  const [feedQuery, setFeedQuery] = useState<string>("");
+
   // Triage order: CRITICAL first, then WARNING, then INFO; newest within tier
   const orderedAlerts = useMemo(() => {
     const rank = (a: DisruptionAlert) =>
@@ -335,6 +341,32 @@ export default function AdminAlertsPage() {
     );
   }, [alerts]);
 
+  // Visible feed: triage order narrowed by the operator's filters.
+  const visibleAlerts = useMemo(() => {
+    const q = feedQuery.trim().toLowerCase();
+    return orderedAlerts.filter((a) => {
+      if (statusFilter !== "ALL" && a.status !== statusFilter) return false;
+      if (severityFilter !== "ALL" && a.severity !== severityFilter) return false;
+      if (q) {
+        const line = allLines.find((l) => l.id === a.lineId);
+        const haystack =
+          `${a.title} ${a.description} ${line?.code ?? ""} ${line?.name ?? ""} ${a.affectedStops.join(" ")}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [orderedAlerts, statusFilter, severityFilter, feedQuery, allLines]);
+
+  const focusAuthoringForm = () => {
+    const input = document.getElementById("alert-title-input");
+    if (input) {
+      if (typeof input.scrollIntoView === "function") {
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      input.focus();
+    }
+  };
+
   const handleToggleStop = (stopName: string) => {
     if (affectedStops.includes(stopName)) {
       setAffectedStops(affectedStops.filter((s) => s !== stopName));
@@ -343,7 +375,9 @@ export default function AdminAlertsPage() {
     }
   };
 
-  // Connect alert disruption directly with active vehicles and timetable runs
+  // Connect alert disruption directly with active vehicles and timetable runs.
+  // Every PUT is counted: the toast reports honest aggregates, never a
+  // blanket success, and the 10-run timetable cap is disclosed, not silent.
   const handleLinkDisruptionToOperations = async (
     lineId: string,
     alertTitle: string,
@@ -359,48 +393,74 @@ export default function AdminAlertsPage() {
     const speedModifier = alertSeverity === "CRITICAL" ? 0.2 : alertSeverity === "WARNING" ? 0.5 : 0.8;
     const status = alertSeverity === "CRITICAL" ? "CONGESTION_HOLD" : "IN_SERVICE";
 
-    targetVehicles.forEach((vehicle) => {
-      const updated: Vehicle = {
-        ...vehicle,
-        delayMinutes,
-        speedModifier,
-        status,
-      };
-      updateSingleVehicle(updated);
-
-      // Persist to SQLite fleet API
-      fetch("/api/fleet/vehicles", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: vehicle.id,
-          vehicleCode: vehicle.vehicleCode,
+    let vehiclesOk = 0;
+    let vehiclesFailed = 0;
+    await Promise.all(
+      targetVehicles.map(async (vehicle) => {
+        const updated: Vehicle = {
+          ...vehicle,
           delayMinutes,
           speedModifier,
           status,
-        }),
-      }).catch(() => {});
-    });
+        };
+        updateSingleVehicle(updated);
+
+        // Persist to SQLite fleet API
+        try {
+          const res = await fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: vehicle.id,
+              vehicleCode: vehicle.vehicleCode,
+              delayMinutes,
+              speedModifier,
+              status,
+            }),
+          });
+          if (res.ok) vehiclesOk += 1;
+          else vehiclesFailed += 1;
+        } catch {
+          vehiclesFailed += 1;
+        }
+      })
+    );
 
     // 2. Fetch and flag active timetable runs on this line as ROUTE_DIVERGENCE
+    let schedOk = 0;
+    let schedTotal = 0;
+    let schedCap: { n: number; total: number } | null = null;
     try {
       const url = lineId && lineId !== "ALL" ? `/api/network/timetables?lineId=${lineId}` : "/api/network/timetables";
       const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
-          for (const run of json.data.slice(0, 10)) {
-            fetch("/api/network/timetables", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...run,
-                tripType: "ROUTE_DIVERGENCE",
-                divergenceReason: "INCIDENT_DISRUPTION",
-                divergenceDescription: t.admin.incidentDivergence.replace("{n}", alertTitle),
-              }),
-            }).catch(() => {});
+          // Perf guard: link at most 10 runs; the cap is disclosed in the toast.
+          const linked = json.data.slice(0, 10);
+          if (json.data.length > linked.length) {
+            schedCap = { n: linked.length, total: json.data.length };
           }
+          schedTotal = linked.length;
+          await Promise.all(
+            linked.map(async (run: { id?: string }) => {
+              try {
+                const putRes = await fetch("/api/network/timetables", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...run,
+                    tripType: "ROUTE_DIVERGENCE",
+                    divergenceReason: "INCIDENT_DISRUPTION",
+                    divergenceDescription: t.admin.incidentDivergence.replace("{n}", alertTitle),
+                  }),
+                });
+                if (putRes.ok) schedOk += 1;
+              } catch {
+                // Counted below via schedTotal - schedOk
+              }
+            })
+          );
         }
       }
     } catch {
@@ -410,57 +470,93 @@ export default function AdminAlertsPage() {
     if (alertId) {
       setLinkedAlertIds((prev) => new Set([...prev, alertId]));
     }
-    notify(t.admin.syncOpsToast.replace("{n}", String(targetVehicles.length)));
+    const failed = vehiclesFailed + (schedTotal - schedOk);
+    let message = t.admin.syncAggregateToast
+      .replace("{ok}", String(vehiclesOk))
+      .replace("{total}", String(targetVehicles.length))
+      .replace("{schedOk}", String(schedOk))
+      .replace("{schedTotal}", String(schedTotal))
+      .replace("{failed}", String(failed));
+    if (schedCap) {
+      message +=
+        " " +
+        t.admin.syncCapNote
+          .replace("{n}", String(schedCap.n))
+          .replace("{total}", String(schedCap.total));
+    }
+    notify(message);
   };
 
-  // Restore line operations back to normal
+  // Restore line operations back to normal (aggregated counts, same honesty rule)
   const handleNormalizeOperations = async (lineId: string, alertId?: string) => {
     const targetVehicles = simulatedVehicles.filter(
       (v) => !lineId || lineId === "ALL" || v.lineId === lineId
     );
 
-    targetVehicles.forEach((vehicle) => {
-      const updated: Vehicle = {
-        ...vehicle,
-        delayMinutes: 0,
-        speedModifier: 1.0,
-        status: "IN_SERVICE",
-      };
-      updateSingleVehicle(updated);
-
-      fetch("/api/fleet/vehicles", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: vehicle.id,
-          vehicleCode: vehicle.vehicleCode,
+    let vehiclesOk = 0;
+    let vehiclesFailed = 0;
+    await Promise.all(
+      targetVehicles.map(async (vehicle) => {
+        const updated: Vehicle = {
+          ...vehicle,
           delayMinutes: 0,
           speedModifier: 1.0,
           status: "IN_SERVICE",
-        }),
-      }).catch(() => {});
-    });
+        };
+        updateSingleVehicle(updated);
 
+        try {
+          const res = await fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: vehicle.id,
+              vehicleCode: vehicle.vehicleCode,
+              delayMinutes: 0,
+              speedModifier: 1.0,
+              status: "IN_SERVICE",
+            }),
+          });
+          if (res.ok) vehiclesOk += 1;
+          else vehiclesFailed += 1;
+        } catch {
+          vehiclesFailed += 1;
+        }
+      })
+    );
+
+    let schedOk = 0;
+    let schedTotal = 0;
     try {
       const url = lineId && lineId !== "ALL" ? `/api/network/timetables?lineId=${lineId}` : "/api/network/timetables";
       const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
-          for (const run of json.data) {
-            if (run.tripType === "ROUTE_DIVERGENCE" && run.divergenceReason === "INCIDENT_DISRUPTION") {
-              fetch("/api/network/timetables", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...run,
-                  tripType: "REGULAR",
-                  divergenceReason: "NONE",
-                  divergenceDescription: null,
-                }),
-              }).catch(() => {});
-            }
-          }
+          const divergent = json.data.filter(
+            (run: { tripType?: string; divergenceReason?: string }) =>
+              run.tripType === "ROUTE_DIVERGENCE" && run.divergenceReason === "INCIDENT_DISRUPTION"
+          );
+          schedTotal = divergent.length;
+          await Promise.all(
+            divergent.map(async (run: { id?: string }) => {
+              try {
+                const putRes = await fetch("/api/network/timetables", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...run,
+                    tripType: "REGULAR",
+                    divergenceReason: "NONE",
+                    divergenceDescription: null,
+                  }),
+                });
+                if (putRes.ok) schedOk += 1;
+              } catch {
+                // Counted below via schedTotal - schedOk
+              }
+            })
+          );
         }
       }
     } catch {
@@ -474,7 +570,15 @@ export default function AdminAlertsPage() {
         return next;
       });
     }
-    notify(t.admin.normalizeOpsToast.replace("{n}", String(targetVehicles.length)));
+    const failed = vehiclesFailed + (schedTotal - schedOk);
+    notify(
+      t.admin.normalizeAggregateToast
+        .replace("{ok}", String(vehiclesOk))
+        .replace("{total}", String(targetVehicles.length))
+        .replace("{schedOk}", String(schedOk))
+        .replace("{schedTotal}", String(schedTotal))
+        .replace("{failed}", String(failed))
+    );
   };
 
   // Move focus into the broadcast confirmation when it opens; restore to
@@ -1490,8 +1594,81 @@ export default function AdminAlertsPage() {
           </span>
         </div>
 
+        {/* Feed filters: status, severity, text search */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            value={feedQuery}
+            onChange={(e) => setFeedQuery(e.target.value)}
+            aria-label={t.admin.alertSearchPlaceholder}
+            placeholder={t.admin.alertSearchPlaceholder}
+            className="flex-1 bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-200 placeholder-slate-500 transition min-h-[40px]"
+          />
+          <label htmlFor="feed-status-filter" className="sr-only">
+            {t.admin.alertFilterStatus}
+          </label>
+          <select
+            id="feed-status-filter"
+            aria-label={t.admin.alertFilterStatus}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "ALL" | "ACTIVE" | "RESOLVED")}
+            className="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 transition min-h-[40px]"
+          >
+            <option value="ALL">{t.common.all}</option>
+            <option value="ACTIVE">{t.common.active}</option>
+            <option value="RESOLVED">{t.admin.resolved}</option>
+          </select>
+          <label htmlFor="feed-severity-filter" className="sr-only">
+            {t.admin.alertFilterSeverity}
+          </label>
+          <select
+            id="feed-severity-filter"
+            aria-label={t.admin.alertFilterSeverity}
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value as DisruptionSeverity | "ALL")}
+            className="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 transition min-h-[40px]"
+          >
+            <option value="ALL">{t.common.all}</option>
+            <option value="CRITICAL">{severityLabel.CRITICAL}</option>
+            <option value="WARNING">{severityLabel.WARNING}</option>
+            <option value="INFO">{severityLabel.INFO}</option>
+          </select>
+        </div>
+
         <div className="space-y-3">
-          {orderedAlerts.map((alert: DisruptionAlert) => {
+          {isLoading && alerts.length === 0 ? (
+            <>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  data-testid="alert-skeleton"
+                  role="status"
+                  aria-label={t.admin.alertFeedLoading}
+                  className="p-4 rounded-xl border border-white/10 bg-slate-950/70 space-y-2 animate-pulse"
+                >
+                  <div className="h-3 w-2/3 rounded bg-slate-800" />
+                  <div className="h-3 w-full rounded bg-slate-800" />
+                  <span className="sr-only">{t.admin.alertFeedLoading}</span>
+                </div>
+              ))}
+            </>
+          ) : visibleAlerts.length === 0 ? (
+            <div
+              data-testid="feed-empty-state"
+              className="p-8 rounded-xl border border-dashed border-white/15 bg-slate-950/50 text-center space-y-3"
+            >
+              <p className="text-sm font-bold text-white">{t.admin.alertFeedEmpty}</p>
+              <p className="text-xs text-slate-400">{t.admin.alertFeedEmptyHint}</p>
+              <button
+                type="button"
+                onClick={focusAuthoringForm}
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 text-xs font-bold shadow-lg transition btn-tactile min-h-[44px]"
+              >
+                {t.admin.newDisruptionAlert}
+              </button>
+            </div>
+          ) : (
+          visibleAlerts.map((alert: DisruptionAlert) => {
             const line = allLines.find((l) => l.id === alert.lineId);
             const isResolved = alert.status === "RESOLVED";
 
@@ -1738,7 +1915,8 @@ export default function AdminAlertsPage() {
                 )}
               </div>
             );
-          })}
+          })
+          )}
         </div>
       </div>
     </div>
