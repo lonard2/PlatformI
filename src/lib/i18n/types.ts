@@ -1462,6 +1462,8 @@ export interface TranslationDictionary {
     dashboardPostureOk: string;
     dashboardPostureDegraded: string;
     dashboardPostureCritical: string;
+    telemetrySampleCount: string;
+    viewAllInFleet: string;
     helpTitle: string;
     helpSubtitle: string;
     helpShortcutsTitle: string;

@@ -148,31 +148,23 @@ export default function AdminDashboardPage() {
   // Live telemetry pings sampled from the fleet. Advisory disruptions live
   // in a separate prioritized list below so a critical bulletin can never
   // read as routine traffic.
-  const telemetryEvents = useMemo(() => {
+  const telemetryFeed = useMemo(() => {
+    const pool =
+      simulatedVehicles.filter((v) => v.status === "IN_SERVICE").length > 0
+        ? simulatedVehicles.filter((v) => v.status === "IN_SERVICE")
+        : simulatedVehicles;
+    const sampleVehicles = pool.slice(0, 4);
+
     const events: {
       id: string;
       timestamp: number;
       time: string;
-      text: string;
       badge: string;
+      code: string;
+      status: VehicleOperationalStatus;
+      speedKmh: number;
+      headingDegrees: number;
     }[] = [];
-
-    // 1. In-service moving vehicles reporting telemetry
-    const inServiceVehicles = simulatedVehicles.filter((v) => v.status === "IN_SERVICE");
-    const sampleVehicles = (inServiceVehicles.length > 0 ? inServiceVehicles : simulatedVehicles).slice(0, 4);
-
-    const getVehicleStatusLabel = (status: VehicleOperationalStatus) => {
-      switch (status) {
-        case "IN_SERVICE":
-          return t.admin.moving;
-        case "BOARDING":
-          return t.admin.boarding;
-        case "CONGESTION_HOLD":
-          return t.admin.hold;
-        case "OUT_OF_SERVICE":
-          return t.common.inactive;
-      }
-    };
 
     sampleVehicles.forEach((v, index) => {
       const line = allLines.find((l) => l.id === v.lineId);
@@ -190,16 +182,32 @@ export default function AdminDashboardPage() {
         id: `telem-${v.id}`,
         timestamp,
         time,
-        text: `${v.vehicleCode} (${v.name}) ${t.admin.telemetryTracking} ${Math.round(v.speedKmh)} km/h ${t.admin.telemetryHeading} ${Math.round(v.headingDegrees)}° [${getVehicleStatusLabel(v.status)}]`,
-        badge: line?.code || v.category,
+        badge: line?.code ?? v.category,
+        code: v.vehicleCode,
+        status: v.status,
+        speedKmh: Math.round(v.speedKmh),
+        headingDegrees: Math.round(v.headingDegrees),
       });
     });
 
     // Sort by recency (most recent event first)
     events.sort((a, b) => b.timestamp - a.timestamp);
 
-    return events;
-  }, [simulatedVehicles, allLines, simulationTime, currentLanguageMeta.locale, t]);
+    return { events, total: pool.length };
+  }, [simulatedVehicles, allLines, simulationTime, currentLanguageMeta.locale]);
+
+  const getVehicleStatusLabel = (status: VehicleOperationalStatus) => {
+    switch (status) {
+      case "IN_SERVICE":
+        return t.admin.moving;
+      case "BOARDING":
+        return t.admin.boarding;
+      case "CONGESTION_HOLD":
+        return t.admin.hold;
+      case "OUT_OF_SERVICE":
+        return t.common.inactive;
+    }
+  };
 
   // Advisory disruptions, critical first: an incident queue must never
   // silently cap or truncate the actionable clause.
@@ -464,7 +472,9 @@ export default function AdminDashboardPage() {
               <Activity className="w-4 h-4 text-emerald-400" />
               <h3 className="text-sm font-bold text-white">{t.admin.eventStreamTitle}</h3>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-800 border border-slate-700 text-slate-300">
-                {t.admin.fleetSampleBadge}
+                {t.admin.telemetrySampleCount
+                  .replace("{n}", String(telemetryFeed.events.length))
+                  .replace("{m}", String(telemetryFeed.total))}
               </span>
             </div>
             <div className="flex items-center gap-2.5">
@@ -538,20 +548,39 @@ export default function AdminDashboardPage() {
 
           <h4 className="text-xs font-bold text-white pt-1">{t.admin.eventTelemetryTitle}</h4>
           <div className="space-y-2.5">
-            {telemetryEvents.map((event) => (
+            {telemetryFeed.events.map((event) => (
               <div
                 key={event.id}
-                className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-3 text-xs"
+                className="p-3 rounded-xl bg-slate-950/60 border border-white/5 grid grid-cols-2 sm:grid-cols-[auto_auto_1fr_auto_auto] items-center gap-x-3 gap-y-1 text-xs"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-[10px] font-mono text-slate-400 shrink-0">{event.time}</span>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 text-cyan-300 border-cyan-500/40 bg-cyan-950/40">
-                    {event.badge}
+                <span className="text-[10px] font-mono text-slate-400 shrink-0">{event.time}</span>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border shrink-0 text-cyan-300 border-cyan-500/40 bg-cyan-950/40 justify-self-start">
+                  {event.badge}
+                </span>
+                <span className="font-mono font-bold text-white truncate">
+                  {event.code}
+                  <span className="ml-2 font-sans font-normal text-slate-400">
+                    {getVehicleStatusLabel(event.status)}
                   </span>
-                  <span className="text-slate-300 truncate">{event.text}</span>
-                </div>
+                </span>
+                <span className="font-mono text-slate-200 tabular-nums">
+                  {event.speedKmh} km/h
+                </span>
+                <span className="font-mono text-slate-400 tabular-nums">
+                  {event.headingDegrees}°
+                </span>
               </div>
             ))}
+          </div>
+
+          <div className="flex justify-end">
+            <Link
+              href="/admin/fleet"
+              className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition btn-tactile"
+            >
+              <span>{t.admin.viewAllInFleet}</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
 
           <div className="pt-2 flex items-center justify-between text-xs">

@@ -1448,6 +1448,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     kpiFleetNotHeldBasis: "기준: 혼잡 대기 및 기지 입고를 제외한 운행 선단",
     kpiOccupiedCabinValue: "추정 객실 점유 가치",
     kpiOccupiedCabinValueBasis: "기준: 실시간 차내 승객 수 × 기본 요금 Rp 3,500",
+    telemetrySampleCount: "{m}개 중 {n}개 표시",
+    viewAllInFleet: "함대에서 모두 보기",
     dashboardPostureOk: "정상",
     dashboardPostureDegraded: "일부 차질",
     dashboardPostureCritical: "심각",

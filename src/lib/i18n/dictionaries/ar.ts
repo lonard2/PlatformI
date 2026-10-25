@@ -1448,6 +1448,8 @@ export const ar: TranslationDictionary = {
     kpiFleetNotHeldBasis: "الأساس: الأسطول النشط باستثناء احتجاز الازدحام والمستودع",
     kpiOccupiedCabinValue: "قيمة إشغال المقصورة المقدرة",
     kpiOccupiedCabinValueBasis: "الأساس: حمولة الركاب المباشرة × الأجرة الأساسية 3,500 روبية",
+    telemetrySampleCount: "عرض {n} من {m}",
+    viewAllInFleet: "عرض الكل في الأسطول",
     dashboardPostureOk: "الوضع طبيعي",
     dashboardPostureDegraded: "اضطراب جزئي",
     dashboardPostureCritical: "حرج",

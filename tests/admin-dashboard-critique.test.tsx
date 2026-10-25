@@ -36,6 +36,37 @@ function seedDashboard(): void {
   );
 }
 
+describe("Telemetry stream honesty", () => {
+  beforeEach(seedDashboard);
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("discloses the sampling basis instead of a bare sample badge", async () => {
+    render(<AdminDashboardPage />);
+    expect(await screen.findByText(/Showing \d+ of \d+/)).toBeInTheDocument();
+    expect(screen.queryByText("Fleet Sample")).not.toBeInTheDocument();
+  });
+
+  it("caps the stream with a View-all link into Fleet", async () => {
+    render(<AdminDashboardPage />);
+    await screen.findByText(/Showing \d+ of \d+/);
+    expect(
+      screen.getByRole("link", { name: /view all in fleet/i })
+    ).toHaveAttribute("href", "/admin/fleet");
+  });
+
+  it("renders structured cells, not one concatenated sentence", async () => {
+    render(<AdminDashboardPage />);
+    await screen.findByText(/Showing \d+ of \d+/);
+    expect(screen.queryByText(/tracking at/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/km\/h/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/°/).length).toBeGreaterThan(0);
+  });
+});
+
 describe("Posture hero", () => {
   beforeEach(seedDashboard);
 

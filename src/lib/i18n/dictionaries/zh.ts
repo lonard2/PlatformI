@@ -1448,6 +1448,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     kpiFleetNotHeldBasis: "基准：扣除拥堵暂停与回库后的在途车队",
     kpiOccupiedCabinValue: "预计客舱在员价值",
     kpiOccupiedCabinValueBasis: "基准：实时在舱载客量 × 基础票价 Rp 3,500",
+    telemetrySampleCount: "显示{m}条中的{n}条",
+    viewAllInFleet: "在车队中查看全部",
     dashboardPostureOk: "一切正常",
     dashboardPostureDegraded: "部分受影响",
     dashboardPostureCritical: "严重",
