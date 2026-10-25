@@ -271,29 +271,44 @@ function FleetManagementContent() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
-  // Sync custom/database vehicles on mount
-  useEffect(() => {
-    let isMounted = true;
-    fetch("/api/fleet/vehicles")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((result) => {
-        if (!isMounted || !result?.data || !Array.isArray(result.data)) return;
-        if (result.data.length > 0) {
-          // Merge custom/persisted vehicles with existing simulated vehicles
-          const existingIds = new Set(simulatedVehicles.map((v) => v.id));
-          const newVehicles = (result.data as Vehicle[]).filter((v) => !existingIds.has(v.id));
-          if (newVehicles.length > 0) {
-            updateSimulatedVehicles([...simulatedVehicles, ...newVehicles]);
-          }
-        }
-      })
-      .catch(() => {
-        // Retain current in-memory store seamlessly
-      });
-    return () => {
-      isMounted = false;
-    };
+  // Board truth: explicit pull with visible state — never a silent merge.
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
+  const [lastPulled, setLastPulled] = useState<number>(0);
+  const [boardSyncError, setBoardSyncError] = useState<boolean>(false);
+  const syncFleet = useCallback(async (): Promise<void> => {
+    setIsSyncing(true);
+    setBoardSyncError(false);
+    try {
+      const res = await fetch("/api/fleet/vehicles");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const result = (await res.json()) as { data?: unknown };
+      if (!result?.data || !Array.isArray(result.data)) {
+        setLastSyncAt(Date.now());
+        setLastPulled(0);
+        return;
+      }
+      // Merge custom/persisted vehicles with existing simulated vehicles
+      const current = useTransitStore.getState().simulatedVehicles;
+      const existingIds = new Set(current.map((v) => v.id));
+      const fresh = (result.data as Vehicle[]).filter((v) => !existingIds.has(v.id));
+      if (fresh.length > 0) {
+        useTransitStore.getState().updateSimulatedVehicles([...current, ...fresh]);
+      }
+      setLastSyncAt(Date.now());
+      setLastPulled(fresh.length);
+    } catch {
+      // Local board stays authoritative; the failure stays visible.
+      setBoardSyncError(true);
+    } finally {
+      setIsSyncing(false);
+    }
   }, []);
+
+  // Sync custom/database vehicles on mount through the visible sync path
+  useEffect(() => {
+    void syncFleet();
+  }, [syncFleet]);
 
   // Operational status & crowd density grace undo: field-scoped Map registry.
   // Field edits keep a short window; add/delete get the destructive window.
@@ -1079,14 +1094,45 @@ function FleetManagementContent() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={openAddModal}
-          className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-lg flex items-center gap-1.5 transition self-start sm:self-auto btn-tactile"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t.admin.addVehicle}</span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void syncFleet()}
+              disabled={isSyncing}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 disabled:opacity-60 border border-white/10 text-slate-200 text-xs font-bold shadow-lg flex items-center gap-1.5 transition btn-tactile"
+            >
+              <RotateCcw className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`} aria-hidden="true" />
+              <span>{isSyncing ? t.admin.fleetSyncing : t.admin.fleetSyncNow}</span>
+            </button>
+            {failedSyncs.length > 0 && (
+              <span
+                role="status"
+                className="px-2.5 py-1 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-300 text-xs font-mono font-semibold whitespace-nowrap"
+              >
+                {t.admin.fleetPendingChanges.replace("{n}", String(failedSyncs.length))}
+              </span>
+            )}
+          </div>
+          <div className="text-[11px] text-slate-400 font-mono" role="status">
+            {lastSyncAt
+              ? `${t.admin.fleetLastSync.replace("{time}", new Date(lastSyncAt).toLocaleTimeString())} • ${t.admin.fleetSyncPulled.replace("{n}", String(lastPulled))}`
+              : t.admin.fleetSyncing}
+            {boardSyncError && (
+              <span role="alert" className="block text-rose-300">
+                {t.admin.fleetBoardSyncError}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={openAddModal}
+            className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold shadow-lg flex items-center gap-1.5 transition btn-tactile"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t.admin.addVehicle}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. FILTER STRIP */}

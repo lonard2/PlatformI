@@ -1399,6 +1399,12 @@ export interface TranslationDictionary {
     fleetDeleteConfirm: string;
     fleetDeleteButton: string;
     fleetSyncFailed: string;
+    fleetSyncNow: string;
+    fleetSyncing: string;
+    fleetLastSync: string;
+    fleetSyncPulled: string;
+    fleetBoardSyncError: string;
+    fleetPendingChanges: string;
     ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;
