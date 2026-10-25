@@ -1448,6 +1448,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     kpiFleetNotHeldBasis: "基准：扣除拥堵暂停与回库后的在途车队",
     kpiOccupiedCabinValue: "预计客舱在员价值",
     kpiOccupiedCabinValueBasis: "基准：实时在舱载客量 × 基础票价 Rp 3,500",
+    occHubName: "Dukuh Atas TOD",
     advisoriesUnknown: "公告状态未知 — 信息流加载失败。",
     telemetryEmpty: "无实时遥测 — 车队为空。",
     kpiWorstCorridor: "最拥堵走廊",

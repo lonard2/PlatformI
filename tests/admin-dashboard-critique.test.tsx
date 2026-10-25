@@ -220,12 +220,7 @@ describe("Posture hero", () => {
     expect(strip.textContent).toMatch(/\d{1,2}:\d{2}/);
   });
 
-  it("demotes the hero subtitle below the posture answer", async () => {
-    render(<AdminDashboardPage />);
-    await screen.findByTestId("posture-strip");
-    const subtitle = screen.getByText(/integrated monitoring across/i);
-    expect(subtitle.className).toMatch(/text-slate-500/);
-  });
+
 });
 
 describe("Operate actions", () => {
@@ -260,5 +255,193 @@ describe("Operate actions", () => {
     expect(
       screen.getByRole("link", { name: /broadcast alert to public/i })
     ).toHaveAttribute("href", "/admin/alerts#broadcast-form");
+  });
+});
+
+describe("Deferred minors batch", () => {
+  beforeEach(() => {
+    useLanguageStore.getState().setLanguage("en");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 12),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({ success: true, data: DISRUPTION_ALERTS }) })
+      )
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("paints INFO bulletins cyan instead of amber", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: [
+              {
+                ...DISRUPTION_ALERTS[0],
+                id: "alert-test-info",
+                lineId: "line-unknown",
+                severity: "INFO",
+                status: "ACTIVE",
+                title: "Info Test Notice",
+                description: "Routine info",
+              },
+            ],
+          }),
+        })
+      )
+    );
+    render(<AdminDashboardPage />);
+    const text = await screen.findByText(/Info Test Notice/);
+    const row = text.closest("li");
+    expect(row).not.toBeNull();
+    const badge = within(row as HTMLElement).getByText("Info");
+    expect(badge.className).toMatch(/cyan/);
+    expect(badge.className).not.toMatch(/amber/);
+  });
+
+  it("marks up times as machine-readable time elements", async () => {
+    render(<AdminDashboardPage />);
+    await screen.findByText(/Showing \d+ of \d+/);
+    const times = document.querySelectorAll("time[datetime]");
+    expect(times.length).toBeGreaterThan(0);
+  });
+
+  it("announces the empty telemetry state instead of rendering silence", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: [],
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    render(<AdminDashboardPage />);
+    const empty = await screen.findByTestId("telemetry-empty");
+    expect(empty).toHaveTextContent(/no live telemetry/i);
+    expect(empty.getAttribute("role")).toBe("status");
+  });
+
+  it("falls back to the raw line id when the line catalog misses", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 4).map((v) => ({
+        ...v,
+        lineId: "line-nope",
+        status: "CONGESTION_HOLD" as Vehicle["status"],
+      })),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    render(<AdminDashboardPage />);
+    const card = await screen.findByTestId("kpi-worst-corridor");
+    expect(within(card).getByText("line-nope")).toBeInTheDocument();
+    expect(within(card).queryByText("No held vehicles")).not.toBeInTheDocument();
+  });
+
+  it("gates the pulse animation behind reduced-motion preference", () => {
+    render(<AdminDashboardPage />);
+    expect(document.querySelector(".animate-pulse")).toBeNull();
+    expect(document.querySelector('[class*="motion-safe"]')).not.toBeNull();
+  });
+
+  it("keeps the hub name visible via i18n instead of hardcoding", () => {
+    render(<AdminDashboardPage />);
+    expect(screen.getByText("Dukuh Atas TOD")).toBeInTheDocument();
+  });
+
+  it("structures feed lists as real lists", async () => {
+    render(<AdminDashboardPage />);
+    await waitFor(() => {
+      expect(document.querySelectorAll("ul").length).toBeGreaterThanOrEqual(2);
+    });
+    expect(document.querySelectorAll("li").length).toBeGreaterThan(0);
+  });
+
+  it("applies Japanese count order for the sampling disclosure", async () => {
+    useLanguageStore.getState().setLanguage("ja");
+    useTransitStore.setState({
+      simulatedVehicles: TRANSIT_VEHICLES.slice(0, 12).map((v) => ({
+        ...v,
+        status: "IN_SERVICE" as Vehicle["status"],
+      })),
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    render(<AdminDashboardPage />);
+    expect(await screen.findByText("12件中4件を表示")).toBeInTheDocument();
+    useLanguageStore.getState().setLanguage("en");
+  });
+
+  it("declares a critical posture for critical bulletins", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: [
+              {
+                ...DISRUPTION_ALERTS[0],
+                id: "alert-test-crit",
+                severity: "CRITICAL",
+                status: "ACTIVE",
+                title: "Critical Test",
+                description: "Critical desc",
+              },
+            ],
+          }),
+        })
+      )
+    );
+    render(<AdminDashboardPage />);
+    const strip = await screen.findByTestId("posture-strip");
+    await waitFor(() => expect(strip.textContent).toMatch(/Critical/));
+  });
+
+  it("ties the worst corridor to the highest hold count", async () => {
+    useTransitStore.setState({
+      simulatedVehicles: [
+        ...TRANSIT_VEHICLES.slice(0, 2).map((v) => ({ ...v, lineId: "line-a", status: "CONGESTION_HOLD" as const })),
+        ...TRANSIT_VEHICLES.slice(2, 6).map((v) => ({ ...v, lineId: "line-b", status: "CONGESTION_HOLD" as const })),
+      ],
+      allLines: TRANSIT_LINES,
+      allStops: TRANSIT_STOPS,
+      selectedVehicleId: null,
+      selectedStopId: null,
+      activeDrawer: null,
+    });
+    render(<AdminDashboardPage />);
+    const card = await screen.findByTestId("kpi-worst-corridor");
+    expect(within(card).getByText(/\(4\)/)).toBeInTheDocument();
+  });
+
+  it("exposes the landing chip after the subtitle in reading order", async () => {
+    render(<AdminDashboardPage />);
+    const strip = await screen.findByTestId("posture-strip");
+    const subtitle = screen.getByText(/integrated monitoring across/i);
+    expect(
+      subtitle.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 });

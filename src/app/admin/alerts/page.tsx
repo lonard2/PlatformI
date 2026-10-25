@@ -1176,7 +1176,8 @@ export default function AdminAlertsPage() {
         {/* Left Column: Authoring Form */}
         <div
           id="broadcast-form"
-          className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl"
+          tabIndex={-1}
+          className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl outline-none"
         >
           <div className="flex items-center gap-2 border-b border-white/10 pb-3">
             <Radio className="w-4 h-4 text-amber-400" />
@@ -1731,7 +1732,8 @@ export default function AdminAlertsPage() {
               <div
                 key={alert.id}
                 id={`alert-${alert.id}`}
-                className={`p-4 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 ${
+                tabIndex={-1}
+                className={`p-4 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 outline-none ${
                   isResolved
                     ? "bg-slate-950/40 border-slate-800/60 opacity-60"
                     : alert.severity === "CRITICAL"

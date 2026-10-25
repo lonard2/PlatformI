@@ -1468,6 +1468,7 @@ export interface TranslationDictionary {
     kpiNoHeldVehicles: string;
     telemetryEmpty: string;
     advisoriesUnknown: string;
+    occHubName: string;
     helpTitle: string;
     helpSubtitle: string;
     helpShortcutsTitle: string;

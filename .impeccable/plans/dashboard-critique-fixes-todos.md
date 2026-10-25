@@ -39,3 +39,8 @@ Final: Ruling: visual/heuristic quality unjudged (read-only review, no render) �
 Final: Ruling: 597/597 suite result accepted from recorded evidence per review instructions, not re-run by reviewer.
 Final: Ruling: ar/ja/ko/zh translation quality spot-checked for structure only; no fluency claim made. Cost if wrong: awkward phrasing in 4 locales.
 Final: Ruling: sticky-header overlap on fragment navigation and runtime /api/alerts id consistency not statically verifiable — first manual pass should click through hero CTA, advisory link, and broadcast link.
+| 7 | polish all deferred minors | div→ul/li, time elements, cyan INFO, focusable anchors, announced empty telemetry, lineId fallback, reduced-motion, hub key, coverage locks | DONE (609/609) | — |
+- Todo 7: INFO badge cyan; advisory + telemetry <time dateTime>; advisory/telemetry lists are real <ul>/<li>; broadcast + alert anchors focusable (tabIndex -1); telemetry empty announces via role=status; worst-corridor falls back to raw lineId; LIVE pulse + skeletons honor reduced-motion; hub name via occHubName key; clearing test replaced the class-coupled subtitle assertion with reading-order proof.
+Ruling: role=status is not name-from-content in ARIA, so the telemetry test asserts presence via testid, not name matching — the name-based query can never match.
+Ruling: no supervisor tel: link — inventing a contact number would be fabrication; the lockout copy already directs to the supervisor, and a real number from the user unlocks the link.
+Ruling: dashboard mock shape ({ok, json}) is the contract the new loadAlerts requires; two tests initially stubbed bare {success, data} and correctly failed — mocks must honor the Response shape.
