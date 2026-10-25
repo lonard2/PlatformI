@@ -1428,6 +1428,8 @@ export interface TranslationDictionary {
     fleetBulkConfirmCrowd: string;
     fleetBulkApply: string;
     fleetBulkUndo: string;
+    fleetBulkCount: string;
+    fleetCapacitySplit: string;
     fleetSortFleet: string;
     fleetSortCodeAsc: string;
     fleetSortCodeDesc: string;

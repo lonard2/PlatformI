@@ -53,6 +53,7 @@ interface PendingFleetUndo {
   previousSpeedKmh?: number;
   previousVehicle?: Vehicle;
   bulkKind?: "status" | "crowd";
+  bulkDestructive?: boolean;
   bulkItems?: Array<{
     vehicleId: string;
     previousStatus?: VehicleOperationalStatus;
@@ -237,7 +238,7 @@ export default function FleetManagementPage() {
 }
 
 function FleetManagementContent() {
-  const { t } = useTranslation();
+  const { t, currentLanguageMeta } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
@@ -252,13 +253,18 @@ function FleetManagementContent() {
   );
   // Bulk triage: corridor holds touch many rows, so selection is first-class.
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
-  const [sortSpec, setSortSpec] = useState<string>("code-asc");
+  const VALID_SORTS = ["code-asc", "code-desc", "line", "speed", "status"] as const;
+  const [sortSpec, setSortSpec] = useState<string>(() => {
+    const initial = searchParams.get("sort");
+    return initial && (VALID_SORTS as readonly string[]).includes(initial) ? initial : "code-asc";
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams();
       if (searchQuery) params.set("q", searchQuery);
       if (activeCategory !== "ALL") params.set("category", activeCategory);
+      if (sortSpec !== "code-asc") params.set("sort", sortSpec);
       const qs = params.toString();
       // Equality guard: skip the RSC navigation when the URL already matches
       if (window.location.search.replace(/^\?/, "") === qs) return;
@@ -266,7 +272,7 @@ function FleetManagementContent() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, activeCategory, router]);
+  }, [searchQuery, activeCategory, sortSpec, router]);
 
   // Back/forward restores the filtered view: follow the URL when it changes
   // underneath us (popstate), skipping values identical to current state so
@@ -274,8 +280,10 @@ function FleetManagementContent() {
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
     const category = (searchParams.get("category") as TransitCategory | null) ?? "ALL";
+    const sort = searchParams.get("sort");
     if (q !== searchQuery) setSearchQuery(q);
     if (category !== activeCategory) setActiveCategory(category);
+    if (sort && sort !== sortSpec && (VALID_SORTS as readonly string[]).includes(sort)) setSortSpec(sort);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -330,6 +338,10 @@ function FleetManagementContent() {
   const [undoPaused, setUndoPaused] = useState<boolean>(false);
   const undoPausedRef = useRef(false);
   undoPausedRef.current = undoPaused;
+  // Locale ref: the expiry announcer speaks the locale at fire time,
+  // not the one active when the window opened.
+  const tRef = useRef(t);
+  tRef.current = t;
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const confirmDeleteButtonRef = useRef<HTMLButtonElement | null>(null);
   const [failedSyncs, setFailedSyncs] = useState<FailedFleetSync[]>([]);
@@ -342,12 +354,23 @@ function FleetManagementContent() {
   // silently, mirroring the alerts-page finalizer. It clears after 5s so a
   // repeated finalize announces again.
   const [finalAnnouncement, setFinalAnnouncement] = useState<string>("");
+  const finalAnnouncementTimer = useRef<number | null>(null);
   const announceFinal = (message: string): void => {
+    if (finalAnnouncementTimer.current) {
+      clearTimeout(finalAnnouncementTimer.current);
+    }
     setFinalAnnouncement(message);
-    window.setTimeout(() => {
+    finalAnnouncementTimer.current = window.setTimeout(() => {
       setFinalAnnouncement("");
     }, 5000);
   };
+  useEffect(() => {
+    return () => {
+      if (finalAnnouncementTimer.current) {
+        clearTimeout(finalAnnouncementTimer.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (pendingUndos.size === 0) return;
@@ -394,7 +417,7 @@ function FleetManagementContent() {
           .map((id) => currentMap.get(id)?.label)
           .filter((label): label is string => Boolean(label));
         if (expiredLabels.length > 0) {
-          announceFinal(t.admin.fleetUndoFinalized.replace("{label}", expiredLabels.join(", ")));
+          announceFinal(tRef.current.admin.fleetUndoFinalized.replace("{label}", expiredLabels.join(", ")));
         }
 
         setPendingUndos((prev) => {
@@ -495,6 +518,8 @@ function FleetManagementContent() {
       coachbuilder,
       chassis,
       capacity: seatCap + standCap,
+      seatCap,
+      standCap,
     };
   }, [selectedLineForAdd, newCoachbuilder, customCoachbuilder, newChassis, customChassis, seatingLayoutChoice, t]);
 
@@ -586,7 +611,7 @@ function FleetManagementContent() {
   const isDestructiveUndoEntry = (undo: PendingFleetUndo): boolean =>
     undo.field === "add" ||
     undo.field === "delete" ||
-    (undo.field === "bulk" && undo.bulkKind === "status");
+    (undo.field === "bulk" && undo.bulkDestructive === true);
 
   const handleUpdateStatus = (
     vehicle: Vehicle,
@@ -816,9 +841,19 @@ function FleetManagementContent() {
   }, []);
 
   // Move focus into the bulk confirmation; Escape closes it like delete's.
+  // A live board can move under an open confirm (deletions do; the sim never
+  // touches status/crowd): close rather than show a zero-vehicle confirm.
   useEffect(() => {
     if (confirmBulk) confirmBulkApplyRef.current?.focus();
   }, [confirmBulk]);
+  useEffect(() => {
+    if (confirmBulk) {
+      const live = useTransitStore.getState().simulatedVehicles;
+      if (bulkEligible(live, confirmBulk.kind, confirmBulk.value).length === 0) {
+        setConfirmBulk(null);
+      }
+    }
+  }, [confirmBulk, simulatedVehicles, selectedIds, allLines]);
 
   const applyBulkStatus = (newStatus: VehicleOperationalStatus): void => {
     const current = useTransitStore.getState().simulatedVehicles;
@@ -849,6 +884,8 @@ function FleetManagementContent() {
       return next;
     });
     const bulkId = `bulk-status-${Date.now().toString(36)}`;
+    const bulkCount = t.admin.fleetBulkCount.replace("{n}", String(snapshots.length));
+    const bulkDestructive = newStatus !== "IN_SERVICE";
     const label = t.admin.fleetBulkUndo
       .replace("{n}", String(snapshots.length))
       .replace("{target}", getStatusLabel(newStatus));
@@ -856,23 +893,24 @@ function FleetManagementContent() {
       const next = new Map(prev);
       next.set(bulkId, {
         vehicleId: bulkId,
-        vehicleCode: `${snapshots.length} vehicles`,
+        vehicleCode: bulkCount,
         field: "bulk",
         bulkKind: "status",
+        bulkDestructive,
         bulkItems: snapshots.map((s) => ({
           vehicleId: s.vehicle.id,
           previousStatus: s.previousStatus,
           previousSpeedKmh: s.previousSpeedKmh,
         })),
         label,
-        expiry: Date.now() + DESTRUCTIVE_UNDO_WINDOW_MS,
+        expiry: Date.now() + (bulkDestructive ? DESTRUCTIVE_UNDO_WINDOW_MS : UNDO_WINDOW_MS),
       });
       return next;
     });
     recordShiftAction({
       actionType: "FLEET_BULK",
       summary: label,
-      badge: `${snapshots.length} vehicles`,
+      badge: bulkCount,
       params: { n: snapshots.length, to: getStatusLabel(newStatus) },
     });
     setConfirmBulk(null);
@@ -904,6 +942,7 @@ function FleetManagementContent() {
       return next;
     });
     const bulkId = `bulk-crowd-${Date.now().toString(36)}`;
+    const bulkCount = t.admin.fleetBulkCount.replace("{n}", String(snapshots.length));
     const label = t.admin.fleetBulkUndo
       .replace("{n}", String(snapshots.length))
       .replace("{target}", getCrowdLabel(newCrowd));
@@ -911,9 +950,10 @@ function FleetManagementContent() {
       const next = new Map(prev);
       next.set(bulkId, {
         vehicleId: bulkId,
-        vehicleCode: `${snapshots.length} vehicles`,
+        vehicleCode: bulkCount,
         field: "bulk",
         bulkKind: "crowd",
+        bulkDestructive: false,
         bulkItems: snapshots.map((s) => ({
           vehicleId: s.vehicle.id,
           previousCrowd: s.previousCrowd,
@@ -926,7 +966,7 @@ function FleetManagementContent() {
     recordShiftAction({
       actionType: "FLEET_BULK",
       summary: label,
-      badge: `${snapshots.length} vehicles`,
+      badge: bulkCount,
       params: { n: snapshots.length, to: getCrowdLabel(newCrowd) },
     });
     setConfirmBulk(null);
@@ -939,6 +979,7 @@ function FleetManagementContent() {
   const undoBulkEntry = (pending: PendingFleetUndo): void => {
     const items = pending.bulkItems ?? [];
     const kind = pending.bulkKind;
+    let appliedCount = 0;
     setFailedSyncs((prev) =>
       prev.filter((e) => !items.some((item) => item.vehicleId === e.vehicleId))
     );
@@ -946,6 +987,7 @@ function FleetManagementContent() {
     for (const item of items) {
       const vehicle = current.find((v) => v.id === item.vehicleId);
       if (!vehicle) continue;
+      appliedCount += 1;
       if (kind === "status" && item.previousStatus !== undefined) {
         const restored: Vehicle = {
           ...vehicle,
@@ -1004,21 +1046,95 @@ function FleetManagementContent() {
         });
       }
     }
+    // The record names how many vehicles were actually restored, so a
+    // partial undo after a mid-grace deletion does not over-claim.
+    const undoSummary = `${pending.label} (${appliedCount}/${items.length})`;
     recordShiftAction({
       actionType: "FLEET_UNDO",
-      summary: pending.label,
-      badge: `${items.length} vehicles`,
-      params: { code: `${items.length} vehicles`, field: "bulk", restored: pending.label },
+      summary: undoSummary,
+      badge: t.admin.fleetBulkCount.replace("{n}", String(appliedCount)),
+      params: { code: `${appliedCount}/${items.length}`, field: "bulk", restored: undoSummary },
     });
   };
+
+  // Telemetry slider debounce: the board follows the thumb immediately so
+  // dragging feels live, but persistence, shift log, and undo settle 400ms
+  // after the last tick — one undo per drag, not one per tick.
+  const SPEED_DEBOUNCE_MS = 400;
+  const speedBurstRef = useRef<{
+    vehicleId: string;
+    fromKmh: number;
+    timer: ReturnType<typeof setTimeout>;
+  } | null>(null);
+
+  const flushSpeedBurst = (vehicle: Vehicle, toKmh: number, fromKmh: number): void => {
+    // Persist to SQLite API
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        speedKmh: toKmh,
+      }),
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: { vehicleCode: vehicle.vehicleCode, speedKmh: toKmh },
+      });
+    });
+
+    recordShiftAction({
+      actionType: "FLEET_SPEED",
+      summary: `${vehicle.vehicleCode}: speed updated from ${Math.round(fromKmh)} km/h to ${Math.round(toKmh)} km/h`,
+      badge: vehicle.vehicleCode,
+      params: {
+        code: vehicle.vehicleCode,
+        from: `${Math.round(fromKmh)} km/h`,
+        to: `${Math.round(toKmh)} km/h`,
+      },
+    });
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "speed",
+        previousSpeedKmh: fromKmh,
+        label: `${vehicle.vehicleCode} • ${t.vehicleInspector.speed}: ${Math.round(fromKmh)} → ${Math.round(toKmh)} km/h`,
+        expiry: Date.now() + UNDO_WINDOW_MS,
+      });
+      return next;
+    });
+  };
+
+  // Never persist a settled burst after unmount.
+  useEffect(() => {
+    return () => {
+      if (speedBurstRef.current) {
+        clearTimeout(speedBurstRef.current.timer);
+        speedBurstRef.current = null;
+      }
+    };
+  }, []);
 
   const handleUpdateSpeed = (
     vehicle: Vehicle,
     newSpeedKmh: number,
     triggerEl?: HTMLElement | null
   ) => {
-    if (vehicle.speedKmh === newSpeedKmh) return;
-    const previousSpeedKmh = vehicle.speedKmh;
+    if (vehicle.speedKmh === newSpeedKmh && !speedBurstRef.current) return;
+    const pending = speedBurstRef.current;
+    if (pending && pending.vehicleId !== vehicle.id) {
+      // Different vehicle took the slider: settle the old burst first.
+      const old = useTransitStore.getState().simulatedVehicles.find((v) => v.id === pending.vehicleId);
+      if (old) flushSpeedBurst(old, old.speedKmh, pending.fromKmh);
+      clearTimeout(pending.timer);
+      speedBurstRef.current = null;
+    }
+    const fromKmh = pending && pending.vehicleId === vehicle.id ? pending.fromKmh : vehicle.speedKmh;
     const updated: Vehicle = {
       ...vehicle,
       speedKmh: newSpeedKmh,
@@ -1030,47 +1146,20 @@ function FleetManagementContent() {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
     }
-
-    // Persist to SQLite API
-    fetch("/api/fleet/vehicles", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: vehicle.id,
-        vehicleCode: vehicle.vehicleCode,
-        speedKmh: newSpeedKmh,
-      }),
-    }).catch(() => {
-      reportSyncFailure({
-        vehicleId: vehicle.id,
-        vehicleCode: vehicle.vehicleCode,
-        kind: "update",
-        update: { vehicleCode: vehicle.vehicleCode, speedKmh: newSpeedKmh },
-      });
-    });
-
-    recordShiftAction({
-      actionType: "FLEET_SPEED",
-      summary: `${vehicle.vehicleCode}: speed updated from ${Math.round(previousSpeedKmh)} km/h to ${Math.round(newSpeedKmh)} km/h`,
-      badge: vehicle.vehicleCode,
-      params: {
-        code: vehicle.vehicleCode,
-        from: `${Math.round(previousSpeedKmh)} km/h`,
-        to: `${Math.round(newSpeedKmh)} km/h`,
-      },
-    });
-    setPendingUndos((prev) => {
-      const next = new Map(prev);
-      next.set(vehicle.id, {
-        vehicleId: vehicle.id,
-        vehicleCode: vehicle.vehicleCode,
-        field: "speed",
-        previousSpeedKmh,
-        label: `${vehicle.vehicleCode} • ${t.vehicleInspector.speed}: ${Math.round(previousSpeedKmh)} → ${Math.round(newSpeedKmh)} km/h`,
-        expiry: Date.now() + UNDO_WINDOW_MS,
-      });
-      return next;
-    });
+    if (speedBurstRef.current) {
+      clearTimeout(speedBurstRef.current.timer);
+    }
+    const snapVehicle = updated;
+    speedBurstRef.current = {
+      vehicleId: vehicle.id,
+      fromKmh,
+      timer: setTimeout(() => {
+        speedBurstRef.current = null;
+        const latest =
+          useTransitStore.getState().simulatedVehicles.find((v) => v.id === snapVehicle.id) ?? snapVehicle;
+        flushSpeedBurst(latest, latest.speedKmh, fromKmh);
+      }, SPEED_DEBOUNCE_MS),
+    };
   };
 
   // Failed server syncs stay visible with a retry instead of failing silently.
@@ -1581,7 +1670,10 @@ function FleetManagementContent() {
           </div>
           <div className="text-[11px] text-slate-400 font-mono" role="status">
             {lastSyncAt
-              ? `${t.admin.fleetLastSync.replace("{time}", new Date(lastSyncAt).toLocaleTimeString())} • ${t.admin.fleetSyncPulled.replace("{n}", String(lastPulled))}`
+              ? `${t.admin.fleetLastSync.replace(
+                      "{time}",
+                      `${new Date(lastSyncAt).toLocaleDateString(currentLanguageMeta.locale, { timeZone: "Asia/Jakarta" })} ${new Date(lastSyncAt).toLocaleTimeString(currentLanguageMeta.locale, { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })}`
+                    )} • ${t.admin.fleetSyncPulled.replace("{n}", String(lastPulled))}`
               : t.admin.fleetSyncing}
             {boardSyncError && (
               <span role="alert" className="block text-rose-300">
@@ -2305,6 +2397,7 @@ function FleetManagementContent() {
                   min="0"
                   max="140"
                   step="5"
+                  aria-describedby="status-coupling-callout"
                   value={Math.round(selectedVehicle.speedKmh)}
                   onChange={(e) =>
                     handleUpdateSpeed(selectedVehicle, parseInt(e.target.value, 10))
@@ -2341,6 +2434,7 @@ function FleetManagementContent() {
                   )}
                 </div>
                 <div
+                  id="status-coupling-callout"
                   data-testid="status-coupling-callout"
                   className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-950/30 px-3 py-2"
                 >
@@ -2587,7 +2681,7 @@ function FleetManagementContent() {
                 <input
                   id="add-vehicle-speed"
                   type="range"
-                  min="20"
+                  min="0"
                   max="120"
                   step="5"
                   value={newSpeed}
@@ -2611,7 +2705,7 @@ function FleetManagementContent() {
                   {addSummary.coachbuilder} • {addSummary.chassis}
                 </div>
                 <div className="text-[11px] text-slate-400">
-                  {t.admin.capacityAndDensity}: {addSummary.capacity}
+                  {t.admin.capacityAndDensity}: {addSummary.capacity} ({t.admin.fleetCapacitySplit.replace("{seat}", String(addSummary.seatCap)).replace("{stand}", String(addSummary.standCap))})
                 </div>
                 {isDuplicateCode && (
                   <div role="alert" className="text-[11px] font-semibold text-rose-300">
