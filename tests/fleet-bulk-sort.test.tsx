@@ -55,7 +55,7 @@ describe("Fleet bulk operations", () => {
     expect(await screen.findByText(/1 selected/i)).toBeInTheDocument();
   });
 
-  it("bulk status change applies to every selected vehicle", async () => {
+  it("bulk status change applies to every selected vehicle after confirm", async () => {
     render(<AdminFleetPage />);
     const boxA = await screen.findByRole("checkbox", {
       name: new RegExp(`Select ${TRANSIT_VEHICLES[0].vehicleCode}`),
@@ -68,6 +68,8 @@ describe("Fleet bulk operations", () => {
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     const statusSelect = within(bulkBar).getByLabelText(/bulk status/i);
     fireEvent.change(statusSelect, { target: { value: "CONGESTION_HOLD" } });
+    // Confirm gate: nothing moves until the operator applies it.
+    fireEvent.click(await screen.findByRole("button", { name: /^apply$/i }));
     const state = useTransitStore.getState().simulatedVehicles;
     const a = state.find((v) => v.id === TRANSIT_VEHICLES[0].id);
     const b = state.find((v) => v.id === TRANSIT_VEHICLES[1].id);

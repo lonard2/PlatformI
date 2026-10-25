@@ -29,6 +29,7 @@ export type ShiftActionType =
   | "FLEET_SPEED"
   | "FLEET_DELETE"
   | "FLEET_ADD"
+  | "FLEET_BULK"
   | "FLEET_UNDO"
   | "GATE_SCAN";
 
@@ -86,6 +87,10 @@ export function formatShiftLogSummary(entry: ShiftLogEntry, t: TranslationDictio
       return t.admin.shiftLogTemplateFleetAdd
         .replace("{code}", String(p.code ?? ""))
         .replace("{line}", String(p.line ?? ""));
+    case "FLEET_BULK":
+      return t.admin.shiftLogTemplateFleetBulk
+        .replace("{n}", String(p.n ?? ""))
+        .replace("{to}", String(p.to ?? ""));
     case "FLEET_UNDO":
       return t.admin.shiftLogTemplateFleetUndo
         .replace("{code}", String(p.code ?? ""))

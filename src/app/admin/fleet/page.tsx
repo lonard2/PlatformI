@@ -48,10 +48,17 @@ import { recordShiftAction } from "@/lib/services/shiftLogService";
 interface PendingFleetUndo {
   vehicleId: string;
   vehicleCode: string;
-  field: "status" | "crowdLevel" | "add" | "speed" | "delete";
+  field: "status" | "crowdLevel" | "add" | "speed" | "delete" | "bulk";
   previous?: VehicleOperationalStatus | CrowdDensityLevel;
   previousSpeedKmh?: number;
   previousVehicle?: Vehicle;
+  bulkKind?: "status" | "crowd";
+  bulkItems?: Array<{
+    vehicleId: string;
+    previousStatus?: VehicleOperationalStatus;
+    previousSpeedKmh?: number;
+    previousCrowd?: CrowdDensityLevel;
+  }>;
   label: string;
   expiry: number;
 }
@@ -544,10 +551,18 @@ function FleetManagementContent() {
     }
   };
 
+  // Destructive undos (add/delete, and bulk status changes that zero speed)
+  // wear amber; plain field edits stay cyan.
+  const isDestructiveUndoEntry = (undo: PendingFleetUndo): boolean =>
+    undo.field === "add" ||
+    undo.field === "delete" ||
+    (undo.field === "bulk" && undo.bulkKind === "status");
+
   const handleUpdateStatus = (
     vehicle: Vehicle,
     newStatus: VehicleOperationalStatus,
-    triggerEl?: HTMLElement | null
+    triggerEl?: HTMLElement | null,
+    options?: { silent?: boolean }
   ) => {
     if (vehicle.status === newStatus) return;
     const previousStatus = vehicle.status;
@@ -588,36 +603,39 @@ function FleetManagementContent() {
       });
     });
 
-    recordShiftAction({
-      actionType: "FLEET_STATUS",
-      summary: `${vehicle.vehicleCode}: status changed from ${getStatusLabel(previousStatus)} to ${getStatusLabel(newStatus)}`,
-      badge: vehicle.vehicleCode,
-      params: {
-        code: vehicle.vehicleCode,
-        from: getStatusLabel(previousStatus),
-        to: getStatusLabel(newStatus),
-      },
-    });
-    setPendingUndos((prev) => {
-      const next = new Map(prev);
-      next.set(vehicle.id, {
-        vehicleId: vehicle.id,
-        vehicleCode: vehicle.vehicleCode,
-        field: "status",
-        previous: previousStatus,
-        previousSpeedKmh,
-        label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(previousStatus)} → ${getStatusLabel(newStatus)}`,
-        expiry: Date.now() + UNDO_WINDOW_MS,
+    if (!options?.silent) {
+      recordShiftAction({
+        actionType: "FLEET_STATUS",
+        summary: `${vehicle.vehicleCode}: status changed from ${getStatusLabel(previousStatus)} to ${getStatusLabel(newStatus)}`,
+        badge: vehicle.vehicleCode,
+        params: {
+          code: vehicle.vehicleCode,
+          from: getStatusLabel(previousStatus),
+          to: getStatusLabel(newStatus),
+        },
       });
-      return next;
-    });
-    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+      setPendingUndos((prev) => {
+        const next = new Map(prev);
+        next.set(vehicle.id, {
+          vehicleId: vehicle.id,
+          vehicleCode: vehicle.vehicleCode,
+          field: "status",
+          previous: previousStatus,
+          previousSpeedKmh,
+          label: `${vehicle.vehicleCode} • ${t.admin.currentStatus}: ${getStatusLabel(previousStatus)} → ${getStatusLabel(newStatus)}`,
+          expiry: Date.now() + UNDO_WINDOW_MS,
+        });
+        return next;
+      });
+      requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+    }
   };
 
   const handleUpdateCrowd = (
     vehicle: Vehicle,
     newCrowd: CrowdDensityLevel,
-    triggerEl?: HTMLElement | null
+    triggerEl?: HTMLElement | null,
+    options?: { silent?: boolean }
   ) => {
     const previousCrowd = vehicle.crowdLevel;
     if (previousCrowd === newCrowd) return;
@@ -651,29 +669,31 @@ function FleetManagementContent() {
       });
     });
 
-    recordShiftAction({
-      actionType: "FLEET_CROWD",
-      summary: `${vehicle.vehicleCode}: crowd density updated to ${getCrowdLabel(newCrowd)}`,
-      badge: vehicle.vehicleCode,
-      params: {
-        code: vehicle.vehicleCode,
-        from: getCrowdLabel(previousCrowd),
-        to: getCrowdLabel(newCrowd),
-      },
-    });
-    setPendingUndos((prev) => {
-      const next = new Map(prev);
-      next.set(vehicle.id, {
-        vehicleId: vehicle.id,
-        vehicleCode: vehicle.vehicleCode,
-        field: "crowdLevel",
-        previous: previousCrowd,
-        label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(previousCrowd)} → ${getCrowdLabel(newCrowd)}`,
-        expiry: Date.now() + UNDO_WINDOW_MS,
+    if (!options?.silent) {
+      recordShiftAction({
+        actionType: "FLEET_CROWD",
+        summary: `${vehicle.vehicleCode}: crowd density updated to ${getCrowdLabel(newCrowd)}`,
+        badge: vehicle.vehicleCode,
+        params: {
+          code: vehicle.vehicleCode,
+          from: getCrowdLabel(previousCrowd),
+          to: getCrowdLabel(newCrowd),
+        },
       });
-      return next;
-    });
-    requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+      setPendingUndos((prev) => {
+        const next = new Map(prev);
+        next.set(vehicle.id, {
+          vehicleId: vehicle.id,
+          vehicleCode: vehicle.vehicleCode,
+          field: "crowdLevel",
+          previous: previousCrowd,
+          label: `${vehicle.vehicleCode} • ${t.admin.capacityAndDensity}: ${getCrowdLabel(previousCrowd)} → ${getCrowdLabel(newCrowd)}`,
+          expiry: Date.now() + UNDO_WINDOW_MS,
+        });
+        return next;
+      });
+      requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+    }
   };
 
   // Bulk triage reuses the single-row paths so undo, shift log, and sync
@@ -684,26 +704,280 @@ function FleetManagementContent() {
     requestAnimationFrame(() => bulkBarRef.current?.focus());
   };
 
+  // Bulk confirm state: the select only stages the intent; nothing moves
+  // until the operator confirms the blast radius in-app (delete-confirm idiom).
+  const [confirmBulk, setConfirmBulk] = useState<{
+    kind: "status" | "crowd";
+    value: string;
+    openerId: "fleet-bulk-status" | "fleet-bulk-crowd";
+  } | null>(null);
+  const confirmBulkApplyRef = useRef<HTMLButtonElement | null>(null);
+  const bulkOpenerRef = useRef<HTMLElement | null>(null);
+
+  // Eligible targets: existing vehicles whose value would actually change.
+  const bulkEligible = (
+    vehicles: Vehicle[],
+    kind: "status" | "crowd",
+    value: string
+  ): Vehicle[] =>
+    [...selectedIds]
+      .map((id) => vehicles.find((v) => v.id === id))
+      .filter(
+        (v): v is Vehicle =>
+          !!v && (kind === "status" ? v.status !== value : v.crowdLevel !== value)
+      );
+
+  const bulkLineSummary = (targets: Vehicle[]): string => {
+    const codes = [
+      ...new Set(
+        targets.map(
+          (v) => allLines.find((l) => l.id === v.lineId)?.code ?? v.lineId
+        )
+      ),
+    ];
+    return codes.slice(0, 3).join(", ") + (codes.length > 3 ? "…" : "");
+  };
+
+  // Live preview for the bulk confirm: recomputed from current board state
+  // so the blast-radius copy can never go stale between open and Apply.
+  const confirmPreview = useMemo(() => {
+    if (!confirmBulk) return null;
+    const eligible = bulkEligible(simulatedVehicles, confirmBulk.kind, confirmBulk.value);
+    const lines = bulkLineSummary(eligible);
+    const targetLabel =
+      confirmBulk.kind === "status"
+        ? getStatusLabel(confirmBulk.value as VehicleOperationalStatus)
+        : getCrowdLabel(confirmBulk.value as CrowdDensityLevel);
+    const text =
+      confirmBulk.kind === "status"
+        ? t.admin.fleetBulkConfirmStatus
+            .replace("{n}", String(eligible.length))
+            .replace("{status}", targetLabel)
+            .replace("{lines}", lines)
+        : t.admin.fleetBulkConfirmCrowd
+            .replace("{n}", String(eligible.length))
+            .replace("{crowd}", targetLabel)
+            .replace("{lines}", lines);
+    return { eligible, text };
+  }, [confirmBulk, simulatedVehicles, selectedIds, allLines, t]);
+
+  // A cleared selection unmounts the bar; drop any staged confirm with it.
+  useEffect(() => {
+    if (selectedIds.size === 0) setConfirmBulk(null);
+  }, [selectedIds.size]);
+
+  const openBulkConfirm = (
+    kind: "status" | "crowd",
+    value: string,
+    trigger: HTMLElement | null
+  ): void => {
+    if (bulkEligible(useTransitStore.getState().simulatedVehicles, kind, value).length === 0) {
+      return;
+    }
+    bulkOpenerRef.current = trigger;
+    setConfirmBulk({
+      kind,
+      value,
+      openerId: kind === "status" ? "fleet-bulk-status" : "fleet-bulk-crowd",
+    });
+  };
+
+  const closeBulkConfirm = useCallback((): void => {
+    setConfirmBulk(null);
+    bulkOpenerRef.current?.focus();
+  }, []);
+
+  // Move focus into the bulk confirmation; Escape closes it like delete's.
+  useEffect(() => {
+    if (confirmBulk) confirmBulkApplyRef.current?.focus();
+  }, [confirmBulk]);
+
   const applyBulkStatus = (newStatus: VehicleOperationalStatus): void => {
     const current = useTransitStore.getState().simulatedVehicles;
-    for (const id of selectedIds) {
-      const vehicle = current.find((v) => v.id === id);
-      if (vehicle && vehicle.status !== newStatus) {
-        handleUpdateStatus(vehicle, newStatus, null);
-      }
+    const targets = bulkEligible(current, "status", newStatus);
+    if (targets.length === 0) {
+      setConfirmBulk(null);
+      return;
     }
+    // One bulk undoes as one unit: snapshot first, apply silently, then a
+    // single aggregate entry. Per-vehicle undos on the same vehicles are
+    // superseded so an older single restore cannot clobber the bulk state.
+    const snapshots = targets.map((vehicle) => ({
+      vehicle,
+      previousStatus: vehicle.status,
+      previousSpeedKmh: vehicle.speedKmh,
+    }));
+    for (const { vehicle } of snapshots) {
+      handleUpdateStatus(vehicle, newStatus, null, { silent: true });
+    }
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      for (const id of targets.map((v) => v.id)) {
+        next.delete(id);
+        undoButtonRefs.current.delete(id);
+      }
+      return next;
+    });
+    const bulkId = `bulk-${Date.now().toString(36)}`;
+    const label = t.admin.fleetBulkUndo
+      .replace("{n}", String(snapshots.length))
+      .replace("{target}", getStatusLabel(newStatus));
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(bulkId, {
+        vehicleId: bulkId,
+        vehicleCode: `${snapshots.length} vehicles`,
+        field: "bulk",
+        bulkKind: "status",
+        bulkItems: snapshots.map((s) => ({
+          vehicleId: s.vehicle.id,
+          previousStatus: s.previousStatus,
+          previousSpeedKmh: s.previousSpeedKmh,
+        })),
+        label,
+        expiry: Date.now() + DESTRUCTIVE_UNDO_WINDOW_MS,
+      });
+      return next;
+    });
+    recordShiftAction({
+      actionType: "FLEET_BULK",
+      summary: label,
+      badge: `${snapshots.length} vehicles`,
+      params: { n: snapshots.length, to: getStatusLabel(newStatus) },
+    });
+    setConfirmBulk(null);
     focusBulkBar();
   };
 
   const applyBulkCrowd = (newCrowd: CrowdDensityLevel): void => {
     const current = useTransitStore.getState().simulatedVehicles;
-    for (const id of selectedIds) {
-      const vehicle = current.find((v) => v.id === id);
-      if (vehicle && vehicle.crowdLevel !== newCrowd) {
-        handleUpdateCrowd(vehicle, newCrowd, null);
+    const targets = bulkEligible(current, "crowd", newCrowd);
+    if (targets.length === 0) {
+      setConfirmBulk(null);
+      return;
+    }
+    const snapshots = targets.map((vehicle) => ({
+      vehicle,
+      previousCrowd: vehicle.crowdLevel,
+    }));
+    for (const { vehicle } of snapshots) {
+      handleUpdateCrowd(vehicle, newCrowd, null, { silent: true });
+    }
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      for (const id of targets.map((v) => v.id)) {
+        next.delete(id);
+        undoButtonRefs.current.delete(id);
+      }
+      return next;
+    });
+    const bulkId = `bulk-${Date.now().toString(36)}`;
+    const label = t.admin.fleetBulkUndo
+      .replace("{n}", String(snapshots.length))
+      .replace("{target}", getCrowdLabel(newCrowd));
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(bulkId, {
+        vehicleId: bulkId,
+        vehicleCode: `${snapshots.length} vehicles`,
+        field: "bulk",
+        bulkKind: "crowd",
+        bulkItems: snapshots.map((s) => ({
+          vehicleId: s.vehicle.id,
+          previousCrowd: s.previousCrowd,
+        })),
+        label,
+        expiry: Date.now() + UNDO_WINDOW_MS,
+      });
+      return next;
+    });
+    recordShiftAction({
+      actionType: "FLEET_BULK",
+      summary: label,
+      badge: `${snapshots.length} vehicles`,
+      params: { n: snapshots.length, to: getCrowdLabel(newCrowd) },
+    });
+    setConfirmBulk(null);
+    focusBulkBar();
+  };
+
+  // Bulk undo restores every snapped vehicle in one action; per-vehicle
+  // failures stay visible individually, and the board keeps the selection
+  // so a bulk undo can chain straight into a corrected bulk.
+  const undoBulkEntry = (pending: PendingFleetUndo): void => {
+    const items = pending.bulkItems ?? [];
+    const kind = pending.bulkKind;
+    setFailedSyncs((prev) =>
+      prev.filter((e) => !items.some((item) => item.vehicleId === e.vehicleId))
+    );
+    const current = useTransitStore.getState().simulatedVehicles;
+    for (const item of items) {
+      const vehicle = current.find((v) => v.id === item.vehicleId);
+      if (!vehicle) continue;
+      if (kind === "status" && item.previousStatus !== undefined) {
+        const restored: Vehicle = {
+          ...vehicle,
+          status: item.previousStatus,
+          speedKmh: item.previousSpeedKmh ?? vehicle.speedKmh,
+        };
+        updateSingleVehicle(restored);
+        if (selectedVehicle?.id === vehicle.id) {
+          setSelectedVehicle(restored);
+        }
+        fetch("/api/fleet/vehicles", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: vehicle.id,
+            vehicleCode: vehicle.vehicleCode,
+            status: restored.status,
+            speedKmh: restored.speedKmh,
+          }),
+        }).catch(() => {
+          reportSyncFailure({
+            vehicleId: vehicle.id,
+            vehicleCode: vehicle.vehicleCode,
+            kind: "update",
+            update: {
+              vehicleCode: vehicle.vehicleCode,
+              status: restored.status,
+              speedKmh: restored.speedKmh,
+            },
+          });
+        });
+      } else if (kind === "crowd" && item.previousCrowd !== undefined) {
+        const restored: Vehicle = {
+          ...vehicle,
+          crowdLevel: item.previousCrowd,
+        };
+        updateSingleVehicle(restored);
+        if (selectedVehicle?.id === vehicle.id) {
+          setSelectedVehicle(restored);
+        }
+        fetch("/api/fleet/vehicles", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: vehicle.id,
+            vehicleCode: vehicle.vehicleCode,
+            crowdLevel: restored.crowdLevel,
+          }),
+        }).catch(() => {
+          reportSyncFailure({
+            vehicleId: vehicle.id,
+            vehicleCode: vehicle.vehicleCode,
+            kind: "update",
+            update: { vehicleCode: vehicle.vehicleCode, crowdLevel: restored.crowdLevel },
+          });
+        });
       }
     }
-    focusBulkBar();
+    recordShiftAction({
+      actionType: "FLEET_UNDO",
+      summary: pending.label,
+      badge: `${items.length} vehicles`,
+      params: { code: `${items.length} vehicles`, field: "bulk", restored: pending.label },
+    });
   };
 
   const handleUpdateSpeed = (
@@ -932,6 +1206,11 @@ function FleetManagementContent() {
           vehicle: restored,
         });
       });
+    } else if (pending.field === "bulk") {
+      // Bulk restore: every snapped vehicle returns in one action; each
+      // failed PUT re-registers its own visible sync failure, mirroring
+      // the single-row restore paths.
+      undoBulkEntry(pending);
     } else {
       // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
       const current = useTransitStore.getState().simulatedVehicles.find((v) => v.id === vehicleId);
@@ -1023,16 +1302,20 @@ function FleetManagementContent() {
       }
     }
 
-    recordShiftAction({
-      actionType: "FLEET_UNDO",
-      summary: `Undid ${pending.field} on ${pending.vehicleCode} (restored to ${String(pending.previous ?? "removed")})`,
-      badge: pending.vehicleCode,
-      params: {
-        code: pending.vehicleCode,
-        field: pending.field,
-        restored: String(pending.previous ?? "removed"),
-      },
-    });
+    // Single-entry undo log; bulk entries log their own aggregate line
+    // inside undoBulkEntry so the shift log never sees a phantom vehicle.
+    if (pending.field !== "bulk") {
+      recordShiftAction({
+        actionType: "FLEET_UNDO",
+        summary: `Undid ${pending.field} on ${pending.vehicleCode} (restored to ${String(pending.previous ?? "removed")})`,
+        badge: pending.vehicleCode,
+        params: {
+          code: pending.vehicleCode,
+          field: pending.field,
+          restored: String(pending.previous ?? "removed"),
+        },
+      });
+    }
 
     setPendingUndos((prev) => {
       const next = new Map(prev);
@@ -1379,7 +1662,7 @@ function FleetManagementContent() {
             defaultValue=""
             onChange={(e) => {
               if (e.target.value) {
-                applyBulkStatus(e.target.value as VehicleOperationalStatus);
+                openBulkConfirm("status", e.target.value, e.currentTarget);
                 e.target.value = "";
               }
             }}
@@ -1400,7 +1683,7 @@ function FleetManagementContent() {
             defaultValue=""
             onChange={(e) => {
               if (e.target.value) {
-                applyBulkCrowd(e.target.value as CrowdDensityLevel);
+                openBulkConfirm("crowd", e.target.value, e.currentTarget);
                 e.target.value = "";
               }
             }}
@@ -1412,6 +1695,45 @@ function FleetManagementContent() {
             <option value="LEVEL_3_STANDING_ONLY">{t.crowdsource.densityStandingOnly}</option>
             <option value="LEVEL_4_FULL_CRUSH">{t.crowdsource.densityFullCrowded}</option>
           </select>
+          {confirmBulk && confirmPreview && (
+            <span
+              role="alert"
+              aria-label={t.admin.fleetBulkConfirmTitle}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  closeBulkConfirm();
+                }
+                trapTabInConfirm(e);
+              }}
+              className="flex items-center gap-1.5 rounded-lg border border-rose-500/50 bg-rose-950/60 px-2 py-1 w-full"
+            >
+              <span className="text-[11px] font-semibold text-rose-200 flex-1">
+                {confirmPreview.text}
+              </span>
+              <button
+                type="button"
+                ref={confirmBulkApplyRef}
+                onClick={() => {
+                  if (confirmBulk.kind === "status") {
+                    applyBulkStatus(confirmBulk.value as VehicleOperationalStatus);
+                  } else {
+                    applyBulkCrowd(confirmBulk.value as CrowdDensityLevel);
+                  }
+                }}
+                className="px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition btn-tactile min-h-[36px] whitespace-nowrap"
+              >
+                {t.admin.fleetBulkApply}
+              </button>
+              <button
+                type="button"
+                onClick={closeBulkConfirm}
+                className="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-medium text-slate-300 hover:bg-slate-700 transition btn-tactile min-h-[36px] whitespace-nowrap"
+              >
+                {t.common.cancel}
+              </button>
+            </span>
+          )}
           <button
             type="button"
             onClick={() => setSelectedIds(new Set())}
@@ -1435,13 +1757,13 @@ function FleetManagementContent() {
               role="status"
               aria-live="polite"
               className={`p-4 rounded-xl bg-slate-900 border text-slate-200 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-in slide-in-from-top duration-200 ${
-                undo.field === "add" || undo.field === "delete"
+                isDestructiveUndoEntry(undo)
                   ? "border-amber-500/40"
                   : "border-cyan-500/40"
               }`}
             >
               <div className="flex items-center gap-2 truncate">
-                {undo.field === "add" || undo.field === "delete" ? (
+                {isDestructiveUndoEntry(undo) ? (
                   <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
                 ) : (
                   <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -1461,7 +1783,7 @@ function FleetManagementContent() {
                 onClick={() => handleUndo(undo.vehicleId)}
                 aria-label={`${t.admin.pendingUndo}: ${undo.label}`}
                 className={`px-3 py-1.5 rounded-lg font-bold text-xs transition btn-tactile min-h-[36px] shrink-0 ${
-                  undo.field === "add" || undo.field === "delete"
+                  isDestructiveUndoEntry(undo)
                     ? "bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950"
                     : "bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950"
                 }`}

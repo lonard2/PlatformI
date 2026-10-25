@@ -1422,6 +1422,11 @@ export interface TranslationDictionary {
     fleetBulkStatus: string;
     fleetBulkCrowd: string;
     fleetBulkClear: string;
+    fleetBulkConfirmTitle: string;
+    fleetBulkConfirmStatus: string;
+    fleetBulkConfirmCrowd: string;
+    fleetBulkApply: string;
+    fleetBulkUndo: string;
     fleetSortFleet: string;
     fleetSortCodeAsc: string;
     fleetSortCodeDesc: string;
@@ -1514,6 +1519,7 @@ export interface TranslationDictionary {
     shiftLogTemplateAlertUndo: string;
     shiftLogTemplateFleetStatus: string;
     shiftLogTemplateFleetCrowd: string;
+    shiftLogTemplateFleetBulk: string;
     shiftLogTemplateFleetAdd: string;
     shiftLogTemplateFleetUndo: string;
     shiftLogTemplateGateScan: string;
