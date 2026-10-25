@@ -114,6 +114,7 @@ describe("Fleet delete confirmation", () => {
       return okJson({ success: true, data: [] });
     });
     render(<AdminFleetPage />);
+    await screen.findByRole("table");
     const statusSelect = document.getElementById(`status-select-${TARGET.id}`);
     expect(statusSelect).not.toBeNull();
     fireEvent.change(statusSelect!, { target: { value: "CONGESTION_HOLD" } });

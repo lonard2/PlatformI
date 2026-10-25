@@ -65,7 +65,8 @@ function okJson(data: unknown): Promise<Response> {
   } as Response);
 }
 
-function selectBoth(): void {
+async function selectBoth(): Promise<void> {
+  await screen.findByRole("table");
   fireEvent.click(screen.getByRole("checkbox", { name: `Select ${A.vehicleCode}` }));
   fireEvent.click(screen.getByRole("checkbox", { name: `Select ${B.vehicleCode}` }));
 }
@@ -80,7 +81,7 @@ describe("Bulk confirm gate", () => {
 
   it("asks in-app with the count before anything moves", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
       target: { value: "CONGESTION_HOLD" },
@@ -97,7 +98,7 @@ describe("Bulk confirm gate", () => {
 
   it("applies to every selected vehicle only after Apply, with one undo", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
       target: { value: "CONGESTION_HOLD" },
@@ -119,7 +120,7 @@ describe("Bulk confirm gate", () => {
 
   it("undoing a bulk restores every vehicle in one action", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
       target: { value: "CONGESTION_HOLD" },
@@ -139,7 +140,7 @@ describe("Bulk confirm gate", () => {
 
   it("crowd bulks keep the short non-destructive window", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk crowd/i), {
       target: { value: "LEVEL_3_STANDING_ONLY" },
@@ -154,7 +155,7 @@ describe("Bulk confirm gate", () => {
 
   it("Escape closes the bulk confirm without applying", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
       target: { value: "CONGESTION_HOLD" },
@@ -173,7 +174,7 @@ describe("Bulk confirm gate", () => {
 
   it("opens no confirm when the bulk would change nothing", async () => {
     render(<AdminFleetPage />);
-    selectBoth();
+    await selectBoth();
     const bulkBar = await screen.findByTestId("fleet-bulk-bar");
     fireEvent.change(within(bulkBar).getByLabelText(/bulk status/i), {
       target: { value: "IN_SERVICE" },

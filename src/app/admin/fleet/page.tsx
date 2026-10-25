@@ -283,6 +283,7 @@ function FleetManagementContent() {
 
   // Board truth: explicit pull with visible state — never a silent merge.
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [hasSyncedOnce, setHasSyncedOnce] = useState<boolean>(false);
   const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
   const [lastPulled, setLastPulled] = useState<number>(0);
   const [boardSyncError, setBoardSyncError] = useState<boolean>(false);
@@ -312,6 +313,7 @@ function FleetManagementContent() {
       setBoardSyncError(true);
     } finally {
       setIsSyncing(false);
+      setHasSyncedOnce(true);
     }
   }, []);
 
@@ -1518,6 +1520,13 @@ function FleetManagementContent() {
     }
   };
 
+  // Empty-state reset: filters, search, and selection all go home.
+  const clearFleetFilters = (): void => {
+    setSearchQuery("");
+    setActiveCategory("ALL");
+    setSelectedIds(new Set());
+  };
+
   const modalUndo = selectedVehicle ? pendingUndos.get(selectedVehicle.id) : undefined;
   const pageUndos = useMemo(() => {
     const all = Array.from(pendingUndos.values());
@@ -1899,12 +1908,40 @@ function FleetManagementContent() {
 
       {/* 3. FLEET TABLE */}
       <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
+        {!hasSyncedOnce && isSyncing ? (
+          <div role="status" aria-live="polite" className="p-4 space-y-2">
+            <span className="sr-only">{t.admin.fleetSyncing}</span>
+            <div aria-hidden="true" className="space-y-2">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  data-testid="fleet-skeleton-row"
+                  className="h-12 rounded-xl bg-slate-800/60 animate-pulse"
+                />
+              ))}
+            </div>
+          </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div
+            data-testid="fleet-empty-state"
+            className="p-8 text-center space-y-3"
+          >
+            <p className="text-sm text-slate-300">{t.admin.fleetNoMatch}</p>
+            <button
+              type="button"
+              onClick={clearFleetFilters}
+              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-cyan-950 text-xs font-bold transition btn-tactile min-h-[44px]"
+            >
+              {t.admin.fleetClearFilters}
+            </button>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <caption className="sr-only">{t.admin.fleetTableCaption}</caption>
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
-                <th scope="col" className="py-3.5 pl-4 pr-1 w-10">
+                <th scope="col" className="py-3.5 pl-3 pr-1 w-12 sticky left-0 z-20 bg-slate-950/95">
                   <input
                     type="checkbox"
                     aria-label={t.admin.fleetSelectAll}
@@ -1916,10 +1953,10 @@ function FleetManagementContent() {
                         setSelectedIds(new Set());
                       }
                     }}
-                    className="w-4 h-4 accent-cyan-500"
+                    className="w-6 h-6 accent-cyan-500 cursor-pointer"
                   />
                 </th>
-                <th scope="col" className="py-3.5 px-4">{t.admin.vehicleCode}</th>
+                <th scope="col" className="py-3.5 px-4 sticky left-12 z-20 bg-slate-950/95">{t.admin.vehicleCode}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.fleetAssignedLine}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.modelAndCoach}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.currentSpeedAndHeading}</th>
@@ -1938,7 +1975,7 @@ function FleetManagementContent() {
                     className="group hover:bg-white/[0.03] transition"
                   >
                     {/* Bulk select */}
-                    <td className="py-3.5 pl-4 pr-1">
+                    <td className="py-3.5 pl-3 pr-1 bg-slate-900 sticky left-0 z-10">
                       <input
                         type="checkbox"
                         aria-label={t.admin.fleetSelectVehicle.replace("{code}", vehicle.vehicleCode)}
@@ -1951,11 +1988,11 @@ function FleetManagementContent() {
                             return next;
                           });
                         }}
-                        className="w-4 h-4 accent-cyan-500"
+                        className="w-6 h-6 accent-cyan-500 cursor-pointer"
                       />
                     </td>
                     {/* Code & Name */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 bg-slate-900 sticky left-12 z-10">
                       <div className="flex items-center gap-2.5">
                         <div className="p-2 rounded-lg bg-slate-950 border border-white/10 shrink-0">
                           {getCategoryIcon(vehicle.category)}
@@ -2135,16 +2172,10 @@ function FleetManagementContent() {
                   </tr>
                 );
               })}
-              {sortedVehicles.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-10 text-center text-xs text-slate-400">
-                    {t.admin.fleetNoMatch}
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
+        )}
       </div>
       {/* 4. DETAIL INSPECTOR DRAWER / MODAL */}
       {selectedVehicle && (

@@ -1422,6 +1422,7 @@ export interface TranslationDictionary {
     fleetBulkStatus: string;
     fleetBulkCrowd: string;
     fleetBulkClear: string;
+    fleetClearFilters: string;
     fleetBulkConfirmTitle: string;
     fleetBulkConfirmStatus: string;
     fleetBulkConfirmCrowd: string;

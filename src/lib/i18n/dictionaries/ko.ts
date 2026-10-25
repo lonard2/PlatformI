@@ -1412,6 +1412,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     fleetBulkStatus: "일괄 상태",
     fleetBulkCrowd: "일괄 혼잡도",
     fleetBulkClear: "지우기",
+    fleetClearFilters: "필터 지우기",
     fleetBulkConfirmTitle: "일괄 변경 확인",
     fleetBulkConfirmStatus: "{lines}의 차량 {n}대를 {status}(으)로 설정하시겠습니까? 비운행 상태가 되면 속도가 0이 됩니다 — 실행 취소로 이전 값을 복원합니다.",
     fleetBulkConfirmCrowd: "차량 {n}대({lines})의 혼잡도를 {crowd}(으)로 설정하시겠습니까? 실행 취소로 복원됩니다.",

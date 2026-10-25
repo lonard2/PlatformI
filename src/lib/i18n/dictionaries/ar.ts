@@ -1412,6 +1412,7 @@ export const ar: TranslationDictionary = {
     fleetBulkStatus: "الحالة الجماعية",
     fleetBulkCrowd: "الازدحام الجماعي",
     fleetBulkClear: "مسح",
+    fleetClearFilters: "مسح المرشحات",
     fleetBulkConfirmTitle: "تأكيد التغيير الجماعي",
     fleetBulkConfirmStatus: "تعيين {n} مركبة إلى {status} على {lines}؟ مغادرة الخدمة تصفّر السرعة — التراجع يستعيد القيم السابقة.",
     fleetBulkConfirmCrowd: "تعيين الازدحام إلى {crowd} على {n} مركبة ({lines})؟ التراجع يستعيد المستويات السابقة.",

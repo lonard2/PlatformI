@@ -1412,6 +1412,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     fleetBulkStatus: "Status massal",
     fleetBulkCrowd: "Kepadatan massal",
     fleetBulkClear: "Hapus pilihan",
+    fleetClearFilters: "Hapus filter",
     fleetBulkConfirmTitle: "Konfirmasi perubahan massal",
     fleetBulkConfirmStatus: "Atur {n} kendaraan ke {status} di {lines}? Keluar dari layanan menolkan kecepatan — Undo mengembalikannya.",
     fleetBulkConfirmCrowd: "Atur kepadatan ke {crowd} pada {n} kendaraan ({lines})? Undo mengembalikan level sebelumnya.",

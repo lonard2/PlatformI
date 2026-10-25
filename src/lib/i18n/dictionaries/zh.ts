@@ -1412,6 +1412,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     fleetBulkStatus: "批量状态",
     fleetBulkCrowd: "批量拥挤度",
     fleetBulkClear: "清除",
+    fleetClearFilters: "清除筛选",
     fleetBulkConfirmTitle: "确认批量更改",
     fleetBulkConfirmStatus: "将{lines}上的{n}辆车设为{status}？离开营运状态将清零速度 — 撤销可恢复之前的值。",
     fleetBulkConfirmCrowd: "将{n}辆车（{lines}）的拥挤度设为{crowd}？撤销可恢复之前的水平。",

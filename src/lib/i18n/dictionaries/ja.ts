@@ -1412,6 +1412,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     fleetBulkStatus: "一括ステータス",
     fleetBulkCrowd: "一括混雑度",
     fleetBulkClear: "クリア",
+    fleetClearFilters: "フィルターをクリア",
     fleetBulkConfirmTitle: "一括変更の確認",
     fleetBulkConfirmStatus: "{lines}の{n}台を{status}に設定しますか？非サービス状態では速度がゼロになります — 元に戻すで復元されます。",
     fleetBulkConfirmCrowd: "{n}台（{lines}）の混雑度を{crowd}に設定しますか？元に戻すで復元されます。",

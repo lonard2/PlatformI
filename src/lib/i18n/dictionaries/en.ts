@@ -1418,6 +1418,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     fleetBulkStatus: "Bulk status",
     fleetBulkCrowd: "Bulk crowd",
     fleetBulkClear: "Clear",
+    fleetClearFilters: "Clear filters",
     fleetSortFleet: "Sort fleet",
     fleetSortCodeAsc: "Code A-Z",
     fleetSortCodeDesc: "Code Z-A",
