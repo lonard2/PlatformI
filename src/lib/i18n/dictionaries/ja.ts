@@ -1410,6 +1410,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     fleetStatusSpeedNote: "非サービス状態にすると速度はゼロになります — 以前の値は保存され、元に戻すで復元されます。サービス復帰時は速度が0の場合は40 km/hに戻ります。",
     fleetAddSummary: "摘要",
     fleetDuplicateCode: "コード{code}はすでにフリートにあります",
+    fleetTableCaption: "フリート在庫ボード",
     ariaDeleteVehicle: "車両を削除",
     sevCritical: "重大",
     sevWarning: "警告",

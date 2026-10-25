@@ -1410,6 +1410,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     fleetStatusSpeedNote: "Keluar dari layanan menolkan kecepatan — nilai sebelumnya disimpan dan Undo mengembalikannya. Kembali berdinas mengembalikan 40 km/jam saat kecepatan 0.",
     fleetAddSummary: "Ringkasan",
     fleetDuplicateCode: "Kode {code} sudah ada di armada",
+    fleetTableCaption: "Papan inventaris armada",
     ariaDeleteVehicle: "Hapus kendaraan",
     sevCritical: "Kritis",
     sevWarning: "Peringatan",

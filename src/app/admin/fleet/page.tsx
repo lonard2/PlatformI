@@ -327,6 +327,7 @@ function FleetManagementContent() {
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
   const undoButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const lastTriggerRef = useRef<HTMLElement | null>(null);
+  const bulkBarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (pendingUndos.size === 0) return;
@@ -677,6 +678,12 @@ function FleetManagementContent() {
 
   // Bulk triage reuses the single-row paths so undo, shift log, and sync
   // stay consistent; the selection survives so holds can chain into crowds.
+  // Focus moves once to the bulk bar: per-row undo-button steals are
+  // scheduled first, so this later frame wins and keyboard triage continues.
+  const focusBulkBar = (): void => {
+    requestAnimationFrame(() => bulkBarRef.current?.focus());
+  };
+
   const applyBulkStatus = (newStatus: VehicleOperationalStatus): void => {
     const current = useTransitStore.getState().simulatedVehicles;
     for (const id of selectedIds) {
@@ -685,6 +692,7 @@ function FleetManagementContent() {
         handleUpdateStatus(vehicle, newStatus, null);
       }
     }
+    focusBulkBar();
   };
 
   const applyBulkCrowd = (newCrowd: CrowdDensityLevel): void => {
@@ -695,6 +703,7 @@ function FleetManagementContent() {
         handleUpdateCrowd(vehicle, newCrowd, null);
       }
     }
+    focusBulkBar();
   };
 
   const handleUpdateSpeed = (
@@ -809,6 +818,22 @@ function FleetManagementContent() {
     lastTriggerRef.current?.focus();
   }, []);
 
+  // Keep Tab inside an inline delete confirm while it is open.
+  const trapTabInConfirm = (e: React.KeyboardEvent<HTMLElement>): void => {
+    if (e.key !== "Tab") return;
+    const buttons = Array.from(e.currentTarget.querySelectorAll("button"));
+    if (buttons.length === 0) return;
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   // Move focus into the delete confirmation; Escape returns it to delete.
   useEffect(() => {
     if (confirmDeleteId) confirmDeleteButtonRef.current?.focus();
@@ -817,10 +842,15 @@ function FleetManagementContent() {
   const handleDeleteVehicle = (vehicle: Vehicle, triggerEl?: HTMLElement | null) => {
     if (triggerEl) {
       lastTriggerRef.current = triggerEl;
+    } else {
+      // Modal deletes unmount their trigger: never focus a detached node.
+      lastTriggerRef.current = null;
     }
 
-    // Remove from store
-    updateSimulatedVehicles(simulatedVehicles.filter((v) => v.id !== vehicle.id));
+    // Remove from store; read live state so a simulation tick cannot interleave.
+    updateSimulatedVehicles(
+      useTransitStore.getState().simulatedVehicles.filter((v) => v.id !== vehicle.id)
+    );
     if (selectedVehicle?.id === vehicle.id) {
       setSelectedVehicle(null);
     }
@@ -870,7 +900,9 @@ function FleetManagementContent() {
     setFailedSyncs((prev) => prev.filter((e) => e.vehicleId !== vehicleId));
 
     if (pending.field === "add") {
-      updateSimulatedVehicles(simulatedVehicles.filter((v) => v.id !== vehicleId));
+      updateSimulatedVehicles(
+        useTransitStore.getState().simulatedVehicles.filter((v) => v.id !== vehicleId)
+      );
       if (selectedVehicle?.id === vehicleId) {
         setSelectedVehicle(null);
       }
@@ -887,7 +919,7 @@ function FleetManagementContent() {
     } else if (pending.field === "delete" && pending.previousVehicle) {
       // Recreate vehicle in store and database
       const restored = pending.previousVehicle;
-      updateSimulatedVehicles([...simulatedVehicles, restored]);
+      updateSimulatedVehicles([...useTransitStore.getState().simulatedVehicles, restored]);
       fetch("/api/fleet/vehicles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -902,7 +934,7 @@ function FleetManagementContent() {
       });
     } else {
       // Field-scoped restore: preserves live simulation coordinates, heading, and telemetry
-      const current = simulatedVehicles.find((v) => v.id === vehicleId);
+      const current = useTransitStore.getState().simulatedVehicles.find((v) => v.id === vehicleId);
       if (current) {
         if (pending.field === "status") {
           const prevStatus = pending.previous as VehicleOperationalStatus;
@@ -924,7 +956,18 @@ function FleetManagementContent() {
               status: restored.status,
               speedKmh: restored.speedKmh,
             }),
-          }).catch(() => {});
+          }).catch(() => {
+            reportSyncFailure({
+              vehicleId,
+              vehicleCode: current.vehicleCode,
+              kind: "update",
+              update: {
+                vehicleCode: current.vehicleCode,
+                status: restored.status,
+                speedKmh: restored.speedKmh,
+              },
+            });
+          });
         } else if (pending.field === "crowdLevel") {
           const prevCrowd = pending.previous as CrowdDensityLevel;
           const restored: Vehicle = {
@@ -943,7 +986,14 @@ function FleetManagementContent() {
               vehicleCode: current.vehicleCode,
               crowdLevel: restored.crowdLevel,
             }),
-          }).catch(() => {});
+          }).catch(() => {
+            reportSyncFailure({
+              vehicleId,
+              vehicleCode: current.vehicleCode,
+              kind: "update",
+              update: { vehicleCode: current.vehicleCode, crowdLevel: restored.crowdLevel },
+            });
+          });
         } else if (pending.field === "speed" && pending.previousSpeedKmh !== undefined) {
           const restored: Vehicle = {
             ...current,
@@ -961,7 +1011,14 @@ function FleetManagementContent() {
               vehicleCode: current.vehicleCode,
               speedKmh: restored.speedKmh,
             }),
-          }).catch(() => {});
+          }).catch(() => {
+            reportSyncFailure({
+              vehicleId,
+              vehicleCode: current.vehicleCode,
+              kind: "update",
+              update: { vehicleCode: current.vehicleCode, speedKmh: restored.speedKmh },
+            });
+          });
         }
       }
     }
@@ -1143,13 +1200,13 @@ function FleetManagementContent() {
   const getCategoryIcon = (category: TransitCategory) => {
     switch (category) {
       case "RAIL":
-        return <Train className="w-3.5 h-3.5 text-rose-400" />;
+        return <Train aria-hidden="true" className="w-3.5 h-3.5 text-rose-400" />;
       case "BUS":
-        return <Bus className="w-3.5 h-3.5 text-cyan-400" />;
+        return <Bus aria-hidden="true" className="w-3.5 h-3.5 text-cyan-400" />;
       case "AVIATION":
-        return <Plane className="w-3.5 h-3.5 text-teal-400" />;
+        return <Plane aria-hidden="true" className="w-3.5 h-3.5 text-teal-400" />;
       case "MARITIME":
-        return <Anchor className="w-3.5 h-3.5 text-blue-400" />;
+        return <Anchor aria-hidden="true" className="w-3.5 h-3.5 text-blue-400" />;
     }
   };
 
@@ -1306,7 +1363,9 @@ function FleetManagementContent() {
       {selectedIds.size > 0 && (
         <div
           data-testid="fleet-bulk-bar"
-          className="p-3.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex flex-wrap items-center gap-2 shadow-xl"
+          ref={bulkBarRef}
+          tabIndex={-1}
+          className="p-3.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex flex-wrap items-center gap-2 shadow-xl outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
         >
           <span role="status" className="font-bold text-cyan-300 font-mono whitespace-nowrap">
             {t.admin.fleetBulkSelected.replace("{n}", String(selectedIds.size))}
@@ -1449,6 +1508,7 @@ function FleetManagementContent() {
       <div className="rounded-2xl bg-slate-900/80 border border-white/10 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
+            <caption className="sr-only">{t.admin.fleetTableCaption}</caption>
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
                 <th scope="col" className="py-3.5 pl-4 pr-1 w-10">
@@ -1566,7 +1626,6 @@ function FleetManagementContent() {
                       <select
                         id={`status-select-${vehicle.id}`}
                         value={vehicle.status}
-                        aria-label={`${t.admin.ariaStatusFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
                           handleUpdateStatus(vehicle, e.target.value as VehicleOperationalStatus, e.currentTarget)
                         }
@@ -1595,7 +1654,6 @@ function FleetManagementContent() {
                       <select
                         id={`crowd-select-${vehicle.id}`}
                         value={vehicle.crowdLevel}
-                        aria-label={`${t.admin.ariaCrowdFor} ${vehicle.vehicleCode}`}
                         onChange={(e) =>
                           handleUpdateCrowd(vehicle, e.target.value as CrowdDensityLevel, e.currentTarget)
                         }
@@ -1628,6 +1686,7 @@ function FleetManagementContent() {
                                 e.stopPropagation();
                                 closeDeleteConfirm();
                               }
+                              trapTabInConfirm(e);
                             }}
                             className="flex items-center gap-1.5 rounded-lg border border-rose-500/50 bg-rose-950/60 px-2 py-1"
                           >
@@ -1870,6 +1929,7 @@ function FleetManagementContent() {
                       e.stopPropagation();
                       closeDeleteConfirm();
                     }
+                    trapTabInConfirm(e);
                   }}
                   className="flex items-center gap-2 rounded-xl border border-rose-500/50 bg-rose-950/60 px-3 py-2"
                 >

@@ -47,8 +47,7 @@ describe("Fleet bulk operations", () => {
     vi.restoreAllMocks();
   });
 
-  it("selecting rows reveals a bulk bar with the selection count", async () => {
-    render(<AdminFleetPage />);
+  it("selecting rows reveals a bulk bar with the selection count", async () => {    render(<AdminFleetPage />);
     const firstBox = await screen.findByRole("checkbox", {
       name: new RegExp(`Select ${TRANSIT_VEHICLES[0].vehicleCode}`),
     });
@@ -87,5 +86,10 @@ describe("Fleet bulk operations", () => {
       .sort()
       .reverse();
     expect(rows[1].getAttribute("aria-label")).toContain(codes[0]);
+  });
+
+  it("exposes the board table under an accessible caption", async () => {
+    render(<AdminFleetPage />);
+    expect(await screen.findByRole("table", { name: /fleet inventory board/i })).toBeInTheDocument();
   });
 });

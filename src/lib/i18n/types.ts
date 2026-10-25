@@ -1420,6 +1420,7 @@ export interface TranslationDictionary {
     fleetStatusSpeedNote: string;
     fleetAddSummary: string;
     fleetDuplicateCode: string;
+    fleetTableCaption: string;
     ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;

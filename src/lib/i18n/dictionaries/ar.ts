@@ -1410,6 +1410,7 @@ export const ar: TranslationDictionary = {
     fleetStatusSpeedNote: "مغادرة الخدمة تصفّر السرعة — تُحفظ القيمة السابقة ويستعيدها التراجع. العودة إلى الخدمة تستعيد 40 كم/ساعة عندما تكون السرعة 0.",
     fleetAddSummary: "الملخص",
     fleetDuplicateCode: "الرمز {code} موجود بالفعل في الأسطول",
+    fleetTableCaption: "لوحة مخزون الأسطول",
     ariaDeleteVehicle: "حذف المركبة",
     sevCritical: "حرج",
     sevWarning: "تحذير",

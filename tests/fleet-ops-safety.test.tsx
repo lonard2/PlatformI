@@ -105,4 +105,25 @@ describe("Fleet delete confirmation", () => {
     expect(deletes).toBe(2);
     expect(screen.queryByText(new RegExp(`Fleet sync failed for ${TARGET.vehicleCode}`))).not.toBeInTheDocument();
   });
+
+  it("keeps a failed field-undo restore visible instead of failing silent", async () => {
+    mockFleetApi((url: string, init?: RequestInit) => {
+      if (String(url).startsWith("/api/fleet/vehicles") && init?.method === "PUT") {
+        return Promise.reject(new Error("network down"));
+      }
+      return okJson({ success: true, data: [] });
+    });
+    render(<AdminFleetPage />);
+    const statusSelect = document.getElementById(`status-select-${TARGET.id}`);
+    expect(statusSelect).not.toBeNull();
+    fireEvent.change(statusSelect!, { target: { value: "CONGESTION_HOLD" } });
+    // The failed update surfaces…
+    expect(await screen.findByText(new RegExp(`Fleet sync failed for ${TARGET.vehicleCode}`))).toBeInTheDocument();
+    // …and undoing it must not swallow the failed restore.
+    fireEvent.click(await screen.findByRole("button", { name: /action pending - undo/i }));
+    expect(await screen.findByText(new RegExp(`Fleet sync failed for ${TARGET.vehicleCode}`))).toBeInTheDocument();
+    expect(
+      useTransitStore.getState().simulatedVehicles.find((v) => v.id === TARGET.id)?.status
+    ).toBe(TARGET.status);
+  });
 });
