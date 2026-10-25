@@ -243,6 +243,9 @@ function FleetManagementContent() {
   const [activeCategory, setActiveCategory] = useState<TransitCategory | "ALL">(
     () => (searchParams.get("category") as TransitCategory | null) ?? "ALL"
   );
+  // Bulk triage: corridor holds touch many rows, so selection is first-class.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [sortSpec, setSortSpec] = useState<string>("code-asc");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -450,6 +453,32 @@ function FleetManagementContent() {
     });
   }, [simulatedVehicles, activeCategory, searchQuery]);
 
+  // Sorted board: deterministic order for corridor triage.
+  const sortedVehicles = useMemo(() => {
+    const lineCodeOf = (vehicle: Vehicle): string =>
+      allLines.find((l) => l.id === vehicle.lineId)?.code ?? "";
+    const next = [...filteredVehicles];
+    switch (sortSpec) {
+      case "code-desc":
+        next.sort((a, b) => b.vehicleCode.localeCompare(a.vehicleCode));
+        break;
+      case "line":
+        next.sort((a, b) => lineCodeOf(a).localeCompare(lineCodeOf(b)) || a.vehicleCode.localeCompare(b.vehicleCode));
+        break;
+      case "speed":
+        next.sort((a, b) => b.speedKmh - a.speedKmh || a.vehicleCode.localeCompare(b.vehicleCode));
+        break;
+      case "status":
+        next.sort((a, b) => a.status.localeCompare(b.status) || a.vehicleCode.localeCompare(b.vehicleCode));
+        break;
+      case "code-asc":
+      default:
+        next.sort((a, b) => a.vehicleCode.localeCompare(b.vehicleCode));
+        break;
+    }
+    return next;
+  }, [filteredVehicles, sortSpec, allLines]);
+
   const getStatusLabel = (status: VehicleOperationalStatus): string => {
     switch (status) {
       case "IN_SERVICE":
@@ -610,6 +639,28 @@ function FleetManagementContent() {
       return next;
     });
     requestAnimationFrame(() => undoButtonRefs.current.get(vehicle.id)?.focus());
+  };
+
+  // Bulk triage reuses the single-row paths so undo, shift log, and sync
+  // stay consistent; the selection survives so holds can chain into crowds.
+  const applyBulkStatus = (newStatus: VehicleOperationalStatus): void => {
+    const current = useTransitStore.getState().simulatedVehicles;
+    for (const id of selectedIds) {
+      const vehicle = current.find((v) => v.id === id);
+      if (vehicle && vehicle.status !== newStatus) {
+        handleUpdateStatus(vehicle, newStatus, null);
+      }
+    }
+  };
+
+  const applyBulkCrowd = (newCrowd: CrowdDensityLevel): void => {
+    const current = useTransitStore.getState().simulatedVehicles;
+    for (const id of selectedIds) {
+      const vehicle = current.find((v) => v.id === id);
+      if (vehicle && vehicle.crowdLevel !== newCrowd) {
+        handleUpdateCrowd(vehicle, newCrowd, null);
+      }
+    }
   };
 
   const handleUpdateSpeed = (
@@ -1194,7 +1245,87 @@ function FleetManagementContent() {
             );
           })}
         </div>
+        {/* Sort control: deterministic board order for triage */}
+        <div className="flex items-center gap-2 shrink-0">
+          <label htmlFor="fleet-sort" className="sr-only">
+            {t.admin.fleetSortFleet}
+          </label>
+          <select
+            id="fleet-sort"
+            aria-label={t.admin.fleetSortFleet}
+            value={sortSpec}
+            onChange={(e) => setSortSpec(e.target.value)}
+            className="bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 transition min-h-[36px]"
+          >
+            <option value="code-asc">{t.admin.fleetSortCodeAsc}</option>
+            <option value="code-desc">{t.admin.fleetSortCodeDesc}</option>
+            <option value="line">{t.admin.fleetSortLine}</option>
+            <option value="speed">{t.admin.fleetSortSpeed}</option>
+            <option value="status">{t.admin.fleetSortStatus}</option>
+          </select>
+        </div>
       </div>
+
+      {/* 2.4 BULK BAR: corridor holds apply to the whole selection at once */}
+      {selectedIds.size > 0 && (
+        <div
+          data-testid="fleet-bulk-bar"
+          className="p-3.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-200 text-xs sm:text-sm flex flex-wrap items-center gap-2 shadow-xl"
+        >
+          <span role="status" className="font-bold text-cyan-300 font-mono whitespace-nowrap">
+            {t.admin.fleetBulkSelected.replace("{n}", String(selectedIds.size))}
+          </span>
+          <label htmlFor="fleet-bulk-status" className="sr-only">
+            {t.admin.fleetBulkStatus}
+          </label>
+          <select
+            id="fleet-bulk-status"
+            aria-label={t.admin.fleetBulkStatus}
+            defaultValue=""
+            onChange={(e) => {
+              if (e.target.value) {
+                applyBulkStatus(e.target.value as VehicleOperationalStatus);
+                e.target.value = "";
+              }
+            }}
+            className="bg-slate-950 border border-white/15 rounded-lg px-2 py-1.5 text-xs text-slate-200 min-h-[36px]"
+          >
+            <option value="">{t.admin.fleetBulkStatus}</option>
+            <option value="IN_SERVICE">{t.admin.moving}</option>
+            <option value="BOARDING">{t.admin.boarding}</option>
+            <option value="CONGESTION_HOLD">{t.admin.hold}</option>
+            <option value="OUT_OF_SERVICE">{t.common.inactive}</option>
+          </select>
+          <label htmlFor="fleet-bulk-crowd" className="sr-only">
+            {t.admin.fleetBulkCrowd}
+          </label>
+          <select
+            id="fleet-bulk-crowd"
+            aria-label={t.admin.fleetBulkCrowd}
+            defaultValue=""
+            onChange={(e) => {
+              if (e.target.value) {
+                applyBulkCrowd(e.target.value as CrowdDensityLevel);
+                e.target.value = "";
+              }
+            }}
+            className="bg-slate-950 border border-white/15 rounded-lg px-2 py-1.5 text-xs text-slate-200 min-h-[36px]"
+          >
+            <option value="">{t.admin.fleetBulkCrowd}</option>
+            <option value="LEVEL_1_MANY_SEATS">{t.crowdsource.densitySeatsAvailable}</option>
+            <option value="LEVEL_2_FEW_SEATS">{t.crowdsource.densityFewSeats}</option>
+            <option value="LEVEL_3_STANDING_ONLY">{t.crowdsource.densityStandingOnly}</option>
+            <option value="LEVEL_4_FULL_CRUSH">{t.crowdsource.densityFullCrowded}</option>
+          </select>
+          <button
+            type="button"
+            onClick={() => setSelectedIds(new Set())}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition btn-tactile min-h-[36px]"
+          >
+            {t.admin.fleetBulkClear}
+          </button>
+        </div>
+      )}
 
       {/* 2.5 UNDO RESTORE BANNERS (pausable window per vehicle: short for edits, long for add/delete) */}
       {/* Design Standard (Semantic Undo Theming):
@@ -1284,6 +1415,21 @@ function FleetManagementContent() {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-slate-950/80 text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
+                <th scope="col" className="py-3.5 pl-4 pr-1 w-10">
+                  <input
+                    type="checkbox"
+                    aria-label={t.admin.fleetSelectAll}
+                    checked={sortedVehicles.length > 0 && sortedVehicles.every((v) => selectedIds.has(v.id))}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedIds(new Set(sortedVehicles.map((v) => v.id)));
+                      } else {
+                        setSelectedIds(new Set());
+                      }
+                    }}
+                    className="w-4 h-4 accent-cyan-500"
+                  />
+                </th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.vehicleCode}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.fleetAssignedLine}</th>
                 <th scope="col" className="py-3.5 px-4">{t.admin.modelAndCoach}</th>
@@ -1294,7 +1440,7 @@ function FleetManagementContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-sans">
-              {filteredVehicles.map((vehicle) => {
+              {sortedVehicles.map((vehicle) => {
                 const line = allLines.find((l) => l.id === vehicle.lineId);
 
                 return (
@@ -1302,6 +1448,23 @@ function FleetManagementContent() {
                     key={vehicle.id}
                     className="group hover:bg-white/[0.03] transition"
                   >
+                    {/* Bulk select */}
+                    <td className="py-3.5 pl-4 pr-1">
+                      <input
+                        type="checkbox"
+                        aria-label={t.admin.fleetSelectVehicle.replace("{code}", vehicle.vehicleCode)}
+                        checked={selectedIds.has(vehicle.id)}
+                        onChange={(e) => {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(vehicle.id);
+                            else next.delete(vehicle.id);
+                            return next;
+                          });
+                        }}
+                        className="w-4 h-4 accent-cyan-500"
+                      />
+                    </td>
                     {/* Code & Name */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2.5">
@@ -1479,9 +1642,9 @@ function FleetManagementContent() {
                   </tr>
                 );
               })}
-              {filteredVehicles.length === 0 && (
+              {sortedVehicles.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-xs text-slate-400">
+                  <td colSpan={8} className="py-10 text-center text-xs text-slate-400">
                     {t.admin.fleetNoMatch}
                   </td>
                 </tr>

@@ -1405,6 +1405,18 @@ export interface TranslationDictionary {
     fleetSyncPulled: string;
     fleetBoardSyncError: string;
     fleetPendingChanges: string;
+    fleetSelectVehicle: string;
+    fleetSelectAll: string;
+    fleetBulkSelected: string;
+    fleetBulkStatus: string;
+    fleetBulkCrowd: string;
+    fleetBulkClear: string;
+    fleetSortFleet: string;
+    fleetSortCodeAsc: string;
+    fleetSortCodeDesc: string;
+    fleetSortLine: string;
+    fleetSortSpeed: string;
+    fleetSortStatus: string;
     ariaDeleteVehicle: string;
     sevCritical: string;
     sevWarning: string;
