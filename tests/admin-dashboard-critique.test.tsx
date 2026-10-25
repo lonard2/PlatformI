@@ -36,6 +36,47 @@ function seedDashboard(): void {
   );
 }
 
+describe("Posture hero", () => {
+  beforeEach(seedDashboard);
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("names the network state with the worst active severity", async () => {
+    render(<AdminDashboardPage />);
+    const strip = await screen.findByTestId("posture-strip");
+    expect(strip.textContent).toMatch(/Degraded/);
+    expect(within(strip).getByText("Warning")).toBeInTheDocument();
+  });
+
+  it("declares all-clear with no active bulletins", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({ ok: true, json: async () => ({ success: true, data: [] }) })
+      )
+    );
+    render(<AdminDashboardPage />);
+    const strip = await screen.findByTestId("posture-strip");
+    expect(strip.textContent).toMatch(/All clear/);
+  });
+
+  it("keeps a WIB clock in the hero strip", async () => {
+    render(<AdminDashboardPage />);
+    const strip = await screen.findByTestId("posture-strip");
+    expect(strip.textContent).toMatch(/\d{1,2}:\d{2}/);
+  });
+
+  it("demotes the hero subtitle below the posture answer", async () => {
+    render(<AdminDashboardPage />);
+    await screen.findByTestId("posture-strip");
+    const subtitle = screen.getByText(/integrated monitoring across/i);
+    expect(subtitle.className).toMatch(/text-slate-500/);
+  });
+});
+
 describe("Operate actions", () => {
   beforeEach(seedDashboard);
 

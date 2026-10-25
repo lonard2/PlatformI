@@ -112,6 +112,39 @@ export default function AdminDashboardPage() {
   const criticalAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "CRITICAL").length, [activeAlerts]);
   const warningAlertsCount = useMemo(() => activeAlerts.filter((a) => a.severity === "WARNING").length, [activeAlerts]);
 
+  // Network posture: worst active severity, computed once and shared by the
+  // hero strip and the sector KPI so the board never disagrees with itself.
+  const worstActiveSeverity = useMemo(() => {
+    if (criticalAlertsCount > 0) return "CRITICAL" as const;
+    if (warningAlertsCount > 0) return "WARNING" as const;
+    if (activeAlerts.length > 0) return "INFO" as const;
+    return null;
+  }, [criticalAlertsCount, warningAlertsCount, activeAlerts.length]);
+
+  const postureWord =
+    worstActiveSeverity === "CRITICAL"
+      ? t.admin.dashboardPostureCritical
+      : worstActiveSeverity === "WARNING"
+      ? t.admin.dashboardPostureDegraded
+      : worstActiveSeverity === "INFO"
+      ? t.admin.dashboardPostureDegraded
+      : t.admin.dashboardPostureOk;
+
+  const postureColor =
+    worstActiveSeverity === "CRITICAL"
+      ? "text-rose-300"
+      : worstActiveSeverity
+      ? "text-amber-300"
+      : "text-emerald-300";
+
+  const heroClock = new Date(simulationTime).toLocaleTimeString(currentLanguageMeta.locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
+  });
+
   // Live telemetry pings sampled from the fleet. Advisory disruptions live
   // in a separate prioritized list below so a critical bulletin can never
   // read as routine traffic.
@@ -197,9 +230,38 @@ export default function AdminDashboardPage() {
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1.5">
             {t.admin.heroTitle}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
+          <p className="text-xs text-slate-500 max-w-2xl mt-1">
             {t.admin.heroSubtitle}
           </p>
+          {/* Network posture: the answer first, context second */}
+          <div
+            data-testid="posture-strip"
+            className="flex flex-wrap items-center gap-2 mt-2.5"
+          >
+            <span className={`text-sm font-bold font-mono ${postureColor}`}>
+              {postureWord}
+            </span>
+            {worstActiveSeverity && (
+              <span
+                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${
+                  worstActiveSeverity === "CRITICAL"
+                    ? "bg-rose-900/80 text-rose-300 border-rose-500/40"
+                    : worstActiveSeverity === "WARNING"
+                    ? "bg-amber-900/80 text-amber-300 border-amber-500/40"
+                    : "bg-cyan-900/80 text-cyan-300 border-cyan-500/40"
+                }`}
+              >
+                {worstActiveSeverity === "CRITICAL"
+                  ? t.admin.sevCritical
+                  : worstActiveSeverity === "WARNING"
+                  ? t.admin.sevWarning
+                  : t.admin.sevInfo}
+              </span>
+            )}
+            <span className="text-[11px] font-mono text-slate-400">
+              {heroClock} WIB
+            </span>
+          </div>
         </div>
 
         {/* Quick Shortcut Buttons */}

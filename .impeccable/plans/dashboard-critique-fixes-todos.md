@@ -11,8 +11,8 @@ Ledger in this file; rulings inline.
 
 | # | Todo | Scope | Status | Commit |
 |---|------|-------|--------|--------|
-| 1 | layout operate actions | Per-card "Open incident queue" CTA, advisory rows as links to /admin/alerts, hero broadcast entry | DONE (584/584) | — |
-| 2 | distill posture hero | Hero posture strip (state word + worst-severity chip + WIB clock), demoted subtitle | TODO | — |
+| 1 | layout operate actions | Per-card "Open incident queue" CTA, advisory rows as links to /admin/alerts, hero broadcast entry | DONE (584/584) | c5ce44b |
+| 2 | distill posture hero | Hero posture strip (state word + worst-severity chip + WIB clock), demoted subtitle | DONE (588/588) | — |
 | 3 | clarify telemetry stream | Structured columns, disclosed N-of-M basis, "View all in Fleet" cap | TODO | — |
 | 4 | bolder fourth KPI | Sector/worst-corridor posture KPI replaces fare volume; fare moves off-board | TODO | — |
 | 5 | harden states | Loading skeletons, telemetry-empty state, retry on stale banner | TODO | — |
@@ -23,3 +23,4 @@ Ledger in this file; rulings inline.
 - Pre-flight: todos 1-5 all touch src/app/admin/page.tsx; executed sequentially inline so no interface drift. Todo 2's posture strip consumes the severity ordering already present (critical-first sort); todo 4 reuses the same posture computation — no conflicts, shared derivation.
 - TDD + verification-before-completion loaded and governing.
 - Todo 1: anchors live on the alerts page (broadcast-form card id, per-row alert-{id}); dashboard links to them. Ruling: hero broadcast reuses publishAlert verb key (same action, all 6 locales) instead of a new string; per-card CTA got the one new key.
+- Todo 2: worstActiveSeverity memo shared with todo 4 (single derivation). Ruling: INFO maps to the Degraded word — any active bulletin means the network is not clear; the chip still names the exact tier so no information is lost. Subtitle demoted via color/size only, copy untouched.

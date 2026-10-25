@@ -1459,6 +1459,9 @@ export interface TranslationDictionary {
     kpiOccupiedCabinValue: string;
     kpiOccupiedCabinValueBasis: string;
     adminOpenIncidentQueue: string;
+    dashboardPostureOk: string;
+    dashboardPostureDegraded: string;
+    dashboardPostureCritical: string;
     helpTitle: string;
     helpSubtitle: string;
     helpShortcutsTitle: string;
