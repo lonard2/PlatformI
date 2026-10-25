@@ -205,6 +205,13 @@ export default function AdminDashboardPage() {
         {/* Quick Shortcut Buttons */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
+            href="/admin/alerts#broadcast-form"
+            className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-amber-950 text-xs font-bold flex items-center gap-1.5 transition shadow-md btn-tactile"
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>{t.admin.publishAlert}</span>
+          </Link>
+          <Link
             href="/admin/alerts"
             className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition shadow-md btn-tactile"
           >
@@ -284,6 +291,13 @@ export default function AdminDashboardPage() {
             <span>&bull;</span>
             <span className="text-amber-400">{warningAlertsCount} {t.admin.warningAlerts}</span>
           </div>
+          <Link
+            href="/admin/alerts"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-300 hover:text-amber-100 transition pt-1 btn-tactile"
+          >
+            <span>{t.admin.adminOpenIncidentQueue}</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
         {/* KPI 4: Estimated Occupied-Cabin Value */}
@@ -438,9 +452,10 @@ export default function AdminDashboardPage() {
                     ? "text-rose-300 border-rose-500/40 bg-rose-950/40"
                     : "text-amber-300 border-amber-500/40 bg-amber-950/40";
                 return (
-                  <div
+                  <Link
                     key={`alert-${a.id}`}
-                    className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-start gap-3 text-xs"
+                    href={`/admin/alerts#alert-${a.id}`}
+                    className="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-start gap-3 text-xs hover:border-white/20 transition"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       {time && (
@@ -453,7 +468,7 @@ export default function AdminDashboardPage() {
                         {a.title}: {a.description}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 );
               })
             )}

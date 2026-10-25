@@ -1458,6 +1458,7 @@ export interface TranslationDictionary {
     kpiFleetNotHeldBasis: string;
     kpiOccupiedCabinValue: string;
     kpiOccupiedCabinValueBasis: string;
+    adminOpenIncidentQueue: string;
     helpTitle: string;
     helpSubtitle: string;
     helpShortcutsTitle: string;

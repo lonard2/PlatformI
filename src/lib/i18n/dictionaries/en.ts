@@ -1448,6 +1448,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     kpiFleetNotHeldBasis: "Basis: Active fleet excl. congestion hold & depot",
     kpiOccupiedCabinValue: "Est. Occupied-Cabin Value",
     kpiOccupiedCabinValueBasis: "Basis: Live onboard load × Rp 3,500 base fare",
+    adminOpenIncidentQueue: "Open incident queue",
     helpTitle: "OCC Dispatcher Guide & Shortcuts",
     helpSubtitle: "Operational protocols, triage blast radius, and keyboard reference.",
     helpShortcutsTitle: "Keyboard Shortcuts",

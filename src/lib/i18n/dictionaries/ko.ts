@@ -1448,6 +1448,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     kpiFleetNotHeldBasis: "기준: 혼잡 대기 및 기지 입고를 제외한 운행 선단",
     kpiOccupiedCabinValue: "추정 객실 점유 가치",
     kpiOccupiedCabinValueBasis: "기준: 실시간 차내 승객 수 × 기본 요금 Rp 3,500",
+    adminOpenIncidentQueue: "인시던트 대기열 열기",
     helpTitle: "OCC 관제사 가이드 및 단축키",
     helpSubtitle: "운영 프로토콜, 장애 전파 범위 및 키보드 조작 안내.",
     helpShortcutsTitle: "키보드 단축키",

@@ -1448,6 +1448,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     kpiFleetNotHeldBasis: "基準: 混雑待機および車庫待機を除く稼働編成",
     kpiOccupiedCabinValue: "推定客室占有価値",
     kpiOccupiedCabinValueBasis: "基準: リアルタイム乗車人数 × 基本運賃 Rp 3,500",
+    adminOpenIncidentQueue: "インシデントキューを開く",
     helpTitle: "OCC指令員ガイド＆ショートカット",
     helpSubtitle: "運用プロトコル、運行支障波及範囲、およびキーボード操作一覧。",
     helpShortcutsTitle: "キーボードショートカット",

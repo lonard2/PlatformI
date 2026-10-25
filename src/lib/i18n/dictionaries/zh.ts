@@ -1448,6 +1448,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     kpiFleetNotHeldBasis: "基准：扣除拥堵暂停与回库后的在途车队",
     kpiOccupiedCabinValue: "预计客舱在员价值",
     kpiOccupiedCabinValueBasis: "基准：实时在舱载客量 × 基础票价 Rp 3,500",
+    adminOpenIncidentQueue: "打开事件队列",
     helpTitle: "OCC调度员指南与键盘快捷键",
     helpSubtitle: "运行规程、故障影响波及范围与键盘操作参考。",
     helpShortcutsTitle: "键盘快捷键",

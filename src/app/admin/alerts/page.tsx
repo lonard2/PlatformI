@@ -1174,7 +1174,10 @@ export default function AdminAlertsPage() {
       {/* 2. MAIN 2-COLUMN AUTHORING & PREVIEW GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Authoring Form */}
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl">
+        <div
+          id="broadcast-form"
+          className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4 shadow-xl"
+        >
           <div className="flex items-center gap-2 border-b border-white/10 pb-3">
             <Radio className="w-4 h-4 text-amber-400" />
             <h3 className="text-sm font-bold text-white">{t.admin.newDisruptionAlert}</h3>
@@ -1727,6 +1730,7 @@ export default function AdminAlertsPage() {
             return (
               <div
                 key={alert.id}
+                id={`alert-${alert.id}`}
                 className={`p-4 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 ${
                   isResolved
                     ? "bg-slate-950/40 border-slate-800/60 opacity-60"
