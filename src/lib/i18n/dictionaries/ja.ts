@@ -1883,6 +1883,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netStagedStops: "保留中の停留所変更 ({n}件)",
     netToastStopsPublished: "保留中の停留所変更{n}件を公開しました。",
     netToastUndone: "直前の変更を元に戻しました。",
+    netStagedChanges: "保留中の変更 (停留所{stops}件、頂点{vertices}件)",
+    netLastPublished: "最終公開: 停留所{stops}件、頂点{vertices}件 ({time})",
   },
 };
 

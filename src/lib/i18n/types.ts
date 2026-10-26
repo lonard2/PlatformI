@@ -1893,5 +1893,7 @@ export interface TranslationDictionary {
     netStagedStops: string;
     netToastStopsPublished: string;
     netToastUndone: string;
+    netStagedChanges: string;
+    netLastPublished: string;
   };
 }

@@ -1883,6 +1883,8 @@ export const ar: TranslationDictionary = {
     netStagedStops: "تغييرات المحطات المعلقة ({n})",
     netToastStopsPublished: "تم نشر {n} من تغييرات المحطات المعلقة.",
     netToastUndone: "تم التراجع عن آخر تغيير.",
+    netStagedChanges: "التغييرات المعلقة ({stops} محطة، {vertices} رأس)",
+    netLastPublished: "آخر نشر: {stops} محطة، {vertices} رأس في {time}",
   },
 };
 

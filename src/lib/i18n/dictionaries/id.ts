@@ -1883,6 +1883,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netStagedStops: "Perubahan halte tertunda ({n})",
     netToastStopsPublished: "{n} perubahan halte tertunda dipublikasikan.",
     netToastUndone: "Perubahan terakhir dibatalkan.",
+    netStagedChanges: "Perubahan tertunda ({stops} halte, {vertices} verteks)",
+    netLastPublished: "Terakhir dipublikasikan: {stops} halte, {vertices} verteks pada {time}",
   },
 };
 

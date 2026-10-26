@@ -1883,6 +1883,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netStagedStops: "보류 중인 정류장 변경 ({n}건)",
     netToastStopsPublished: "보류 중인 정류장 변경 {n}건을 게시했습니다.",
     netToastUndone: "마지막 변경을 실행 취소했습니다.",
+    netStagedChanges: "보류 중인 변경 (정류장 {stops}곳, 정점 {vertices}개)",
+    netLastPublished: "마지막 게시: 정류장 {stops}곳, 정점 {vertices}개 ({time})",
   },
 };
 

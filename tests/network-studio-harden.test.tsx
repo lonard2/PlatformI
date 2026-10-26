@@ -81,16 +81,16 @@ describe("network studio harden", () => {
   it("stages a stop drag locally without PUTing", async () => {
     await selectFirstLineWithStops();
     fireEvent.click(screen.getByText("sim-drag-first-stop"));
-    expect(await screen.findByText(/staged stop changes \(1\)/i)).toBeInTheDocument();
+    expect(await screen.findByText(/staged changes \(1 stop/i)).toBeInTheDocument();
     expect(putCalls()).toHaveLength(0);
   });
 
   it("restores the dragged stop on undo", async () => {
     await selectFirstLineWithStops();
     fireEvent.click(screen.getByText("sim-drag-first-stop"));
-    await screen.findByText(/staged stop changes \(1\)/i);
+    await screen.findByText(/staged changes \(1 stop/i);
     fireEvent.click(screen.getByRole("button", { name: /^undo$/i }));
-    expect(screen.queryByText(/staged stop changes/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/staged changes \(/i)).not.toBeInTheDocument();
     expect(putCalls()).toHaveLength(0);
   });
 
@@ -101,9 +101,9 @@ describe("network studio harden", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText(/undo within 10 seconds/i)).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole("button", { name: /delete station/i }));
-    expect(await screen.findByText(/staged stop changes \(1\)/i)).toBeInTheDocument();
+    expect(await screen.findByText(/staged changes \(1 stop/i)).toBeInTheDocument();
     expect(deleteCalls()).toHaveLength(0);
-    const strip = screen.getByText(/staged stop changes \(1\)/i).closest("div");
+    const strip = screen.getByText(/staged changes \(1 stop/i).closest("div");
     if (!strip) throw new Error("staged strip missing");
     fireEvent.click(within(strip.parentElement as HTMLElement).getByRole("button", { name: /sync db/i }));
     await vi.waitFor(() => expect(deleteCalls()).toHaveLength(1));

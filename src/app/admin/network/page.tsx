@@ -241,6 +241,8 @@ export default function AdminNetworkStudioPage() {
     }
     return { total: touched.size, deletions };
   }, [stagedStopOps, allStops]);
+
+
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Auto-dismiss status messages
@@ -556,6 +558,66 @@ export default function AdminNetworkStudioPage() {
     } finally {
       setIsSavingCurve(false);
     }
+  };
+
+  // Changed vertex count for the unified staged bar.
+  const vertexChangedCount = useMemo(() => {
+    if (!selectedLine) return 0;
+    const baseline = savedCoordinatesMap[selectedLine.id];
+    if (!baseline) return 0;
+    const current = selectedLine.polylineCoordinates || [];
+    let count = Math.abs(current.length - baseline.length);
+    const shared = Math.min(current.length, baseline.length);
+    for (let i = 0; i < shared; i++) {
+      if (
+        Math.abs(current[i].latitude - baseline[i].latitude) > 0.000001 ||
+        Math.abs(current[i].longitude - baseline[i].longitude) > 0.000001
+      ) {
+        count += 1;
+      }
+    }
+    return count;
+  }, [selectedLine, savedCoordinatesMap]);
+
+  const hasStagedWork = stagedStopOps.length > 0 || hasUnsavedChanges;
+
+  interface PublishReceipt {
+    stops: number;
+    vertices: number;
+    at: string;
+  }
+  const [lastPublished, setLastPublished] = useState<PublishReceipt | null>(() => {
+    try {
+      if (typeof localStorage === "undefined") return null;
+      const raw = localStorage.getItem("platformi.net.lastPublished");
+      return raw ? (JSON.parse(raw) as PublishReceipt) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Publish All: vertices first, then staged stops. One bar, one receipt.
+  const publishAllStaged = async (): Promise<void> => {
+    if (isPublishingStops) return;
+    const stops = stagedStopSummary.total;
+    const vertices = vertexChangedCount;
+    if (hasUnsavedChanges) {
+      await handleSaveLineCoordinates();
+    }
+    await publishStagedStopOps();
+    const receipt: PublishReceipt = { stops, vertices, at: new Date().toISOString() };
+    setLastPublished(receipt);
+    try {
+      localStorage.setItem("platformi.net.lastPublished", JSON.stringify(receipt));
+    } catch {
+      // Private mode: receipt stays in memory for the session.
+    }
+  };
+
+  // Discard All: vertex baseline restore plus stop-op rollback.
+  const discardAllStaged = (): void => {
+    handleRevertChanges();
+    discardStagedStopOps();
   };
 
   // 2g. Simplify Polyline (Douglas-Peucker reduction)
@@ -1081,7 +1143,7 @@ export default function AdminNetworkStudioPage() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
-                        onClick={handleSaveLineCoordinates}
+                        onClick={publishAllStaged}
                         disabled={isSavingCurve}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow btn-tactile"
                       >
@@ -1090,7 +1152,7 @@ export default function AdminNetworkStudioPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={handleRevertChanges}
+                        onClick={discardAllStaged}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition border border-white/10 btn-tactile"
                         title={t.admin.netRevertTitle}
                       >
@@ -1101,13 +1163,18 @@ export default function AdminNetworkStudioPage() {
                   </div>
                 )}
 
-                {/* Staged stop changes: nothing below goes live before Sync DB */}
-                {stagedStopOps.length > 0 && (
-                  <div className="p-3 rounded-xl bg-sky-950/70 border border-sky-500/40 flex items-center justify-between gap-3 shadow-lg">
+                {/* Unified staged bar: stops + vertices publish together, or not at all */}
+                {hasStagedWork && (
+                  <div
+                    data-testid="staged-bar"
+                    className="p-3 rounded-xl bg-sky-950/70 border border-sky-500/40 flex items-center justify-between gap-3 shadow-lg"
+                  >
                     <div className="flex items-center gap-2 text-xs text-sky-200 font-semibold min-w-0">
                       <Save className="w-4 h-4 text-sky-400 shrink-0" />
                       <span className="truncate">
-                        {t.admin.netStagedStops.replace("{n}", String(stagedStopSummary.total))}
+                        {t.admin.netStagedChanges
+                          .replace("{stops}", String(stagedStopSummary.total))
+                          .replace("{vertices}", String(vertexChangedCount))}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -1123,14 +1190,14 @@ export default function AdminNetworkStudioPage() {
                       )}
                       <button
                         type="button"
-                        onClick={discardStagedStopOps}
+                        onClick={discardAllStaged}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition border border-white/10 btn-tactile"
                       >
                         <span>{t.admin.netRevert}</span>
                       </button>
                       <button
                         type="button"
-                        onClick={publishStagedStopOps}
+                        onClick={publishAllStaged}
                         disabled={isPublishingStops}
                         className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition shadow btn-tactile disabled:opacity-40"
                       >
@@ -1139,6 +1206,14 @@ export default function AdminNetworkStudioPage() {
                       </button>
                     </div>
                   </div>
+                )}
+                {lastPublished && (
+                  <p className="text-[11px] text-slate-400 font-mono px-1">
+                    {t.admin.netLastPublished
+                      .replace("{stops}", String(lastPublished.stops))
+                      .replace("{vertices}", String(lastPublished.vertices))
+                      .replace("{time}", new Date(lastPublished.at).toLocaleString())}
+                  </p>
                 )}
 
                 {/* Spline Smoothing Geometry Card */}
