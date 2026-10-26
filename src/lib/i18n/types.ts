@@ -1112,6 +1112,10 @@ export interface TranslationDictionary {
     journeyNoMatch: string;
     journeySameStop: string;
     journeyNoTransfer: string;
+    journeyNoRoute: string;
+    journeyMultiLeg: string;
+    journeyAiNote: string;
+    journeyFareTips: string;
     coverage: string;
     journeyRefinePrompt: string;
     transitLines: string;

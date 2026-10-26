@@ -772,14 +772,14 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Refinement Action: AI Advisor */}
+                      {/* Refinement Action: fare and transfer tips (secondary) */}
                       <button
                         type="button"
                         onClick={handleRefineWithAI}
-                        className="touch-target w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
+                        className="touch-target w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{t.navigation.aiAdvisor} &bull; {t.ticketing.integratedDiscount}</span>
+                        <Sparkles className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{t.journey.journeyFareTips}</span>
                       </button>
                     </div>
                   ) : plannedJourney ? (
@@ -798,8 +798,11 @@ export default function Home() {
                         className="touch-target w-full mt-1 py-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold flex items-center justify-center gap-1.5 btn-tactile transition"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{t.navigation.aiAdvisor}</span>
+                        <span>{t.journey.journeyMultiLeg}</span>
                       </button>
+                      <p className="text-[10px] font-mono text-slate-500 text-center">
+                        {t.journey.journeyAiNote}
+                      </p>
                     </div>
                   ) : isSameStop ? (
                     <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 text-center flex items-center justify-center gap-1.5 shadow-inner">
@@ -847,7 +850,7 @@ export default function Home() {
                           : "bg-amber-400 shadow-[0_0_8px_#f59e0b]"
                       }`}
                     />
-                    <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
+                    <span className="font-medium text-white truncate max-w-[30vw] sm:max-w-[120px]">
                       {plannedJourney.originStop.name}
                     </span>
                     <ArrowRight className="w-3 h-3 text-slate-500 shrink-0" />
@@ -858,8 +861,25 @@ export default function Home() {
                           : "bg-amber-400 shadow-[0_0_8px_#f59e0b]"
                       }`}
                     />
-                    <span className="font-medium text-white truncate max-w-[90px] sm:max-w-[120px]">
+                    <span className="font-medium text-white truncate max-w-[30vw] sm:max-w-[120px]">
                       {plannedJourney.destinationStop.name}
+                    </span>
+                    <span
+                      className={`font-semibold truncate ${
+                        hasRoute
+                          ? plannedJourney.directLines.length > 0
+                            ? "text-emerald-300"
+                            : "text-amber-300"
+                          : "text-amber-300"
+                      }`}
+                    >
+                      {hasRoute
+                        ? `${
+                            plannedJourney.directLines.length > 0
+                              ? t.journey.journeyDirect
+                              : t.journey.journeyTransfer
+                          } · ~${plannedJourney.estimatedDurationMinutes} min`
+                        : t.journey.journeyNoRoute}
                     </span>
                     {hasRoute && (
                       <span className="px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono text-[10px] hidden sm:inline">
@@ -870,10 +890,9 @@ export default function Home() {
                 ) : (
                   <>
                     <Search className="w-4 h-4 text-cyan-400" />
-                    <span className="text-xs font-medium text-slate-300 hidden sm:inline">
+                    <span className="text-xs font-medium text-slate-300">
                       {t.common.findRoute}
                     </span>
-                    <span className="text-xs font-medium text-slate-300 sm:hidden">{t.common.route}</span>
                   </>
                 )}
               </motion.button>
