@@ -549,14 +549,16 @@ export default function Home() {
           <button
             onClick={() => setActiveDrawer(activeDrawer === "settings" ? null : "settings")}
             aria-label={t.navigation.settings}
+            title={t.navigation.settings}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "settings"}
             aria-pressed={isOpen("settings")}
-            className={`p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border text-slate-300 hover:text-white btn-tactile hover-glass-glow transition ${
+            className={`p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center gap-1.5 rounded-lg border text-slate-300 hover:text-white btn-tactile hover-glass-glow transition ${
               isOpen("settings") ? ACTIVE_TOGGLE : "border-slate-800 bg-slate-900/70 hover:border-slate-700"
             }`}
           >
             <Settings className="w-4 h-4 text-slate-300" />
+            <span className="hidden lg:inline text-xs font-medium">{t.navigation.settings}</span>
           </button>
         </div>
       </header>
