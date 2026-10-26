@@ -1887,6 +1887,9 @@ export const ar: TranslationDictionary = {
     netToastUndone: "تم التراجع عن آخر تغيير.",
     netStagedChanges: "التغييرات المعلقة ({stops} محطة، {vertices} رأس)",
     netLastPublished: "آخر نشر: {stops} محطة، {vertices} رأس في {time}",
+    netAdvanced: "أدوات متقدمة",
+    netNeedStops: "يلزم محطتان على الأقل",
+    netNeedVertices: "يلزم رأسان على الأقل",
   },
 };
 

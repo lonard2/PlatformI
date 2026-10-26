@@ -67,8 +67,7 @@ const CATEGORIES: { id: TransitCategory | "ALL"; labelKey: "netCatAll" | "netCat
   { id: "MARITIME", labelKey: "netCatMaritime", icon: <Anchor className="w-3.5 h-3.5" /> },
 ];
 
-const MODES_BY_CATEGORY: Record<TransitCategory, TransitMode[]> = {
-  RAIL: [
+const MODES_BY_CATEGORY: Record<TransitCategory, TransitMode[]> = {  RAIL: [
     "MRT_JAKARTA",
     "LRT_JABODEBEK_CIBUBUR",
     "LRT_JABODEBEK_BEKASI",
@@ -91,6 +90,30 @@ const MODES_BY_CATEGORY: Record<TransitCategory, TransitMode[]> = {
   ],
   AVIATION: ["AIRPORT_COMMERCIAL"],
   MARITIME: ["MARITIME_SPEEDBOAT", "MARITIME_PELNI"],
+};
+
+// RAIL mode families for the line-editor dropdown. Family names are proper
+// nouns (MRT, LRT, KRL, Whoosh, KAI) shared across all six locales.
+const railFamilyOf = (mode: TransitMode): string => {
+  if (mode.startsWith("MRT_")) return "MRT";
+  if (mode.startsWith("LRT_")) return "LRT";
+  if (mode.startsWith("KRL_")) return "KRL";
+  if (mode === "WHOOSH_HSR") return "Whoosh";
+  return "KAI";
+};
+
+const railModesByFamily = (modes: TransitMode[]): Array<{ family: string; modes: TransitMode[] }> => {
+  const families: Array<{ family: string; modes: TransitMode[] }> = [];
+  for (const mode of modes) {
+    const family = railFamilyOf(mode);
+    const group = families.find((f) => f.family === family);
+    if (group) {
+      group.modes.push(mode);
+    } else {
+      families.push({ family, modes: [mode] });
+    }
+  }
+  return families;
 };
 
 export default function AdminNetworkStudioPage() {
@@ -1291,13 +1314,19 @@ export default function AdminNetworkStudioPage() {
                     )}
                   </div>
 
-                  {/* Secondary Advanced GIS & Alignment Tools */}
-                  <div className="pt-2 grid grid-cols-2 gap-1.5 border-t border-white/5 text-[11px]">
+                  {/* Secondary GIS tools: collapsed by default, primary stays
+                      preview + apply. Preconditions disable with a hint. */}
+                  <details className="pt-2 border-t border-white/5 text-[11px]">
+                    <summary className="cursor-pointer px-1 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 min-h-[44px] flex items-center">
+                      {t.admin.netAdvanced}
+                    </summary>
+                    <div className="grid grid-cols-2 gap-1.5">
                     <button
                       type="button"
                       onClick={handleAutoBuildFromStations}
+                      disabled={lineStops.length < 2}
                       title={t.admin.netBuildTitle}
-                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                      className="flex items-center justify-center gap-1 py-1 px-2 min-h-[44px] rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Wand2 className="w-3 h-3 text-cyan-400" />
                       <span>{t.admin.netBuildFromStops}</span>
@@ -1307,7 +1336,7 @@ export default function AdminNetworkStudioPage() {
                       type="button"
                       onClick={handleSimplifyLine}
                       title={t.admin.netSimplifyTitle}
-                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                      className="flex items-center justify-center gap-1 py-1 px-2 min-h-[44px] rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Scissors className="w-3 h-3 text-rose-400" />
                       <span>{t.admin.netSimplify}</span>
@@ -1316,9 +1345,9 @@ export default function AdminNetworkStudioPage() {
                     <button
                       type="button"
                       onClick={handleSnapToRoads}
-                      disabled={isSnappingRoads}
+                      disabled={isSnappingRoads || (selectedLine?.polylineCoordinates?.length ?? 0) < 2}
                       title={t.admin.netSnapTitle}
-                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                      className="flex items-center justify-center gap-1 py-1 px-2 min-h-[44px] rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Compass className={`w-3 h-3 text-amber-400 ${isSnappingRoads ? "animate-spin" : ""}`} />
                       <span>{isSnappingRoads ? t.admin.netSnapping : t.admin.netSnapRoads}</span>
@@ -1328,7 +1357,7 @@ export default function AdminNetworkStudioPage() {
                       type="button"
                       onClick={handleExportGeoJSON}
                       title={t.admin.netExportTitle}
-                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                      className="flex items-center justify-center gap-1 py-1 px-2 min-h-[44px] rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Download className="w-3 h-3 text-emerald-400" />
                       <span>{t.admin.netExportGeo}</span>
@@ -1338,11 +1367,18 @@ export default function AdminNetworkStudioPage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       title={t.admin.netImportTitle}
-                      className="flex items-center justify-center gap-1 py-1 px-2 rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
+                      className="flex items-center justify-center gap-1 py-1 px-2 min-h-[44px] rounded-lg bg-slate-900 border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white transition btn-tactile"
                     >
                       <Upload className="w-3 h-3 text-indigo-400" />
                       <span>{t.admin.netImportGeo}</span>
                     </button>
+                    </div>
+                    {(lineStops.length < 2 || (selectedLine?.polylineCoordinates?.length ?? 0) < 2) && (
+                      <p className="pt-1.5 text-[11px] text-slate-500">
+                        {lineStops.length < 2 ? t.admin.netNeedStops : t.admin.netNeedVertices}
+                      </p>
+                    )}
+                  </details>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1350,7 +1386,6 @@ export default function AdminNetworkStudioPage() {
                       onChange={handleImportGeoJSON}
                       className="hidden"
                     />
-                  </div>
                 </div>
 
                 {/* Stations & Sequence Section */}
@@ -1781,11 +1816,23 @@ export default function AdminNetworkStudioPage() {
                       }}
                       className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                     >
-                      {(MODES_BY_CATEGORY[editingLine.category || "RAIL"] || []).map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
+                      {(editingLine.category || "RAIL") === "RAIL" ? (
+                        railModesByFamily(MODES_BY_CATEGORY.RAIL).map((group) => (
+                          <optgroup key={group.family} label={group.family}>
+                            {group.modes.map((m) => (
+                              <option key={m} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))
+                      ) : (
+                        (MODES_BY_CATEGORY[editingLine.category || "RAIL"] || []).map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))
+                      )}
                       <option value="__CUSTOM__">+ Custom Transit Mode...</option>
                     </select>
                   ) : (

@@ -1887,6 +1887,9 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netToastUndone: "已撤销上次更改。",
     netStagedChanges: "暂存更改 ({stops} 个站点, {vertices} 个顶点)",
     netLastPublished: "上次发布: {stops} 个站点, {vertices} 个顶点, 时间 {time}",
+    netAdvanced: "高级工具",
+    netNeedStops: "至少需要 2 个站点",
+    netNeedVertices: "至少需要 2 个顶点",
   },
 };
 

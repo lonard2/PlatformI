@@ -1887,6 +1887,9 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netToastUndone: "Perubahan terakhir dibatalkan.",
     netStagedChanges: "Perubahan tertunda ({stops} halte, {vertices} verteks)",
     netLastPublished: "Terakhir dipublikasikan: {stops} halte, {vertices} verteks pada {time}",
+    netAdvanced: "Alat lanjutan",
+    netNeedStops: "Butuh minimal 2 halte",
+    netNeedVertices: "Butuh minimal 2 verteks",
   },
 };
 

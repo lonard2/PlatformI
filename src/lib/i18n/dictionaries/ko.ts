@@ -1887,6 +1887,9 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netToastUndone: "마지막 변경을 실행 취소했습니다.",
     netStagedChanges: "보류 중인 변경 (정류장 {stops}곳, 정점 {vertices}개)",
     netLastPublished: "마지막 게시: 정류장 {stops}곳, 정점 {vertices}개 ({time})",
+    netAdvanced: "고급 도구",
+    netNeedStops: "정류장 2곳 이상 필요",
+    netNeedVertices: "정점 2개 이상 필요",
   },
 };
 

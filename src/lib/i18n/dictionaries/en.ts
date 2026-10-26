@@ -1812,6 +1812,9 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netToastUndone: "Last change undone.",
     netStagedChanges: "Staged changes ({stops} stops, {vertices} vertices)",
     netLastPublished: "Last published: {stops} stops, {vertices} vertices at {time}",
+    netAdvanced: "Advanced tools",
+    netNeedStops: "Needs at least 2 stops",
+    netNeedVertices: "Needs at least 2 vertices",
 
 
     tmTimeband: "Timeband:",

@@ -1887,6 +1887,9 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netToastUndone: "直前の変更を元に戻しました。",
     netStagedChanges: "保留中の変更 (停留所{stops}件、頂点{vertices}件)",
     netLastPublished: "最終公開: 停留所{stops}件、頂点{vertices}件 ({time})",
+    netAdvanced: "高度なツール",
+    netNeedStops: "停留所が2件以上必要",
+    netNeedVertices: "頂点が2件以上必要",
   },
 };
 
