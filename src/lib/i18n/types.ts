@@ -1718,6 +1718,10 @@ export interface TranslationDictionary {
     ttDirIn: string;
     ttRegistry: string;
     ttBatchGen: string;
+    ttPrevPage: string;
+    ttNextPage: string;
+    ttPageOf: string;
+    ttRunsCount: string;
     ttAllModes: string;
     ttLinesCoverage: string;
     ttLoadingStudio: string;
