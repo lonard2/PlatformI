@@ -2280,6 +2280,64 @@ export default function AdminNetworkStudioPage() {
                 </div>
               </div>
 
+              {/* Links, Facilities & Platform */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="net-platform" className="block text-[11px] text-slate-400 mb-1">{t.admin.netPlatformType}</label>
+                  <select
+                    id="net-platform"
+                    value={editingStop.platformType || "ISLAND"}
+                    onChange={(e) => setEditingStop({ ...editingStop, platformType: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    <option value="ISLAND">ISLAND</option>
+                    <option value="SIDE">SIDE</option>
+                    <option value="SPLIT">SPLIT</option>
+                    <option value="TERMINUS">TERMINUS</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="net-connected" className="block text-[11px] text-slate-400 mb-1">{t.admin.netConnectedLines}</label>
+                  <input
+                    id="net-connected"
+                    type="text"
+                    placeholder={t.admin.netConnectedLinesPh}
+                    value={(editingStop.connectedLineIds || []).join(", ")}
+                    onChange={(e) =>
+                      setEditingStop({
+                        ...editingStop,
+                        connectedLineIds: e.target.value
+                          .split(",")
+                          .map((v) => v.trim())
+                          .filter(Boolean),
+                      })
+                    }
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="net-facilities" className="block text-[11px] text-slate-400 mb-1">{t.admin.netFacilities}</label>
+                <input
+                  id="net-facilities"
+                  type="text"
+                  placeholder={t.admin.netFacilitiesPh}
+                  value={(editingStop.facilities || []).join(", ")}
+                  onChange={(e) =>
+                    setEditingStop({
+                      ...editingStop,
+                      facilities: e.target.value
+                        .split(",")
+                        .map((v) => v.trim().toUpperCase())
+                        .filter(Boolean),
+                    })
+                  }
+                  className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                />
+              </div>
+
               {/* Station Typology & Scale */}
               <div className="grid grid-cols-2 gap-3">
                 <div>

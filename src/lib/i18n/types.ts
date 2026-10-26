@@ -1861,6 +1861,11 @@ export interface TranslationDictionary {
     netFirstDeparture: string;
     netLastDeparture: string;
     netTextColor: string;
+    netPlatformType: string;
+    netConnectedLines: string;
+    netConnectedLinesPh: string;
+    netFacilities: string;
+    netFacilitiesPh: string;
     netLineName: string;
     netLineNamePh: string;
     netCategory: string;
