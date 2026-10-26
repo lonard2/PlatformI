@@ -1947,6 +1947,60 @@ export default function AdminNetworkStudioPage() {
                 </div>
               </div>
 
+              {/* Service Pattern (headway, hours, text color) */}
+              <div className="grid grid-cols-2 gap-3 pt-1 border-t border-white/5">
+                <div>
+                  <label htmlFor="net-headway" className="block text-[11px] text-slate-400 mb-1">{t.admin.netHeadway}</label>
+                  <input
+                    id="net-headway"
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={editingLine.headwayMinutes ?? 5}
+                    onChange={(e) => setEditingLine({ ...editingLine, headwayMinutes: Number(e.target.value) })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="net-textcolor" className="block text-[11px] text-slate-400 mb-1">{t.admin.netTextColor}</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="net-textcolor"
+                      type="color"
+                      value={editingLine.textColorHex || "#ffffff"}
+                      onChange={(e) => setEditingLine({ ...editingLine, textColorHex: e.target.value })}
+                      className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={editingLine.textColorHex || "#ffffff"}
+                      onChange={(e) => setEditingLine({ ...editingLine, textColorHex: e.target.value })}
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="net-firstdep" className="block text-[11px] text-slate-400 mb-1">{t.admin.netFirstDeparture}</label>
+                  <input
+                    id="net-firstdep"
+                    type="time"
+                    value={editingLine.firstDeparture || "05:00"}
+                    onChange={(e) => setEditingLine({ ...editingLine, firstDeparture: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="net-lastdep" className="block text-[11px] text-slate-400 mb-1">{t.admin.netLastDeparture}</label>
+                  <input
+                    id="net-lastdep"
+                    type="time"
+                    value={editingLine.lastDeparture || "23:00"}
+                    onChange={(e) => setEditingLine({ ...editingLine, lastDeparture: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                </div>
+              </div>
+
               {/* Fare System Configuration */}
               <div className="space-y-2 pt-1 border-t border-white/5">
                 <div className="flex items-center justify-between">
