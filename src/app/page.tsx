@@ -26,6 +26,7 @@ import {
   RotateCcw,
   AlertTriangle,
   Ticket,
+  Info,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -638,10 +639,13 @@ export default function Home() {
                 {/* Coverage disclosure: the bar advertises more lines than the
                     planner can route between, so the panel says so. */}
                 {routableLineCount < allLines.length && (
-                  <p className="text-[10px] font-mono text-slate-500 px-0.5 leading-tight">
-                    {t.journey.coverage
-                      .replace("{routable}", String(routableLineCount))
-                      .replace("{total}", String(allLines.length))}
+                  <p className="text-[11px] font-mono text-slate-400 px-0.5 leading-tight flex items-start gap-1.5">
+                    <Info className="w-3 h-3 text-slate-500 shrink-0 mt-px" aria-hidden="true" />
+                    <span>
+                      {t.journey.coverage
+                        .replace("{routable}", String(routableLineCount))
+                        .replace("{total}", String(allLines.length))}
+                    </span>
                   </p>
                 )}
 
@@ -672,7 +676,7 @@ export default function Home() {
                                     borderColor: `${plannedJourney.transferOption.firstLine.colorHex}60`,
                                     color: plannedJourney.transferOption.firstLine.colorHex,
                                   }}
-                                  className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                  className="px-1.5 py-0.5 rounded border text-[10px] font-bold"
                                 >
                                   {plannedJourney.transferOption.firstLine.code}
                                 </span>
@@ -688,7 +692,7 @@ export default function Home() {
                                     borderColor: `${plannedJourney.transferOption.secondLine.colorHex}60`,
                                     color: plannedJourney.transferOption.secondLine.colorHex,
                                   }}
-                                  className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                  className="px-1.5 py-0.5 rounded border text-[10px] font-bold"
                                 >
                                   {plannedJourney.transferOption.secondLine.code}
                                 </span>
@@ -708,7 +712,7 @@ export default function Home() {
                                         borderColor: `${l.colorHex}60`,
                                         color: l.colorHex,
                                       }}
-                                      className="px-1.5 py-0.2 rounded border text-[10px] font-bold"
+                                      className="px-1.5 py-0.5 rounded border text-[10px] font-bold"
                                     >
                                       {l.code}
                                     </span>
@@ -738,7 +742,7 @@ export default function Home() {
                                       borderColor: `${l.colorHex}60`,
                                       color: l.colorHex,
                                     }}
-                                    className="px-1.5 py-0.2 rounded border text-[10px] font-mono font-bold truncate max-w-[180px]"
+                                    className="px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold truncate max-w-[180px]"
                                   >
                                     [{l.code}] {l.name}
                                   </span>
@@ -761,16 +765,16 @@ export default function Home() {
                         {/* Summary Metrics & Fare */}
                         <div className="grid grid-cols-3 gap-1.5 pt-0.5 text-center font-mono">
                           <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
-                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.estTime}</div>
-                            <div className="text-xs font-bold text-cyan-300 tabular-nums">~{plannedJourney.estimatedDurationMinutes} min</div>
+                            <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider">{t.journey.estTime}</div>
+                            <div className="text-sm font-bold text-cyan-300 tabular-nums">~{plannedJourney.estimatedDurationMinutes} min</div>
                           </div>
                           <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
-                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.distance}</div>
-                            <div className="text-xs font-bold text-slate-200 tabular-nums">{plannedJourney.distanceKm} km</div>
+                            <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider">{t.journey.distance}</div>
+                            <div className="text-sm font-bold text-white tabular-nums">{plannedJourney.distanceKm} km</div>
                           </div>
                           <div className="p-1.5 rounded-lg bg-slate-900/90 border border-white/5">
-                            <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t.journey.estFare}</div>
-                            <div className="text-xs font-bold text-emerald-300 tabular-nums">
+                            <div className="text-xs font-semibold text-slate-300 uppercase tracking-wider">{t.journey.estFare}</div>
+                            <div className="text-sm font-bold text-emerald-300 tabular-nums">
                               {plannedJourney.estimatedFareRp > 0
                                 ? formatCurrencyRp(plannedJourney.estimatedFareRp)
                                 : t.journey.journeyFareToConfirm}
@@ -795,7 +799,7 @@ export default function Home() {
                         )}
 
                         <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-0.5">
-                          <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold border ${
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border ${
                             plannedJourney.directLines.length > 0
                               ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
                               : plannedJourney.transferOption || (plannedJourney.transferLegs && plannedJourney.transferLegs.length > 0)
