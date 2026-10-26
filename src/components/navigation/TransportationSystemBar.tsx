@@ -1257,6 +1257,9 @@ export function TransportationSystemBar() {
                               style={{ backgroundColor: OPERATING_STATUS_COLORS[compactStatus] }}
                             />
                             {item.shortCode}
+                            <span className="font-normal opacity-90">
+                              {getShortStatusLabel(compactStatus, t)}
+                            </span>
                           </button>
                         );
                       })}
