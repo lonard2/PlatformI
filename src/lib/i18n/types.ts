@@ -1863,6 +1863,7 @@ export interface TranslationDictionary {
     netToastNeed2Vertices: string;
     netToastNeed2Stops: string;
     netToastSeqFailed: string;
+    netToastSeqUpdated: string;
     netToastRoadFailed: string;
     netToastSimplifyShort: string;
     netToastSnapEmpty: string;
@@ -1886,5 +1887,11 @@ export interface TranslationDictionary {
     netToastVertexMoved: string;
     netConfirmDeleteLine: string;
     netConfirmDeleteStation: string;
+    netDeleteImpactLine: string;
+    netTypeCodeToConfirm: string;
+    netDeleteImpactStop: string;
+    netStagedStops: string;
+    netToastStopsPublished: string;
+    netToastUndone: string;
   };
 }

@@ -1853,6 +1853,7 @@ export const ar: TranslationDictionary = {
     netToastNeed2Vertices: "يتطلب خط النقل نقطتي إحداثيات على الأقل.",
     netToastNeed2Stops: "يتطلب إنشاء المسار محطتين على الأقل.",
     netToastSeqFailed: "فشل حفظ تحديث الترتيب.",
+    netToastSeqUpdated: "تم تحديث ترتيب المحطات.",
     netToastRoadFailed: "فشل الاستعلام عن هندسة شبكة الطرق.",
     netToastSimplifyShort: "لا توجد إحداثيات كافية لتبسيط الخط.",
     netToastSnapEmpty: "لا توجد إحداثيات لالتصاقها بشبكة الطرق.",
@@ -1876,6 +1877,12 @@ export const ar: TranslationDictionary = {
     netToastVertexMoved: "تم نقل الرأس #{n}. انقر “{save}” أو “{revert}”.",
     netConfirmDeleteLine: "هل أنت متأكد من حذف الخط “{name}” نهائيًا؟",
     netConfirmDeleteStation: "حذف المحطة “{name}” من الشبكة؟",
+    netDeleteImpactLine: "سيؤدي حذف {name} إلى إزالة {stops} محطة والتأثير على {vehicles} مركبة. اكتب {code} للتأكيد.",
+    netTypeCodeToConfirm: "اكتب {code} للتأكيد",
+    netDeleteImpactStop: "سيتم الاحتفاظ بالمحطة {name} للحذف. يمكنك التراجع خلال 10 ثوان.",
+    netStagedStops: "تغييرات المحطات المعلقة ({n})",
+    netToastStopsPublished: "تم نشر {n} من تغييرات المحطات المعلقة.",
+    netToastUndone: "تم التراجع عن آخر تغيير.",
   },
 };
 

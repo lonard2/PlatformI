@@ -1853,6 +1853,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netToastNeed2Vertices: "노선에는 최소 2개의 좌표 정점이 필요합니다.",
     netToastNeed2Stops: "경로 생성에는 최소 2개의 역/정류장이 필요합니다.",
     netToastSeqFailed: "순서 업데이트 저장 실패.",
+    netToastSeqUpdated: "역 순서를 업데이트했습니다.",
     netToastRoadFailed: "도로망 조회 실패.",
     netToastSimplifyShort: "단순화할 좌표가 부족합니다.",
     netToastSnapEmpty: "도로망에 스냅할 좌표가 없습니다.",
@@ -1876,6 +1877,12 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netToastVertexMoved: "정점 #{n} 이동됨. “{save}” 또는 “{revert}” 선택.",
     netConfirmDeleteLine: "노선 “{name}”을(를) 영구 삭제하시겠습니까?",
     netConfirmDeleteStation: "역 “{name}”을(를) 네트워크에서 삭제하시겠습니까?",
+    netDeleteImpactLine: "{name} 삭제 시 정류장 {stops}곳이 삭제되고 차량 {vehicles}대에 영향을 줍니다. 확인하려면 {code}을(를) 입력하세요.",
+    netTypeCodeToConfirm: "확인을 위해 {code} 입력",
+    netDeleteImpactStop: "정거장 {name}이(가) 삭제 예정으로 보관됩니다. 10초 이내에 실행 취소할 수 있습니다.",
+    netStagedStops: "보류 중인 정류장 변경 ({n}건)",
+    netToastStopsPublished: "보류 중인 정류장 변경 {n}건을 게시했습니다.",
+    netToastUndone: "마지막 변경을 실행 취소했습니다.",
   },
 };
 

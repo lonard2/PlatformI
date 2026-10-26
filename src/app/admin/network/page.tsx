@@ -102,6 +102,7 @@ export default function AdminNetworkStudioPage() {
   const upsertStop = useTransitStore((state) => state.upsertStop);
   const removeLineFromStore = useTransitStore((state) => state.removeLine);
   const removeStopFromStore = useTransitStore((state) => state.removeStop);
+  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
 
   const [activeCategory, setActiveCategory] = useState<TransitCategory | "ALL">("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -127,6 +128,119 @@ export default function AdminNetworkStudioPage() {
 
   // Status Alerts
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Staged stop mutations: local-first, published explicitly via the staged
+  // strip. Every entry keeps its pre-edit snapshots for undo and discard.
+  interface StagedStopOp {
+    id: string;
+    label: string;
+    befores: Stop[];
+    createdAt: number;
+  }
+  const [stagedStopOps, setStagedStopOps] = useState<StagedStopOp[]>([]);
+  const [undoOp, setUndoOp] = useState<StagedStopOp | null>(null);
+  const [isPublishingStops, setIsPublishingStops] = useState<boolean>(false);
+
+  // In-app delete confirmation (replaces window.confirm)
+  const [confirmDelete, setConfirmDelete] = useState<{ kind: "line" | "stop"; id: string; name: string } | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
+
+  // Undo window: 10s after each staged mutation
+  useEffect(() => {
+    if (!undoOp) return;
+    const timer = window.setTimeout(() => setUndoOp(null), 10000);
+    return () => window.clearTimeout(timer);
+  }, [undoOp]);
+
+  const recordStagedStopOp = useCallback((label: string, befores: Stop[]): void => {
+    const op: StagedStopOp = {
+      id: `${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`,
+      label,
+      befores,
+      createdAt: Date.now(),
+    };
+    setStagedStopOps((prev) => [...prev, op]);
+    setUndoOp(op);
+  }, []);
+
+  const undoStagedStopOp = (): void => {
+    if (!undoOp) return;
+    for (const before of undoOp.befores) {
+      upsertStop(before);
+    }
+    setStagedStopOps((prev) => prev.filter((op) => op.id !== undoOp.id));
+    setUndoOp(null);
+    setStatusMessage({ type: "success", text: t.admin.netToastUndone });
+  };
+
+  const discardStagedStopOps = (): void => {
+    const ops = [...stagedStopOps].reverse();
+    for (const op of ops) {
+      for (const before of op.befores) {
+        upsertStop(before);
+      }
+    }
+    setStagedStopOps([]);
+    setUndoOp(null);
+  };
+
+  const publishStagedStopOps = async (): Promise<void> => {
+    if (stagedStopOps.length === 0 || isPublishingStops) return;
+    setIsPublishingStops(true);
+    try {
+      // Net effect per stop: earliest snapshot vs current store state.
+      const originals = new Map<string, Stop>();
+      for (const op of stagedStopOps) {
+        for (const before of op.befores) {
+          if (!originals.has(before.id)) originals.set(before.id, before);
+        }
+      }
+      const current = useTransitStore.getState().allStops;
+      let published = 0;
+      for (const [id, before] of originals) {
+        const now = current.find((s) => s.id === id);
+        if (!now) {
+          const res = await fetch(`/api/network/stops?id=${encodeURIComponent(id)}`, {
+            method: "DELETE",
+          });
+          if (!res.ok) throw new Error("Failed to delete stop");
+          published += 1;
+        } else if (JSON.stringify(now) !== JSON.stringify(before)) {
+          const res = await fetch("/api/network/stops", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(now),
+          });
+          if (!res.ok) throw new Error("Failed to save stop");
+          published += 1;
+        }
+      }
+      setStagedStopOps([]);
+      setUndoOp(null);
+      setStatusMessage({
+        type: "success",
+        text: t.admin.netToastStopsPublished.replace("{n}", String(published)),
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : t.admin.netToastSaveFailed;
+      setStatusMessage({ type: "error", text: msg });
+    } finally {
+      setIsPublishingStops(false);
+    }
+  };
+
+  // Net staged counts for the strip: distinct stops touched + staged deletions.
+  const stagedStopSummary = useMemo(() => {
+    const touched = new Set<string>();
+    for (const op of stagedStopOps) {
+      for (const before of op.befores) touched.add(before.id);
+    }
+    let deletions = 0;
+    for (const id of touched) {
+      if (!allStops.some((s) => s.id === id)) deletions += 1;
+    }
+    return { total: touched.size, deletions };
+  }, [stagedStopOps, allStops]);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Auto-dismiss status messages
@@ -264,9 +378,9 @@ export default function AdminNetworkStudioPage() {
     [selectedLine, allLines, lineStops.length]
   );
 
-  // 2. Marker Drag End Callback for Calibrating Coordinates
+  // 2. Marker Drag End Callback: staged locally, published via the strip.
   const handleStopDragEnd = useCallback(
-    async (stopId: string, lat: number, lng: number) => {
+    (stopId: string, lat: number, lng: number) => {
       const existing = allStops.find((s) => s.id === stopId);
       if (!existing) return;
 
@@ -277,24 +391,13 @@ export default function AdminNetworkStudioPage() {
       };
 
       upsertStop(updatedStop);
-
-      try {
-        const res = await fetch("/api/network/stops", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedStop),
-        });
-        if (!res.ok) throw new Error("Failed to calibrate coordinates in database");
-        setStatusMessage({
-          type: "success",
-          text: t.admin.netToastCalibrated.replace("{name}", existing.name).replace("{lat}", lat.toFixed(5)).replace("{lng}", lng.toFixed(5)),
-        });
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : t.admin.netToastSaveFailed;
-        setStatusMessage({ type: "error", text: msg });
-      }
+      recordStagedStopOp(`move ${existing.code}`, [existing]);
+      setStatusMessage({
+        type: "success",
+        text: t.admin.netToastCalibrated.replace("{name}", existing.name).replace("{lat}", lat.toFixed(5)).replace("{lng}", lng.toFixed(5)),
+      });
     },
-    [allStops, upsertStop]
+    [allStops, upsertStop, recordStagedStopOp]
   );
 
   // 2b. Drag Vertex End Callback for Bending Route Geometry
@@ -690,23 +793,44 @@ export default function AdminNetworkStudioPage() {
     }
   };
 
-  // 5. Delete Line
+  // 5. Delete Line (in-app confirm with impact; immediate after typing code)
   const handleDeleteLine = async (id: string, name: string) => {
-    if (!window.confirm(t.admin.netConfirmDeleteLine.replace("{name}", name))) return;
+    setDeleteConfirmText("");
+    setConfirmDelete({ kind: "line", id, name });
+  };
 
-    try {
-      const res = await fetch(`/api/network/lines?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete line");
+  const confirmDeleteTarget = async (): Promise<void> => {
+    if (!confirmDelete) return;
+    const { kind, id, name } = confirmDelete;
+    if (kind === "line") {
+      try {
+        const res = await fetch(`/api/network/lines?id=${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Failed to delete line");
 
-      removeLineFromStore(id);
-      if (selectedLineId === id) setSelectedLineId(null);
-      setStatusMessage({ type: "success", text: t.admin.netToastLineDeleted.replace("{name}", name) });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Delete failed";
-      setStatusMessage({ type: "error", text: msg });
+        removeLineFromStore(id);
+        if (selectedLineId === id) setSelectedLineId(null);
+        setStatusMessage({ type: "success", text: t.admin.netToastLineDeleted.replace("{name}", name) });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Delete failed";
+        setStatusMessage({ type: "error", text: msg });
+      } finally {
+        setConfirmDelete(null);
+        setDeleteConfirmText("");
+      }
+      return;
     }
+    // Staged stop delete: local removal only, published via the strip.
+    const existing = useTransitStore.getState().allStops.find((s) => s.id === id);
+    if (existing) {
+      removeStopFromStore(id);
+      if (selectedStopId === id) setSelectedStopId(null);
+      recordStagedStopOp(`delete ${existing.code}`, [existing]);
+      setStatusMessage({ type: "success", text: t.admin.netToastStationDeleted.replace("{name}", name) });
+    }
+    setConfirmDelete(null);
+    setDeleteConfirmText("");
   };
 
   // 6. Save/Create Stop
@@ -742,27 +866,14 @@ export default function AdminNetworkStudioPage() {
     }
   };
 
-  // 7. Delete Stop
-  const handleDeleteStop = async (id: string, name: string) => {
-    if (!window.confirm(t.admin.netConfirmDeleteStation.replace("{name}", name))) return;
-
-    try {
-      const res = await fetch(`/api/network/stops?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete stop");
-
-      removeStopFromStore(id);
-      if (selectedStopId === id) setSelectedStopId(null);
-      setStatusMessage({ type: "success", text: t.admin.netToastStationDeleted.replace("{name}", name) });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Delete failed";
-      setStatusMessage({ type: "error", text: msg });
-    }
+  // 7. Delete Stop (in-app confirm; staged, published via the strip)
+  const handleDeleteStop = (id: string, name: string) => {
+    setDeleteConfirmText("");
+    setConfirmDelete({ kind: "stop", id, name });
   };
 
-  // 8. Reorder Stop Sequence
-  const handleMoveStopSequence = async (stopId: string, direction: "up" | "down") => {
+  // 8. Reorder Stop Sequence (staged locally, published via the strip)
+  const handleMoveStopSequence = (stopId: string, direction: "up" | "down") => {
     const idx = lineStops.findIndex((s) => s.id === stopId);
     if (idx === -1) return;
     if (direction === "up" && idx === 0) return;
@@ -780,24 +891,8 @@ export default function AdminNetworkStudioPage() {
 
     upsertStop(updatedCurrent);
     upsertStop(updatedSwap);
-
-    try {
-      await Promise.all([
-        fetch("/api/network/stops", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedCurrent),
-        }),
-        fetch("/api/network/stops", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedSwap),
-        }),
-      ]);
-      setStatusMessage({ type: "success", text: "Station sequence updated." });
-    } catch {
-      setStatusMessage({ type: "error", text: t.admin.netToastSeqFailed });
-    }
+    recordStagedStopOp(`reorder ${currentStop.code}`, [currentStop, swapStop]);
+    setStatusMessage({ type: "success", text: t.admin.netToastSeqUpdated });
   };
 
   return (
@@ -1001,6 +1096,46 @@ export default function AdminNetworkStudioPage() {
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>{t.admin.netRevert}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Staged stop changes: nothing below goes live before Sync DB */}
+                {stagedStopOps.length > 0 && (
+                  <div className="p-3 rounded-xl bg-sky-950/70 border border-sky-500/40 flex items-center justify-between gap-3 shadow-lg">
+                    <div className="flex items-center gap-2 text-xs text-sky-200 font-semibold min-w-0">
+                      <Save className="w-4 h-4 text-sky-400 shrink-0" />
+                      <span className="truncate">
+                        {t.admin.netStagedStops.replace("{n}", String(stagedStopSummary.total))}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {undoOp && (
+                        <button
+                          type="button"
+                          onClick={undoStagedStopOp}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition border border-white/10 btn-tactile"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>{t.common.undo}</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={discardStagedStopOps}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition border border-white/10 btn-tactile"
+                      >
+                        <span>{t.admin.netRevert}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={publishStagedStopOps}
+                        disabled={isPublishingStops}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition shadow btn-tactile disabled:opacity-40"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{t.admin.netSyncDb}</span>
                       </button>
                     </div>
                   </div>
@@ -1352,6 +1487,89 @@ export default function AdminNetworkStudioPage() {
           />
         </main>
       </div>
+
+      {/* 2b. MODAL: DELETE CONFIRMATION (in-app, with impact) */}
+      {confirmDelete &&
+        (() => {
+          const targetLine =
+            confirmDelete.kind === "line"
+              ? allLines.find((l) => l.id === confirmDelete.id)
+              : null;
+          const stopCount = targetLine
+            ? allStops.filter((s) => s.lineId === targetLine.id).length
+            : 0;
+          const vehicleCount = targetLine
+            ? simulatedVehicles.filter((v) => v.lineId === targetLine.id).length
+            : 0;
+          const requiredCode = targetLine?.code ?? "";
+          const canConfirm =
+            confirmDelete.kind === "stop" || deleteConfirmText.trim() === requiredCode;
+          return (
+            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={confirmDelete.kind === "line" ? t.admin.netDeleteLine : t.admin.netDeleteStation}
+                className="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
+              >
+                <div className="flex items-center gap-2 text-rose-300">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <h3 className="text-sm font-bold text-white">
+                    {confirmDelete.kind === "line" ? t.admin.netDeleteLine : t.admin.netDeleteStation}
+                  </h3>
+                </div>
+                {confirmDelete.kind === "line" && targetLine ? (
+                  <div className="space-y-3 text-xs text-slate-300">
+                    <p>
+                      {t.admin.netDeleteImpactLine
+                        .replace("{name}", targetLine.name)
+                        .replace("{stops}", String(stopCount))
+                        .replace("{vehicles}", String(vehicleCount))
+                        .replace("{code}", targetLine.code)}
+                    </p>
+                    <div>
+                      <label htmlFor="delete-confirm-input" className="block text-[11px] text-slate-400 mb-1">
+                        {t.admin.netTypeCodeToConfirm.replace("{code}", targetLine.code)}
+                      </label>
+                      <input
+                        id="delete-confirm-input"
+                        type="text"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder={targetLine.code}
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono uppercase"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-300">
+                    {t.admin.netDeleteImpactStop.replace("{name}", confirmDelete.name)}
+                  </p>
+                )}
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmDelete(null);
+                      setDeleteConfirmText("");
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition btn-tactile"
+                  >
+                    {t.common.cancel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmDeleteTarget}
+                    disabled={!canConfirm}
+                    className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition btn-tactile disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {confirmDelete.kind === "line" ? t.admin.netDeleteLine : t.admin.netDeleteStation}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       {/* 3. MODAL: ADD / EDIT LINE */}
       {isLineModalOpen && editingLine && (

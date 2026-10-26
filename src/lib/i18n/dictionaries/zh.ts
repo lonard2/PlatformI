@@ -1853,6 +1853,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netToastNeed2Vertices: "公交线路至少需要2个坐标顶点。",
     netToastNeed2Stops: "构建路线至少需要2个车站/站点。",
     netToastSeqFailed: "保存顺序更新失败。",
+    netToastSeqUpdated: "车站顺序已更新。",
     netToastRoadFailed: "获取道路网几何失败。",
     netToastSimplifyShort: "该线路坐标不足，无法简化。",
     netToastSnapEmpty: "该线路没有可贴合到路网的坐标。",
@@ -1876,6 +1877,12 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netToastVertexMoved: "顶点#{n}已移动。点击“{save}”或“{revert}”。",
     netConfirmDeleteLine: "确定要永久删除线路“{name}”吗？",
     netConfirmDeleteStation: "从网络中删除车站“{name}”吗？",
+    netDeleteImpactLine: "删除 {name} 将移除 {stops} 个站点并影响 {vehicles} 辆车。请输入 {code} 确认。",
+    netTypeCodeToConfirm: "请输入 {code} 确认",
+    netDeleteImpactStop: "车站 {name} 将暂存为待删除。您可以在10秒内撤销。",
+    netStagedStops: "暂存的站点更改 ({n})",
+    netToastStopsPublished: "已发布 {n} 项暂存的站点更改。",
+    netToastUndone: "已撤销上次更改。",
   },
 };
 

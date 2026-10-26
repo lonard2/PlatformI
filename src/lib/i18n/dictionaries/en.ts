@@ -1778,6 +1778,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netToastNeed2Vertices: "A transit line requires at least 2 coordinate vertices.",
     netToastNeed2Stops: "At least 2 stations/stops are required to build a route path.",
     netToastSeqFailed: "Failed to persist sequence update.",
+    netToastSeqUpdated: "Station sequence updated.",
     netToastRoadFailed: "Failed to query road network geometry.",
     netToastSimplifyShort: "Line does not have enough coordinates to simplify.",
     netToastSnapEmpty: "Line has no coordinates to snap to road network.",
@@ -1801,6 +1802,12 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netToastVertexMoved: "Vertex #{n} moved. Click 'Save to DB' to persist or 'Revert' to discard.",
     netConfirmDeleteLine: "Are you sure you want to permanently delete line \"{name}\"?",
     netConfirmDeleteStation: "Delete station \"{name}\" from network?",
+    netDeleteImpactLine: "Removing {name} deletes {stops} stops and affects {vehicles} vehicles. Type {code} to confirm.",
+    netTypeCodeToConfirm: "Type {code} to confirm",
+    netDeleteImpactStop: "Station {name} will be staged for removal. You can undo within 10 seconds.",
+    netStagedStops: "Staged stop changes ({n})",
+    netToastStopsPublished: "Published {n} staged stop changes.",
+    netToastUndone: "Last change undone.",
 
 
     tmTimeband: "Timeband:",

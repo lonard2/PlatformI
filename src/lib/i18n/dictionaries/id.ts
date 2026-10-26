@@ -1853,6 +1853,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netToastNeed2Vertices: "Jalur transit membutuhkan minimal 2 verteks koordinat.",
     netToastNeed2Stops: "Minimal 2 stasiun/halte diperlukan untuk membangun jalur.",
     netToastSeqFailed: "Gagal menyimpan pembaruan urutan.",
+    netToastSeqUpdated: "Urutan stasiun diperbarui.",
     netToastRoadFailed: "Gagal meminta geometri jaringan jalan.",
     netToastSimplifyShort: "Jalur tidak punya cukup koordinat untuk disederhanakan.",
     netToastSnapEmpty: "Jalur tidak punya koordinat untuk ditempel ke jalan.",
@@ -1876,6 +1877,12 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netToastVertexMoved: "Verteks #{n} dipindah. Klik '{save}' atau '{revert}'.",
     netConfirmDeleteLine: "Yakin hapus permanen jalur \"{name}\"?",
     netConfirmDeleteStation: "Hapus stasiun \"{name}\" dari jaringan?",
+    netDeleteImpactLine: "Menghapus {name} menghapus {stops} halte dan memengaruhi {vehicles} kendaraan. Ketik {code} untuk konfirmasi.",
+    netTypeCodeToConfirm: "Ketik {code} untuk konfirmasi",
+    netDeleteImpactStop: "Stasiun {name} akan disiapkan untuk dihapus. Anda dapat membatalkannya dalam 10 detik.",
+    netStagedStops: "Perubahan halte tertunda ({n})",
+    netToastStopsPublished: "{n} perubahan halte tertunda dipublikasikan.",
+    netToastUndone: "Perubahan terakhir dibatalkan.",
   },
 };
 

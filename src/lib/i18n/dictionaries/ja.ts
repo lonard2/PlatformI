@@ -1853,6 +1853,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netToastNeed2Vertices: "路線には2点以上の座標が必要です。",
     netToastNeed2Stops: "経路には2駅以上必要です。",
     netToastSeqFailed: "順序更新の保存に失敗しました。",
+    netToastSeqUpdated: "駅の並び順を更新しました。",
     netToastRoadFailed: "道路網の取得に失敗しました。",
     netToastSimplifyShort: "簡略化できる座標が足りません。",
     netToastSnapEmpty: "道路にスナップする座標がありません。",
@@ -1876,6 +1877,12 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netToastVertexMoved: "頂点#{n}を移動。「{save}」か「{revert}」を選択してください。",
     netConfirmDeleteLine: "路線「{name}」を完全に削除しますか？",
     netConfirmDeleteStation: "駅「{name}」をネットワークから削除しますか？",
+    netDeleteImpactLine: "{name}を削除すると停留所{stops}件・車両{vehicles}台に影響します。確認のため{code}と入力してください。",
+    netTypeCodeToConfirm: "確認のため{code}と入力",
+    netDeleteImpactStop: "駅「{name}」は削除予定として保持されます。10秒以内に元に戻せます。",
+    netStagedStops: "保留中の停留所変更 ({n}件)",
+    netToastStopsPublished: "保留中の停留所変更{n}件を公開しました。",
+    netToastUndone: "直前の変更を元に戻しました。",
   },
 };
 
