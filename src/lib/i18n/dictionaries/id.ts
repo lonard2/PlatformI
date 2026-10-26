@@ -1286,6 +1286,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     activeDisruptions: "Gangguan Operasional Aktif",
     pastResolvedAlerts: "Arsip Gangguan Selesai",
     resolveDisruption: "Tandai Selesai",
+    alertEditButton: "Ubah",
+    alertEditTitle: "Ubah buletin",
     tapInValidation: "Pintu Masuk (Tap-In)",
     tapOutValidation: "Pintu Keluar (Tap-Out)",
     qrValidationResult: "Hasil Validasi Gate Turnstile",

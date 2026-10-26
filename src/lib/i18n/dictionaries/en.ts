@@ -1286,6 +1286,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     activeDisruptions: "Active Service Disruptions",
     pastResolvedAlerts: "Resolved Incident Archive",
     resolveDisruption: "Mark Resolved",
+    alertEditButton: "Edit",
+    alertEditTitle: "Edit bulletin",
     tapInValidation: "Tap-In Entry Gate",
     tapOutValidation: "Tap-Out Exit Gate",
     qrValidationResult: "Turnstile Gate Validation Result",

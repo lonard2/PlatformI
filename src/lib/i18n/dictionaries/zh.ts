@@ -1286,6 +1286,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     activeDisruptions: "当前有效处置中的运营事件",
     pastResolvedAlerts: "已归档的历史处置记录",
     resolveDisruption: "标记为已排除恢复",
+    alertEditButton: "编辑",
+    alertEditTitle: "编辑公告",
     tapInValidation: "进站闸机 (Tap-In)",
     tapOutValidation: "出站闸机 (Tap-Out)",
     qrValidationResult: "闸机过闸通行判定结果",

@@ -1286,6 +1286,8 @@ export const ar: TranslationDictionary = {
     activeDisruptions: "البلاغات التشغيلية النشطة حالياً",
     pastResolvedAlerts: "أرشيف الحوادث التي تم علاجها",
     resolveDisruption: "تحديد كمعالج ومنتهٍ",
+    alertEditButton: "تحرير",
+    alertEditTitle: "تحرير النشرة",
     tapInValidation: "بوابة الدخول (Tap-In)",
     tapOutValidation: "بوابة الخروج (Tap-Out)",
     qrValidationResult: "نتيجة فحص واعتماد التذكرة",

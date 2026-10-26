@@ -25,6 +25,8 @@ import {
   Zap,
   CheckCheck,
   Clock,
+  Pencil,
+  Save,
 } from "lucide-react";
 import { DisruptionAlert, DisruptionSeverity, Vehicle } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -67,6 +69,15 @@ export default function AdminAlertsPage() {
   // Per-delete pending buffer state
   const [pendingDeletes, setPendingDeletes] = useState<Record<string, DisruptionAlert>>({});
   const [escalateConfirmId, setEscalateConfirmId] = useState<string | null>(null);
+  // Post-broadcast edit draft: null when the edit modal is closed.
+  const [editingDraft, setEditingDraft] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    lineId: string;
+    stopsText: string;
+    etaLocal: string;
+  } | null>(null);
   const escalateTriggerRef = useRef<HTMLElement | null>(null);
   const escalateCancelRef = useRef<HTMLButtonElement | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -701,6 +712,62 @@ export default function AdminAlertsPage() {
       setBroadcastError(t.admin.publishNetwork);
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const openAlertEditor = (alert: DisruptionAlert): void => {
+    setBroadcastError(null);
+    setEditingDraft({
+      id: alert.id,
+      title: alert.title,
+      description: alert.description,
+      lineId: alert.lineId,
+      stopsText: (alert.affectedStops || []).join(", "),
+      etaLocal: alert.estimatedEndTime
+        ? new Date(alert.estimatedEndTime).toISOString().slice(0, 16)
+        : "",
+    });
+  };
+
+  const saveAlertEdits = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!editingDraft || !editingDraft.title.trim() || !editingDraft.description.trim()) return;
+    const affectedStops = editingDraft.stopsText
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    setMutatingAlertId(editingDraft.id);
+    setBroadcastError(null);
+    try {
+      const res = await fetch("/api/alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingDraft.id,
+          title: editingDraft.title.trim(),
+          description: editingDraft.description.trim(),
+          lineId: editingDraft.lineId,
+          affectedStops,
+          estimatedEndTime: editingDraft.etaLocal
+            ? new Date(editingDraft.etaLocal).toISOString()
+            : null,
+        }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { success: boolean; data: DisruptionAlert };
+        if (data.success && data.data) {
+          setAlerts((prev) => prev.map((a) => (a.id === editingDraft.id ? data.data : a)));
+          notify(`${t.admin.alertEditTitle}: ${data.data.title}`);
+          setEditingDraft(null);
+        }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setBroadcastError(data.error || t.admin.alertsNetwork);
+      }
+    } catch {
+      setBroadcastError(t.admin.alertsNetwork);
+    } finally {
+      setMutatingAlertId(null);
     }
   };
 
@@ -1532,6 +1599,118 @@ export default function AdminAlertsPage() {
         </div>
       )}
 
+      {/* Post-broadcast edit: title, description, line, stops, ETA via PATCH. */}
+      {editingDraft && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingDraft(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.admin.alertEditTitle}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.stopPropagation();
+                setEditingDraft(null);
+              }
+            }}
+            className="w-full max-w-lg p-5 rounded-2xl bg-slate-900 border border-white/10 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-sm font-bold text-white">{t.admin.alertEditTitle}</h3>
+              <button
+                type="button"
+                onClick={() => setEditingDraft(null)}
+                aria-label={t.common.close}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={(e) => { void saveAlertEdits(e); }} className="space-y-3 text-xs text-slate-300">
+              <div>
+                <label htmlFor="alert-edit-title" className="block text-[11px] text-slate-400 mb-1">{t.admin.alertTitle}</label>
+                <input
+                  id="alert-edit-title"
+                  type="text"
+                  required
+                  value={editingDraft.title}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, title: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                />
+              </div>
+              <div>
+                <label htmlFor="alert-edit-desc" className="block text-[11px] text-slate-400 mb-1">{t.admin.impactDescription}</label>
+                <textarea
+                  id="alert-edit-desc"
+                  required
+                  value={editingDraft.description}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, description: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white min-h-[72px]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="alert-edit-line" className="block text-[11px] text-slate-400 mb-1">{t.admin.affectedLine}</label>
+                  <select
+                    id="alert-edit-line"
+                    value={editingDraft.lineId}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, lineId: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    {allLines.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        [{l.code}] {l.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="alert-edit-eta" className="block text-[11px] text-slate-400 mb-1">{t.admin.resolutionWindow}</label>
+                  <input
+                    id="alert-edit-eta"
+                    type="datetime-local"
+                    value={editingDraft.etaLocal}
+                    onChange={(e) => setEditingDraft({ ...editingDraft, etaLocal: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="alert-edit-stops" className="block text-[11px] text-slate-400 mb-1">{t.admin.affectedStops}</label>
+                <input
+                  id="alert-edit-stops"
+                  type="text"
+                  value={editingDraft.stopsText}
+                  onChange={(e) => setEditingDraft({ ...editingDraft, stopsText: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                />
+              </div>
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingDraft(null)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs"
+                >
+                  {t.common.cancel}
+                </button>
+                <button
+                  type="submit"
+                  disabled={mutatingAlertId === editingDraft.id}
+                  className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 btn-tactile disabled:opacity-50"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{t.common.save}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* 3. ACTIVE DISRUPTIONS MANAGEMENT FEED */}
       {/* Design Standard (Semantic Undo Theming):
           - Amber is explicitly reserved for WARNING severity.
@@ -1916,6 +2095,17 @@ export default function AdminAlertsPage() {
                       </button>
                     </>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => openAlertEditor(alert)}
+                    disabled={mutatingAlertId === alert.id}
+                    aria-label={`${t.admin.alertEditButton} ${alert.title}`}
+                    title={`${t.admin.alertEditButton} ${alert.title}`}
+                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-200 text-xs font-semibold transition disabled:opacity-50 min-h-[40px] flex items-center gap-1.5 justify-center btn-tactile"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    <span>{t.admin.alertEditButton}</span>
+                  </button>
                   <button
                     type="button"
                     ref={(el) => {

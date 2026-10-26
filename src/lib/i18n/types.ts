@@ -1296,6 +1296,8 @@ export interface TranslationDictionary {
     activeDisruptions: string;
     pastResolvedAlerts: string;
     resolveDisruption: string;
+    alertEditButton: string;
+    alertEditTitle: string;
     tapInValidation: string;
     tapOutValidation: string;
     qrValidationResult: string;

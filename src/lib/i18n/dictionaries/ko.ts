@@ -1286,6 +1286,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     activeDisruptions: "현재 유효한 운행 장애",
     pastResolvedAlerts: "종료된 장애 이력 아카이브",
     resolveDisruption: "복구 완료 처리",
+    alertEditButton: "편집",
+    alertEditTitle: "속보 편집",
     tapInValidation: "승차 개찰 (Tap-In)",
     tapOutValidation: "하차 개찰 (Tap-Out)",
     qrValidationResult: "개찰구 판정 결과",

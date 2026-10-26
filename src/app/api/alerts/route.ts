@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, status, title, description, severity, estimatedEndTime } = body;
+    const { id, status, title, description, severity, estimatedEndTime, lineId, affectedStops } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -199,6 +199,10 @@ export async function PATCH(request: NextRequest) {
           ...(title && { title }),
           ...(description && { description }),
           ...(severity && { severity }),
+          ...(lineId && { lineId }),
+          ...(affectedStops !== undefined && Array.isArray(affectedStops) && {
+            affectedStopsJson: JSON.stringify(affectedStops),
+          }),
           ...(estimatedEndTime !== undefined && {
             estimatedEndTime: estimatedEndTime ? new Date(estimatedEndTime) : null,
           }),
@@ -215,6 +219,8 @@ export async function PATCH(request: NextRequest) {
         ...(title && { title }),
         ...(description && { description }),
         ...(severity && { severity }),
+        ...(lineId && { lineId }),
+        ...(affectedStops !== undefined && Array.isArray(affectedStops) && { affectedStops }),
         ...(estimatedEndTime !== undefined && { estimatedEndTime }),
       };
     }

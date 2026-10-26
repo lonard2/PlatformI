@@ -1286,6 +1286,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     activeDisruptions: "発令中の運行支障報知",
     pastResolvedAlerts: "過去の運行支障アーカイブ",
     resolveDisruption: "復旧完了処理",
+    alertEditButton: "編集",
+    alertEditTitle: "速報を編集",
     tapInValidation: "入場改札 (Tap-In)",
     tapOutValidation: "出場改札 (Tap-Out)",
     qrValidationResult: "改札通過判定結果",
