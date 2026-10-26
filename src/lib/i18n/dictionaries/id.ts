@@ -1897,6 +1897,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netToastGeoExported: "GeoJSON {code} diekspor ke unduhan.",
     netToastGenerated: "Jalur kurva halus {count} stasiun dibuat. Klik '{apply}' untuk menyimpan.",
     netToastImported: "{v} verteks dan {s} stasiun diimpor dari GeoJSON.",
+    netToastImportPartial: "Diimpor {ok} dari {total} stasiun ({fail} gagal).",
     netToastVertexInserted: "Verteks disisipkan di ({lat}°, {lng}°). Seret untuk membentuk kurva.",
     netToastLineDeleted: "Jalur \"{name}\" dihapus.",
     netToastLineSaved: "Jalur {code} ({name}) berhasil disimpan.",

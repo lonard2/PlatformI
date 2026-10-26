@@ -1897,6 +1897,7 @@ export const ar: TranslationDictionary = {
     netToastGeoExported: "تم تصدير GeoJSON الخاص بـ {code} إلى التنزيلات.",
     netToastGenerated: "تم إنشاء مسار منحني يربط كل المحطات الـ{count}. انقر “{apply}” للحفظ.",
     netToastImported: "تم استيراد {v} رأسًا و{s} محطة من GeoJSON.",
+    netToastImportPartial: "تم استيراد {ok} من {total} محطة ({fail} فشل).",
     netToastVertexInserted: "تم إدراج رأس عند ({lat}°، {lng}°). اسحب لتشكيل المنحنى.",
     netToastLineDeleted: "تم حذف الخط “{name}”.",
     netToastLineSaved: "تم حفظ الخط {code} ({name}) بنجاح.",

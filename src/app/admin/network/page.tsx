@@ -805,6 +805,7 @@ export default function AdminNetworkStudioPage() {
 
     const reader = new FileReader();
     reader.onload = (event) => {
+      void (async () => {
       try {
         const text = event.target?.result as string;
         const parsed = parseGeoJSONToLine(text);
@@ -825,8 +826,20 @@ export default function AdminNetworkStudioPage() {
 
         upsertLine(updatedLine);
 
-        // Import any stops
-        parsed.stops.forEach((s) => {
+        // Validate-then-write: only POST stops with usable geometry + identity.
+        // Persisted records (not local-only) so a reload keeps the import.
+        let ok = 0;
+        let fail = 0;
+        for (const s of parsed.stops) {
+          const valid =
+            typeof s.name === "string" &&
+            s.name.trim().length > 0 &&
+            Number.isFinite(s.latitude) &&
+            Number.isFinite(s.longitude);
+          if (!valid) {
+            fail += 1;
+            continue;
+          }
           const newStop: Stop = {
             id: `stop-${selectedLine.id}-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
             lineId: selectedLine.id,
@@ -842,17 +855,46 @@ export default function AdminNetworkStudioPage() {
             tactilePaving: true,
             wheelchairRamp: true,
           };
-          upsertStop(newStop);
-        });
+          try {
+            const res = await fetch("/api/network/stops", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newStop),
+            });
+            if (!res.ok) throw new Error("Failed to create stop");
+            const savedRes = await res.json();
+            const savedStop: Stop = savedRes.data || savedRes;
+            upsertStop(savedStop);
+            ok += 1;
+          } catch {
+            fail += 1;
+          }
+        }
 
-        setStatusMessage({
-          type: "success",
-          text: t.admin.netToastImported.replace("{v}", String(parsed.polylineCoordinates.length)).replace("{s}", String(parsed.stops.length)),
-        });
+        if (parsed.stops.length === 0) {
+          setStatusMessage({
+            type: "success",
+            text: t.admin.netToastImported.replace("{v}", String(parsed.polylineCoordinates.length)).replace("{s}", String(parsed.stops.length)),
+          });
+        } else if (fail === 0) {
+          setStatusMessage({
+            type: "success",
+            text: t.admin.netToastImported.replace("{v}", String(parsed.polylineCoordinates.length)).replace("{s}", String(ok)),
+          });
+        } else {
+          setStatusMessage({
+            type: "error",
+            text: t.admin.netToastImportPartial
+              .replace("{ok}", String(ok))
+              .replace("{total}", String(parsed.stops.length))
+              .replace("{fail}", String(fail)),
+          });
+        }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Invalid GeoJSON file";
         setStatusMessage({ type: "error", text: msg });
       }
+      })();
     };
     reader.readAsText(file);
     e.target.value = "";

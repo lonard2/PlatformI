@@ -1907,6 +1907,7 @@ export interface TranslationDictionary {
     netToastGeoExported: string;
     netToastGenerated: string;
     netToastImported: string;
+    netToastImportPartial: string;
     netToastVertexInserted: string;
     netToastLineDeleted: string;
     netToastLineSaved: string;

@@ -1822,6 +1822,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netToastGeoExported: "Exported {code} GeoJSON to downloads.",
     netToastGenerated: "Generated smoothed curve path connecting all {count} stations. Click 'Apply to DB' to save.",
     netToastImported: "Imported {v} vertices and {s} stations from GeoJSON.",
+    netToastImportPartial: "Imported {ok} of {total} stations ({fail} failed).",
     netToastVertexInserted: "Inserted vertex at ({lat}°, {lng}°). Drag to shape curve.",
     netToastLineDeleted: "Line \"{name}\" deleted.",
     netToastLineSaved: "Line {code} ({name}) successfully saved.",

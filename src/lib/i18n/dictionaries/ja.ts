@@ -1897,6 +1897,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netToastGeoExported: "{code}のGeoJSONをダウンロードしました。",
     netToastGenerated: "全{count}駅を結ぶ滑らかな曲線を生成。「{apply}」で保存してください。",
     netToastImported: "GeoJSONから頂点{v}・駅{s}を取込。",
+    netToastImportPartial: "{total}駅中{ok}駅を取込（{fail}件失敗）。",
     netToastVertexInserted: "頂点を追加（{lat}°, {lng}°）。ドラッグで整形してください。",
     netToastLineDeleted: "路線「{name}」を削除しました。",
     netToastLineSaved: "路線{code}（{name}）を保存しました。",

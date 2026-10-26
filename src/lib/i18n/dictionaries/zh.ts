@@ -1897,6 +1897,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netToastGeoExported: "已将{code}的GeoJSON导出到下载。",
     netToastGenerated: "已生成连接全部{count}个车站的平滑曲线。点击“{apply}”保存。",
     netToastImported: "已从GeoJSON导入{v}个顶点和{s}个车站。",
+    netToastImportPartial: "已导入{total}个车站中的{ok}个（{fail}个失败）。",
     netToastVertexInserted: "已在（{lat}°，{lng}°）插入顶点。拖动以塑形。",
     netToastLineDeleted: "已删除线路“{name}”。",
     netToastLineSaved: "线路{code}（{name}）保存成功。",

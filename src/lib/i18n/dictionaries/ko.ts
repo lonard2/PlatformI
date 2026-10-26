@@ -1897,6 +1897,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netToastGeoExported: "{code} GeoJSON 다운로드됨.",
     netToastGenerated: "{count}개 역을 연결하는 부드러운 곡선 생성. “{apply}”으로 저장.",
     netToastImported: "GeoJSON에서 정점 {v}개·역 {s}개 가져옴.",
+    netToastImportPartial: "{total}개 역 중 {ok}개 가져옴({fail}개 실패).",
     netToastVertexInserted: "({lat}°, {lng}°)에 정점 삽입. 드래그로 다듬으세요.",
     netToastLineDeleted: "노선 “{name}” 삭제됨.",
     netToastLineSaved: "노선 {code}({name}) 저장됨.",
