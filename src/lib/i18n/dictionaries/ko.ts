@@ -423,6 +423,7 @@ export const ko: TranslationDictionary = {
     locationRouteCount: "개 장소 / 노선",
     noMatchingRoutes: "검색 조건에 맞는 노선이 없습니다.",
     noMatchingRoutesFor: "“{q}”와(과) 일치하는 노선이 없습니다.",
+    showAllCorridors: "전체 {n}개 보기",
     toggleSectorMap: "지도에서 이 부문 표시/숨기기",
     resetMap: "지도 초기화",
     serviceNormal: "정상",

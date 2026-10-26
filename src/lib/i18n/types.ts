@@ -447,6 +447,7 @@ export interface TranslationDictionary {
     locationRouteCount: string;
     noMatchingRoutes: string;
     noMatchingRoutesFor: string;
+    showAllCorridors: string;
     toggleSectorMap: string;
     resetMap: string;
     serviceNormal: string;

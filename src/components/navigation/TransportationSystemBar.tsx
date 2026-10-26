@@ -829,6 +829,12 @@ export function TransportationSystemBar() {
   const shouldReduceMotion = useReducedMotion();
   const [showLangMenu, setShowLangMenu] = useState<boolean>(false);
   const [corridorSearchQuery, setCorridorSearchQuery] = useState<string>("");
+  // Per-system tray memory: capped initial render + preserved search query.
+  // Resetting the query on every switch forced recall; closing the tray
+  // resets the cap so the next open starts focused again.
+  const TRAY_INITIAL_COUNT = 12;
+  const [trayQueries, setTrayQueries] = useState<Record<string, string>>({});
+  const [trayShowAll, setTrayShowAll] = useState<Record<string, boolean>>({});
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const barWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -885,9 +891,18 @@ export function TransportationSystemBar() {
     setHoveredItemId(null);
     if (activeItemId === item.id) {
       setActiveItemId(null);
+      setTrayShowAll((prev) => {
+        if (!prev[item.id]) return prev;
+        const next = { ...prev };
+        delete next[item.id];
+        return next;
+      });
     } else {
+      if (activeItemId) {
+        setTrayQueries((prev) => ({ ...prev, [activeItemId]: corridorSearchQuery }));
+      }
+      setCorridorSearchQuery(trayQueries[item.id] ?? "");
       setActiveItemId(item.id);
-      setCorridorSearchQuery("");
     }
   };
 
@@ -950,6 +965,12 @@ export function TransportationSystemBar() {
           c.code.toLowerCase().includes(corridorSearchQuery.toLowerCase())
       )
     : [];
+
+  // Cap the initial wall of cards; search narrows, so it always shows all matches.
+  const shownCorridors =
+    corridorSearchQuery || (activeItem && trayShowAll[activeItem.id])
+      ? filteredCorridors
+      : filteredCorridors.slice(0, TRAY_INITIAL_COUNT);
 
   const visibleGroups = SYSTEM_GROUPS.filter((g) => {
     if (activeCategoryFilter === "ALL") return true;
@@ -1563,7 +1584,27 @@ export function TransportationSystemBar() {
                         : t.navigation.noMatchingRoutes}
                     </div>
                   )}
-                  {filteredCorridors.map((corridor, idx) => {
+                  {!corridorSearchQuery &&
+                    activeItem &&
+                    !trayShowAll[activeItem.id] &&
+                    filteredCorridors.length > TRAY_INITIAL_COUNT && (
+                      <div className="col-span-full flex justify-center pt-1">
+                        <button
+                          type="button"
+                          data-testid="tray-show-all"
+                          onClick={() =>
+                            setTrayShowAll((prev) => ({ ...prev, [activeItem.id]: true }))
+                          }
+                          className="touch-target px-4 py-2 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-300 hover:text-white hover:border-cyan-400 text-xs font-bold transition"
+                        >
+                          {t.navigation.showAllCorridors.replace(
+                            "{n}",
+                            String(filteredCorridors.length)
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  {shownCorridors.map((corridor, idx) => {
                     const badgeColor = corridor.badgeColor || activeItem.brandColor;
                     const hasMapTarget = !!(
                       corridor.stopId ||
@@ -1574,6 +1615,7 @@ export function TransportationSystemBar() {
                     return (
                       <button
                         key={corridor.code || `${activeItem.id}-corridor-${idx}`}
+                        data-testid="tray-card"
                         onClick={() => handleCorridorSelect(corridor)}
                         className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/60 transition-all flex items-start justify-between gap-3 group text-left shadow-sm"
                       >

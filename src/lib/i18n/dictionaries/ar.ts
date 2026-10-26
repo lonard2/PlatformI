@@ -423,6 +423,7 @@ export const ar: TranslationDictionary = {
     locationRouteCount: "مواقع / مسارات",
     noMatchingRoutes: "لا توجد مسارات تطابق بحثك.",
     noMatchingRoutesFor: "لا توجد مسارات تطابق \"{q}\":",
+    showAllCorridors: "عرض الكل ({n})",
     toggleSectorMap: "إظهار أو إخفاء هذا القطاع على الخريطة",
     resetMap: "إعادة تعيين الخريطة",
     serviceNormal: "طبيعي",

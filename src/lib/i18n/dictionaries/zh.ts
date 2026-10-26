@@ -423,6 +423,7 @@ export const zh: TranslationDictionary = {
     locationRouteCount: "个地点 / 路线",
     noMatchingRoutes: "没有符合搜索条件的路线。",
     noMatchingRoutesFor: "没有与“{q}”匹配的路线：",
+    showAllCorridors: "显示全部 {n} 项",
     toggleSectorMap: "在地图上显示/隐藏该板块",
     resetMap: "重置地图",
     serviceNormal: "正常",

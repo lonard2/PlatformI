@@ -423,6 +423,7 @@ export const en: TranslationDictionary = {
     locationRouteCount: "locations / routes",
     noMatchingRoutes: "No routes match your search.",
     noMatchingRoutesFor: "No routes match \"{q}\":",
+    showAllCorridors: "Show all {n}",
     toggleSectorMap: "Show or hide this sector on the map",
     resetMap: "Reset Map",
     serviceNormal: "Normal",

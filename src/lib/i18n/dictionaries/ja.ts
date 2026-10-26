@@ -423,6 +423,7 @@ export const ja: TranslationDictionary = {
     locationRouteCount: "地点 / 路線",
     noMatchingRoutes: "検索条件に一致する路線はありません。",
     noMatchingRoutesFor: "「{q}」に一致する路線はありません。",
+    showAllCorridors: "すべて表示（{n}件）",
     toggleSectorMap: "この分野を地図に表示/非表示",
     resetMap: "マップをリセット",
     serviceNormal: "平常",

@@ -423,6 +423,7 @@ export const id: TranslationDictionary = {
     locationRouteCount: "titik / rute",
     noMatchingRoutes: "Tidak ada rute yang cocok dengan pencarian.",
     noMatchingRoutesFor: "Tidak ada rute yang cocok untuk \"{q}\":",
+    showAllCorridors: "Tampilkan semua {n}",
     toggleSectorMap: "Aktifkan / nonaktifkan sektor ini di peta",
     resetMap: "Reset Peta",
     serviceNormal: "Normal",
