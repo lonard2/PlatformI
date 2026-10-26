@@ -411,6 +411,7 @@ export interface TranslationDictionary {
     tabCommunity: string;
     tabAI: string;
     statusAlertCount: string;
+    more: string;
     ticketing: string;
     crowdsource: string;
     aiAdvisor: string;

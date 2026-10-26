@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useLanguageStore } from "@/lib/i18n";
@@ -43,6 +43,7 @@ describe("footer open states", () => {
 
   it("stops the AI tab glowing and pulsing at rest", async () => {
     renderNav({ isAIOpen: false });
+    fireEvent.click(await screen.findByRole("button", { name: /^more$/i }));
     const ai = await screen.findByRole("button", { name: /ai travel assistant/i });
     expect(within(ai as HTMLElement).getByText("AI").className).not.toMatch(/text-cyan-300/);
     expect(ai.querySelector('[class*="animate-pulse"]')).not.toBeInTheDocument();
@@ -50,6 +51,7 @@ describe("footer open states", () => {
 
   it("keeps the AI tab highlighted while open", async () => {
     renderNav({ isAIOpen: true });
+    fireEvent.click(await screen.findByRole("button", { name: /^more$/i }));
     const ai = await screen.findByRole("button", { name: /ai travel assistant/i });
     expect(ai.className).toMatch(/text-cyan-400/);
   });

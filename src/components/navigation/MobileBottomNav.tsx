@@ -8,7 +8,7 @@
 
 "use client";
 
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import { getHighestSeverity } from "@/lib/services/severityRollup";
 import {
   MapPin,
@@ -17,6 +17,7 @@ import {
   Sparkles,
   QrCode,
   Users,
+  MoreHorizontal,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
@@ -53,6 +54,8 @@ export function MobileBottomNav({
   );
   const badgeCount = activeAlertCount > 9 ? "9+" : String(activeAlertCount);
 
+  const [moreOpen, setMoreOpen] = useState<boolean>(false);
+
   const navRef = useRef<HTMLElement | null>(null);
 
   // Publish the real navigation height so the cockpit footer and the vehicle
@@ -83,20 +86,40 @@ export function MobileBottomNav({
   const isStatusActive = activeDrawer === "alerts";
   const isMapActive = !activeDrawer && !isAIOpen;
 
+  const closeSheet = () => setMoreOpen(false);
+
   const handleMapClick = () => {
+    closeSheet();
     setActiveDrawer(null);
     clearSelection();
     onCloseAI?.();
   };
 
   const handleWalletClick = () => {
+    closeSheet();
     onCloseAI?.();
     setActiveDrawer(isWalletActive ? null : "tickets");
   };
 
   const handleCrowdsourceClick = () => {
+    closeSheet();
     onCloseAI?.();
     setActiveDrawer(isCrowdsourceActive ? null : "crowdsource");
+  };
+
+  const handleStatusClick = () => {
+    closeSheet();
+    onOpenStatus();
+  };
+
+  const handleJourneyClick = () => {
+    closeSheet();
+    onOpenJourney?.();
+  };
+
+  const handleAIClick = () => {
+    closeSheet();
+    onOpenAI();
   };
 
   return (
@@ -116,13 +139,29 @@ export function MobileBottomNav({
         }`}
       >
         <MapPin className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabMap}</span>
+        <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.tabMap}</span>
         {isMapActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
+      {/* 3. RUTE (JOURNEY) */}
+      <button
+        onClick={handleJourneyClick}
+        aria-expanded={isJourneyOpen}
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+          isJourneyOpen
+            ? "text-cyan-400 font-bold"
+            : "text-slate-400 hover:text-slate-200"
+        }`}
+      >
+        <Navigation className="w-5 h-5" />
+        <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.tabRoute}</span>
+        {isJourneyOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
+      </button>
+
+
       {/* 2. LAYANAN & STATUS (SERVICES) */}
       <button
-        onClick={onOpenStatus}
+        onClick={handleStatusClick}
         aria-haspopup="dialog"
         aria-expanded={isStatusActive}
         aria-label={
@@ -164,23 +203,8 @@ export function MobileBottomNav({
             />
           )}
         </div>
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabStatus}</span>
+        <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.tabStatus}</span>
         {isStatusActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
-      </button>
-
-      {/* 3. RUTE (JOURNEY) */}
-      <button
-        onClick={onOpenJourney}
-        aria-expanded={isJourneyOpen}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
-          isJourneyOpen
-            ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
-        }`}
-      >
-        <Navigation className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabRoute}</span>
-        {isJourneyOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
       {/* 4. TIKET (TICKETS / QR) */}
@@ -195,45 +219,58 @@ export function MobileBottomNav({
         }`}
       >
         <QrCode className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabTickets}</span>
+        <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.tabTickets}</span>
         {isWalletActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
-      {/* 5. KOMUNITAS (CROWDSOURCE) */}
+      {/* 5. MORE (SECONDARY ENTRIES) */}
       <button
-        onClick={handleCrowdsourceClick}
-        aria-haspopup="dialog"
-        aria-expanded={isCrowdsourceActive}
+        onClick={() => setMoreOpen((prev) => !prev)}
+        aria-expanded={moreOpen}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
-          isCrowdsourceActive
+          moreOpen
             ? "text-cyan-400 font-bold"
             : "text-slate-400 hover:text-slate-200"
         }`}
       >
-        <Users className="w-5 h-5" />
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabCommunity}</span>
-        {isCrowdsourceActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
+        <MoreHorizontal className="w-5 h-5" />
+        <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.more}</span>
+        {moreOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
 
-      {/* 6. AI ADVISOR */}
-      <button
-        onClick={onOpenAI}
-        aria-label={t.navigation.aiAdvisor}
-        title={t.navigation.aiAdvisor}
-        aria-haspopup="dialog"
-        aria-expanded={isAIOpen}
-        className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
-          isAIOpen
-            ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
-        }`}
-      >
-        <div className="relative">
-          <Sparkles className={`w-5 h-5 ${isAIOpen ? "text-cyan-400" : "text-slate-400"}`} />
+      {moreOpen && (
+        <div className="absolute bottom-full left-2 right-2 mb-2 rounded-2xl bg-slate-900/95 border border-white/10 p-2 space-y-1 shadow-2xl shadow-black">
+          <button
+            type="button"
+            onClick={handleCrowdsourceClick}
+            aria-haspopup="dialog"
+            aria-expanded={isCrowdsourceActive}
+            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${
+              isCrowdsourceActive
+                ? "bg-cyan-950/80 text-cyan-400 font-bold"
+                : "text-slate-200 hover:bg-white/5"
+            }`}
+          >
+            <Users className="w-5 h-5 shrink-0" />
+            <span className="truncate">{t.navigation.tabCommunity}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleAIClick}
+            aria-label={t.navigation.aiAdvisor}
+            aria-haspopup="dialog"
+            aria-expanded={isAIOpen}
+            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${
+              isAIOpen
+                ? "bg-cyan-950/80 text-cyan-400 font-bold"
+                : "text-slate-200 hover:bg-white/5"
+            }`}
+          >
+            <Sparkles className="w-5 h-5 shrink-0" />
+            <span className="truncate">{t.navigation.tabAI}</span>
+          </button>
         </div>
-        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabAI}</span>
-        {isAIOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
-      </button>
+      )}
     </nav>
   );
 }

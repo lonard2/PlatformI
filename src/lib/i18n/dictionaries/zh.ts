@@ -386,6 +386,7 @@ export const zh: TranslationDictionary = {
     tabTickets: "车票",
     tabCommunity: "互助",
     tabAI: "AI",
+    more: "更多",
     statusAlertCount: "{n} 条运营告警",
     ticketing: "乘车票务与JakLingko",
     crowdsource: "客流拥挤度众包",

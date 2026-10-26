@@ -272,6 +272,8 @@ describe("Milestone 5: React UI Components Integration", () => {
       expect(screen.getByText(/Status Langsung|Live Status|Layanan|Status/i)).toBeInTheDocument();
       expect(screen.getByText(/Route|Rute/i)).toBeInTheDocument();
       expect(screen.getByText(/Tickets & JakLingko|Tiket & JakLingko|Passes|Tiket|Tickets/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas|Warga/i)).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /^more$/i }));
       expect(screen.getByText(/Report Crowd Level|Crowd Reports|Laporan Kepadatan|Live Feed|Laporan|Komunitas|Crowd|Warga/i)).toBeInTheDocument();
 
       // Click tickets button (accessible name now matches the visible label)
@@ -284,7 +286,8 @@ describe("Milestone 5: React UI Components Integration", () => {
       fireEvent.click(statusBtn);
       expect(onOpenStatusMock).toHaveBeenCalled();
 
-      // Click AI Advisor compact slot
+      // Click AI Advisor in the overflow sheet (reopen: selecting tickets closed it)
+      fireEvent.click(screen.getByRole("button", { name: /^more$/i }));
       const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
       fireEvent.click(aiBtn);
       expect(onOpenAIMock).toHaveBeenCalled();
@@ -304,6 +307,7 @@ describe("Milestone 5: React UI Components Integration", () => {
         />
       );
 
+      fireEvent.click(screen.getByRole("button", { name: /^more$/i }));
       const aiBtn = screen.getByRole("button", { name: /AI Travel Assistant|AI Advisor|Asisten AI|AI/i });
       // The slot opens a dialog, so its state is exposed as expanded, not pressed
       expect(aiBtn).toHaveAttribute("aria-expanded", "true");

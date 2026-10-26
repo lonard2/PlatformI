@@ -386,6 +386,7 @@ export const ja: TranslationDictionary = {
     tabTickets: "切符",
     tabCommunity: "混雑",
     tabAI: "AI",
+    more: "その他",
     statusAlertCount: "運行情報{n}件",
     ticketing: "乗車券 & JakLingko",
     crowdsource: "混雑度投稿",
