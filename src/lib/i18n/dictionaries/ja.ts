@@ -899,6 +899,8 @@ export const ja: TranslationDictionary = {
     gateTapIn: "自動改札 開扉 • 改札入場（Tap-In）認証済み",
     gateTapOut: "自動改札 開扉 • 改札出場（Tap-Out）認証済み • ご乗車完了",
     gateDenied: "改札通過不可: トークン検証に失敗しました。",
+    gateOfflineDenied: "接続なし - タップは送信されませんでした。チケットは変更されていません。オンラインで再試行してください。",
+    gateRetryTap: "タップを再試行",
     gateTapInSim: "自動改札 開扉 • Tap-In 認証済み（シミュレーション）",
     gateTapOutSim: "自動改札 開扉 • Tap-Out 認証済み（シミュレーション）",
     walletEmpty: "ウォレットに有効な乗車券がありません。",

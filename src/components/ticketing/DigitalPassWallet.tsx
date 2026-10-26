@@ -207,6 +207,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
 
   // Turnstile Gate Simulator State
   const [isValidatingGate, setIsValidatingGate] = useState<boolean>(false);
+  const [lastScanType, setLastScanType] = useState<"TAP_IN" | "TAP_OUT" | null>(null);
   const [gateFeedback, setGateFeedback] = useState<{
     success: boolean;
     message: string;
@@ -223,6 +224,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
 
     setIsValidatingGate(true);
     setGateFeedback(null);
+    setLastScanType(scanType);
 
     try {
       const nowMs = Date.now();
@@ -261,18 +263,12 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         });
       }
     } catch {
-      // Local fallback simulation
-      const nextStatus: TicketStatus = scanType === "TAP_IN" ? "IN_JOURNEY" : "COMPLETED";
-      setTickets((prev) =>
-        prev.map((t) => (t.id === activeTicket.id ? { ...t, status: nextStatus } : t))
-      );
+      // Offline or network failure: deny honestly, preserve the ticket
+      // state and QR. Never report OPEN without a server answer.
       setGateFeedback({
-        success: true,
-        action: "OPEN",
-        message:
-          scanType === "TAP_IN"
-            ? t.ticketing.gateTapInSim
-            : t.ticketing.gateTapOutSim,
+        success: false,
+        action: "DENY",
+        message: t.ticketing.gateOfflineDenied,
       });
     } finally {
       setIsValidatingGate(false);
@@ -578,6 +574,15 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         )}
                       </button>
                     </div>
+                    {gateFeedback && !gateFeedback.success && lastScanType && (
+                      <button
+                        onClick={() => handleGateScan(lastScanType)}
+                        disabled={isValidatingGate}
+                        className="w-full py-2 px-3 rounded-xl bg-rose-950/60 hover:bg-rose-900/60 border border-rose-500/40 text-xs font-bold text-rose-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                      >
+                        <span>{t.ticketing.gateRetryTap}</span>
+                      </button>
+                    )}
                   </div>
                   </div>
                 </div>

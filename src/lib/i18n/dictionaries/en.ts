@@ -899,6 +899,8 @@ export const en: TranslationDictionary = {
     gateTapIn: "Turnstile Gate OPEN • Tap-In Verified at Concourse",
     gateTapOut: "Turnstile Gate OPEN • Tap-Out Verified • Journey Completed",
     gateDenied: "Turnstile Access Denied: Token validation failed.",
+    gateOfflineDenied: "No connection - tap not sent. Ticket unchanged. Retry when online.",
+    gateRetryTap: "Retry Tap",
     gateTapInSim: "Turnstile Gate OPEN • Tap-In Verified (Simulated)",
     gateTapOutSim: "Turnstile Gate OPEN • Tap-Out Verified (Simulated)",
     walletEmpty: "No active transit passes in your wallet.",

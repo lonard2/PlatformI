@@ -899,6 +899,8 @@ export const zh: TranslationDictionary = {
     gateTapIn: "闸机已开启 • 站厅进站验票成功",
     gateTapOut: "闸机已开启 • 出站验票成功 • 行程完成",
     gateDenied: "闸机拒绝通行: 令牌验证失败。",
+    gateOfflineDenied: "无网络连接 - 拍卡未发送。票证未变更。恢复在线后重试。",
+    gateRetryTap: "重试拍卡",
     gateTapInSim: "闸机已开启 • 进站验票成功（模拟）",
     gateTapOutSim: "闸机已开启 • 出站验票成功（模拟）",
     walletEmpty: "您的钱包中暂无有效的乘车卡。",

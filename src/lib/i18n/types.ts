@@ -923,6 +923,8 @@ export interface TranslationDictionary {
     gateTapIn: string;
     gateTapOut: string;
     gateDenied: string;
+    gateOfflineDenied: string;
+    gateRetryTap: string;
     gateTapInSim: string;
     gateTapOutSim: string;
     walletEmpty: string;

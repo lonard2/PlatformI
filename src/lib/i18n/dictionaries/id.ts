@@ -899,6 +899,8 @@ export const id: TranslationDictionary = {
     gateTapIn: "Gerbang Turnstile TERBUKA • Tap-In Terverifikasi di Concourse",
     gateTapOut: "Gerbang Turnstile TERBUKA • Tap-Out Terverifikasi • Perjalanan Selesai",
     gateDenied: "Akses Turnstile Ditolak: Validasi token gagal.",
+    gateOfflineDenied: "Tidak ada koneksi - tap tidak terkirim. Tiket tidak berubah. Coba lagi saat online.",
+    gateRetryTap: "Coba Tap Lagi",
     gateTapInSim: "Gerbang Turnstile TERBUKA • Tap-In Terverifikasi (Simulasi)",
     gateTapOutSim: "Gerbang Turnstile TERBUKA • Tap-Out Terverifikasi (Simulasi)",
     walletEmpty: "Tidak ada kartu transit aktif di dompet Anda.",

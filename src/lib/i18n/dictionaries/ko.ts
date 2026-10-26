@@ -899,6 +899,8 @@ export const ko: TranslationDictionary = {
     gateTapIn: "개찰구 개방 • 개찰 입장(Tap-In) 인증 완료",
     gateTapOut: "개찰구 개방 • 개찰 퇴장(Tap-Out) 인증 완료 • 여정 완료",
     gateDenied: "개찰구 통과 거부: 토큰 검증에 실패했습니다.",
+    gateOfflineDenied: "연결 없음 - 탭이 전송되지 않았습니다. 티켓은 변경되지 않았습니다. 온라인 상태에서 다시 시도하세요.",
+    gateRetryTap: "탭 다시 시도",
     gateTapInSim: "개찰구 개방 • Tap-In 인증 완료 (시뮬레이션)",
     gateTapOutSim: "개찰구 개방 • Tap-Out 인증 완료 (시뮬레이션)",
     walletEmpty: "지갑에 유효한 교통권이 없습니다.",
