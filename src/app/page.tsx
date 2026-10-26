@@ -363,8 +363,8 @@ export default function Home() {
       <div className="flex-1 min-h-0 relative overflow-hidden flex">
         <DynamicMap />
 
-        {/* Floating Journey Pill (bottom sheet on mobile, top-left card on sm+) */}
-        <div className="absolute left-3 right-3 bottom-3 sm:left-3 sm:right-auto sm:top-3 sm:bottom-auto z-40">
+        {/* Floating Journey Pill (top sheet on mobile, top-left card on sm+) */}
+        <div className="absolute left-3 right-3 top-3 sm:left-3 sm:right-auto sm:top-3 sm:bottom-auto z-40">
           <AnimatePresence mode="wait">
             {isJourneyExpanded ? (
               <motion.div
@@ -385,7 +385,7 @@ export default function Home() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={springTransition}
-                className="glass-panel rounded-2xl p-3.5 w-auto sm:w-96 max-w-[calc(100vw-24px)] max-h-[40vh] sm:max-h-none overflow-y-auto shadow-2xl shadow-black/70 space-y-3 border border-white/15 focus-visible:outline-none"
+                className="glass-panel rounded-2xl p-3.5 w-auto sm:w-96 max-w-[calc(100vw-24px)] max-h-[55vh] sm:max-h-none overflow-y-auto shadow-2xl shadow-black/70 space-y-3 border border-white/15 focus-visible:outline-none"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
