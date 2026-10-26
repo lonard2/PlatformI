@@ -829,6 +829,13 @@ export function TransportationSystemBar() {
   const shouldReduceMotion = useReducedMotion();
   const [showLangMenu, setShowLangMenu] = useState<boolean>(false);
   const [corridorSearchQuery, setCorridorSearchQuery] = useState<string>("");
+  // Transient schedule-only notice for dead-end taps (auto-dismisses).
+  const [trayNotice, setTrayNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!trayNotice) return;
+    const timer = window.setTimeout(() => setTrayNotice(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [trayNotice]);
   // Per-system tray memory: capped initial render + preserved search query.
   // Resetting the query on every switch forced recall; closing the tray
   // resets the cap so the next open starts focused again.
@@ -902,6 +909,7 @@ export function TransportationSystemBar() {
         setTrayQueries((prev) => ({ ...prev, [activeItemId]: corridorSearchQuery }));
       }
       setCorridorSearchQuery(trayQueries[item.id] ?? "");
+      setTrayNotice(null);
       setActiveItemId(item.id);
     }
   };
@@ -942,9 +950,11 @@ export function TransportationSystemBar() {
     } else if (detail.lineId) {
       selectLine(detail.lineId);
       setActiveItemId(null);
+    } else {
+      // No map geometry: say so out loud instead of failing silently.
+      // The tray stays open so the commuter keeps their place.
+      setTrayNotice(t.navigation.noLiveGeometry);
     }
-    // Corridors without live geometry stay put: the card says so, and the map is
-    // never pointed at an unrelated line just to look responsive.
   };
 
   const activeItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
@@ -1579,6 +1589,12 @@ export function TransportationSystemBar() {
                     </div>
                   )}
                 </div>
+
+                {trayNotice && (
+                  <p role="status" className="text-[11px] font-mono text-sky-300 bg-sky-950/40 border border-sky-500/30 rounded-lg px-3 py-1.5">
+                    {trayNotice}
+                  </p>
+                )}
 
                 {/* Grid of Corridors / Building Hubs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
