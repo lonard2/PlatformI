@@ -119,6 +119,9 @@ export default function Home() {
   const journeyPanelRef = useRef<HTMLDivElement>(null);
   const journeyPillRef = useRef<HTMLButtonElement>(null);
   const shouldRestorePillFocus = useRef<boolean>(false);
+  // Panel takes focus only when the user opened it. Deep-link arrivals
+  // expand the panel on mount and must not steal the initial focus.
+  const userOpenedPanelRef = useRef<boolean>(false);
   const drawerTriggerRef = useRef<HTMLElement | null>(null);
   const crowdsourceDrawerRef = useRef<HTMLDivElement>(null);
   const ticketsDrawerRef = useRef<HTMLDivElement>(null);
@@ -405,7 +408,12 @@ export default function Home() {
                     setIsJourneyExpanded(false);
                   }
                 }}
-                onAnimationComplete={() => journeyPanelRef.current?.focus()}
+                onAnimationComplete={() => {
+                  if (userOpenedPanelRef.current) {
+                    userOpenedPanelRef.current = false;
+                    journeyPanelRef.current?.focus();
+                  }
+                }}
                 initial={{ opacity: 0, scale: 0.95, y: -8 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
@@ -880,7 +888,10 @@ export default function Home() {
                     shouldRestorePillFocus.current = false;
                   }
                 }}
-                onClick={() => setIsJourneyExpanded(true)}
+                onClick={() => {
+                  userOpenedPanelRef.current = true;
+                  setIsJourneyExpanded(true);
+                }}
                 className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 glass-panel rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl shadow-black/50 btn-tactile hover-glass-glow transition-all cursor-pointer ${
                   plannedJourney ? "border-cyan-500/50 bg-slate-900/90" : "hover:border-cyan-500/40"
                 }`}
@@ -1114,7 +1125,10 @@ export default function Home() {
         onOpenStatus={() => {
           setActiveDrawer(activeDrawer === "alerts" ? null : "alerts");
         }}
-        onOpenJourney={() => setIsJourneyExpanded((prev) => !prev)}
+        onOpenJourney={() => {
+          if (!isJourneyExpanded) userOpenedPanelRef.current = true;
+          setIsJourneyExpanded((prev) => !prev);
+        }}
         isAIOpen={activeDrawer === "ai"}
         isJourneyOpen={isJourneyExpanded}
       />

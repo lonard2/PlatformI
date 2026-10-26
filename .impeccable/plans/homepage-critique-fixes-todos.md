@@ -12,5 +12,7 @@ Scope: `src/app/page.tsx` (+ homepage copy keys ×6 where needed; wallet/hub com
 
 Rules per todo: minimal diff, no overengineering, no regressions, strict TS, zero emoji, 6-locale parity when keys change.
 
+Ruling (polish): framer-motion animation callbacks do not run in jsdom, so the no-focus-steal assertion passes with and without the fix — the three polish tests are regression guards, and the real gate is browser verification (deep link must not move focus; pill/bottom-nav open must). onMouseDown suggestion commit left as-is: it beats the 120ms blur dismissal by design; switching to onClick would reintroduce dropped-tap regressions.
+
 Ruling (harden): detector flags 1 advisory design-system-color in TicketPurchaseModal.tsx, verified pre-existing at HEAD (not introduced here); left untouched.
 Ruling (harden): modal line-sync fix — the purchase modal now derives its line from initialOriginStopId so prefilled IDs always match an option; previously the line stayed on the default and prefilled IDs matched nothing.
