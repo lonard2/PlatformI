@@ -912,6 +912,7 @@ export const id: TranslationDictionary = {
     stationPrefix: "Stasiun:",
     simulateTapIn: "Tap Masuk",
     simulateTapOut: "Tap Keluar",
+    gatePendingIssues: "Tertunda & kendala ({n})",
     gateTapInHint: "Tap Masuk membutuhkan pass yang siap tap.",
     gateTapOutHint: "Tap masuk dulu - Tap Keluar terbuka setelah Tap Masuk.",
     noTrips: "Belum ada perjalanan yang tercatat.",

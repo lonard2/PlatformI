@@ -912,6 +912,7 @@ export const ar: TranslationDictionary = {
     stationPrefix: "المحطة:",
     simulateTapIn: "دخول",
     simulateTapOut: "خروج",
+    gatePendingIssues: "قيد الانتظار ومشكلات ({n})",
     gateTapInHint: "يتطلب الدخول تذكرة جاهزة للنقر.",
     gateTapOutHint: "انقر للدخول أولا - يفتح الخروج بعد الدخول.",
     noTrips: "لا توجد رحلات مكتملة مسجلة بعد.",

@@ -912,6 +912,7 @@ export const ja: TranslationDictionary = {
     stationPrefix: "駅:",
     simulateTapIn: "Tap-In",
     simulateTapOut: "Tap-Out",
+    gatePendingIssues: "保留中・要対応 ({n}件)",
     gateTapInHint: "Tap-Inにはタップ可能なパスが必要です。",
     gateTapOutHint: "先にTap-Inしてください - Tap-OutはTap-In後に有効になります。",
     noTrips: "完了した乗車記録はまだありません。",

@@ -912,6 +912,7 @@ export const ko: TranslationDictionary = {
     stationPrefix: "역:",
     simulateTapIn: "Tap-In",
     simulateTapOut: "Tap-Out",
+    gatePendingIssues: "대기 중・이슈 ({n}건)",
     gateTapInHint: "Tap-In에는 탭 가능한 패스가 필요합니다.",
     gateTapOutHint: "먼저 Tap-In하세요 - Tap-Out은 Tap-In 후에 열립니다.",
     noTrips: "아직 완료된 여정 기록이 없습니다.",

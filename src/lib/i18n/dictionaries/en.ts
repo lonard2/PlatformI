@@ -912,6 +912,7 @@ export const en: TranslationDictionary = {
     stationPrefix: "Station:",
     simulateTapIn: "Tap In",
     simulateTapOut: "Tap Out",
+    gatePendingIssues: "Pending & issues ({n})",
     gateTapInHint: "Tap In needs a Ready to Tap pass.",
     gateTapOutHint: "Tap in first - Tap Out unlocks after Tap In.",
     noTrips: "No completed trips recorded yet.",

@@ -912,6 +912,7 @@ export const zh: TranslationDictionary = {
     stationPrefix: "车站:",
     simulateTapIn: "进站拍卡",
     simulateTapOut: "出站拍卡",
+    gatePendingIssues: "待处理事项 ({n})",
     gateTapInHint: "进站拍卡需要一张可拍卡的通行证。",
     gateTapOutHint: "请先拍卡进站 - 出站拍卡在进站后解锁。",
     noTrips: "尚无已完成的行程记录。",

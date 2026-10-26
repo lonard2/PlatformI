@@ -133,7 +133,7 @@ describe("IntercityTicketHub pay reassurance", () => {
   it("shows the reservation code and chosen method after a successful pay", async () => {
     await reachPayStep();
     fireEvent.click(screen.getByRole("radio", { name: /qris/i }));
-    fireEvent.click(screen.getByRole("button", { name: /pay now/i }));
+    fireEvent.click(screen.getByRole("button", { name: /pay now ·/i }));
     expect(await screen.findByText(/RSV-PAY-01/)).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /qris/i })).toHaveAttribute(
       "aria-checked",

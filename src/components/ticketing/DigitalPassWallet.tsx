@@ -611,48 +611,71 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                 </div>
               )}
 
-              {/* Waiting reservations: QR withheld until payment succeeds */}
-              {waitingPasses.length > 0 && (
-                <div className="space-y-2">
-                  {waitingPasses.map((w) => (
-                    <div
-                      key={w.id}
-                      className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs space-y-1.5"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono text-sky-300 text-[10px]">
-                          {w.ticketNumber} · {w.reservationCode}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(w.status).className}`}>
-                          {statusBadge(w.status).label}
-                        </span>
+              {/* Pending reservations: collapsed so the scannable pass and
+                  TAP block own the first viewport. QR withheld until paid. */}
+              {(waitingPasses.length > 0 || failedPasses.length > 0) && (
+                <details className="rounded-xl border border-slate-800 bg-slate-900/60">
+                  <summary className="cursor-pointer px-3.5 py-2.5 text-xs font-bold text-slate-300 min-h-[44px] flex items-center">
+                    {t.ticketing.gatePendingIssues.replace(
+                      "{n}",
+                      String(waitingPasses.length + failedPasses.length)
+                    )}
+                  </summary>
+                  <div className="px-3.5 pb-3.5 space-y-2">
+                    {waitingPasses.map((w) => (
+                      <div
+                        key={w.id}
+                        className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs space-y-1.5"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono text-sky-300 text-[10px]">
+                            {w.ticketNumber} · {w.reservationCode}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(w.status).className}`}>
+                            {statusBadge(w.status).label}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-sky-200/80">{t.ticketing.qrReasonWaiting}</p>
+                        <button
+                          onClick={() => setIsPurchaseModalOpen(true)}
+                          className="px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs btn-tactile transition min-h-[44px]"
+                        >
+                          {t.ticketing.hubPayNow}
+                        </button>
                       </div>
-                      <p className="text-[11px] text-sky-200/80">{t.ticketing.qrReasonWaiting}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Failed payments: QR withheld with the failure reason */}
-              {failedPasses.length > 0 && (
-                <div className="space-y-2">
-                  {failedPasses.map((f) => (
-                    <div
-                      key={f.id}
-                      className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs space-y-1.5"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono text-rose-300 text-[10px]">
-                          {f.ticketNumber} · {f.reservationCode}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(f.status).className}`}>
-                          {statusBadge(f.status).label}
-                        </span>
+                    ))}
+                    {failedPasses.map((f) => (
+                      <div
+                        key={f.id}
+                        className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs space-y-1.5"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono text-rose-300 text-[10px]">
+                            {f.ticketNumber} · {f.reservationCode}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(f.status).className}`}>
+                            {statusBadge(f.status).label}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-rose-200/80">{t.ticketing.qrReasonFailed}</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setIsPurchaseModalOpen(true)}
+                            className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs btn-tactile transition min-h-[44px]"
+                          >
+                            {t.ticketing.hubPayNow}
+                          </button>
+                          <button
+                            onClick={() => setActiveTab("GUEST_LOOKUP")}
+                            className="px-3 py-2 rounded-lg border border-slate-600 text-slate-200 font-bold text-xs btn-tactile transition min-h-[44px]"
+                          >
+                            {t.ticketing.guestLookupFallbackTitle}
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-rose-200/80">{t.ticketing.qrReasonFailed}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </details>
               )}
             </div>
           )
