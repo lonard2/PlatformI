@@ -79,6 +79,10 @@ export default function Home() {
   );
   const alertBadge = activeAlertCount > 9 ? "9+" : String(activeAlertCount);
 
+  // Single active-drawer recipe: one accent for "open" across all five toggles.
+  const ACTIVE_TOGGLE = "bg-cyan-950/80 border-cyan-500/50 text-cyan-300";
+  const isOpen = (drawer: string | null): boolean => activeDrawer === drawer;
+
   // A planned journey only counts as a route when the planner actually found
   // candidate lines. Without them there is no ETA, no fare, and no map trace.
   const hasRoute = journeyHasRoute(plannedJourney);
@@ -312,9 +316,12 @@ export default function Home() {
             onClick={() => setActiveDrawer(activeDrawer === "alerts" ? null : "alerts")}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "alerts"}
+            aria-pressed={isOpen("alerts")}
             aria-label={t.navigation.serviceStatus}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs btn-tactile hover-glass-glow transition ${
-              highestSeverity === "CRITICAL"
+              isOpen("alerts")
+                ? ACTIVE_TOGGLE
+                : highestSeverity === "CRITICAL"
                 ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/40 text-rose-200"
                 : highestSeverity === "WARNING"
                 ? "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-200"
@@ -354,7 +361,10 @@ export default function Home() {
             onClick={handleOpenAI}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "ai"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-slate-900/70 hover:bg-slate-800 text-slate-300 border border-white/10 text-xs font-medium btn-tactile hover-glass-glow transition"
+            aria-pressed={isOpen("ai")}
+            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
+              isOpen("ai") ? ACTIVE_TOGGLE : "bg-slate-900/70 hover:bg-slate-800 text-slate-300 border-white/10"
+            }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.navigation.aiAdvisor}</span>
@@ -366,10 +376,10 @@ export default function Home() {
             }
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "crowdsource"}
-            aria-pressed={activeDrawer === "crowdsource"}
+            aria-pressed={isOpen("crowdsource")}
             className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
-              activeDrawer === "crowdsource"
-                ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
+              isOpen("crowdsource")
+                ? ACTIVE_TOGGLE
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
             }`}
           >
@@ -383,10 +393,10 @@ export default function Home() {
             }
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "tickets"}
-            aria-pressed={activeDrawer === "tickets"}
+            aria-pressed={isOpen("tickets")}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
-              activeDrawer === "tickets"
-                ? "bg-blue-950/80 border-blue-500/50 text-blue-300"
+              isOpen("tickets")
+                ? ACTIVE_TOGGLE
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
             }`}
           >
@@ -399,7 +409,10 @@ export default function Home() {
             aria-label={t.navigation.settings}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "settings"}
-            className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900/70 text-slate-300 hover:text-white hover:border-slate-700 btn-tactile hover-glass-glow transition"
+            aria-pressed={isOpen("settings")}
+            className={`p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border text-slate-300 hover:text-white btn-tactile hover-glass-glow transition ${
+              isOpen("settings") ? ACTIVE_TOGGLE : "border-slate-800 bg-slate-900/70 hover:border-slate-700"
+            }`}
           >
             <Settings className="w-4 h-4 text-slate-300" />
           </button>
