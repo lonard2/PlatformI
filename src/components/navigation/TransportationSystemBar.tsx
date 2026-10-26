@@ -823,7 +823,28 @@ export function TransportationSystemBar() {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   // Mobile shows the sector chips alone; the systems row opens on demand.
-  const [showSystemsOnMobile, setShowSystemsOnMobile] = useState<boolean>(false);
+  const [showSystemsOnMobile, setShowSystemsOnMobile] = useState<boolean>(() => {
+    // First visit opens the systems row; the traveler's choice persists.
+    try {
+      if (typeof localStorage === "undefined") return true;
+      const stored = localStorage.getItem("platformi.tsb.systemsOpen");
+      return stored === null ? true : stored === "1";
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSystemsOnMobile = (): void => {
+    setShowSystemsOnMobile((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("platformi.tsb.systemsOpen", next ? "1" : "0");
+      } catch {
+        // Private mode: the row simply follows the default next mount.
+      }
+      return next;
+    });
+  };
   const [hoverCardPos, setHoverCardPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
@@ -1041,10 +1062,10 @@ export function TransportationSystemBar() {
           })}
           {/* Mobile systems toggle: the only way to open the systems row below sm */}
           <button
-            onClick={() => setShowSystemsOnMobile((v) => !v)}
+            onClick={toggleSystemsOnMobile}
             aria-expanded={showSystemsOnMobile}
-            aria-label={t.navigation.routeListHeading}
-            title={t.navigation.routeListHeading}
+            aria-label={showSystemsOnMobile ? t.navigation.hideSectorItems : t.navigation.showSectorItems}
+            title={showSystemsOnMobile ? t.navigation.hideSectorItems : t.navigation.showSectorItems}
             className={`sm:hidden relative flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 border ${
               showSystemsOnMobile
                 ? "bg-cyan-950/90 border-cyan-400/60 text-cyan-300"
@@ -1145,7 +1166,7 @@ export function TransportationSystemBar() {
       {/* 2. HORIZONTAL SCROLLABLE BAR WITH LEFT/RIGHT NAVIGATION CONTROLS.
           Mobile shows the sector chips alone; the systems row opens on demand
           via the toggle below so the map keeps the viewport. */}
-      <div className={`relative items-center ${showSystemsOnMobile ? "flex" : "hidden"} sm:flex`}>
+      <div data-testid="tsb-systems-row" className={`relative items-center ${showSystemsOnMobile ? "flex" : "hidden"} sm:flex`}>
         {/* Left Scroll Arrow (Desktop) */}
         <button
           onClick={handleScrollLeft}
