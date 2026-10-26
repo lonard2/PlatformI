@@ -985,7 +985,7 @@ function TimetableStudioContent() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t.admin.ttFilterPh}
-                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-teal-500 transition"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-xs text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-teal-500 transition"
                 />
               </div>
 
@@ -1167,7 +1167,7 @@ function TimetableStudioContent() {
                             <MapPin className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                             <span>{run.origin}</span>
                           </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <div className="flex items-center gap-1.5 font-medium">
                             <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
                             <span>{run.destination}</span>
@@ -1189,7 +1189,7 @@ function TimetableStudioContent() {
                           <div className="text-xs uppercase font-mono text-slate-400">{t.admin.ttScheduleTab}</div>
                           <div className="font-mono font-bold text-white text-sm flex items-center gap-1.5">
                             <span className="text-emerald-400">{run.departureTime}</span>
-                            <span className="text-slate-600">&rarr;</span>
+                            <span className="text-slate-400">&rarr;</span>
                             <span className="text-cyan-400">{run.arrivalTime}</span>
                           </div>
                         </div>
@@ -1228,7 +1228,7 @@ function TimetableStudioContent() {
                                   className={`w-5 h-5 rounded text-xs font-mono font-bold flex items-center justify-center ${
                                     isActive
                                       ? "bg-teal-500/20 text-teal-300 border border-teal-500/40"
-                                      : "bg-slate-950 text-slate-600 border border-white/5"
+                                      : "bg-slate-950 text-slate-400 border border-white/5"
                                   }`}
                                 >
                                   {t.weekdayShort[d.shortKey]}
