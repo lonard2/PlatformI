@@ -440,6 +440,7 @@ export const ko: TranslationDictionary = {
     sectorAir: "항공",
     sectorSea: "해양",
     showSectorItems: "이 부문 항목 표시",
+    barScopeHint: "이 막대에 {sector}만 표시 - 눈 아이콘은 지도를 전환",
     hideSectorItems: "이 부문 항목 숨기기",
     noLiveGeometry: "이 경로에 지도 선형 데이터가 없습니다",
   },

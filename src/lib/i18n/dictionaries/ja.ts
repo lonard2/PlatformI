@@ -440,6 +440,7 @@ export const ja: TranslationDictionary = {
     sectorAir: "航空",
     sectorSea: "海路",
     showSectorItems: "この分野の項目を表示",
+    barScopeHint: "このバーに{sector}のみ表示 - 目のアイコンは地図を切り替え",
     hideSectorItems: "この分野の項目を非表示",
     noLiveGeometry: "このルートに地図上の路線データがありません",
   },

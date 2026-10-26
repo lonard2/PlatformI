@@ -440,6 +440,7 @@ export const id: TranslationDictionary = {
     sectorAir: "Bandara",
     sectorSea: "Laut",
     showSectorItems: "Tampilkan item sektor ini",
+    barScopeHint: "Tampilkan {sector} di bilah ini saja - ikon mata mengalihkan peta",
     hideSectorItems: "Sembunyikan item sektor ini",
     noLiveGeometry: "Tidak ada geometri peta langsung untuk rute ini",
   },

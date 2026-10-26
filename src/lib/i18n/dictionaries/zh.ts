@@ -440,6 +440,7 @@ export const zh: TranslationDictionary = {
     sectorAir: "航空",
     sectorSea: "航运",
     showSectorItems: "显示该板块的项目",
+    barScopeHint: "仅在此栏中显示{sector} - 眼睛图标切换地图",
     hideSectorItems: "隐藏该板块的项目",
     noLiveGeometry: "该路线暂无地图线形数据",
   },

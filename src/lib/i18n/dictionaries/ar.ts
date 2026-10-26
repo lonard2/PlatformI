@@ -440,6 +440,7 @@ export const ar: TranslationDictionary = {
     sectorAir: "طيران",
     sectorSea: "بحري",
     showSectorItems: "إظهار عناصر هذا القطاع",
+    barScopeHint: "عرض {sector} في هذا الشريط فقط - أيقونة العين تبدل الخريطة",
     hideSectorItems: "إخفاء عناصر هذا القطاع",
     noLiveGeometry: "لا توجد بيانات مسار على الخريطة لهذا المسار",
   },

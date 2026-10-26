@@ -440,6 +440,7 @@ export const en: TranslationDictionary = {
     sectorAir: "Air",
     sectorSea: "Sea",
     showSectorItems: "Show this sector's items",
+    barScopeHint: "Show {sector} in this bar only - the eye toggles the map",
     hideSectorItems: "Hide this sector's items",
     noLiveGeometry: "No live map geometry for this route",
   },

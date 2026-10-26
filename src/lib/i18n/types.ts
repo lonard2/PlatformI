@@ -464,6 +464,7 @@ export interface TranslationDictionary {
     sectorAir: string;
     sectorSea: string;
     showSectorItems: string;
+    barScopeHint: string;
     hideSectorItems: string;
     noLiveGeometry: string;
   };

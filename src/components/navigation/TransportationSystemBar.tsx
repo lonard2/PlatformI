@@ -1006,6 +1006,7 @@ export function TransportationSystemBar() {
                 key={g.category}
                 onClick={() => handleCategoryTab(g.category)}
                 aria-pressed={isFilterActive}
+                title={t.navigation.barScopeHint.replace("{sector}", getSectorShortTitle(g.category, t))}
                 className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all duration-200 text-[11px] font-bold touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 ${
                   isFilterActive
                     ? "bg-slate-800 border border-cyan-500/50 text-white shadow-sm ring-1 ring-cyan-500/30"
@@ -1217,6 +1218,7 @@ export function TransportationSystemBar() {
                       onClick={(e) => toggleCategoryCollapse(group.category, e)}
                       title={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
                       aria-label={isCollapsed ? t.navigation.showSectorItems : t.navigation.hideSectorItems}
+                      aria-expanded={!isCollapsed}
                       className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 p-1 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-md transition"
                     >
                       <ChevronDown
