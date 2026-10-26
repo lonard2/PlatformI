@@ -386,6 +386,7 @@ export const en: TranslationDictionary = {
     tabTickets: "Tickets",
     tabCommunity: "Crowd",
     tabAI: "AI",
+    statusAlertCount: "{n} active service alerts",
     ticketing: "Tickets & JakLingko",
     crowdsource: "Report Crowd Level",
     aiAdvisor: "AI Travel Assistant",

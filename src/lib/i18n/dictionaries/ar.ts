@@ -386,6 +386,7 @@ export const ar: TranslationDictionary = {
     tabTickets: "التذاكر",
     tabCommunity: "المجتمع",
     tabAI: "الذكاء",
+    statusAlertCount: "{n} تنبيهات تشغيلية",
     ticketing: "التذاكر ونظام JakLingko",
     crowdsource: "بلاغات الكثافة التشاركية",
     aiAdvisor: "مستشار الرحلات الذكي",

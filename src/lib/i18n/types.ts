@@ -410,6 +410,7 @@ export interface TranslationDictionary {
     tabTickets: string;
     tabCommunity: string;
     tabAI: string;
+    statusAlertCount: string;
     ticketing: string;
     crowdsource: string;
     aiAdvisor: string;

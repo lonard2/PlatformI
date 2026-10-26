@@ -46,6 +46,13 @@ export function MobileBottomNav({
 
   const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
 
+  // Numbered severity badge: count of actionable alerts, capped for glanceability.
+  const activeAlertCount = useMemo(
+    () => activeAlerts.filter((a) => a.status === "ACTIVE").length,
+    [activeAlerts]
+  );
+  const badgeCount = activeAlertCount > 9 ? "9+" : String(activeAlertCount);
+
   const navRef = useRef<HTMLElement | null>(null);
 
   // Publish the real navigation height so the cockpit footer and the vehicle
@@ -118,6 +125,11 @@ export function MobileBottomNav({
         onClick={onOpenStatus}
         aria-haspopup="dialog"
         aria-expanded={isStatusActive}
+        aria-label={
+          activeAlertCount > 0
+            ? `${t.navigation.tabStatus}: ${t.navigation.statusAlertCount.replace("{n}", badgeCount)}`
+            : undefined
+        }
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
           isStatusActive
             ? "text-cyan-400 font-bold"
@@ -125,16 +137,32 @@ export function MobileBottomNav({
         }`}
       >
         <div className="relative">
-          <Activity className="w-5 h-5" />
-          <span
-            className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
-              highestSeverity === "CRITICAL"
-                ? "bg-rose-500 animate-pulse ring-2 ring-rose-950"
-                : highestSeverity === "WARNING"
-                ? "bg-amber-400 ring-2 ring-amber-950"
-                : "bg-emerald-400 ring-2 ring-emerald-950"
-            }`}
-          />
+          <Activity className="w-5 h-5" aria-hidden="true" />
+          {activeAlertCount > 0 ? (
+            <span
+              aria-hidden="true"
+              className={`absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-bold ring-2 ${
+                highestSeverity === "CRITICAL"
+                  ? "bg-rose-500 text-white ring-rose-950 motion-safe:animate-pulse"
+                  : highestSeverity === "WARNING"
+                  ? "bg-amber-400 text-amber-950 ring-amber-950"
+                  : "bg-emerald-500 text-emerald-950 ring-emerald-950"
+              }`}
+            >
+              {badgeCount}
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+                highestSeverity === "CRITICAL"
+                  ? "bg-rose-500 animate-pulse ring-2 ring-rose-950"
+                  : highestSeverity === "WARNING"
+                  ? "bg-amber-400 ring-2 ring-amber-950"
+                  : "bg-emerald-400 ring-2 ring-emerald-950"
+              }`}
+            />
+          )}
         </div>
         <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabStatus}</span>
         {isStatusActive && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}

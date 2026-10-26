@@ -386,6 +386,7 @@ export const ko: TranslationDictionary = {
     tabTickets: "승차권",
     tabCommunity: "혼잡도",
     tabAI: "AI",
+    statusAlertCount: "운행 알림 {n}건",
     ticketing: "승차권 & JakLingko",
     crowdsource: "혼잡도 제보",
     aiAdvisor: "AI 경로 안내",

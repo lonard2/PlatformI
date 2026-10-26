@@ -386,6 +386,7 @@ export const id: TranslationDictionary = {
     tabTickets: "Tiket",
     tabCommunity: "Warga",
     tabAI: "AI",
+    statusAlertCount: "{n} info gangguan aktif",
     ticketing: "Tiket & JakLingko",
     crowdsource: "Lapor Kepadatan",
     aiAdvisor: "Asisten Perjalanan AI",
