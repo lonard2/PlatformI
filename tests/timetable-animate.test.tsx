@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import AdminTimetableStudioPage from "@/app/admin/timetables/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
@@ -69,18 +69,11 @@ describe("timetable animate", () => {
     await generateFromList();
     await screen.findByText(/batch complete/i);
     fireEvent.click(screen.getByRole("button", { name: /review on stringline/i }));
-    await waitForGone(/^batch generator$/i);
-    expect(screen.queryByText("Scheduled Timetable Registry")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("Scheduled Timetable Registry")).not.toBeInTheDocument();
+    });
     // New runs render with the highlight glow on the stringline.
     expect(document.querySelector('path[filter="url(#stringline-glow)"]')).not.toBeNull();
-
-    async function waitForGone(re: RegExp): Promise<void> {
-      for (let i = 0; i < 40; i++) {
-        if (!screen.queryByRole("button", { name: re })) return;
-        await new Promise((r) => setTimeout(r, 25));
-      }
-      throw new Error("view did not switch");
-    }
   });
 
   it("dismisses the summary without switching views", async () => {

@@ -714,6 +714,35 @@ function TimetableStudioContent() {
         </div>
       </div>
 
+      {/* Corridor context: one control drives the matrix and stringline views */}
+      <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <label htmlFor="corridor-line-picker" className="text-xs text-slate-400 font-bold uppercase font-mono tracking-wider">
+            {t.admin.ttLineLabel}
+          </label>
+          <select
+            id="corridor-line-picker"
+            aria-label={t.admin.ttLineLabel}
+            value={matrixLineId}
+            onChange={(e) => setMatrixLineId(e.target.value)}
+            className="px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 transition"
+          >
+            {allLines.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.code} &bull; {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="text-xs text-slate-400 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>{t.admin.ttHeadway} <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} {t.map.minuteShort}</strong></span>
+          <span>&bull;</span>
+          <span>{t.admin.ttSpan} <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
+        </div>
+      </div>
+
       {/* Load failure: visible with retry, never a blank studio */}
       {error && (
         <div
@@ -868,7 +897,7 @@ function TimetableStudioContent() {
             </div>
           </div>
           <div className="text-2xl font-bold font-mono text-emerald-300 tabular-nums">
-            {uniqueLinesCovered} <span className="text-xs text-slate-500 font-normal">of {allLines.length}</span>
+            {t.admin.ttLinesCoverage.replace("{covered}", String(uniqueLinesCovered)).replace("{total}", String(allLines.length))}
           </div>
           <div className="text-[10px] text-slate-400 text-pretty">{t.admin.ttKpiLinesDesc}</div>
         </div>
@@ -877,33 +906,6 @@ function TimetableStudioContent() {
       {/* 3. CONDITIONAL VIEW: STOP-BY-TRIP MATRIX GRID VIEW */}
       {viewMode === "MATRIX" && (
         <div className="space-y-4">
-          {/* Matrix Line Selector Bar */}
-          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 font-bold uppercase font-mono tracking-wider">
-                Corridor Line:
-              </span>
-              <select
-                value={matrixLineId}
-                onChange={(e) => setMatrixLineId(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 transition"
-              >
-                {allLines.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.code} &bull; {l.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="text-xs text-slate-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{t.admin.ttHeadway} <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} {t.map.minuteShort}</strong></span>
-              <span>&bull;</span>
-              <span>{t.admin.ttSpan} <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
-            </div>
-          </div>
-
           {currentMatrixLine && (
             <TimetableMatrixGrid
               selectedLine={currentMatrixLine}
@@ -923,40 +925,16 @@ function TimetableStudioContent() {
       {/* 3B. CONDITIONAL VIEW: GRAPHICAL TRAIN STRINGLINE (MAREY CHART / GAPEKA ZUGDIAGRAMM) */}
       {viewMode === "STRINGLINE" && (
         <div className="space-y-4">
-          {/* Corridor Line Selector Bar */}
-          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 font-bold uppercase font-mono tracking-wider">
-                Corridor Line:
-              </span>
-              <select
-                value={matrixLineId}
-                onChange={(e) => setMatrixLineId(e.target.value)}
-                className="px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs font-semibold text-white focus:outline-none focus:border-teal-500 transition"
-              >
-                {allLines.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.code} &bull; {l.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
+          {/* Corridor actions for the shared line context */}
+          <div className="p-4 rounded-2xl bg-slate-900/70 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-end gap-3">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 pr-2 border-r border-white/10">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{t.admin.ttHeadway} <strong className="text-white">{currentMatrixLine?.headwayMinutes || 5} {t.map.minuteShort}</strong></span>
-                <span>&bull;</span>
-                <span>{t.admin.ttSpan} <strong className="text-white">{currentMatrixLine?.firstDeparture || "05:00"} - {currentMatrixLine?.lastDeparture || "23:00"}</strong></span>
-              </div>
-
               <button
                 type="button"
                 onClick={() => setIsBatchModalOpen(true)}
                 className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-300 hover:bg-teal-500/20 text-xs font-semibold flex items-center gap-1.5 transition btn-tactile"
               >
                 <Wand2 className="w-3.5 h-3.5" />
-                <span>{t.admin.ttBatchPattern}</span>
+                <span>{t.admin.ttBatchGen}</span>
               </button>
               <button
                 type="button"
@@ -964,7 +942,7 @@ function TimetableStudioContent() {
                 className="px-3 py-1.5 rounded-xl bg-teal-500 text-teal-950 hover:bg-teal-400 text-xs font-bold flex items-center gap-1.5 transition btn-tactile"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>{t.admin.ttAddTrip}</span>
+                <span>{t.admin.ttAddRun}</span>
               </button>
             </div>
           </div>
@@ -1053,7 +1031,7 @@ function TimetableStudioContent() {
                     {cat === "AVIATION" && <Plane className="w-3.5 h-3.5" />}
                     {cat === "BUS" && <Bus className="w-3.5 h-3.5" />}
                     {cat === "MARITIME" && <Anchor className="w-3.5 h-3.5" />}
-                    <span>{cat === "ALL" ? "All Modes" : cat}</span>
+                    <span>{cat === "ALL" ? t.admin.ttAllModes : cat}</span>
                   </button>
                 );
               })}
@@ -1584,11 +1562,12 @@ function TimetableStudioContent() {
 }
 
 export default function AdminTimetableStudioPage() {
+  const { t } = useTranslation();
   return (
     <Suspense
       fallback={
         <div className="flex-1 flex items-center justify-center p-8 text-slate-400 text-xs">
-          Loading Timetable Studio...
+          {t.admin.ttLoadingStudio}
         </div>
       }
     >
