@@ -996,6 +996,14 @@ export default function Home() {
               transition={drawerTransition}
               className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-96 max-w-[calc(100vw-24px)] focus-visible:outline-none"
             >
+              <button
+                type="button"
+                onClick={() => setActiveDrawer(null)}
+                aria-label={t.common.close}
+                className="absolute top-3 right-3 z-10 p-2 rounded-xl bg-slate-900/90 border border-white/10 text-slate-400 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
               <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
             </motion.div>
           )}
