@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
           headwayMinutes: l.headwayMinutes,
           firstDeparture: l.firstDeparture,
           lastDeparture: l.lastDeparture,
-          wilayah: l.wilayah ?? undefined,
+          wilayah: l.wilayah as Line["wilayah"] ?? undefined,
           polylineCoordinates: JSON.parse(l.polylineCoordinatesJson || "[]") as Coordinate[],
           stops: l.stops.map((s) => {
             let pType = s.platformType || undefined;
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
               platformType: pType,
               stationType: sType,
               scale: sScale,
-              wilayah: s.wilayah ?? undefined,
+              wilayah: s.wilayah as Line["wilayah"] ?? undefined,
             };
           }),
         }));

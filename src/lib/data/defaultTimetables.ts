@@ -86,7 +86,7 @@ export const DEFAULT_TIMETABLE_RUNS: TimetableRun[] = [
   },
   {
     id: "run-kai-7002",
-    lineId: "line-airport-rail",
+    lineId: "line-kai-bandara",
     tripCode: "A-04",
     origin: "Stasiun Manggarai (MRI)",
     destination: "Bandara Soekarno-Hatta (BST)",

@@ -467,6 +467,7 @@ export interface TranslationDictionary {
     barScopeHint: string;
     hideSectorItems: string;
     noLiveGeometry: string;
+    partialMapCoverage: string;
   };
   modes: {
     mrt: string;

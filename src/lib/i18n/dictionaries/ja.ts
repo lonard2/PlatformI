@@ -443,6 +443,7 @@ export const ja: TranslationDictionary = {
     barScopeHint: "このバーに{sector}のみ表示 - 目のアイコンは地図を切り替え",
     hideSectorItems: "この分野の項目を非表示",
     noLiveGeometry: "このルートに地図上の路線データがありません",
+    partialMapCoverage: "{n}件中{m}件のみライブ地図対応 - 残りは時刻表のみ。",
   },
   modes: {
     mrt: "MRTジャカルタ (Ratangga)",

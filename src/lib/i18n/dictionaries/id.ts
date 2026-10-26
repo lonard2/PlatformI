@@ -443,6 +443,7 @@ export const id: TranslationDictionary = {
     barScopeHint: "Tampilkan {sector} di bilah ini saja - ikon mata mengalihkan peta",
     hideSectorItems: "Sembunyikan item sektor ini",
     noLiveGeometry: "Tidak ada geometri peta langsung untuk rute ini",
+    partialMapCoverage: "Peta live untuk {m} dari {n} rute - sisanya hanya jadwal.",
   },
   modes: {
     mrt: "MRT Jakarta (Ratangga)",

@@ -443,6 +443,7 @@ export const ar: TranslationDictionary = {
     barScopeHint: "عرض {sector} في هذا الشريط فقط - أيقونة العين تبدل الخريطة",
     hideSectorItems: "إخفاء عناصر هذا القطاع",
     noLiveGeometry: "لا توجد بيانات مسار على الخريطة لهذا المسار",
+    partialMapCoverage: "خريطة حية لـ {m} من {n} مسارا - الباقي جدول فقط.",
   },
   modes: {
     mrt: "مترو جاكرتا (MRT Jakarta)",

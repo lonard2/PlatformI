@@ -1617,6 +1617,20 @@ export function TransportationSystemBar() {
                   </p>
                 )}
 
+                {(() => {
+                  const mapped = activeItem.corridorsOrBuildings.filter(
+                    (c) => c.stopId || c.coordinates || c.lineId
+                  ).length;
+                  const total = activeItem.corridorsOrBuildings.length;
+                  return mapped < total ? (
+                    <p className="text-[11px] font-mono text-slate-400">
+                      {t.navigation.partialMapCoverage
+                        .replace("{m}", String(mapped))
+                        .replace("{n}", String(total))}
+                    </p>
+                  ) : null;
+                })()}
+
                 {/* Grid of Corridors / Building Hubs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
                   {filteredCorridors.length === 0 && (

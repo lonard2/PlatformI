@@ -443,6 +443,7 @@ export const en: TranslationDictionary = {
     barScopeHint: "Show {sector} in this bar only - the eye toggles the map",
     hideSectorItems: "Hide this sector's items",
     noLiveGeometry: "No live map geometry for this route",
+    partialMapCoverage: "Live map for {m} of {n} routes - rest schedule-only.",
   },
   modes: {
     mrt: "MRT Jakarta (Ratangga)",

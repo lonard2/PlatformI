@@ -443,6 +443,7 @@ export const zh: TranslationDictionary = {
     barScopeHint: "仅在此栏中显示{sector} - 眼睛图标切换地图",
     hideSectorItems: "隐藏该板块的项目",
     noLiveGeometry: "该路线暂无地图线形数据",
+    partialMapCoverage: "{n}条路线中有{m}条支持实时地图 - 其余仅时刻表。",
   },
   modes: {
     mrt: "雅加达地铁 (MRT Jakarta)",

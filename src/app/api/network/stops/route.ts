@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
             platformType: parsed.platformType,
             stationType: parsed.stationType,
             scale: parsed.scale,
-            wilayah: s.wilayah ?? undefined,
+            wilayah: s.wilayah as Stop["wilayah"] ?? undefined,
           };
         });
       } else {
