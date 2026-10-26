@@ -1853,6 +1853,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netLineCode: "线路代码 *",
     netLineCodePh: "例如：M-01、TJ-14",
     netLineColor: "线路品牌颜色 *",
+    netWilayah: "服务区域",
     netPlatformType: "站台类型",
     netConnectedLines: "换乘线路",
     netConnectedLinesPh: "例如: MRT-NS, TJ-01（逗号分隔）",

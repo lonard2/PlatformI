@@ -1778,6 +1778,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netLineCode: "Line Code *",
     netLineCodePh: "e.g. M-01, TJ-14",
     netLineColor: "Line Brand Color *",
+    netWilayah: "Service Area (Wilayah)",
     netPlatformType: "Platform Type",
     netConnectedLines: "Connected Lines",
     netConnectedLinesPh: "e.g. MRT-NS, TJ-01 (comma-separated)",

@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
           headwayMinutes: l.headwayMinutes,
           firstDeparture: l.firstDeparture,
           lastDeparture: l.lastDeparture,
+          wilayah: l.wilayah ?? undefined,
           polylineCoordinates: JSON.parse(l.polylineCoordinatesJson || "[]") as Coordinate[],
           stops: l.stops.map((s) => {
             let pType = s.platformType || undefined;
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest) {
               platformType: pType,
               stationType: sType,
               scale: sScale,
+              wilayah: s.wilayah ?? undefined,
             };
           }),
         }));
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest) {
       headwayMinutes = 10,
       firstDeparture = "05:00",
       lastDeparture = "22:00",
+      wilayah,
       polylineCoordinates = [],
       regionId = JABODETABEK_REGION.id,
     } = body;
@@ -162,6 +165,7 @@ export async function POST(request: NextRequest) {
       headwayMinutes: Number(headwayMinutes) || 10,
       firstDeparture: String(firstDeparture).trim(),
       lastDeparture: String(lastDeparture).trim(),
+      wilayah: wilayah ? (String(wilayah) as Line["wilayah"]) : undefined,
       polylineCoordinates: Array.isArray(polylineCoordinates) ? polylineCoordinates : [],
       stops: [],
     };
@@ -200,6 +204,7 @@ export async function POST(request: NextRequest) {
           headwayMinutes: createdLine.headwayMinutes,
           firstDeparture: createdLine.firstDeparture,
           lastDeparture: createdLine.lastDeparture,
+          wilayah: createdLine.wilayah,
           polylineCoordinatesJson: JSON.stringify(createdLine.polylineCoordinates),
         },
       });
@@ -255,6 +260,7 @@ export async function PUT(request: NextRequest) {
     if (body.headwayMinutes !== undefined) updateData.headwayMinutes = Number(body.headwayMinutes);
     if (body.firstDeparture !== undefined) updateData.firstDeparture = String(body.firstDeparture).trim();
     if (body.lastDeparture !== undefined) updateData.lastDeparture = String(body.lastDeparture).trim();
+    if (body.wilayah !== undefined) updateData.wilayah = body.wilayah ? String(body.wilayah) as Line["wilayah"] : undefined;
     if (body.polylineCoordinates !== undefined && Array.isArray(body.polylineCoordinates)) {
       updateData.polylineCoordinates = body.polylineCoordinates;
     }

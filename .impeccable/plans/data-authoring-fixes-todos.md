@@ -12,7 +12,7 @@ Scope rule: schema/API/UI fixes that ship independently, smallest honest diff fi
 | 4 | fix | Alert bulletins editable post-broadcast (title/desc/line/stops/ETA via edit modal + PATCH) | RED→GREEN `tests/alerts-edit.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
 | 5 | fix | Timetable PUT stops fabricating records (404 on unknown id); destructive bulk delete requires confirm count | RED→GREEN `tests/timetable-write-guard.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
 | 6 | fix | Vehicle extended identity round-trips (runNumber/trainset/carFormation/depot/fleetNumber/licensePlate/operator + photos) | RED→GREEN `tests/fleet-extended-roundtrip.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
-| 7 | data | Wilayah field: schema column on Line+Stop, seed backfill, network-modal dropdown, bar grouping follow-up noted | RED→GREEN migration + `tests/wilayah-field.test.ts`, `tsc`, full suite, `detect --json`, `diff-check` |
+| 7 | data | Wilayah field: schema column on Line+Stop, seed backfill, network-modal dropdown, bar grouping follow-up noted | RED→GREEN migration + `tests/wilayah-field.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
 | 8 | data | Stale `line-airport-rail` reference corrected; MikroTrans bar-vs-DB coverage flagged in UI copy | RED→GREEN `tests/static-drift.test.ts`, `tsc`, full suite, `detect --json`, `diff-check` |
 
 Rules per todo: minimal diff, no overengineering, no regressions, strict TS, zero emoji, 6-locale parity when keys change. Each todo ships as its own commit + push to `origin main`.

@@ -36,6 +36,7 @@ model Line {
   headwayMinutes          Int
   firstDeparture          String
   lastDeparture           String
+  wilayah                 String?
   polylineCoordinatesJson String
   stops                   Stop[]
   vehicles                Vehicle[]
@@ -61,6 +62,7 @@ model Stop {
   tactilePaving        Boolean  @default(false)
   wheelchairRamp       Boolean  @default(false)
   platformType         String?
+  wilayah              String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }

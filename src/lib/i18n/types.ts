@@ -1863,6 +1863,7 @@ export interface TranslationDictionary {
     netLineCode: string;
     netLineCodePh: string;
     netLineColor: string;
+    netWilayah: string;
     netHeadway: string;
     netFirstDeparture: string;
     netLastDeparture: string;

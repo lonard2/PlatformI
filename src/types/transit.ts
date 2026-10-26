@@ -141,6 +141,14 @@ export type StationType =
 
 export type StationScale = "SMALL" | "MEDIUM" | "BIG";
 
+export type WilayahCode =
+  | "PUSAT"
+  | "UTARA"
+  | "TIMUR"
+  | "SELATAN"
+  | "BARAT"
+  | "KEPULAUAN_SERIBU";
+
 export interface Stop {
   id: string;
   lineId: string;
@@ -158,6 +166,7 @@ export interface Stop {
   platformType?: string;
   stationType?: StationType;
   scale?: StationScale;
+  wilayah?: WilayahCode;
 }
 
 export interface Line {
@@ -176,6 +185,7 @@ export interface Line {
   headwayMinutes: number;
   firstDeparture: string;
   lastDeparture: string;
+  wilayah?: WilayahCode;
   polylineCoordinates: Coordinate[];
   stops?: Stop[];
 }

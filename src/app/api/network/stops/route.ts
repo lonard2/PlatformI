@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { Stop, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
+import { wilayahForCoordinate } from "@/lib/geodesy/wilayah";
 
 function inferStationType(s: { name: string; lineId: string; isInterchange?: boolean }): StationType {
   const nameLower = s.name.toLowerCase();
@@ -161,6 +162,7 @@ export async function GET(request: NextRequest) {
             platformType: parsed.platformType,
             stationType: parsed.stationType,
             scale: parsed.scale,
+            wilayah: s.wilayah ?? undefined,
           };
         });
       } else {
@@ -210,6 +212,7 @@ export async function POST(request: NextRequest) {
       platformType = "ISLAND",
       stationType,
       scale,
+      wilayah,
     } = body;
 
     // Validation
@@ -259,6 +262,9 @@ export async function POST(request: NextRequest) {
       platformType: finalPlatformType,
       stationType: finalStationType,
       scale: finalScale,
+      wilayah: wilayah
+        ? (String(wilayah) as Stop["wilayah"])
+        : wilayahForCoordinate(Number(lat.toFixed(6)), Number(lon.toFixed(6))),
     };
 
     try {
@@ -278,6 +284,7 @@ export async function POST(request: NextRequest) {
           tactilePaving: createdStop.tactilePaving,
           wheelchairRamp: createdStop.wheelchairRamp,
           platformType: serializedPlatformType,
+          wilayah: createdStop.wilayah,
         },
       });
     } catch {
@@ -348,6 +355,9 @@ export async function PUT(request: NextRequest) {
     }
     if (body.facilities !== undefined && Array.isArray(body.facilities)) {
       updateData.facilities = body.facilities;
+    }
+    if (body.wilayah !== undefined) {
+      updateData.wilayah = body.wilayah ? (String(body.wilayah) as Stop["wilayah"]) : undefined;
     }
 
     const mergedPType = updateData.platformType ?? existing?.platformType ?? "ISLAND";

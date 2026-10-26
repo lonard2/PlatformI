@@ -58,6 +58,7 @@ import {
   snapRouteToRoads,
   haversineDistanceMeters,
 } from "@/lib/geodesy/curveSmoothing";
+import { WILAYAH_CODES } from "@/lib/geodesy/wilayah";
 
 const CATEGORIES: { id: TransitCategory | "ALL"; labelKey: "netCatAll" | "netCatRail" | "netCatBusRoad" | "netCatAviation" | "netCatMaritime"; icon: React.ReactNode }[] = [
   { id: "ALL", labelKey: "netCatAll", icon: <Route className="w-3.5 h-3.5" /> },
@@ -1999,6 +2000,27 @@ export default function AdminNetworkStudioPage() {
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
                   />
                 </div>
+                <div>
+                  <label htmlFor="net-wilayah" className="block text-[11px] text-slate-400 mb-1">{t.admin.netWilayah}</label>
+                  <select
+                    id="net-wilayah"
+                    value={editingLine.wilayah || ""}
+                    onChange={(e) =>
+                      setEditingLine({
+                        ...editingLine,
+                        wilayah: (e.target.value || undefined) as Line["wilayah"],
+                      })
+                    }
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    <option value="">—</option>
+                    {WILAYAH_CODES.map((w) => (
+                      <option key={w} value={w}>
+                        {w}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Fare System Configuration */}
@@ -2315,6 +2337,28 @@ export default function AdminNetworkStudioPage() {
                     }
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="net-stop-wilayah" className="block text-[11px] text-slate-400 mb-1">{t.admin.netWilayah}</label>
+                  <select
+                    id="net-stop-wilayah"
+                    value={editingStop.wilayah || ""}
+                    onChange={(e) =>
+                      setEditingStop({
+                        ...editingStop,
+                        wilayah: (e.target.value || undefined) as Stop["wilayah"],
+                      })
+                    }
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                  >
+                    <option value="">—</option>
+                    {WILAYAH_CODES.map((w) => (
+                      <option key={w} value={w}>
+                        {w}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

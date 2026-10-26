@@ -1853,6 +1853,7 @@ export const ar: TranslationDictionary = {
     netLineCode: "رمز الخط *",
     netLineCodePh: "مثل: M-01، TJ-14",
     netLineColor: "لون علامة الخط *",
+    netWilayah: "منطقة الخدمة",
     netPlatformType: "نوع الرصيف",
     netConnectedLines: "الخطوط المتصلة",
     netConnectedLinesPh: "مثال: MRT-NS, TJ-01 (بفواصل)",

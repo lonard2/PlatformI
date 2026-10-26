@@ -15,6 +15,7 @@ import {
   DISRUPTION_ALERTS,
 } from "../src/lib/data/jakarta-dataset";
 import { resolveSqliteFile } from "../src/lib/db";
+import { wilayahForCoordinate, wilayahForStops } from "../src/lib/geodesy/wilayah";
 import { seedIntercity } from "./seed-intercity";
 
 const prisma = new PrismaClient({
@@ -51,8 +52,9 @@ async function main() {
   });
   console.log(`[PlatformI Seeder] Inserted Region: ${createdRegion.name} (${createdRegion.code})`);
 
-  // 3. Insert Lines
+  // 3. Insert Lines (wilayah = unanimous stop region, else null)
   for (const line of TRANSIT_LINES) {
+    const lineStops = TRANSIT_STOPS.filter((s) => s.lineId === line.id);
     await prisma.line.create({
       data: {
         id: line.id,
@@ -70,6 +72,7 @@ async function main() {
         headwayMinutes: line.headwayMinutes,
         firstDeparture: line.firstDeparture,
         lastDeparture: line.lastDeparture,
+        wilayah: line.wilayah ?? wilayahForStops(lineStops),
         polylineCoordinatesJson: JSON.stringify(line.polylineCoordinates),
       },
     });
@@ -100,6 +103,8 @@ async function main() {
           stop.stationType || stop.scale
             ? [stop.platformType ?? "", stop.stationType ?? "", stop.scale ?? ""].join("::")
             : stop.platformType,
+        wilayah:
+          stop.wilayah ?? wilayahForCoordinate(stop.latitude, stop.longitude),
       },
     });
   }

@@ -1853,6 +1853,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netLineCode: "노선 코드 *",
     netLineCodePh: "예: M-01, TJ-14",
     netLineColor: "노선 브랜드 색상 *",
+    netWilayah: "서비스 지역",
     netPlatformType: "승강장 유형",
     netConnectedLines: "연결 노선",
     netConnectedLinesPh: "예: MRT-NS, TJ-01 (쉼표 구분)",

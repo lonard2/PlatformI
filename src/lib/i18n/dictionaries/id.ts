@@ -1853,6 +1853,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netLineCode: "Kode Jalur *",
     netLineCodePh: "cth. M-01, TJ-14",
     netLineColor: "Warna Merek Jalur *",
+    netWilayah: "Wilayah",
     netPlatformType: "Tipe Peron",
     netConnectedLines: "Lin Terhubung",
     netConnectedLinesPh: "cth. MRT-NS, TJ-01 (dipisah koma)",

@@ -1853,6 +1853,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netLineCode: "路線コード *",
     netLineCodePh: "例: M-01, TJ-14",
     netLineColor: "路線ブランドカラー *",
+    netWilayah: "サービスエリア",
     netPlatformType: "ホーム形式",
     netConnectedLines: "接続路線",
     netConnectedLinesPh: "例: MRT-NS, TJ-01（カンマ区切り）",
