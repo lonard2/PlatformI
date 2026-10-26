@@ -56,6 +56,9 @@ export function MobileBottomNav({
 
   const [moreOpen, setMoreOpen] = useState<boolean>(false);
 
+  // Shared keyboard focus affordance for every nav target.
+  const TAB_FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60";
+
   const navRef = useRef<HTMLElement | null>(null);
 
   // Publish the real navigation height so the cockpit footer and the vehicle
@@ -132,10 +135,10 @@ export function MobileBottomNav({
       <button
         onClick={handleMapClick}
         aria-current={isMapActive ? "page" : undefined}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           isMapActive
             ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
+            : "text-slate-300 hover:text-white"
         }`}
       >
         <MapPin className="w-5 h-5" />
@@ -147,10 +150,10 @@ export function MobileBottomNav({
       <button
         onClick={handleJourneyClick}
         aria-expanded={isJourneyOpen}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           isJourneyOpen
             ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
+            : "text-slate-300 hover:text-white"
         }`}
       >
         <Navigation className="w-5 h-5" />
@@ -169,10 +172,10 @@ export function MobileBottomNav({
             ? `${t.navigation.tabStatus}: ${t.navigation.statusAlertCount.replace("{n}", badgeCount)}`
             : undefined
         }
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           isStatusActive
             ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
+            : "text-slate-300 hover:text-white"
         }`}
       >
         <div className="relative">
@@ -212,10 +215,10 @@ export function MobileBottomNav({
         onClick={handleWalletClick}
         aria-haspopup="dialog"
         aria-expanded={isWalletActive}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           isWalletActive
             ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
+            : "text-slate-300 hover:text-white"
         }`}
       >
         <QrCode className="w-5 h-5" />
@@ -227,10 +230,10 @@ export function MobileBottomNav({
       <button
         onClick={() => setMoreOpen((prev) => !prev)}
         aria-expanded={moreOpen}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           moreOpen
             ? "text-cyan-400 font-bold"
-            : "text-slate-400 hover:text-slate-200"
+            : "text-slate-300 hover:text-white"
         }`}
       >
         <MoreHorizontal className="w-5 h-5" />
@@ -245,7 +248,7 @@ export function MobileBottomNav({
             onClick={handleCrowdsourceClick}
             aria-haspopup="dialog"
             aria-expanded={isCrowdsourceActive}
-            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${
+            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${TAB_FOCUS} ${
               isCrowdsourceActive
                 ? "bg-cyan-950/80 text-cyan-400 font-bold"
                 : "text-slate-200 hover:bg-white/5"
@@ -260,7 +263,7 @@ export function MobileBottomNav({
             aria-label={t.navigation.aiAdvisor}
             aria-haspopup="dialog"
             aria-expanded={isAIOpen}
-            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${
+            className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition active:scale-[0.98] ${TAB_FOCUS} ${
               isAIOpen
                 ? "bg-cyan-950/80 text-cyan-400 font-bold"
                 : "text-slate-200 hover:bg-white/5"
