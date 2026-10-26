@@ -84,11 +84,12 @@ describe("timetable action errors", () => {
         } as Response);
       })
     );
-    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
     try {
       render(<AdminTimetableStudioPage />);
       fireEvent.click(await screen.findByRole("button", { name: /master list/i }));
       fireEvent.click(await screen.findByRole("button", { name: /delete scheduled run/i }));
+      const dialog = await screen.findByRole("dialog");
+      fireEvent.click(within(dialog).getByRole("button", { name: /delete scheduled run/i }));
       const alert = await screen.findByRole("alert");
       expect(alert.textContent ?? "").toMatch(/delete rejected/i);
     } finally {

@@ -238,6 +238,9 @@ function TimetableStudioContent() {
   // Undo Toast state
   const [lastDeletedRun, setLastDeletedRun] = useState<TimetableRun | null>(null);
 
+  // In-app delete confirmation (structured identity, no word-order interpolation)
+  const [confirmDeleteRun, setConfirmDeleteRun] = useState<TimetableRun | null>(null);
+
   // Post-batch summary receipt with review-on-stringline closure
   interface BatchSummary {
     count: number;
@@ -480,15 +483,16 @@ function TimetableStudioContent() {
     await handleUpdateRun(shifted);
   };
 
-  // Handle Delete with Undo
-  const handleDeleteRun = async (runId: string) => {
+  // Handle Delete with Undo (in-app confirm; destructive, single slot)
+  const handleDeleteRun = async (runId: string): Promise<void> => {
     const run = timetableRuns.find((r) => r.id === runId);
     if (!run) return;
+    setConfirmDeleteRun(run);
+  };
 
-    if (!window.confirm(t.admin.ttConfirmRemove.replace("{code}", run.tripCode).replace("{from}", run.origin).replace("{to}", run.destination))) {
-      return;
-    }
-
+  const confirmDeleteRunAction = async (): Promise<void> => {
+    const run = confirmDeleteRun;
+    if (!run) return;
     try {
       const res = await fetch(`/api/network/timetables?id=${encodeURIComponent(run.id)}`, {
         method: "DELETE",
@@ -502,6 +506,8 @@ function TimetableStudioContent() {
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : t.admin.ttErrDelete);
+    } finally {
+      setConfirmDeleteRun(null);
     }
   };
 
@@ -1291,6 +1297,57 @@ function TimetableStudioContent() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation: structured identity, no interpolated sentence */}
+      {confirmDeleteRun && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.admin.ttDeleteRunTitle}
+            className="w-full max-w-md bg-[#0c1222] border border-rose-500/30 rounded-2xl shadow-2xl overflow-hidden focus:outline-none"
+          >
+            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-white">{t.admin.ttDeleteRunTitle}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteRun(null)}
+                aria-label={t.common.close}
+                className="p-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-2 text-xs">
+              <div className="font-mono font-bold text-white text-sm">{confirmDeleteRun.tripCode}</div>
+              <div className="text-slate-300">
+                {confirmDeleteRun.origin} &rarr; {confirmDeleteRun.destination}
+              </div>
+            </div>
+            <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteRun(null)}
+                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteRunAction}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition btn-tactile"
+              >
+                {t.admin.ttDeleteRunTitle}
+              </button>
+            </div>
           </div>
         </div>
       )}
