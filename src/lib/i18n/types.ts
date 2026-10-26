@@ -1747,6 +1747,14 @@ export interface TranslationDictionary {
     ttNotes: string;
     ttNotesPh: string;
     ttCancel: string;
+    ttSectionService: string;
+    ttSectionTiming: string;
+    ttSectionBoarding: string;
+    ttSectionOperation: string;
+    ttFormDirty: string;
+    ttDiscardTitle: string;
+    ttDiscard: string;
+    ttKeepEditing: string;
     ttSaving: string;
     ttUpdateRun: string;
     ttCreateRun: string;

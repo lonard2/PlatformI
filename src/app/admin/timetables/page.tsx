@@ -192,6 +192,45 @@ function TimetableStudioContent() {
   const [formBaggageBelt, setFormBaggageBelt] = useState<string>("");
   const [formNotes, setFormNotes] = useState<string>("");
   const [formDaysOfWeek, setFormDaysOfWeek] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
+  interface RunFormSnapshot {
+    lineId: string;
+    tripCode: string;
+    operatorName: string;
+    origin: string;
+    destination: string;
+    departureTime: string;
+    arrivalTime: string;
+    serviceClass: string;
+    gateOrBay: string;
+    baggageBelt: string;
+    notes: string;
+    days: number[];
+  }
+  const [formBaseline, setFormBaseline] = useState<RunFormSnapshot | null>(null);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState<boolean>(false);
+  const isFormDirty =
+    formBaseline !== null &&
+    (formLineId !== formBaseline.lineId ||
+      formTripCode !== formBaseline.tripCode ||
+      formOperatorName !== formBaseline.operatorName ||
+      formOrigin !== formBaseline.origin ||
+      formDestination !== formBaseline.destination ||
+      formDepartureTime !== formBaseline.departureTime ||
+      formArrivalTime !== formBaseline.arrivalTime ||
+      formServiceClass !== formBaseline.serviceClass ||
+      formGateOrBay !== formBaseline.gateOrBay ||
+      formBaggageBelt !== formBaseline.baggageBelt ||
+      formNotes !== formBaseline.notes ||
+      JSON.stringify([...formDaysOfWeek].sort()) !== JSON.stringify([...formBaseline.days].sort()));
+  const handleCloseRunModal = (force = false): void => {
+    if (!force && isFormDirty) {
+      setShowDiscardConfirm(true);
+      return;
+    }
+    setIsModalOpen(false);
+    setFormBaseline(null);
+    setShowDiscardConfirm(false);
+  };
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -264,6 +303,21 @@ function TimetableStudioContent() {
     setFormNotes("");
     setFormDaysOfWeek([1, 2, 3, 4, 5, 6, 0]);
     setFormError(null);
+    setFormBaseline({
+      lineId: defaultLine,
+      tripCode: "",
+      operatorName: "",
+      origin: "",
+      destination: "",
+      departureTime: "08:00",
+      arrivalTime: "09:00",
+      serviceClass: "",
+      gateOrBay: "",
+      baggageBelt: "",
+      notes: "",
+      days: [1, 2, 3, 4, 5, 6, 0],
+    });
+    setShowDiscardConfirm(false);
     setIsModalOpen(true);
   };
 
@@ -282,6 +336,21 @@ function TimetableStudioContent() {
     setFormBaggageBelt(run.baggageBelt || "");
     setFormNotes(run.notes || "");
     setFormDaysOfWeek(run.daysOfWeek || [1, 2, 3, 4, 5, 6, 0]);
+    setFormBaseline({
+      lineId: run.lineId,
+      tripCode: run.tripCode,
+      operatorName: run.operatorName,
+      origin: run.origin,
+      destination: run.destination,
+      departureTime: run.departureTime,
+      arrivalTime: run.arrivalTime,
+      serviceClass: run.serviceClass || "",
+      gateOrBay: run.gateOrBay || "",
+      baggageBelt: run.baggageBelt || "",
+      notes: run.notes || "",
+      days: run.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
+    });
+    setShowDiscardConfirm(false);
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -1149,7 +1218,8 @@ function TimetableStudioContent() {
               </div>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => handleCloseRunModal()}
+                aria-label={t.common.close}
                 className="p-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white transition"
               >
                 <X className="w-4 h-4" />
@@ -1188,6 +1258,8 @@ function TimetableStudioContent() {
               )}
 
               <form id="timetable-run-form" onSubmit={handleSubmit} className="space-y-4">
+                <fieldset className="border-0 p-0 m-0 space-y-4">
+                  <legend className="px-1 text-[11px] uppercase font-bold text-teal-300 font-mono tracking-wider">{t.admin.ttSectionService}</legend>
                 {/* Line & Operator */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -1245,6 +1317,9 @@ function TimetableStudioContent() {
                   </div>
                 </div>
 
+                </fieldset>
+                <fieldset className="border-0 p-0 m-0 space-y-4">
+                  <legend className="px-1 text-[11px] uppercase font-bold text-teal-300 font-mono tracking-wider">{t.admin.ttSectionTiming}</legend>
                 {/* Origin & Destination */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -1277,11 +1352,9 @@ function TimetableStudioContent() {
                   <div className="space-y-1">
                     <label className="block text-slate-400 font-medium">{t.admin.ttDepTime}</label>
                     <input
-                      type="text"
+                      type="time"
                       value={formDepartureTime}
                       onChange={(e) => setFormDepartureTime(e.target.value)}
-                      placeholder="08:30"
-                      pattern="^([01]\d|2[0-3]):[0-5]\d$"
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 font-mono focus:outline-none focus:border-teal-500"
                       required
                     />
@@ -1290,17 +1363,18 @@ function TimetableStudioContent() {
                   <div className="space-y-1">
                     <label className="block text-slate-400 font-medium">{t.admin.ttArrTime}</label>
                     <input
-                      type="text"
+                      type="time"
                       value={formArrivalTime}
                       onChange={(e) => setFormArrivalTime(e.target.value)}
-                      placeholder="09:15"
-                      pattern="^([01]\d|2[0-3]):[0-5]\d$"
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 font-mono focus:outline-none focus:border-teal-500"
                       required
                     />
                   </div>
                 </div>
 
+                </fieldset>
+                <fieldset className="border-0 p-0 m-0 space-y-4">
+                  <legend className="px-1 text-[11px] uppercase font-bold text-teal-300 font-mono tracking-wider">{t.admin.ttSectionBoarding}</legend>
                 {/* Platform / Gate / Bay & Baggage Belt */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -1326,6 +1400,9 @@ function TimetableStudioContent() {
                   </div>
                 </div>
 
+                </fieldset>
+                <fieldset className="border-0 p-0 m-0 space-y-4">
+                  <legend className="px-1 text-[11px] uppercase font-bold text-teal-300 font-mono tracking-wider">{t.admin.ttSectionOperation}</legend>
                 {/* Days of Operation */}
                 <div className="space-y-1.5">
                   <label className="block text-slate-400 font-medium">{t.admin.ttOpDays}</label>
@@ -1361,18 +1438,49 @@ function TimetableStudioContent() {
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-teal-500 resize-none"
                   />
                 </div>
+                </fieldset>
               </form>
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition"
-              >
-                Cancel
-              </button>
+            {/* Modal Footer: sticky with dirty dot; close is blocked on dirty */}
+            <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-end gap-3 sticky bottom-0">
+              {showDiscardConfirm ? (
+                <>
+                  <span className="text-xs text-amber-200 font-semibold mr-auto">{t.admin.ttDiscardTitle}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setFormBaseline(null);
+                      setShowDiscardConfirm(false);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition btn-tactile"
+                  >
+                    {t.admin.ttDiscard}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDiscardConfirm(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition"
+                  >
+                    {t.admin.ttKeepEditing}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {isFormDirty && (
+                    <span data-testid="form-dirty-dot" className="flex items-center gap-1.5 mr-auto">
+                      <span aria-hidden="true" className="w-2 h-2 rounded-full bg-amber-400" />
+                      <span className="sr-only">{t.admin.ttFormDirty}</span>
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleCloseRunModal()}
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition"
+                  >
+                    {t.admin.ttCancel}
+                  </button>
               <button
                 type="submit"
                 form="timetable-run-form"
@@ -1381,6 +1489,8 @@ function TimetableStudioContent() {
               >
                 {isSubmitting ? t.admin.ttSaving : editingRunId ? t.admin.ttUpdateRun : t.admin.ttCreateRun}
               </button>
+                </>
+              )}
             </div>
           </div>
         </div>
