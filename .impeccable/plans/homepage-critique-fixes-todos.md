@@ -11,3 +11,6 @@ Scope: `src/app/page.tsx` (+ homepage copy keys ×6 where needed; wallet/hub com
 | 5 | `$impeccable polish` | Final pass: leftover copy keys, live-region discipline, focus/swap target fixes | RED→GREEN `tests/homepage-polish.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
 
 Rules per todo: minimal diff, no overengineering, no regressions, strict TS, zero emoji, 6-locale parity when keys change.
+
+Ruling (harden): detector flags 1 advisory design-system-color in TicketPurchaseModal.tsx, verified pre-existing at HEAD (not introduced here); left untouched.
+Ruling (harden): modal line-sync fix — the purchase modal now derives its line from initialOriginStopId so prefilled IDs always match an option; previously the line stayed on the default and prefilled IDs matched nothing.

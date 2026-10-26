@@ -48,6 +48,8 @@ interface DigitalPassWalletProps {
   className?: string;
   /** Freshly purchased pass injected by the intercity hub checkout. */
   injectedTicket?: Ticket | null;
+  /** Route context carried from a fare-unknown journey answer. */
+  initialRoute?: { originStopId: string; destinationStopId: string } | null;
 }
 
 export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
@@ -55,6 +57,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
   onClose,
   className = "",
   injectedTicket = null,
+  initialRoute = null,
 }) => {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
@@ -280,6 +283,18 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
     setActiveTicketId(newTicket.id);
     setIsPurchaseModalOpen(false);
   };
+
+  // A route carried from the journey answer opens the purchase flow once,
+  // prefilled with the planned endpoints. Header opens pass null instead.
+  const initialRouteKey = initialRoute
+    ? `${initialRoute.originStopId}→${initialRoute.destinationStopId}`
+    : "";
+  useEffect(() => {
+    if (initialRoute) {
+      setIsPurchaseModalOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialRouteKey]);
 
   // Fresh pass injected by the intercity hub checkout after payment.
   useEffect(() => {
@@ -741,6 +756,8 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         isOpen={isPurchaseModalOpen}
         onClose={() => setIsPurchaseModalOpen(false)}
         onTicketPurchased={handleTicketPurchased}
+        initialOriginStopId={initialRoute?.originStopId ?? null}
+        initialDestinationStopId={initialRoute?.destinationStopId ?? null}
       />
     </div>
   );

@@ -25,6 +25,7 @@ import {
   ArrowRight,
   RotateCcw,
   AlertTriangle,
+  Ticket,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -84,6 +85,29 @@ export default function Home() {
 
   // Journey pill state
   const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
+  // Route context carried into the pass wallet when the rider checks passes
+  // from a fare-unknown answer. Cleared when the wallet drawer closes.
+  const [walletRoute, setWalletRoute] = useState<{
+    originStopId: string;
+    destinationStopId: string;
+  } | null>(null);
+
+  const handleCheckPassOptions = (): void => {
+    if (!plannedJourney) return;
+    setWalletRoute({
+      originStopId: plannedJourney.originStop.id,
+      destinationStopId: plannedJourney.destinationStop.id,
+    });
+    setActiveDrawer("tickets");
+  };
+
+  // A stale route must never auto-open the purchase flow: clearing it
+  // whenever the wallet drawer is not the active surface.
+  useEffect(() => {
+    if (activeDrawer !== "tickets") {
+      setWalletRoute(null);
+    }
+  }, [activeDrawer]);
   const [journeyOrigin, setJourneyOrigin] = useState<string>("");
   const [journeyDest, setJourneyDest] = useState<string>("");
   const [journeyQuery, setJourneyQuery] = useState<string | null>(null);
@@ -749,10 +773,26 @@ export default function Home() {
                             <div className="text-xs font-bold text-emerald-300 tabular-nums">
                               {plannedJourney.estimatedFareRp > 0
                                 ? formatCurrencyRp(plannedJourney.estimatedFareRp)
-                                : "-"}
+                                : t.journey.journeyFareToConfirm}
                             </div>
                           </div>
                         </div>
+
+                        {plannedJourney.estimatedFareRp <= 0 && (
+                          <div className="space-y-1.5">
+                            <p className="text-[11px] text-slate-400 leading-snug">
+                              {t.journey.journeyFareUnknownReason}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={handleCheckPassOptions}
+                              className="touch-target w-full py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-1.5 btn-tactile transition shadow-md"
+                            >
+                              <Ticket className="w-3.5 h-3.5 text-cyan-400" />
+                              <span>{t.journey.journeyCheckPasses}</span>
+                            </button>
+                          </div>
+                        )}
 
                         <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-0.5">
                           <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold border ${
@@ -987,7 +1027,13 @@ export default function Home() {
               transition={drawerTransition}
               className="absolute top-3 right-3 bottom-3 z-[500] w-full sm:w-[420px] max-w-[calc(100vw-24px)] focus-visible:outline-none"
             >
-              <DigitalPassWallet onClose={() => setActiveDrawer(null)} />
+              <DigitalPassWallet
+                onClose={() => {
+                  setWalletRoute(null);
+                  setActiveDrawer(null);
+                }}
+                initialRoute={walletRoute}
+              />
             </motion.div>
           )}
         </AnimatePresence>

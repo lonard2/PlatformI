@@ -87,7 +87,12 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
   // Initialize line and stops
   useEffect(() => {
     if (isOpen) {
-      const defaultLine = allLines[0];
+      const initialStop = initialOriginStopId
+        ? allStops.find((s) => s.id === initialOriginStopId)
+        : undefined;
+      const defaultLine = initialStop
+        ? allLines.find((l) => l.id === initialStop.lineId) ?? allLines[0]
+        : allLines[0];
       setSelectedLineId(defaultLine?.id || "");
       const defaultStops = allStops.filter((s) => s.lineId === defaultLine?.id);
       setOriginStopId(initialOriginStopId || defaultStops[0]?.id || allStops[0]?.id || "");
