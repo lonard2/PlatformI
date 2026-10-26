@@ -30,6 +30,7 @@ import {
   HelpCircle,
   X,
   AlertCircle,
+  AlertTriangle,
   Building2,
   Luggage,
   LayoutList,
@@ -197,6 +198,9 @@ function TimetableStudioContent() {
   // Undo Toast state
   const [lastDeletedRun, setLastDeletedRun] = useState<TimetableRun | null>(null);
 
+  // Surfaced save/delete failures (in-cell matrix edits fail loudly, not silently)
+  const [actionError, setActionError] = useState<string | null>(null);
+
   const { containerRef, handleTrapKeyDown } = useDialogFocusTrap<HTMLDivElement>({
     isOpen: isModalOpen,
     onClose: () => setIsModalOpen(false),
@@ -206,6 +210,7 @@ function TimetableStudioContent() {
   const fetchTimetables = async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await fetch("/api/network/timetables");
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
@@ -379,9 +384,11 @@ function TimetableStudioContent() {
         setTimetableRuns((prev) =>
           prev.map((r) => (r.id === updatedRun.id ? json.data : r))
         );
+      } else {
+        setActionError(json.error || t.admin.ttErrUpdate);
       }
-    } catch {
-      // Soft failure handled
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : t.admin.ttErrUpdate);
     }
   };
 
@@ -408,9 +415,11 @@ function TimetableStudioContent() {
       if (json.success) {
         setTimetableRuns((prev) => prev.filter((r) => r.id !== run.id));
         setLastDeletedRun(run);
+      } else {
+        setActionError(json.error || t.admin.ttErrDelete);
       }
-    } catch {
-      // Soft failure
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : t.admin.ttErrDelete);
     }
   };
 
@@ -427,9 +436,11 @@ function TimetableStudioContent() {
       if (json.success && json.data) {
         setTimetableRuns((prev) => [json.data, ...prev]);
         setLastDeletedRun(null);
+      } else {
+        setActionError(json.error || t.admin.ttErrCreate);
       }
-    } catch {
-      // Fail gracefully
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : t.admin.ttErrCreate);
     }
   };
 
@@ -597,6 +608,47 @@ function TimetableStudioContent() {
           </button>
         </div>
       </div>
+
+      {/* Load failure: visible with retry, never a blank studio */}
+      {error && (
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/40 text-xs text-rose-200 shadow-xl"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span className="truncate">{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchTimetables}
+            className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition btn-tactile shrink-0"
+          >
+            {t.common.refresh}
+          </button>
+        </div>
+      )}
+
+      {/* Action failure: in-cell saves and deletes fail loudly */}
+      {actionError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-amber-950/70 border border-amber-500/40 text-xs text-amber-200 shadow-xl"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="truncate">{actionError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            aria-label={t.common.close}
+            className="p-1.5 rounded-lg text-amber-300 hover:text-white hover:bg-white/10 transition shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Undo Banner */}
       {lastDeletedRun && (

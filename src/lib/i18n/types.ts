@@ -1649,6 +1649,7 @@ export interface TranslationDictionary {
   tmDirBothTab: string;
     tbOverwriting: string;
     tbConfirmOverwrite: string;
+    tbConflicts: string;
     tbGenerating: string;
     tbFirstStop: string;
     tbLastStop: string;
@@ -1760,6 +1761,7 @@ export interface TranslationDictionary {
     ttErrOperatorRequired: string;
     ttErrTimeFormat: string;
     ttErrUpdate: string;
+    ttErrDelete: string;
     ttErrCreate: string;
     ttConfirmRemove: string;
     ttPresetWhooshNotes: string;

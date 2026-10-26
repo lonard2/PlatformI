@@ -92,6 +92,41 @@ export function BatchScheduleModal({
     return existingRuns.filter((r) => r.lineId === selectedLineId).length;
   }, [existingRuns, selectedLineId]);
 
+  // Merge-mode trip-code conflicts: preview with the real generator so the
+  // preview can never drift from what submit would create.
+  const previewConflicts = useMemo(() => {
+    if (replaceExisting) return [] as string[];
+    try {
+      const preview = generateBatchTimetableRuns({
+        lineId: selectedLineId,
+        operatorName,
+        stops: lineStops,
+        modeCategory: selectedLine?.mode || "MRT_JAKARTA",
+        startTime,
+        endTime,
+        headwayMinutes,
+        direction,
+        asymmetricInboundHeadwayMinutes:
+          direction === "BOTH" ? asymmetricInboundHeadway : undefined,
+        runCodePrefix,
+        startRunNumber,
+        serviceClass,
+        gateOrBay: selectedLine?.category === "BUS" ? "Bay 1" : "Peron 1",
+        notes,
+        includeLateNightStabling,
+        stablingStopId: stablingStopId || undefined,
+        stablingStopName: lineStops.find((s) => s.id === stablingStopId)?.name,
+        lateNightStartTime,
+      });
+      const existingCodes = new Set(
+        (existingRuns || []).filter((r) => r.lineId === selectedLineId).map((r) => r.tripCode)
+      );
+      return preview.map((r) => r.tripCode).filter((code) => existingCodes.has(code));
+    } catch {
+      return [] as string[];
+    }
+  }, [replaceExisting, selectedLineId, operatorName, lineStops, selectedLine, startTime, endTime, headwayMinutes, direction, asymmetricInboundHeadway, runCodePrefix, startRunNumber, serviceClass, notes, includeLateNightStabling, stablingStopId, lateNightStartTime, existingRuns]);
+
   // Update defaults when line changes
   const handleLineChange = (lineId: string) => {
     setSelectedLineId(lineId);
@@ -596,6 +631,23 @@ export function BatchScheduleModal({
               )}
             </div>
 
+            {/* Merge-mode conflicts: generated codes that already exist stay
+                blocked until the operator changes prefix/numbers or
+                switches to Replace with confirmation. */}
+            {!replaceExisting && previewConflicts.length > 0 && (
+              <div
+                role="alert"
+                className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/40 flex items-start gap-2.5"
+              >
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                  {t.admin.tbConflicts
+                    .replace("{n}", String(previewConflicts.length))
+                    .replace("{codes}", previewConflicts.slice(0, 5).join(", "))}
+                </p>
+              </div>
+            )}
+
             {/* Synthesis Summary Box */}
             <div className="p-3.5 rounded-xl bg-teal-950/40 border border-teal-500/30 flex items-center justify-between">
               <div className="space-y-0.5">
@@ -650,7 +702,7 @@ export function BatchScheduleModal({
             <button
               type="submit"
               form="batch-generator-form"
-              disabled={isSubmitting || estimatedTripsCount <= 0}
+              disabled={isSubmitting || estimatedTripsCount <= 0 || previewConflicts.length > 0}
               className="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-teal-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition btn-tactile"
             >
               <Wand2 className="w-3.5 h-3.5" />
