@@ -73,6 +73,11 @@ export default function Home() {
     : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 };
 
   const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
+  const activeAlertCount = useMemo(
+    () => activeAlerts.filter((a) => a.status === "ACTIVE").length,
+    [activeAlerts]
+  );
+  const alertBadge = activeAlertCount > 9 ? "9+" : String(activeAlertCount);
 
   // A planned journey only counts as a route when the planner actually found
   // candidate lines. Without them there is no ETA, no fare, and no map trace.
@@ -308,7 +313,13 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "alerts"}
             aria-label={t.navigation.serviceStatus}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-white/10 text-xs text-slate-300 btn-tactile hover-glass-glow transition"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs btn-tactile hover-glass-glow transition ${
+              highestSeverity === "CRITICAL"
+                ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/40 text-rose-200"
+                : highestSeverity === "WARNING"
+                ? "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-200"
+                : "bg-slate-900/80 hover:bg-slate-800 border-white/10 text-slate-300"
+            }`}
           >
             <Activity
               className={`w-3.5 h-3.5 ${
@@ -321,15 +332,29 @@ export default function Home() {
             />
             <span className="hidden sm:inline font-medium">
               {t.navigation.serviceStatus}
-              {activeAlerts.length > 0 ? ` (${activeAlerts.length})` : ""}
             </span>
+            {activeAlertCount > 0 && (
+              <span
+                role="status"
+                aria-label={t.navigation.statusAlertCount.replace("{n}", alertBadge)}
+                className={`px-1.5 rounded-full text-[10px] font-bold tabular-nums hidden sm:inline-block ${
+                  highestSeverity === "CRITICAL"
+                    ? "bg-rose-500 text-white"
+                    : highestSeverity === "WARNING"
+                    ? "bg-amber-400 text-amber-950"
+                    : "bg-emerald-500 text-emerald-950"
+                }`}
+              >
+                {alertBadge}
+              </span>
+            )}
           </button>
 
           <button
             onClick={handleOpenAI}
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "ai"}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold btn-tactile hover-glass-glow transition"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-lg bg-slate-900/70 hover:bg-slate-800 text-slate-300 border border-white/10 text-xs font-medium btn-tactile hover-glass-glow transition"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.navigation.aiAdvisor}</span>
