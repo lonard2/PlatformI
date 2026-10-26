@@ -1779,6 +1779,8 @@ export const ar: TranslationDictionary = {
     netSyncTitle: "مزامنة أحدث بيانات الشبكة من قاعدة بيانات SQLite",
     netSyncDb: "مزامنة قاعدة البيانات",
     netNewLine: "خط جديد",
+    netViewList: "قائمة",
+    netViewMap: "خريطة",
     netSearchPh: "ابحث عن خطوط أو رموز النقل...",
     netEditLine: "تحرير مواصفات الخط",
     netDeleteLine: "حذف الخط",

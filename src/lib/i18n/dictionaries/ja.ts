@@ -1779,6 +1779,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netSyncTitle: "SQLiteデータベースから最新のネットワークデータを同期",
     netSyncDb: "DB同期",
     netNewLine: "新規路線",
+    netViewList: "一覧",
+    netViewMap: "地図",
     netSearchPh: "路線・コードを検索...",
     netEditLine: "路線仕様を編集",
     netDeleteLine: "路線を削除",

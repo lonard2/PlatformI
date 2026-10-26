@@ -1779,6 +1779,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netSyncTitle: "SQLite 데이터베이스에서 최신 네트워크 데이터 동기화",
     netSyncDb: "DB 동기화",
     netNewLine: "새 노선",
+    netViewList: "목록",
+    netViewMap: "지도",
     netSearchPh: "노선 또는 코드 검색...",
     netEditLine: "노선 사양 편집",
     netDeleteLine: "노선 삭제",

@@ -112,6 +112,8 @@ export default function AdminNetworkStudioPage() {
   // Map Editor Interaction Modes
   const [isAddStopMode, setIsAddStopMode] = useState<boolean>(false);
   const [tempPlacementCoord, setTempPlacementCoord] = useState<[number, number] | null>(null);
+  // Mobile pane switcher: list and map share one viewport under md.
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
 
   // Curve Smoothing State
   const [previewSmoothedLine, setPreviewSmoothedLine] = useState<boolean>(false);
@@ -1038,10 +1040,34 @@ export default function AdminNetworkStudioPage() {
         </div>
       </header>
 
+      {/* Mobile pane switcher (list and map share one viewport under md) */}
+      <div className="md:hidden border-b border-white/10 bg-[#0a0f1d] px-4 py-2 flex items-center gap-1.5 shrink-0">
+        {(["list", "map"] as const).map((view) => (
+          <button
+            key={view}
+            type="button"
+            aria-pressed={mobileView === view}
+            onClick={() => setMobileView(view)}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition btn-tactile min-h-[44px] ${
+              mobileView === view
+                ? "bg-cyan-950 border border-cyan-500/40 text-cyan-300"
+                : "bg-slate-900 text-slate-400 border border-white/5"
+            }`}
+          >
+            {view === "list" ? t.admin.netViewList : t.admin.netViewMap}
+          </button>
+        ))}
+      </div>
+
       {/* 2. MAIN SPLIT VIEW */}
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT PANEL: CATEGORIES, LINES & STATION SEQUENCE (Width: 420px) */}
-        <aside className="w-full md:w-[420px] lg:w-[460px] border-r border-white/10 bg-[#0a0f1d] flex flex-col shrink-0 overflow-hidden">
+        <aside
+          data-testid="studio-list-pane"
+          className={`w-full md:w-[420px] lg:w-[460px] border-r border-white/10 bg-[#0a0f1d] flex-col shrink-0 overflow-hidden ${
+            mobileView === "map" ? "hidden" : "flex"
+          } md:flex`}
+        >
           {/* Multimodal Category Tabs */}
           <div className="p-3 border-b border-white/10 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0 bg-[#070b14]/50">
             {CATEGORIES.map((cat) => (
@@ -1107,7 +1133,7 @@ export default function AdminNetworkStudioPage() {
                         setIsLineModalOpen(true);
                       }}
                       title={t.admin.netEditLine}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                      className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
@@ -1115,7 +1141,7 @@ export default function AdminNetworkStudioPage() {
                       type="button"
                       onClick={() => handleDeleteLine(selectedLine.id, selectedLine.name)}
                       title={t.admin.netDeleteLine}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
+                      className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -1126,7 +1152,7 @@ export default function AdminNetworkStudioPage() {
                         setPreviewSmoothedLine(false);
                       }}
                       title={t.admin.netCloseInspector}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                      className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -1445,7 +1471,7 @@ export default function AdminNetworkStudioPage() {
                                 disabled={index === 0}
                                 onClick={() => handleMoveStopSequence(stop.id, "up")}
                                 title={t.admin.netMoveEarlier}
-                                className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
+                                className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowUp className="w-3 h-3" />
                               </button>
@@ -1454,7 +1480,7 @@ export default function AdminNetworkStudioPage() {
                                 disabled={index === lineStops.length - 1}
                                 onClick={() => handleMoveStopSequence(stop.id, "down")}
                                 title={t.admin.netMoveLater}
-                                className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
+                                className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowDown className="w-3 h-3" />
                               </button>
@@ -1465,7 +1491,7 @@ export default function AdminNetworkStudioPage() {
                                   setIsStopModalOpen(true);
                                 }}
                                 title={t.admin.netEditStation}
-                                className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                                className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                               >
                                 <Edit3 className="w-3 h-3" />
                               </button>
@@ -1473,7 +1499,7 @@ export default function AdminNetworkStudioPage() {
                                 type="button"
                                 onClick={() => handleDeleteStop(stop.id, stop.name)}
                                 title={t.admin.netDeleteStation}
-                                className="p-1 rounded bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
+                                className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                               >
                                 <Trash2 className="w-3 h-3" />
                               </button>
@@ -1532,7 +1558,12 @@ export default function AdminNetworkStudioPage() {
         </aside>
 
         {/* RIGHT PANEL: INTERACTIVE CARTOGRAPHY CANVAS */}
-        <main className="flex-1 relative flex flex-col h-full overflow-hidden">
+        <main
+          data-testid="studio-map-pane"
+          className={`flex-1 relative flex-col h-full overflow-hidden ${
+            mobileView === "list" ? "hidden" : "flex"
+          } md:flex`}
+        >
           <DynamicNetworkMap
             lines={allLines}
             stops={allStops}
@@ -1585,7 +1616,7 @@ export default function AdminNetworkStudioPage() {
                 role="dialog"
                 aria-modal="true"
                 aria-label={confirmDelete.kind === "line" ? t.admin.netDeleteLine : t.admin.netDeleteStation}
-                className="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
+                className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
               >
                 <div className="flex items-center gap-2 text-rose-300">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -1649,7 +1680,7 @@ export default function AdminNetworkStudioPage() {
       {/* 3. MODAL: ADD / EDIT LINE */}
       {isLineModalOpen && editingLine && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <Route className="w-4 h-4 text-cyan-400" />
@@ -1961,7 +1992,7 @@ export default function AdminNetworkStudioPage() {
       {/* 4. MODAL: ADD / EDIT STOP */}
       {isStopModalOpen && editingStop && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-400" />

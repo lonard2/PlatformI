@@ -1779,6 +1779,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netSyncTitle: "从SQLite数据库同步最新网络数据",
     netSyncDb: "同步数据库",
     netNewLine: "新建线路",
+    netViewList: "列表",
+    netViewMap: "地图",
     netSearchPh: "搜索公交线路或代码...",
     netEditLine: "编辑线路规格",
     netDeleteLine: "删除线路",

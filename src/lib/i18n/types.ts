@@ -1789,6 +1789,8 @@ export interface TranslationDictionary {
     netSyncTitle: string;
     netSyncDb: string;
     netNewLine: string;
+    netViewList: string;
+    netViewMap: string;
     netSearchPh: string;
     netEditLine: string;
     netDeleteLine: string;

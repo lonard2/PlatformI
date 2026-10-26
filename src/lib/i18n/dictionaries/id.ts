@@ -1779,6 +1779,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netSyncTitle: "Sinkronkan data jaringan terbaru dari database SQLite",
     netSyncDb: "Sinkron DB",
     netNewLine: "Jalur Baru",
+    netViewList: "Daftar",
+    netViewMap: "Peta",
     netSearchPh: "Cari jalur transit atau kode...",
     netEditLine: "Ubah Spesifikasi Jalur",
     netDeleteLine: "Hapus Jalur",

@@ -1704,6 +1704,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netSyncTitle: "Sync latest network data from SQLite database",
     netSyncDb: "Sync DB",
     netNewLine: "New Line",
+    netViewList: "List",
+    netViewMap: "Map",
     netSearchPh: "Search transit lines or codes...",
     netEditLine: "Edit Line Specs",
     netDeleteLine: "Delete Line",
