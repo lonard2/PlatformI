@@ -172,7 +172,11 @@ export function MobileBottomNav({
       <button
         onClick={onOpenJourney}
         aria-expanded={isJourneyOpen}
-        className="flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl text-slate-400 hover:text-slate-200 transition-all active:scale-95"
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${
+          isJourneyOpen
+            ? "text-cyan-400 font-bold"
+            : "text-slate-400 hover:text-slate-200"
+        }`}
       >
         <Navigation className="w-5 h-5" />
         <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabRoute}</span>
@@ -225,9 +229,9 @@ export function MobileBottomNav({
         }`}
       >
         <div className="relative">
-          <Sparkles className={`w-5 h-5 ${isAIOpen ? "text-cyan-400" : "text-cyan-300 motion-safe:animate-pulse"}`} />
+          <Sparkles className={`w-5 h-5 ${isAIOpen ? "text-cyan-400" : "text-slate-400"}`} />
         </div>
-        <span className="text-[11px] tracking-tight truncate max-w-full font-semibold text-cyan-300">{t.navigation.tabAI}</span>
+        <span className="text-[11px] tracking-tight truncate max-w-full">{t.navigation.tabAI}</span>
         {isAIOpen && <span className="w-1 h-1 rounded-full bg-cyan-400 mt-0.5" />}
       </button>
     </nav>
