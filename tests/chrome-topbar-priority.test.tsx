@@ -65,7 +65,8 @@ describe("top-bar priority", () => {
   it("promotes critical alerts with a severity badge", async () => {
     useTransitStore.setState({ activeAlerts: [critAlert("a1"), critAlert("a2")] });
     render(<Home />);
-    const badge = await screen.findByRole("status", { name: /2 active/i });
+    const banner = await screen.findByRole("banner");
+    const badge = await within(banner).findByRole("status", { name: /2 active/i });
     expect(badge).toHaveTextContent("2");
     const alertsBtn = badge.closest("button") as HTMLElement;
     expect(alertsBtn.className).toMatch(/rose/);
@@ -74,13 +75,15 @@ describe("top-bar priority", () => {
 
   it("shows no badge when nothing is active", async () => {
     render(<Home />);
-    await screen.findByRole("button", { name: /service status/i });
+    const banner = await screen.findByRole("banner");
+    await within(banner).findByRole("button", { name: /service status/i });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("demotes the AI pill to neutral", async () => {
     render(<Home />);
-    const ai = await screen.findByRole("button", { name: /ai travel assistant/i });
+    const banner = await screen.findByRole("banner");
+    const ai = await within(banner).findByRole("button", { name: /ai travel assistant/i });
     expect(ai.className).not.toMatch(/bg-cyan-500\/15/);
     expect(ai.className).not.toMatch(/text-cyan-300/);
   });

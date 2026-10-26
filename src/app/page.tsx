@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Ticket,
   Info,
+  MoreHorizontal,
 } from "lucide-react";
 import { DynamicMap } from "@/components/map/DynamicMap";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -95,6 +96,8 @@ export default function Home() {
 
   // Journey pill state
   const [isJourneyExpanded, setIsJourneyExpanded] = useState<boolean>(false);
+  // Compact mobile bar overflow sheet
+  const [moreOpen, setMoreOpen] = useState<boolean>(false);
   // Route context carried into the pass wallet when the rider checks passes
   // from a fare-unknown answer. Cleared when the wallet drawer closes.
   const [walletRoute, setWalletRoute] = useState<{
@@ -298,6 +301,145 @@ export default function Home() {
 
   return (
     <main className="main-shell flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 relative overflow-hidden lg:pb-0">
+      {/* 0. COMPACT MOBILE TOP BAR (mobile only; desktop uses the full header) */}
+      <div
+        data-testid="compact-topbar"
+        className="sm:hidden relative flex h-12 items-center justify-between gap-1 px-3 border-b border-white/10 glass-panel shrink-0 z-30"
+      >
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="w-6 h-6 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 flex items-center justify-center shrink-0">
+            <Train className="w-3 h-3" />
+          </div>
+          <span className="text-sm font-bold tracking-tight text-white truncate">PlatformI</span>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setMoreOpen(false);
+              setActiveDrawer(activeDrawer === "alerts" ? null : "alerts");
+            }}
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "alerts"}
+            aria-pressed={isOpen("alerts")}
+            aria-label={t.navigation.serviceStatus}
+            className={`relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border btn-tactile transition ${
+              isOpen("alerts")
+                ? ACTIVE_TOGGLE
+                : highestSeverity === "CRITICAL"
+                ? "bg-rose-500/10 border-rose-500/40 text-rose-200"
+                : highestSeverity === "WARNING"
+                ? "bg-amber-500/10 border-amber-500/40 text-amber-200"
+                : "bg-slate-900/70 border-white/10 text-slate-300"
+            }`}
+          >
+            <Activity
+              className={`w-4 h-4 ${
+                highestSeverity === "CRITICAL"
+                  ? "text-rose-400 animate-pulse"
+                  : highestSeverity === "WARNING"
+                  ? "text-amber-400"
+                  : "text-emerald-400"
+              }`}
+            />
+            {activeAlertCount > 0 && (
+              <span
+                role="status"
+                aria-label={t.navigation.statusAlertCount.replace("{n}", alertBadge)}
+                className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-bold tabular-nums ring-2 ring-[#090d16] ${
+                  highestSeverity === "CRITICAL"
+                    ? "bg-rose-500 text-white"
+                    : highestSeverity === "WARNING"
+                    ? "bg-amber-400 text-amber-950"
+                    : "bg-emerald-500 text-emerald-950"
+                }`}
+              >
+                {alertBadge}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMoreOpen(false);
+              setActiveDrawer(activeDrawer === "tickets" ? null : "tickets");
+            }}
+            aria-haspopup="dialog"
+            aria-expanded={activeDrawer === "tickets"}
+            aria-pressed={isOpen("tickets")}
+            aria-label={t.navigation.ticketing}
+            className={`p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border btn-tactile transition ${
+              isOpen("tickets") ? ACTIVE_TOGGLE : "bg-slate-900/70 border-white/10 text-slate-300"
+            }`}
+          >
+            <Wallet className="w-4 h-4 text-blue-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMoreOpen((prev) => !prev)}
+            aria-expanded={moreOpen}
+            aria-label={t.navigation.more}
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-white/10 bg-slate-900/70 text-slate-300 btn-tactile transition"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+        </div>
+
+        {moreOpen && (
+          <div className="absolute top-full left-2 right-2 mt-1 rounded-2xl bg-slate-900/95 border border-white/10 p-2 space-y-1 shadow-2xl z-50">
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false);
+                setActiveDrawer(activeDrawer === "crowdsource" ? null : "crowdsource");
+              }}
+              aria-haspopup="dialog"
+              aria-expanded={activeDrawer === "crowdsource"}
+              aria-pressed={isOpen("crowdsource")}
+              className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition ${
+                isOpen("crowdsource") ? ACTIVE_TOGGLE : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              <Users className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="truncate">{t.navigation.crowdsource}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false);
+                handleOpenAI();
+              }}
+              aria-haspopup="dialog"
+              aria-expanded={activeDrawer === "ai"}
+              aria-pressed={isOpen("ai")}
+              className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition ${
+                isOpen("ai") ? ACTIVE_TOGGLE : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="truncate">{t.navigation.aiAdvisor}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false);
+                setActiveDrawer(activeDrawer === "settings" ? null : "settings");
+              }}
+              aria-haspopup="dialog"
+              aria-expanded={activeDrawer === "settings"}
+              aria-pressed={isOpen("settings")}
+              className={`w-full min-h-[48px] px-3 rounded-xl flex items-center gap-3 text-xs font-semibold transition ${
+                isOpen("settings") ? ACTIVE_TOGGLE : "text-slate-200 hover:bg-white/5"
+              }`}
+            >
+              <Settings className="w-4 h-4 text-slate-300 shrink-0" />
+              <span className="truncate">{t.navigation.settings}</span>
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
       <header className="hidden sm:flex h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
         {/* Left Brand */}
@@ -377,14 +519,14 @@ export default function Home() {
             aria-haspopup="dialog"
             aria-expanded={activeDrawer === "crowdsource"}
             aria-pressed={isOpen("crowdsource")}
-            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] rounded-lg border text-xs font-medium btn-tactile hover-glass-glow transition ${
               isOpen("crowdsource")
                 ? ACTIVE_TOGGLE
                 : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
             }`}
           >
             <Users className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden md:inline">{t.navigation.crowdsource}</span>
+            <span className="hidden sm:inline">{t.navigation.crowdsource}</span>
           </button>
 
           <button

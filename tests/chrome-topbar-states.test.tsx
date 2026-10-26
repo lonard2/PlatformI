@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import Home from "@/app/page";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
@@ -59,7 +59,8 @@ describe("top-bar active coherence", () => {
   it.each(TOGGLES)("marks %s open with the shared active recipe", async (drawer, name) => {
     useTransitStore.setState({ activeDrawer: drawer as never });
     render(<Home />);
-    const btn = await screen.findByRole("button", { name });
+    const banner = await screen.findByRole("banner");
+    const btn = await within(banner).findByRole("button", { name });
     expect(btn).toHaveAttribute("aria-pressed", "true");
     expect(btn.className).toMatch(/bg-cyan-950\/80/);
   });
@@ -67,7 +68,8 @@ describe("top-bar active coherence", () => {
   it("leaves closed toggles unpressed and neutral", async () => {
     useTransitStore.setState({ activeDrawer: "alerts" });
     render(<Home />);
-    const ai = await screen.findByRole("button", { name: /ai travel assistant/i });
+    const banner = await screen.findByRole("banner");
+    const ai = await within(banner).findByRole("button", { name: /ai travel assistant/i });
     expect(ai).toHaveAttribute("aria-pressed", "false");
     expect(ai.className).not.toMatch(/bg-cyan-950\/80/);
   });
