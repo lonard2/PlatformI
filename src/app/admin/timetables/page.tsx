@@ -1030,7 +1030,7 @@ function TimetableStudioContent() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition btn-tactile flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 min-h-[44px] rounded-lg text-xs font-semibold whitespace-nowrap transition btn-tactile flex items-center gap-1.5 ${
                       isSelected
                         ? "bg-teal-500 text-teal-950 font-bold"
                         : "bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
