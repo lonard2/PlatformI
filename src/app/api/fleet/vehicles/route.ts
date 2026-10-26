@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
         },
         include: {
           technicalSpec: true,
+          photos: true,
         },
         orderBy: { vehicleCode: "asc" },
       });
@@ -104,8 +105,25 @@ export async function GET(request: NextRequest) {
             currentSegmentIndex: v.currentSegmentIndex,
             nextStopId: v.nextStopId,
             nextStopEtaSeconds: v.nextStopEtaSeconds,
+            runNumber: v.runNumber ?? undefined,
+            trainsetNumber: v.trainsetNumber ?? undefined,
+            totalTrainsets: v.totalTrainsets ?? undefined,
+            carFormation: v.carFormation ?? undefined,
+            depotHome: v.depotHome ?? undefined,
+            fleetNumber: v.fleetNumber ?? undefined,
+            busRunNumber: v.busRunNumber ?? undefined,
+            licensePlate: v.licensePlate ?? undefined,
+            operatorName: v.operatorName ?? undefined,
             technicalSpec: mappedSpec,
             seatingDiagram: parsedSeating,
+            photos: v.photos.map((p) => ({
+              id: p.id,
+              vehicleId: p.vehicleId,
+              url: p.url,
+              caption: p.caption,
+              photographer: p.photographer,
+              tag: p.tag,
+            })),
           };
         });
       } else {
@@ -176,6 +194,7 @@ export async function POST(request: NextRequest) {
       delayMinutes,
       speedModifier,
       detourCoordinates,
+      photos,
     } = body;
 
     // Validation for mandatory fields
@@ -226,6 +245,16 @@ export async function POST(request: NextRequest) {
       detourCoordinates: Array.isArray(detourCoordinates) ? detourCoordinates : undefined,
       technicalSpec: body.technicalSpec || undefined,
       seatingDiagram: body.seatingDiagram || undefined,
+      photos: Array.isArray(photos)
+        ? photos.map((p: { id?: string; url: string; caption?: string; photographer?: string; tag?: string }) => ({
+            id: String(p.id || `photo-${newVehicleId}-${Math.random().toString(36).slice(2, 8)}`),
+            vehicleId: newVehicleId,
+            url: String(p.url),
+            caption: String(p.caption || ""),
+            photographer: String(p.photographer || ""),
+            tag: String(p.tag || ""),
+          }))
+        : undefined,
     };
 
     try {
@@ -250,7 +279,27 @@ export async function POST(request: NextRequest) {
           currentSegmentIndex: createdVehicle.currentSegmentIndex,
           nextStopId: createdVehicle.nextStopId,
           nextStopEtaSeconds: createdVehicle.nextStopEtaSeconds,
+          runNumber: createdVehicle.runNumber,
+          trainsetNumber: createdVehicle.trainsetNumber,
+          totalTrainsets: createdVehicle.totalTrainsets,
+          carFormation: createdVehicle.carFormation,
+          depotHome: createdVehicle.depotHome,
+          fleetNumber: createdVehicle.fleetNumber,
+          busRunNumber: createdVehicle.busRunNumber,
+          licensePlate: createdVehicle.licensePlate,
+          operatorName: createdVehicle.operatorName,
           seatingDiagramJson: body.seatingDiagram ? JSON.stringify(body.seatingDiagram) : null,
+          photos: createdVehicle.photos
+            ? {
+                create: createdVehicle.photos.map((p) => ({
+                  id: p.id,
+                  url: p.url,
+                  caption: p.caption,
+                  photographer: p.photographer,
+                  tag: p.tag,
+                })),
+              }
+            : undefined,
         },
       });
     } catch {
@@ -331,6 +380,19 @@ export async function PUT(request: NextRequest) {
     if (body.detourCoordinates !== undefined && Array.isArray(body.detourCoordinates)) {
       updateData.detourCoordinates = body.detourCoordinates;
     }
+    if (body.photos !== undefined && Array.isArray(body.photos)) {
+      const targetId = id || `veh-${String(vehicleCode || "").toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+      updateData.photos = body.photos.map(
+        (p: { id?: string; url: string; caption?: string; photographer?: string; tag?: string }) => ({
+          id: String(p.id || `photo-${targetId}-${Math.random().toString(36).slice(2, 8)}`),
+          vehicleId: String(targetId),
+          url: String(p.url),
+          caption: String(p.caption || ""),
+          photographer: String(p.photographer || ""),
+          tag: String(p.tag || ""),
+        })
+      );
+    }
 
     try {
       const dbPayload: Record<string, unknown> = {};
@@ -351,6 +413,27 @@ export async function PUT(request: NextRequest) {
       if (updateData.currentSegmentIndex !== undefined) dbPayload.currentSegmentIndex = updateData.currentSegmentIndex;
       if (updateData.nextStopId !== undefined) dbPayload.nextStopId = updateData.nextStopId;
       if (updateData.nextStopEtaSeconds !== undefined) dbPayload.nextStopEtaSeconds = updateData.nextStopEtaSeconds;
+      if (updateData.runNumber !== undefined) dbPayload.runNumber = updateData.runNumber;
+      if (updateData.trainsetNumber !== undefined) dbPayload.trainsetNumber = updateData.trainsetNumber;
+      if (updateData.totalTrainsets !== undefined) dbPayload.totalTrainsets = updateData.totalTrainsets;
+      if (updateData.carFormation !== undefined) dbPayload.carFormation = updateData.carFormation;
+      if (updateData.depotHome !== undefined) dbPayload.depotHome = updateData.depotHome;
+      if (updateData.fleetNumber !== undefined) dbPayload.fleetNumber = updateData.fleetNumber;
+      if (updateData.busRunNumber !== undefined) dbPayload.busRunNumber = updateData.busRunNumber;
+      if (updateData.licensePlate !== undefined) dbPayload.licensePlate = updateData.licensePlate;
+      if (updateData.operatorName !== undefined) dbPayload.operatorName = updateData.operatorName;
+      if (updateData.photos !== undefined) {
+        dbPayload.photos = {
+          deleteMany: {},
+          create: updateData.photos.map((p) => ({
+            id: p.id,
+            url: p.url,
+            caption: p.caption,
+            photographer: p.photographer,
+            tag: p.tag,
+          })),
+        };
+      }
 
       if (id) {
         await db.vehicle.update({

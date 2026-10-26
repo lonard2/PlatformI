@@ -1325,6 +1325,9 @@ export interface TranslationDictionary {
     noActiveAdvisories: string;
     previewTitle: string;
     fleetSubtitle: string;
+    fleetTotalTrainsets: string;
+    fleetBusRun: string;
+    fleetIdentityTitle: string;
     alertsSubtitle: string;
     scannerSubtitle: string;
     rejectionReason: string;

@@ -86,6 +86,15 @@ model Vehicle {
   currentSegmentIndex Int                   @default(0)
   nextStopId          String
   nextStopEtaSeconds  Int                   @default(0)
+  runNumber           String?
+  trainsetNumber      String?
+  totalTrainsets      Int?
+  carFormation        String?
+  depotHome           String?
+  fleetNumber         String?
+  busRunNumber        String?
+  licensePlate        String?
+  operatorName        String?
   technicalSpec       TechnicalSpec?
   seatingDiagramJson  String?
   photos              PhotoGallery[]

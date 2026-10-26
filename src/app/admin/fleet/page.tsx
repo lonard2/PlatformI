@@ -459,6 +459,16 @@ function FleetManagementContent() {
   const [newVehicleCode, setNewVehicleCode] = useState<string>("");
   const [newName, setNewName] = useState<string>("");
   const [newSpeed, setNewSpeed] = useState<number>(45);
+  // Extended identity (optional; blank stays undefined so DB columns stay NULL).
+  const [newRunNumber, setNewRunNumber] = useState<string>("");
+  const [newTrainsetNumber, setNewTrainsetNumber] = useState<string>("");
+  const [newTotalTrainsets, setNewTotalTrainsets] = useState<string>("");
+  const [newCarFormation, setNewCarFormation] = useState<string>("");
+  const [newDepotHome, setNewDepotHome] = useState<string>("");
+  const [newFleetNumber, setNewFleetNumber] = useState<string>("");
+  const [newBusRunNumber, setNewBusRunNumber] = useState<string>("");
+  const [newLicensePlate, setNewLicensePlate] = useState<string>("");
+  const [newOperatorName, setNewOperatorName] = useState<string>("");
 
   const selectedLineForAdd = useMemo(() => {
     return allLines.find((l) => l.id === newLineId) || allLines[0];
@@ -1528,6 +1538,15 @@ function FleetManagementContent() {
       currentSegmentIndex: 0,
       nextStopId: assignedLine.stops?.[0]?.id || "stop-0",
       nextStopEtaSeconds: 180,
+      runNumber: newRunNumber.trim() || undefined,
+      trainsetNumber: newTrainsetNumber.trim() || undefined,
+      totalTrainsets: newTotalTrainsets.trim() ? Number(newTotalTrainsets) : undefined,
+      carFormation: newCarFormation.trim() || undefined,
+      depotHome: newDepotHome.trim() || undefined,
+      fleetNumber: newFleetNumber.trim() || undefined,
+      busRunNumber: newBusRunNumber.trim() || undefined,
+      licensePlate: newLicensePlate.trim() || undefined,
+      operatorName: newOperatorName.trim() || undefined,
       seatingDiagram,
       technicalSpec: {
         id: `spec-${newId}`,
@@ -1560,6 +1579,15 @@ function FleetManagementContent() {
     setCustomCoachbuilder("");
     setCustomChassis("");
     setSeatingLayoutChoice("DEFAULT");
+    setNewRunNumber("");
+    setNewTrainsetNumber("");
+    setNewTotalTrainsets("");
+    setNewCarFormation("");
+    setNewDepotHome("");
+    setNewFleetNumber("");
+    setNewBusRunNumber("");
+    setNewLicensePlate("");
+    setNewOperatorName("");
 
     // Persist new vehicle via POST /api/fleet/vehicles
     fetch("/api/fleet/vehicles", {
@@ -2595,6 +2623,106 @@ function FleetManagementContent() {
                   />
                 </div>
               </div>
+
+              {/* Extended identity (run / trainset / depot / plates) */}
+              <details className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2">
+                <summary className="cursor-pointer text-xs font-semibold text-slate-300 py-1">
+                  {t.admin.fleetIdentityTitle}
+                </summary>
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-run" className="text-xs font-semibold text-slate-300">{t.common.runNumber}</label>
+                    <input
+                      id="add-vehicle-run"
+                      type="text"
+                      value={newRunNumber}
+                      onChange={(e) => setNewRunNumber(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-trainset" className="text-xs font-semibold text-slate-300">{t.common.trainset}</label>
+                    <input
+                      id="add-vehicle-trainset"
+                      type="text"
+                      value={newTrainsetNumber}
+                      onChange={(e) => setNewTrainsetNumber(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-totaltrainsets" className="text-xs font-semibold text-slate-300">{t.admin.fleetTotalTrainsets}</label>
+                    <input
+                      id="add-vehicle-totaltrainsets"
+                      type="number"
+                      min="1"
+                      value={newTotalTrainsets}
+                      onChange={(e) => setNewTotalTrainsets(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-formation" className="text-xs font-semibold text-slate-300">{t.common.formation}</label>
+                    <input
+                      id="add-vehicle-formation"
+                      type="text"
+                      value={newCarFormation}
+                      onChange={(e) => setNewCarFormation(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-depot" className="text-xs font-semibold text-slate-300">{t.common.depot}</label>
+                    <input
+                      id="add-vehicle-depot"
+                      type="text"
+                      value={newDepotHome}
+                      onChange={(e) => setNewDepotHome(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-fleetno" className="text-xs font-semibold text-slate-300">{t.common.fleetNumber}</label>
+                    <input
+                      id="add-vehicle-fleetno"
+                      type="text"
+                      value={newFleetNumber}
+                      onChange={(e) => setNewFleetNumber(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-busrun" className="text-xs font-semibold text-slate-300">{t.admin.fleetBusRun}</label>
+                    <input
+                      id="add-vehicle-busrun"
+                      type="text"
+                      value={newBusRunNumber}
+                      onChange={(e) => setNewBusRunNumber(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="add-vehicle-plate" className="text-xs font-semibold text-slate-300">{t.common.licensePlate}</label>
+                    <input
+                      id="add-vehicle-plate"
+                      type="text"
+                      value={newLicensePlate}
+                      onChange={(e) => setNewLicensePlate(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono uppercase min-h-[44px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5 col-span-2">
+                    <label htmlFor="add-vehicle-operator" className="text-xs font-semibold text-slate-300">{t.common.operator}</label>
+                    <input
+                      id="add-vehicle-operator"
+                      type="text"
+                      value={newOperatorName}
+                      onChange={(e) => setNewOperatorName(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-200 min-h-[44px]"
+                    />
+                  </div>
+                </div>
+              </details>
 
               {/* Coachbuilder & Chassis */}
               <div className="grid grid-cols-2 gap-3">
