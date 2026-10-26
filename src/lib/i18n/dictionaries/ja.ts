@@ -1685,6 +1685,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     tbErrOverwrite: "旧ダイヤの上書き({n}便)を確認してください。",
     tbErrNoRuns: "指定の時間帯・間隔ではダイヤを生成できませんでした。",
     tbErrPersist: "バッチ生成ダイヤの保存に失敗しました。",
+    tbErrPreDelete: "公開前に既存{n}件の削除に失敗しました。バッチを中止 - 置換なし。",
     tbErrFailed: "バッチ生成に失敗しました",
     tbSummaryTitle: "合成プレビュー",
     tbSummaryRuns: "定刻ダイヤ {n}便",

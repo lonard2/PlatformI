@@ -1610,6 +1610,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     tbErrOverwrite: "Please confirm overwriting old schedules ({n} trips on this corridor).",
     tbErrNoRuns: "No runs could be generated with the given time window and headway.",
     tbErrPersist: "Failed to persist batch generated timetable runs.",
+    tbErrPreDelete: "Failed to clear {n} existing runs before publishing. Batch aborted - no runs were replaced.",
     tbErrFailed: "Batch generation failed",
     tbSummaryTitle: "Synthesis Preview",
     tbSummaryRuns: "{n} Scheduled Runs",

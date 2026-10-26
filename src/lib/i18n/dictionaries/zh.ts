@@ -1685,6 +1685,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     tbErrOverwrite: "请确认覆盖旧时刻表（该走廊{n}个车次）。",
     tbErrNoRuns: "给定时间窗和间隔无法生成运行。",
     tbErrPersist: "批量生成的时刻表保存失败。",
+    tbErrPreDelete: "发布前清除{n}个既有班次失败。已中止批量操作 - 未替换任何班次。",
     tbErrFailed: "批量生成失败",
     tbSummaryTitle: "合成预览",
     tbSummaryRuns: "{n}个定时运行",

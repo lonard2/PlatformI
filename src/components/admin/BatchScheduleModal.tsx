@@ -230,11 +230,20 @@ export function BatchScheduleModal({
         return;
       }
 
-      // If replacing existing runs on this line, delete them first
+      // If replacing existing runs on this line, delete them first.
+      // The pre-delete is verified: a failed clear aborts the batch instead
+      // of stacking fresh runs on top of the ones meant for replacement.
       if (replaceExisting) {
-        await fetch(`/api/network/timetables?lineId=${encodeURIComponent(selectedLineId)}`, {
+        const delRes = await fetch(`/api/network/timetables?lineId=${encodeURIComponent(selectedLineId)}`, {
           method: "DELETE",
         });
+        const delJson = await delRes.json().catch(() => ({ success: false }));
+        if (!delRes.ok || !delJson.success) {
+          setErrorMessage(
+            t.admin.tbErrPreDelete.replace("{n}", String(existingLineRunsCount))
+          );
+          return;
+        }
       }
 
       // Save batch to REST API

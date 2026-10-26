@@ -1685,6 +1685,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     tbErrOverwrite: "旧 시간표 덮어쓰기(이 복도 {n}개 운행)를 확인하세요.",
     tbErrNoRuns: "주어진 시간대와 배차로 운행을 생성할 수 없습니다.",
     tbErrPersist: "배치 생성 시간표 저장 실패.",
+    tbErrPreDelete: "게시 전 기존 {n}건 삭제 실패. 배치를 중단했습니다 - 대체된 운행 없음.",
     tbErrFailed: "배치 생성 실패",
     tbSummaryTitle: "합성 미리보기",
     tbSummaryRuns: "정시 운행 {n}개",

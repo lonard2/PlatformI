@@ -22,6 +22,71 @@ let runtimeTimetableRuns: TimetableRun[] = [...DEFAULT_TIMETABLE_RUNS];
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+// Single DB-row mapping shared by GET (list overlay) and PUT (resurrecting a
+// DB-backed run that is missing from the runtime cache). One mapping means
+// the two paths can never disagree about what a stored run looks like.
+function mapTimetableRow(r: {
+  id: string;
+  lineId: string;
+  tripCode: string;
+  origin: string;
+  destination: string;
+  departureTime: string;
+  arrivalTime: string;
+  operatorName: string;
+  serviceClass: string | null;
+  gateOrBay: string | null;
+  notes: string | null;
+  baggageBelt: string | null;
+  daysOfWeekJson: string | null;
+  stopTimesJson: string | null;
+  tripType: string | null;
+  divergenceReason: string | null;
+  divergenceDescription: string | null;
+  terminatedEarlyStopId: string | null;
+  divergedFromStopId: string | null;
+}): TimetableRun {
+  let daysOfWeek: number[] | undefined = undefined;
+  if (r.daysOfWeekJson) {
+    try {
+      daysOfWeek = JSON.parse(r.daysOfWeekJson) as number[];
+    } catch {
+      daysOfWeek = undefined;
+    }
+  }
+
+  let stopTimes: TimetableStopTime[] | undefined = undefined;
+  if (r.stopTimesJson) {
+    try {
+      stopTimes = JSON.parse(r.stopTimesJson) as TimetableStopTime[];
+    } catch {
+      stopTimes = undefined;
+    }
+  }
+
+  return {
+    id: r.id,
+    lineId: r.lineId,
+    tripCode: r.tripCode,
+    origin: r.origin,
+    destination: r.destination,
+    departureTime: r.departureTime,
+    arrivalTime: r.arrivalTime,
+    operatorName: r.operatorName,
+    serviceClass: r.serviceClass ?? undefined,
+    gateOrBay: r.gateOrBay ?? undefined,
+    notes: r.notes ?? undefined,
+    baggageBelt: r.baggageBelt ?? undefined,
+    daysOfWeek,
+    stopTimes,
+    tripType: (r.tripType as TripOperationalType) || "REGULAR",
+    divergenceReason: (r.divergenceReason as DivergenceReason) || "NONE",
+    divergenceDescription: r.divergenceDescription ?? undefined,
+    terminatedEarlyStopId: r.terminatedEarlyStopId ?? undefined,
+    divergedFromStopId: r.divergedFromStopId ?? undefined,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -48,45 +113,7 @@ export async function GET(request: NextRequest) {
       // Overlay database runs
       if (dbRuns.length > 0) {
         dbRuns.forEach((r) => {
-          let daysOfWeek: number[] | undefined = undefined;
-          if (r.daysOfWeekJson) {
-            try {
-              daysOfWeek = JSON.parse(r.daysOfWeekJson) as number[];
-            } catch {
-              daysOfWeek = undefined;
-            }
-          }
-
-          let stopTimes: TimetableStopTime[] | undefined = undefined;
-          if (r.stopTimesJson) {
-            try {
-              stopTimes = JSON.parse(r.stopTimesJson) as TimetableStopTime[];
-            } catch {
-              stopTimes = undefined;
-            }
-          }
-
-          dbMap.set(r.id, {
-            id: r.id,
-            lineId: r.lineId,
-            tripCode: r.tripCode,
-            origin: r.origin,
-            destination: r.destination,
-            departureTime: r.departureTime,
-            arrivalTime: r.arrivalTime,
-            operatorName: r.operatorName,
-            serviceClass: r.serviceClass ?? undefined,
-            gateOrBay: r.gateOrBay ?? undefined,
-            notes: r.notes ?? undefined,
-            baggageBelt: r.baggageBelt ?? undefined,
-            daysOfWeek,
-            stopTimes,
-            tripType: (r.tripType as TripOperationalType) || "REGULAR",
-            divergenceReason: (r.divergenceReason as DivergenceReason) || "NONE",
-            divergenceDescription: r.divergenceDescription ?? undefined,
-            terminatedEarlyStopId: r.terminatedEarlyStopId ?? undefined,
-            divergedFromStopId: r.divergedFromStopId ?? undefined,
-          });
+          dbMap.set(r.id, mapTimetableRow(r));
         });
       }
 
@@ -373,56 +400,56 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const existingIndex = runtimeTimetableRuns.findIndex((r) => r.id === body.id);
-    let updatedRun: TimetableRun;
+    let existingIndex = runtimeTimetableRuns.findIndex((r) => r.id === body.id);
 
-    if (existingIndex >= 0) {
-      updatedRun = {
-        ...runtimeTimetableRuns[existingIndex],
-        ...(body.lineId ? { lineId: body.lineId } : {}),
-        ...(body.tripCode ? { tripCode: body.tripCode.trim().toUpperCase() } : {}),
-        ...(body.origin ? { origin: body.origin.trim() } : {}),
-        ...(body.destination ? { destination: body.destination.trim() } : {}),
-        ...(body.departureTime ? { departureTime: body.departureTime.trim() } : {}),
-        ...(body.arrivalTime ? { arrivalTime: body.arrivalTime.trim() } : {}),
-        ...(body.operatorName ? { operatorName: body.operatorName.trim() } : {}),
-        ...(body.serviceClass !== undefined ? { serviceClass: body.serviceClass.trim() } : {}),
-        ...(body.gateOrBay !== undefined ? { gateOrBay: body.gateOrBay.trim() } : {}),
-        ...(body.notes !== undefined ? { notes: body.notes.trim() } : {}),
-        ...(body.baggageBelt !== undefined ? { baggageBelt: body.baggageBelt.trim() } : {}),
-        ...(body.daysOfWeek ? { daysOfWeek: body.daysOfWeek } : {}),
-        ...(body.stopTimes !== undefined ? { stopTimes: body.stopTimes } : {}),
-        ...(body.tripType !== undefined ? { tripType: body.tripType } : {}),
-        ...(body.divergenceReason !== undefined ? { divergenceReason: body.divergenceReason } : {}),
-        ...(body.divergenceDescription !== undefined ? { divergenceDescription: body.divergenceDescription.trim() } : {}),
-        ...(body.terminatedEarlyStopId !== undefined ? { terminatedEarlyStopId: body.terminatedEarlyStopId } : {}),
-        ...(body.divergedFromStopId !== undefined ? { divergedFromStopId: body.divergedFromStopId } : {}),
-      };
-      runtimeTimetableRuns[existingIndex] = updatedRun;
-    } else {
-      updatedRun = {
-        id: body.id,
-        lineId: body.lineId || "line-kai-intercity",
-        tripCode: (body.tripCode || "TRIP-01").toUpperCase(),
-        origin: body.origin || "Origin",
-        destination: body.destination || "Destination",
-        departureTime: body.departureTime || "08:00",
-        arrivalTime: body.arrivalTime || "10:00",
-        operatorName: body.operatorName || "Operator",
-        serviceClass: body.serviceClass,
-        gateOrBay: body.gateOrBay,
-        notes: body.notes,
-        baggageBelt: body.baggageBelt,
-        daysOfWeek: body.daysOfWeek || [1, 2, 3, 4, 5, 6, 0],
-        stopTimes: body.stopTimes,
-        tripType: body.tripType || "REGULAR",
-        divergenceReason: body.divergenceReason || "NONE",
-        divergenceDescription: body.divergenceDescription,
-        terminatedEarlyStopId: body.terminatedEarlyStopId,
-        divergedFromStopId: body.divergedFromStopId,
-      };
-      runtimeTimetableRuns.push(updatedRun);
+    // A run missing from the runtime cache may still live in the database
+    // (server restart, another instance). Resurrect it so the update applies
+    // to the real record; a run missing from both is a 404, never a
+    // fabrication with placeholder Origin/Operator filler.
+    if (existingIndex < 0) {
+      try {
+        const dbRow = await db.timetableRun.findUnique({ where: { id: body.id } });
+        if (dbRow) {
+          runtimeTimetableRuns.push(mapTimetableRow(dbRow));
+          existingIndex = runtimeTimetableRuns.length - 1;
+        }
+      } catch {
+        // Fall through to the 404 below.
+      }
     }
+
+    if (existingIndex < 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Timetable run '${body.id}' not found`,
+        },
+        { status: 404 }
+      );
+    }
+
+    const updatedRun: TimetableRun = {
+      ...runtimeTimetableRuns[existingIndex],
+      ...(body.lineId ? { lineId: body.lineId } : {}),
+      ...(body.tripCode ? { tripCode: body.tripCode.trim().toUpperCase() } : {}),
+      ...(body.origin ? { origin: body.origin.trim() } : {}),
+      ...(body.destination ? { destination: body.destination.trim() } : {}),
+      ...(body.departureTime ? { departureTime: body.departureTime.trim() } : {}),
+      ...(body.arrivalTime ? { arrivalTime: body.arrivalTime.trim() } : {}),
+      ...(body.operatorName ? { operatorName: body.operatorName.trim() } : {}),
+      ...(body.serviceClass !== undefined ? { serviceClass: body.serviceClass.trim() } : {}),
+      ...(body.gateOrBay !== undefined ? { gateOrBay: body.gateOrBay.trim() } : {}),
+      ...(body.notes !== undefined ? { notes: body.notes.trim() } : {}),
+      ...(body.baggageBelt !== undefined ? { baggageBelt: body.baggageBelt.trim() } : {}),
+      ...(body.daysOfWeek ? { daysOfWeek: body.daysOfWeek } : {}),
+      ...(body.stopTimes !== undefined ? { stopTimes: body.stopTimes } : {}),
+      ...(body.tripType !== undefined ? { tripType: body.tripType } : {}),
+      ...(body.divergenceReason !== undefined ? { divergenceReason: body.divergenceReason } : {}),
+      ...(body.divergenceDescription !== undefined ? { divergenceDescription: body.divergenceDescription.trim() } : {}),
+      ...(body.terminatedEarlyStopId !== undefined ? { terminatedEarlyStopId: body.terminatedEarlyStopId } : {}),
+      ...(body.divergedFromStopId !== undefined ? { divergedFromStopId: body.divergedFromStopId } : {}),
+    };
+    runtimeTimetableRuns[existingIndex] = updatedRun;
 
     // Try updating database
     try {
@@ -495,8 +522,21 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get("id");
     const lineId = searchParams.get("lineId");
 
-    // Bulk deletion by lineId
+    // Bulk deletion by lineId: report the honest union count across the
+    // runtime cache and the database so callers can verify the blast radius.
     if (lineId && !id) {
+      const doomedIds = new Set<string>(
+        runtimeTimetableRuns.filter((r) => r.lineId === lineId).map((r) => r.id)
+      );
+      try {
+        const dbRows = await db.timetableRun.findMany({
+          where: { lineId },
+          select: { id: true },
+        });
+        dbRows.forEach((r) => doomedIds.add(r.id));
+      } catch {
+        // Runtime-only count when the database is unreachable.
+      }
       runtimeTimetableRuns = runtimeTimetableRuns.filter((r) => r.lineId !== lineId);
       try {
         await db.timetableRun.deleteMany({
@@ -507,7 +547,8 @@ export async function DELETE(request: NextRequest) {
       }
       return NextResponse.json({
         success: true,
-        message: `All timetable runs for line ${lineId} deleted successfully`,
+        deletedCount: doomedIds.size,
+        message: `Deleted ${doomedIds.size} timetable run(s) for line ${lineId}`,
       });
     }
 

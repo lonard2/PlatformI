@@ -1685,6 +1685,7 @@ export const ar: TranslationDictionary = {
     tbErrOverwrite: "يرجى تأكيد الكتابة فوق الجداول القديمة ({n} رحلة على هذا الممر).",
     tbErrNoRuns: "تعذر إنشاء تشغيلات بالنافذة الزمنية والتقاطر المحددين.",
     tbErrPersist: "فشل حفظ الجداول المولدة دفعيًا.",
+    tbErrPreDelete: "فشل مسح {n} رحلة موجودة قبل النشر. تم إيقاف الدفعة - لم يستبدل شيء.",
     tbErrFailed: "فشلت عملية التوليد الدفعي",
     tbSummaryTitle: "معاينة التركيب",
     tbSummaryRuns: "{n} تشغيل مجدول",

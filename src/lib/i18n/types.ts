@@ -1695,6 +1695,7 @@ export interface TranslationDictionary {
     tbErrOverwrite: string;
     tbErrNoRuns: string;
     tbErrPersist: string;
+    tbErrPreDelete: string;
     tbErrFailed: string;
     tbSummaryTitle: string;
     tbSummaryRuns: string;

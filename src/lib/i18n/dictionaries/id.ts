@@ -1685,6 +1685,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     tbErrOverwrite: "Harap centang konfirmasi penimpaan jadwal lama ({n} perjalanan pada koridor ini).",
     tbErrNoRuns: "Tidak ada jadwal yang bisa dibuat dengan rentang waktu dan headway ini.",
     tbErrPersist: "Gagal menyimpan jadwal hasil batch.",
+    tbErrPreDelete: "Gagal menghapus {n} jadwal lama sebelum publikasi. Batch dibatalkan - tidak ada jadwal yang diganti.",
     tbErrFailed: "Generasi batch gagal",
     tbSummaryTitle: "Pratinjau Sintesis",
     tbSummaryRuns: "{n} Jadwal Terjadwal",
