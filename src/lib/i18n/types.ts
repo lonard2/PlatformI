@@ -1718,6 +1718,9 @@ export interface TranslationDictionary {
     ttDirIn: string;
     ttRegistry: string;
     ttBatchGen: string;
+    ttBatchDone: string;
+    ttBatchSummary: string;
+    ttReviewStringline: string;
     ttAddRun: string;
     ttLoading: string;
     ttEmpty: string;

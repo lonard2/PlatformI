@@ -237,6 +237,18 @@ function TimetableStudioContent() {
   // Undo Toast state
   const [lastDeletedRun, setLastDeletedRun] = useState<TimetableRun | null>(null);
 
+  // Post-batch summary receipt with review-on-stringline closure
+  interface BatchSummary {
+    count: number;
+    lineId: string;
+    runIds: string[];
+    start: string;
+    end: string;
+    headway: number;
+  }
+  const [lastBatch, setLastBatch] = useState<BatchSummary | null>(null);
+  const [highlightRunIds, setHighlightRunIds] = useState<string[]>([]);
+
   // Surfaced save/delete failures (in-cell matrix edits fail loudly, not silently)
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -513,7 +525,8 @@ function TimetableStudioContent() {
     }
   };
 
-  // Batch runs generated handler
+  // Batch runs generated handler: replace the corridor set (explicitly
+  // confirmed in the generator), then announce a reviewable summary.
   const handleRunsGenerated = (newRuns: TimetableRun[]) => {
     const lineId = newRuns[0]?.lineId;
     if (lineId) {
@@ -521,9 +534,32 @@ function TimetableStudioContent() {
         ...newRuns,
         ...prev.filter((r) => r.lineId !== lineId),
       ]);
+      const starts = newRuns.map((r) => r.departureTime).sort();
+      const ends = newRuns.map((r) => r.arrivalTime).sort();
+      const line = lineMap.get(lineId);
+      setLastBatch({
+        count: newRuns.length,
+        lineId,
+        runIds: newRuns.map((r) => r.id),
+        start: starts[0] ?? "",
+        end: ends[ends.length - 1] ?? "",
+        headway: line?.headwayMinutes ?? 5,
+      });
+      setHighlightRunIds(newRuns.map((r) => r.id));
     } else {
       setTimetableRuns((prev) => [...newRuns, ...prev]);
     }
+  };
+
+  const handleReviewBatch = (): void => {
+    if (!lastBatch) return;
+    setMatrixLineId(lastBatch.lineId);
+    setViewMode("STRINGLINE");
+  };
+
+  const handleDismissBatch = (): void => {
+    setLastBatch(null);
+    setHighlightRunIds([]);
   };
 
   // Helper map for line data
@@ -719,6 +755,40 @@ function TimetableStudioContent() {
         </div>
       )}
 
+      {/* Batch completion receipt with review closure */}
+      {lastBatch && (
+        <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-900/90 border border-teal-500/40 text-xs text-slate-200 shadow-xl">
+          <div className="flex items-center gap-2 min-w-0">
+            <Wand2 className="w-4 h-4 text-teal-400 shrink-0" />
+            <span className="font-bold text-teal-300">{t.admin.ttBatchDone}</span>
+            <span className="truncate text-slate-300">
+              {t.admin.ttBatchSummary
+                .replace("{n}", String(lastBatch.count))
+                .replace("{start}", lastBatch.start)
+                .replace("{end}", lastBatch.end)
+                .replace("{h}", String(lastBatch.headway))}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleReviewBatch}
+              className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold text-xs transition btn-tactile"
+            >
+              {t.admin.ttReviewStringline}
+            </button>
+            <button
+              type="button"
+              onClick={handleDismissBatch}
+              aria-label="Dismiss batch summary"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Undo Banner */}
       {lastDeletedRun && (
         <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/90 border border-teal-500/40 text-xs text-slate-200 shadow-xl">
@@ -904,6 +974,7 @@ function TimetableStudioContent() {
               selectedLine={currentMatrixLine}
               lineStops={currentMatrixStops}
               runs={timetableRuns}
+              highlightRunIds={highlightRunIds}
               onSelectRun={(run) => handleOpenEditModal(run)}
               onEditRun={(run) => handleOpenEditModal(run)}
             />

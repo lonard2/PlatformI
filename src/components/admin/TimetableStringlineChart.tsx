@@ -49,6 +49,7 @@ export interface TimetableStringlineChartProps {
   selectedLine: Line;
   lineStops: Stop[];
   runs: TimetableRun[];
+  highlightRunIds?: string[];
   onSelectRun?: (run: TimetableRun) => void;
   onEditRun?: (run: TimetableRun) => void;
 }
@@ -89,6 +90,7 @@ export function TimetableStringlineChart({
   selectedLine,
   lineStops,
   runs,
+  highlightRunIds,
   onSelectRun,
   onEditRun,
 }: TimetableStringlineChartProps) {
@@ -630,8 +632,12 @@ export function TimetableStringlineChart({
             {visibleTrajectories.map((traj) => {
               const isHovered = hoveredRunId === traj.runId;
               const isSelected = selectedRunId === traj.runId;
-              const hasFocus = isHovered || isSelected;
-              const isDimmed = hoveredRunId !== null && !isHovered;
+              const highlightActive = (highlightRunIds?.length ?? 0) > 0;
+              const isHighlighted = highlightActive && highlightRunIds?.includes(traj.runId);
+              const hasFocus = isHovered || isSelected || Boolean(isHighlighted);
+              const isDimmed =
+                (hoveredRunId !== null && !isHovered) ||
+                (highlightActive && !isHighlighted);
 
               const pathData = buildSvgPath(traj);
 
