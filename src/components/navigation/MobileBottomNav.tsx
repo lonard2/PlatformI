@@ -93,9 +93,14 @@ export function MobileBottomNav({
 
   const handleMapClick = () => {
     closeSheet();
-    setActiveDrawer(null);
-    clearSelection();
-    onCloseAI?.();
+    if (activeDrawer || isAIOpen) {
+      // Returning home: dismiss drawers but preserve map context.
+      setActiveDrawer(null);
+      onCloseAI?.();
+    } else {
+      // Already home: explicit reset.
+      clearSelection();
+    }
   };
 
   const handleWalletClick = () => {
@@ -150,11 +155,12 @@ export function MobileBottomNav({
       <button
         onClick={handleJourneyClick}
         aria-expanded={isJourneyOpen}
+        aria-disabled={!onOpenJourney}
         className={`flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 min-h-[48px] py-1.5 rounded-xl transition-all active:scale-95 ${TAB_FOCUS} ${
           isJourneyOpen
             ? "text-cyan-400 font-bold"
             : "text-slate-300 hover:text-white"
-        }`}
+        } ${!onOpenJourney ? "opacity-60" : ""}`}
       >
         <Navigation className="w-5 h-5" />
         <span className="text-xs tracking-tight truncate max-w-full">{t.navigation.tabRoute}</span>
