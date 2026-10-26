@@ -378,11 +378,11 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
               {t.ticketing.passWallet}
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-300 font-mono">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-300 font-mono">
                 {activePasses.length} {t.common.active}
               </span>
             </h3>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-xs text-slate-400">
               {t.ticketing.rollingSecurityCode}
             </p>
           </div>
@@ -410,10 +410,12 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="px-4 py-2 border-b border-white/5 bg-slate-900/40 flex items-center gap-2 shrink-0">
+      <div role="tablist" aria-label={t.ticketing.passWallet} className="px-4 py-2 border-b border-white/5 bg-slate-900/40 flex items-center gap-2 shrink-0">
         <button
+          role="tab"
+          aria-selected={activeTab === "ACTIVE_PASSES"}
           onClick={() => setActiveTab("ACTIVE_PASSES")}
-          className={`px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
+          className={`px-3 py-1 min-h-[44px] rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
             activeTab === "ACTIVE_PASSES"
               ? "bg-cyan-950 text-cyan-300 border border-cyan-500/30 shadow-sm"
               : "text-slate-400 hover:text-slate-200"
@@ -424,8 +426,10 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         </button>
 
         <button
+          role="tab"
+          aria-selected={activeTab === "TRIP_HISTORY"}
           onClick={() => setActiveTab("TRIP_HISTORY")}
-          className={`px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
+          className={`px-3 py-1 min-h-[44px] rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
             activeTab === "TRIP_HISTORY"
               ? "bg-cyan-950 text-cyan-300 border border-cyan-500/30 shadow-sm"
               : "text-slate-400 hover:text-slate-200"
@@ -436,8 +440,10 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
         </button>
 
         <button
+          role="tab"
+          aria-selected={activeTab === "GUEST_LOOKUP"}
           onClick={() => setActiveTab("GUEST_LOOKUP")}
-          className={`px-3 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
+          className={`px-3 py-1 min-h-[44px] rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
             activeTab === "GUEST_LOOKUP"
               ? "bg-cyan-950 text-cyan-300 border border-cyan-500/30 shadow-sm"
               : "text-slate-400 hover:text-slate-200"
@@ -457,7 +463,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
               <p>{t.ticketing.walletEmpty}</p>
               <button
                 onClick={() => setIsPurchaseModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition"
+                className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition"
               >
                 {t.ticketing.purchasePass}
               </button>
@@ -471,7 +477,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                     <button
                       key={t.id}
                       onClick={() => setActiveTicketId(t.id)}
-                      className={`px-3 py-1.5 rounded-xl border text-xs font-mono whitespace-nowrap transition ${
+                      className={`px-3 py-1.5 min-h-[44px] rounded-xl border text-xs font-mono whitespace-nowrap transition flex items-center ${
                         t.id === activeTicket?.id
                           ? "bg-cyan-950/80 border-cyan-500/50 text-cyan-300"
                           : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -489,8 +495,8 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   {/* Route & Pass Info */}
                   <div className="flex items-center justify-between text-xs border-b border-slate-800 pb-3">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        {t.ticketing.ticketPrefix}{activeTicket.ticketNumber}
+                      <div className="text-xs text-slate-400 font-mono">
+                        {activeTicket.ticketNumber}
                       </div>
                       <div className="text-sm font-bold text-white flex items-center gap-1.5 mt-0.5">
                         <span>{originStop?.name || t.ticketing.origin}</span>
@@ -500,7 +506,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                     </div>
 
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-medium border ${statusBadge(activeTicket.status).className}`}
+                      className={`text-xs px-2 py-0.5 rounded-full font-mono font-medium border ${statusBadge(activeTicket.status).className}`}
                     >
                       {statusBadge(activeTicket.status).label}
                     </span>
@@ -522,7 +528,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                     <div className="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
                       <span>{t.ticketing.simulateGate}</span>
                       <span className="text-[11px] text-slate-500 font-mono">
-                        {t.ticketing.stationPrefix} {originStop?.code || "CSW"}
+                        {t.ticketing.stationPrefix} {originStop?.code || t.ticketing.origin}
                       </span>
                     </div>
 
@@ -561,7 +567,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         onClick={() => handleGateScan("TAP_IN")}
                         disabled={isValidatingGate || !canTapIn}
                         aria-describedby={hint ? "gate-tap-hint" : undefined}
-                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                        className="py-2 px-3 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -577,7 +583,7 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         onClick={() => handleGateScan("TAP_OUT")}
                         disabled={isValidatingGate || !canTapOut}
                         aria-describedby={hint ? "gate-tap-hint" : undefined}
-                        className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                        className="py-2 px-3 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -628,10 +634,10 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/30 text-xs space-y-1.5"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-mono text-sky-300 text-[10px]">
+                          <span className="font-mono text-sky-300 text-xs">
                             {w.ticketNumber} · {w.reservationCode}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(w.status).className}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-mono border ${statusBadge(w.status).className}`}>
                             {statusBadge(w.status).label}
                           </span>
                         </div>
@@ -650,10 +656,10 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs space-y-1.5"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="font-mono text-rose-300 text-[10px]">
+                          <span className="font-mono text-rose-300 text-xs">
                             {f.ticketNumber} · {f.reservationCode}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(f.status).className}`}>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-mono border ${statusBadge(f.status).className}`}>
                             {statusBadge(f.status).label}
                           </span>
                         </div>
@@ -694,16 +700,19 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                   className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-xs space-y-1.5"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-mono text-slate-400 text-[10px]">
+                    <span className="font-mono text-slate-400 text-xs">
                       {trip.ticketNumber}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${statusBadge(trip.status).className}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-mono border ${statusBadge(trip.status).className}`}>
                       {statusBadge(trip.status).label}
                     </span>
                   </div>
                   <div className="font-bold text-white">
                     {allStops.find((s) => s.id === trip.originStopId)?.name || t.ticketing.origin} &rarr;{" "}
                     {allStops.find((s) => s.id === trip.destinationStopId)?.name || t.ticketing.destination}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {new Date(trip.createdAt).toLocaleDateString()}
                   </div>
                   <div className="flex justify-between items-center pt-1 border-t border-slate-800/60 text-[11px]">
                     <span className="text-slate-400">{t.ticketing.paidPrefix}</span>

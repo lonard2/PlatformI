@@ -103,11 +103,11 @@ describe("Milestone 4: UI Components Integration", () => {
       render(<DigitalPassWallet isOpen={true} />);
 
       expect(screen.getByText(/Digital Pass Wallet|Pass Wallet/i)).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Active Passes/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /History/i })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: /Active Passes/i })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: /History/i })).toBeInTheDocument();
 
       // Switch to History
-      const historyTab = screen.getByRole("button", { name: /History/i });
+      const historyTab = screen.getByRole("tab", { name: /History/i });
       fireEvent.click(historyTab);
       expect(historyTab).toBeInTheDocument();
     });
