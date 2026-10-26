@@ -1890,6 +1890,15 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netAdvanced: "高级工具",
     netNeedStops: "至少需要 2 个站点",
     netNeedVertices: "至少需要 2 个顶点",
+    netSaving: "正在保存…",
+    netRouteStations: "线路车站与顺序 ({n})",
+    netSelectLineHint: "选择一条线路以编辑几何形状或车站顺序",
+    netCustomModeOption: "+ 自定义交通模式...",
+    netPresets: "预设",
+    netFareFreeHint: "乘客拍卡/扫码仅用于客流统计和乘车验证，不扣费。",
+    netNoLinesFound: "没有符合此筛选条件的线路。",
+    netEditStopTitle: "编辑车站/站点",
+    netCreateStopTitle: "添加车站/站点",
   },
 };
 

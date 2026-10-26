@@ -1890,6 +1890,15 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netAdvanced: "Alat lanjutan",
     netNeedStops: "Butuh minimal 2 halte",
     netNeedVertices: "Butuh minimal 2 verteks",
+    netSaving: "Menyimpan…",
+    netRouteStations: "Stasiun & Urutan Rute ({n})",
+    netSelectLineHint: "Pilih jalur untuk mengedit geometri atau urutan stasiun",
+    netCustomModeOption: "+ Moda Transit Kustom...",
+    netPresets: "Preset",
+    netFareFreeHint: "Penumpang menempelkan kartu/QR untuk sensus dan validasi naik tanpa potongan tarif.",
+    netNoLinesFound: "Tidak ada jalur yang cocok dengan filter ini.",
+    netEditStopTitle: "Ubah Stasiun / Halte",
+    netCreateStopTitle: "Tambah Stasiun / Halte",
   },
 };
 

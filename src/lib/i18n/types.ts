@@ -1900,5 +1900,14 @@ export interface TranslationDictionary {
     netAdvanced: string;
     netNeedStops: string;
     netNeedVertices: string;
+    netSaving: string;
+    netRouteStations: string;
+    netSelectLineHint: string;
+    netCustomModeOption: string;
+    netPresets: string;
+    netFareFreeHint: string;
+    netNoLinesFound: string;
+    netEditStopTitle: string;
+    netCreateStopTitle: string;
   };
 }

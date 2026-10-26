@@ -1890,6 +1890,15 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netAdvanced: "고급 도구",
     netNeedStops: "정류장 2곳 이상 필요",
     netNeedVertices: "정점 2개 이상 필요",
+    netSaving: "저장 중…",
+    netRouteStations: "노선 정거장 및 순서 ({n}건)",
+    netSelectLineHint: "지오메트리나 역 순서를 편집할 노선을 선택",
+    netCustomModeOption: "+ 사용자 지정 교통 모드...",
+    netPresets: "프리셋",
+    netFareFreeHint: "승객은 요금 차감 없이 집계 및 승차 확인을 위해 카드/QR을 태그합니다.",
+    netNoLinesFound: "이 필터와 일치하는 노선이 없습니다.",
+    netEditStopTitle: "정거장 편집",
+    netCreateStopTitle: "정거장 추가",
   },
 };
 

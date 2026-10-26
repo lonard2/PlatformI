@@ -170,6 +170,26 @@ export default function AdminNetworkStudioPage() {
   const [confirmDelete, setConfirmDelete] = useState<{ kind: "line" | "stop"; id: string; name: string } | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
 
+  // Escape closes the topmost modal with the same cleanup as its X button.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.key !== "Escape") return;
+      if (confirmDelete) {
+        setConfirmDelete(null);
+        setDeleteConfirmText("");
+      } else if (isStopModalOpen) {
+        setIsStopModalOpen(false);
+        setEditingStop(null);
+        setTempPlacementCoord(null);
+      } else if (isLineModalOpen) {
+        setIsLineModalOpen(false);
+        setEditingLine(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [confirmDelete, isStopModalOpen, isLineModalOpen]);
+
   // Undo window: 10s after each staged mutation
   useEffect(() => {
     if (!undoOp) return;
@@ -993,11 +1013,11 @@ export default function AdminNetworkStudioPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-sm font-bold text-white tracking-tight">{t.admin.netTitle}</h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
+              <span className="text-xs px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold">
                 GIS OCC
               </span>
             </div>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-xs text-slate-400">
               {t.admin.netSubtitle.replace("{n}", String(allLines.length)).replace("{m}", String(allStops.length))}
             </p>
           </div>
@@ -1140,7 +1160,7 @@ export default function AdminNetworkStudioPage() {
                     </div>
                     <div>
                       <h2 className="text-sm font-bold text-white leading-tight">{selectedLine.name}</h2>
-                      <p className="text-[10px] text-slate-400 font-mono">
+                      <p className="text-xs text-slate-400 font-mono">
                         {selectedLine.mode} &bull; {selectedLine.polylineCoordinates?.length || 0} vertices
                       </p>
                     </div>
@@ -1156,6 +1176,7 @@ export default function AdminNetworkStudioPage() {
                         setIsLineModalOpen(true);
                       }}
                       title={t.admin.netEditLine}
+                      aria-label={t.admin.netEditLine}
                       className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -1164,6 +1185,7 @@ export default function AdminNetworkStudioPage() {
                       type="button"
                       onClick={() => handleDeleteLine(selectedLine.id, selectedLine.name)}
                       title={t.admin.netDeleteLine}
+                      aria-label={t.admin.netDeleteLine}
                       className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -1175,6 +1197,7 @@ export default function AdminNetworkStudioPage() {
                         setPreviewSmoothedLine(false);
                       }}
                       title={t.admin.netCloseInspector}
+                      aria-label={t.admin.netCloseInspector}
                       className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -1272,7 +1295,7 @@ export default function AdminNetworkStudioPage() {
                       <Spline className="w-4 h-4" />
                       <span>{t.admin.netSplineTitle}</span>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-400">{t.admin.netSplineMethod}</span>
+                    <span className="text-xs font-mono text-slate-400">{t.admin.netSplineMethod}</span>
                   </div>
 
                   <p className="text-[11px] text-slate-400 leading-relaxed">
@@ -1309,7 +1332,7 @@ export default function AdminNetworkStudioPage() {
                         className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition btn-tactile shadow-md shadow-emerald-950/40"
                       >
                         <Save className="w-3.5 h-3.5" />
-                        <span>{isSavingCurve ? "Saving..." : "Apply to DB"}</span>
+                        <span>{isSavingCurve ? t.admin.netSaving : t.admin.netSaveDb}</span>
                       </button>
                     )}
                   </div>
@@ -1393,7 +1416,7 @@ export default function AdminNetworkStudioPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
                       <MapPin className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Route Stations & Sequence ({lineStops.length})</span>
+                      <span>{t.admin.netRouteStations.replace("{n}", String(lineStops.length))}</span>
                     </div>
 
                     <div className="flex items-center gap-1">
@@ -1462,7 +1485,7 @@ export default function AdminNetworkStudioPage() {
                               onClick={() => setSelectedStopId(stop.id)}
                             >
                               <span
-                                className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] font-bold text-white shrink-0 shadow-sm"
+                                className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-xs font-bold text-white shrink-0 shadow-sm"
                                 style={{ backgroundColor: selectedLine.colorHex }}
                               >
                                 {stop.sequence}
@@ -1494,7 +1517,7 @@ export default function AdminNetworkStudioPage() {
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-[10px] text-slate-400 font-mono">
+                                <div className="text-xs text-slate-400 font-mono">
                                   {stop.code} &bull; {stop.latitude.toFixed(4)}, {stop.longitude.toFixed(4)}
                                 </div>
                               </div>
@@ -1506,6 +1529,7 @@ export default function AdminNetworkStudioPage() {
                                 disabled={index === 0}
                                 onClick={() => handleMoveStopSequence(stop.id, "up")}
                                 title={t.admin.netMoveEarlier}
+                                aria-label={t.admin.netMoveEarlier}
                                 className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowUp className="w-3 h-3" />
@@ -1515,6 +1539,7 @@ export default function AdminNetworkStudioPage() {
                                 disabled={index === lineStops.length - 1}
                                 onClick={() => handleMoveStopSequence(stop.id, "down")}
                                 title={t.admin.netMoveLater}
+                                aria-label={t.admin.netMoveLater}
                                 className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-400 hover:text-white transition"
                               >
                                 <ArrowDown className="w-3 h-3" />
@@ -1526,6 +1551,7 @@ export default function AdminNetworkStudioPage() {
                                   setIsStopModalOpen(true);
                                 }}
                                 title={t.admin.netEditStation}
+                                aria-label={t.admin.netEditStation}
                                 className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                               >
                                 <Edit3 className="w-3 h-3" />
@@ -1534,6 +1560,7 @@ export default function AdminNetworkStudioPage() {
                                 type="button"
                                 onClick={() => handleDeleteStop(stop.id, stop.name)}
                                 title={t.admin.netDeleteStation}
+                                aria-label={t.admin.netDeleteStation}
                                 className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded bg-slate-800 hover:bg-rose-950/80 text-rose-400 hover:text-rose-200 border border-transparent hover:border-rose-800/40 transition"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -1549,9 +1576,12 @@ export default function AdminNetworkStudioPage() {
             ) : (
               /* Lines List */
               <div className="space-y-1.5">
-                <div className="px-1 py-0.5 text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Select a line to edit geometry or station sequence
+                <div className="px-1 py-0.5 text-xs uppercase font-bold text-slate-400 font-mono">
+                  {t.admin.netSelectLineHint}
                 </div>
+                {filteredLines.length === 0 && (
+                  <p className="px-1 py-3 text-xs text-slate-500">{t.admin.netNoLinesFound}</p>
+                )}
                 {filteredLines.map((line) => {
                   const stopCount = allStops.filter((s) => s.lineId === line.id).length;
                   return (
@@ -1575,13 +1605,13 @@ export default function AdminNetworkStudioPage() {
                           <div className="text-xs font-bold text-white group-hover:text-cyan-300 truncate transition">
                             {line.name}
                           </div>
-                          <div className="text-[10px] text-slate-400 font-mono">
+                          <div className="text-xs text-slate-400 font-mono">
                             {line.mode} &bull; {stopCount} stops
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-[10px] font-mono text-slate-400 px-2 py-1 rounded bg-slate-950 border border-white/5 shrink-0">
+                      <div className="text-xs font-mono text-slate-400 px-2 py-1 rounded bg-slate-950 border border-white/5 shrink-0">
                         {line.polylineCoordinates.length} nodes
                       </div>
                     </button>
@@ -1715,7 +1745,12 @@ export default function AdminNetworkStudioPage() {
       {/* 3. MODAL: ADD / EDIT LINE */}
       {isLineModalOpen && editingLine && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={editingLine.id ? t.admin.netEditLineTitle : t.admin.netCreateLineTitle}
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <Route className="w-4 h-4 text-cyan-400" />
@@ -1729,6 +1764,7 @@ export default function AdminNetworkStudioPage() {
                   setIsLineModalOpen(false);
                   setEditingLine(null);
                 }}
+                aria-label={t.common.close}
                 className="p-1 rounded-lg text-slate-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
@@ -1833,7 +1869,7 @@ export default function AdminNetworkStudioPage() {
                           </option>
                         ))
                       )}
-                      <option value="__CUSTOM__">+ Custom Transit Mode...</option>
+                      <option value="__CUSTOM__">{t.admin.netCustomModeOption}</option>
                     </select>
                   ) : (
                     <div className="flex items-center gap-1.5">
@@ -1862,7 +1898,7 @@ export default function AdminNetworkStudioPage() {
                         className="px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-xs whitespace-nowrap btn-tactile"
                         title={t.admin.netBackToPresets}
                       >
-                        Presets
+                        {t.admin.netPresets}
                       </button>
                     </div>
                   )}
@@ -1873,7 +1909,7 @@ export default function AdminNetworkStudioPage() {
               <div className="space-y-2 pt-1 border-t border-white/5">
                 <div className="flex items-center justify-between">
                   <label className="block text-[11px] text-slate-400">{t.admin.netFareSystem}</label>
-                  <span className="text-[10px] text-cyan-400 font-mono font-semibold">
+                  <span className="text-xs text-cyan-400 font-mono font-semibold">
                     {editingLine.fareType || "PROGRESSIVE_DISTANCE"}
                   </span>
                 </div>
@@ -1931,7 +1967,7 @@ export default function AdminNetworkStudioPage() {
                 <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
                   <span>
-                    <strong>{t.admin.netFareFree}</strong> Passengers tap card/QR for census and boarding validation without fare deduction.
+                    <strong>{t.admin.netFareFree}</strong> {t.admin.netFareFreeHint}
                   </span>
                 </div>
               ) : editingLine.fareType === "FLAT" ? (
@@ -1948,7 +1984,7 @@ export default function AdminNetworkStudioPage() {
                     }}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     Fixed single rate charged upon tap-in or boarding, regardless of distance or stations traveled.
                   </p>
                 </div>
@@ -1966,7 +2002,7 @@ export default function AdminNetworkStudioPage() {
                     }}
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     Base tariff for standard seat class. Premium tiers (Executive, Business, Sleeper) are configured via vehicle cabin classes.
                   </p>
                 </div>
@@ -2021,7 +2057,7 @@ export default function AdminNetworkStudioPage() {
                   }}
                   className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -2039,12 +2075,17 @@ export default function AdminNetworkStudioPage() {
       {/* 4. MODAL: ADD / EDIT STOP */}
       {isStopModalOpen && editingStop && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={editingStop.id ? t.admin.netEditStopTitle : t.admin.netCreateStopTitle}
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-400" />
                 <h3 className="text-sm font-bold text-white">
-                  {editingStop.id ? "Edit Station / Stop" : "Add Station / Stop"}
+                  {editingStop.id ? t.admin.netEditStopTitle : t.admin.netCreateStopTitle}
                 </h3>
               </div>
               <button
@@ -2054,6 +2095,7 @@ export default function AdminNetworkStudioPage() {
                   setEditingStop(null);
                   setTempPlacementCoord(null);
                 }}
+                aria-label={t.common.close}
                 className="p-1 rounded-lg text-slate-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
@@ -2239,7 +2281,7 @@ export default function AdminNetworkStudioPage() {
                   }}
                   className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs"
                 >
-                  Cancel
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"

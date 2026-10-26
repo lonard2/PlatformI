@@ -1890,6 +1890,15 @@ export const ar: TranslationDictionary = {
     netAdvanced: "أدوات متقدمة",
     netNeedStops: "يلزم محطتان على الأقل",
     netNeedVertices: "يلزم رأسان على الأقل",
+    netSaving: "جارٍ الحفظ…",
+    netRouteStations: "محطات المسار وتسلسلها ({n})",
+    netSelectLineHint: "اختر خطا لتحرير الهندسة أو تسلسل المحطات",
+    netCustomModeOption: "+ وضع نقل مخصص...",
+    netPresets: "الإعدادات المسبقة",
+    netFareFreeHint: "يمسح الركاب البطاقة/رمز QR للإحصاء والتحقق من الصعود دون خصم الأجرة.",
+    netNoLinesFound: "لا توجد خطوط مطابقة لهذا المرشح.",
+    netEditStopTitle: "تحرير المحطة",
+    netCreateStopTitle: "إضافة محطة",
   },
 };
 

@@ -11,3 +11,5 @@ Scope: `src/app/admin/network/page.tsx` + `net*` i18n keys ×6 + one test file p
 | 5 | `$impeccable polish` | Final pass: dialog semantics, icon-button labels, empty/filter states | RED→GREEN `tests/network-studio-polish.test.tsx`, `tsc`, full suite, `detect --json`, `diff-check` |
 
 Rules per todo: minimal diff, no overengineering, no regressions, strict TS, zero emoji, 6-locale parity when keys change.
+
+Ruling (polish): low-contrast pairs from the overlay (#62748e on #0a0f1d, #ffffff on #0092b8) deliberately untouched — re-tokenizing slate/cyan ramps is a design-token decision, not a one-line fix; text was ramped to the 12px floor and semantics added instead.

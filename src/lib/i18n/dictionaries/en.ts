@@ -1815,6 +1815,15 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netAdvanced: "Advanced tools",
     netNeedStops: "Needs at least 2 stops",
     netNeedVertices: "Needs at least 2 vertices",
+    netSaving: "Saving…",
+    netRouteStations: "Route Stations & Sequence ({n})",
+    netSelectLineHint: "Select a line to edit geometry or station sequence",
+    netCustomModeOption: "+ Custom Transit Mode...",
+    netPresets: "Presets",
+    netFareFreeHint: "Passengers tap card/QR for census and boarding validation without fare deduction.",
+    netNoLinesFound: "No lines match this filter.",
+    netEditStopTitle: "Edit Station / Stop",
+    netCreateStopTitle: "Add Station / Stop",
 
 
     tmTimeband: "Timeband:",

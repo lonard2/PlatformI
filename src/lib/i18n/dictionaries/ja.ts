@@ -1890,6 +1890,15 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netAdvanced: "高度なツール",
     netNeedStops: "停留所が2件以上必要",
     netNeedVertices: "頂点が2件以上必要",
+    netSaving: "保存中…",
+    netRouteStations: "経路の駅と順序 ({n}件)",
+    netSelectLineHint: "ジオメトリや駅の順序を編集する路線を選択",
+    netCustomModeOption: "+ カスタム交通モード...",
+    netPresets: "プリセット",
+    netFareFreeHint: "乗客は運賃引き落としなしに人数把握と乗車確認のためカード/QRをタップします。",
+    netNoLinesFound: "この条件に一致する路線がありません。",
+    netEditStopTitle: "駅・停留所を編集",
+    netCreateStopTitle: "駅・停留所を追加",
   },
 };
 
