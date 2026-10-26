@@ -936,6 +936,8 @@ export interface TranslationDictionary {
     stationPrefix: string;
     simulateTapIn: string;
     simulateTapOut: string;
+    gateTapInHint: string;
+    gateTapOutHint: string;
     noTrips: string;
     paidPrefix: string;
     buyerTitle: string;

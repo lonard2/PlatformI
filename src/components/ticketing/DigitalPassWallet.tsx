@@ -528,7 +528,9 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
 
                     {gateFeedback && (
                       <div
-                        className={`p-2.5 rounded-xl text-xs flex items-center gap-2 font-mono ${
+                        role={gateFeedback.success ? "status" : "alert"}
+                        aria-live={gateFeedback.success ? "polite" : "assertive"}
+                        className={`p-2.5 rounded-xl text-xs flex items-center gap-2 font-mono break-words ${
                           gateFeedback.success
                             ? "bg-emerald-950/80 border border-emerald-500/40 text-emerald-300"
                             : "bg-rose-950/80 border border-rose-500/40 text-rose-300"
@@ -539,14 +541,26 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         ) : (
                           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
                         )}
-                        <span className="truncate">{gateFeedback.message}</span>
+                        <span>{gateFeedback.message}</span>
                       </div>
                     )}
 
+                    {(() => {
+                      const qrStatus = activeTicket ? resolveQrStatus(activeTicket) : null;
+                      const canTapIn = qrStatus === "ACTIVE";
+                      const canTapOut = qrStatus === "IN_JOURNEY";
+                      const hint = !canTapIn
+                        ? t.ticketing.gateTapInHint
+                        : !canTapOut
+                          ? t.ticketing.gateTapOutHint
+                          : null;
+                      return (
+                        <>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => handleGateScan("TAP_IN")}
-                        disabled={isValidatingGate || activeTicket.status === "IN_JOURNEY"}
+                        disabled={isValidatingGate || !canTapIn}
+                        aria-describedby={hint ? "gate-tap-hint" : undefined}
                         className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
@@ -561,7 +575,8 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
 
                       <button
                         onClick={() => handleGateScan("TAP_OUT")}
-                        disabled={isValidatingGate || activeTicket.status !== "IN_JOURNEY"}
+                        disabled={isValidatingGate || !canTapOut}
+                        aria-describedby={hint ? "gate-tap-hint" : undefined}
                         className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 btn-tactile transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                       >
                         {isValidatingGate ? (
@@ -583,6 +598,14 @@ export const DigitalPassWallet: React.FC<DigitalPassWalletProps> = ({
                         <span>{t.ticketing.gateRetryTap}</span>
                       </button>
                     )}
+                    {hint && (
+                      <p id="gate-tap-hint" className="text-xs text-slate-400">
+                        {hint}
+                      </p>
+                    )}
+                        </>
+                      );
+                    })()}
                   </div>
                   </div>
                 </div>
