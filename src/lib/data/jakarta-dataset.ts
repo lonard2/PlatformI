@@ -23,6 +23,7 @@ export const JABODETABEK_REGION: Region = {
   id: "reg-jabodetabek-01",
   code: "JABODETABEK",
   name: "DKI Jakarta & Greater Jabodetabek",
+  countryCode: "ID",
   centerLatitude: -6.2088,
   centerLongitude: 106.8456,
   zoomLevel: 12,
@@ -33,6 +34,104 @@ export const JABODETABEK_REGION: Region = {
     { latitude: -6.42, longitude: 106.65 },
   ],
 };
+
+/**
+ * Additional populous Indonesian metro regions. Records only — no lines or
+ * stops are invented for them; each starts empty and is authorable from the
+ * network studio once selected.
+ */
+export const METRO_REGIONS: Region[] = [
+  {
+    id: "reg-surabaya-01",
+    code: "SBY",
+    name: "Surabaya (Gerbangkertosusila)",
+    countryCode: "ID",
+    centerLatitude: -7.25,
+    centerLongitude: 112.75,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: -7.05, longitude: 112.55 },
+      { latitude: -7.05, longitude: 112.95 },
+      { latitude: -7.45, longitude: 112.95 },
+      { latitude: -7.45, longitude: 112.55 },
+    ],
+  },
+  {
+    id: "reg-bandung-01",
+    code: "BDG",
+    name: "Bandung Raya",
+    countryCode: "ID",
+    centerLatitude: -6.9,
+    centerLongitude: 107.6,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: -6.75, longitude: 107.45 },
+      { latitude: -6.75, longitude: 107.75 },
+      { latitude: -7.05, longitude: 107.75 },
+      { latitude: -7.05, longitude: 107.45 },
+    ],
+  },
+  {
+    id: "reg-semarang-01",
+    code: "SMG",
+    name: "Semarang (Kedungsepur)",
+    countryCode: "ID",
+    centerLatitude: -7.0,
+    centerLongitude: 110.4,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: -6.85, longitude: 110.25 },
+      { latitude: -6.85, longitude: 110.55 },
+      { latitude: -7.15, longitude: 110.55 },
+      { latitude: -7.15, longitude: 110.25 },
+    ],
+  },
+  {
+    id: "reg-medan-01",
+    code: "MDN",
+    name: "Medan (Mebidang)",
+    countryCode: "ID",
+    centerLatitude: 3.6,
+    centerLongitude: 98.65,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: 3.45, longitude: 98.5 },
+      { latitude: 3.45, longitude: 98.8 },
+      { latitude: 3.75, longitude: 98.8 },
+      { latitude: 3.75, longitude: 98.5 },
+    ],
+  },
+  {
+    id: "reg-makassar-01",
+    code: "MKS",
+    name: "Makassar (Mamminasata)",
+    countryCode: "ID",
+    centerLatitude: -5.15,
+    centerLongitude: 119.42,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: -5.05, longitude: 119.3 },
+      { latitude: -5.05, longitude: 119.55 },
+      { latitude: -5.3, longitude: 119.55 },
+      { latitude: -5.3, longitude: 119.3 },
+    ],
+  },
+  {
+    id: "reg-denpasar-01",
+    code: "DPS",
+    name: "Denpasar (Sarbagita)",
+    countryCode: "ID",
+    centerLatitude: -8.67,
+    centerLongitude: 115.22,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: -8.6, longitude: 115.1 },
+      { latitude: -8.6, longitude: 115.35 },
+      { latitude: -8.75, longitude: 115.35 },
+      { latitude: -8.75, longitude: 115.1 },
+    ],
+  },
+];
 
 // ==========================================
 // SEATING DIAGRAM TEMPLATES

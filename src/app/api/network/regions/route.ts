@@ -48,6 +48,7 @@ type RegionRow = {
   id: string;
   code: string;
   name: string;
+  countryCode: string;
   centerLatitude: number;
   centerLongitude: number;
   zoomLevel: number;
@@ -66,6 +67,7 @@ function toView(row: RegionRow, lineCount: number): Region & { lineCount: number
     id: row.id,
     code: row.code,
     name: row.name,
+    countryCode: row.countryCode,
     centerLatitude: row.centerLatitude,
     centerLongitude: row.centerLongitude,
     zoomLevel: row.zoomLevel,
@@ -117,6 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           `reg-${String(code).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
         code: String(code).trim(),
         name: String(name).trim(),
+        countryCode: body.countryCode ? String(body.countryCode).trim().toUpperCase() : "ID",
         centerLatitude: Number(centerLatitude),
         centerLongitude: Number(centerLongitude),
         zoomLevel: body.zoomLevel !== undefined ? Number(body.zoomLevel) : 12,
@@ -166,6 +169,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       data: {
         ...(body.code !== undefined ? { code: String(body.code).trim() } : {}),
         ...(body.name !== undefined ? { name: String(body.name).trim() } : {}),
+        ...(body.countryCode !== undefined
+          ? { countryCode: String(body.countryCode).trim().toUpperCase() }
+          : {}),
         ...(body.centerLatitude !== undefined ? { centerLatitude: Number(body.centerLatitude) } : {}),
         ...(body.centerLongitude !== undefined ? { centerLongitude: Number(body.centerLongitude) } : {}),
         ...(body.zoomLevel !== undefined ? { zoomLevel: Number(body.zoomLevel) } : {}),

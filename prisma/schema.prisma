@@ -10,6 +10,7 @@ model Region {
   id                      String   @id @default(cuid())
   code                    String   @unique
   name                    String
+  countryCode             String   @default("ID")
   centerLatitude          Float
   centerLongitude         Float
   zoomLevel               Int      @default(12)

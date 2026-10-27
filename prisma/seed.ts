@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import {
   JABODETABEK_REGION,
+  METRO_REGIONS,
   TRANSIT_LINES,
   TRANSIT_STOPS,
   TRANSIT_VEHICLES,
@@ -44,6 +45,7 @@ async function main() {
       id: JABODETABEK_REGION.id,
       code: JABODETABEK_REGION.code,
       name: JABODETABEK_REGION.name,
+      countryCode: JABODETABEK_REGION.countryCode,
       centerLatitude: JABODETABEK_REGION.centerLatitude,
       centerLongitude: JABODETABEK_REGION.centerLongitude,
       zoomLevel: JABODETABEK_REGION.zoomLevel,
@@ -51,6 +53,23 @@ async function main() {
     },
   });
   console.log(`[PlatformI Seeder] Inserted Region: ${createdRegion.name} (${createdRegion.code})`);
+
+  // 2b. Insert additional metro regions (records only; lines are authored per region)
+  for (const metro of METRO_REGIONS) {
+    await prisma.region.create({
+      data: {
+        id: metro.id,
+        code: metro.code,
+        name: metro.name,
+        countryCode: metro.countryCode,
+        centerLatitude: metro.centerLatitude,
+        centerLongitude: metro.centerLongitude,
+        zoomLevel: metro.zoomLevel,
+        boundaryCoordinatesJson: JSON.stringify(metro.boundaryCoordinates),
+      },
+    });
+  }
+  console.log(`[PlatformI Seeder] Inserted ${METRO_REGIONS.length} metro regions.`);
 
   // 3. Insert Lines (wilayah = unanimous stop region, else null)
   for (const line of TRANSIT_LINES) {

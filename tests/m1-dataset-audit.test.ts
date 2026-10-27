@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   JABODETABEK_REGION,
+  METRO_REGIONS,
   TRANSIT_LINES,
   TRANSIT_STOPS,
   TRANSIT_VEHICLES,
@@ -315,7 +316,8 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       const ticketCount = await db.ticket.count();
       const checkinCount = await db.crowdsourceCheckIn.count();
 
-      expect(regionCount).toBe(1);
+      // Seeded world: Jabodetabek home region plus metro region records.
+      expect(regionCount).toBe(1 + METRO_REGIONS.length);
       expect(lineCount).toBe(TRANSIT_LINES.length);
       expect(stopCount).toBe(TRANSIT_STOPS.length);
       expect(vehicleCount).toBe(TRANSIT_VEHICLES.length);

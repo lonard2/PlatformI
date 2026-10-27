@@ -117,6 +117,7 @@ export interface Region {
   id: string;
   code: string;
   name: string;
+  countryCode: string;
   centerLatitude: number;
   centerLongitude: number;
   zoomLevel: number;
