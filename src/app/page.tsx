@@ -75,10 +75,17 @@ export default function Home() {
     ? { duration: 0 }
     : { type: "spring", damping: 28, stiffness: 320, mass: 0.8 };
 
-  const highestSeverity = useMemo(() => getHighestSeverity(activeAlerts), [activeAlerts]);
+  // Region parity for the header badge: only alerts whose line exists in
+  // the active region light the status entry.
+  const regionActiveAlerts = useMemo(() => {
+    const ids = new Set(allLines.map((l) => l.id));
+    return activeAlerts.filter((a) => ids.has(a.lineId));
+  }, [activeAlerts, allLines]);
+
+  const highestSeverity = useMemo(() => getHighestSeverity(regionActiveAlerts), [regionActiveAlerts]);
   const activeAlertCount = useMemo(
-    () => activeAlerts.filter((a) => a.status === "ACTIVE").length,
-    [activeAlerts]
+    () => regionActiveAlerts.filter((a) => a.status === "ACTIVE").length,
+    [regionActiveAlerts]
   );
   const alertBadge = activeAlertCount > 9 ? "9+" : String(activeAlertCount);
 

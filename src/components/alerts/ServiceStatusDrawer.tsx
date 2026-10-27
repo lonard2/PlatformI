@@ -43,6 +43,7 @@ import {
   MonthlyUptimeRecord,
 } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useActiveLines, useRegionStore } from "@/lib/stores/useRegionStore";
 import {
   DISRUPTION_ALERTS,
   HISTORICAL_INCIDENTS,
@@ -135,7 +136,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       )}`
     : "";
 
-  const allLines = useTransitStore((state) => state.allLines);
+  const allLines = useActiveLines();
   const selectLine = useTransitStore((state) => state.selectLine);
   const isFetchingRef = useRef(false);
   const fetchAbortRef = useRef<AbortController | null>(null);
@@ -186,9 +187,16 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  // Region parity: only alerts whose line exists in the active region
+  // count anywhere. Stale line references are dropped, never shown.
+  const regionAlerts = useMemo(() => {
+    const ids = new Set(allLines.map((l) => l.id));
+    return alerts.filter((a) => ids.has(a.lineId));
+  }, [alerts, allLines]);
+
   // Network Statistics
   const stats = useMemo(() => {
-    const activeAlertsList = alerts.filter((a) => a.status === "ACTIVE");
+    const activeAlertsList = regionAlerts.filter((a) => a.status === "ACTIVE");
     const disruptedLineIds = new Set(activeAlertsList.map((a) => a.lineId));
     const totalLines = allLines.length;
     const normalLines = totalLines - disruptedLineIds.size;
@@ -207,7 +215,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       warningCount,
       infoCount,
     };
-  }, [alerts, allLines]);
+  }, [regionAlerts, allLines]);
 
   // Filtered Live Lines
   const filteredLines = useMemo(() => {
@@ -221,7 +229,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
         const matchesName = line.name.toLowerCase().includes(q);
         if (!matchesCode && !matchesName) return false;
       }
-      const lineAlerts = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+      const lineAlerts = regionAlerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
       const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
       const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
       const hasInfo = lineAlerts.some((a) => a.severity === "INFO");
@@ -235,7 +243,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       return true;
     })
     .map((line) => {
-      const la = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+      const la = regionAlerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
       const rank = la.some((a) => a.severity === "CRITICAL")
         ? 0
         : la.some((a) => a.severity === "WARNING")
@@ -247,7 +255,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     })
     .sort((a, b) => a.rank - b.rank || a.line.name.localeCompare(b.line.name))
     .map((entry) => entry.line);
-  }, [allLines, alerts, activeCategory, searchQuery, severityFilter]);
+  }, [allLines, regionAlerts, activeCategory, searchQuery, severityFilter]);
 
   // Severity chip counts: count LINES under the current category + search
   // (same unit as the filtered list), not raw alerts.
@@ -263,7 +271,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
         )
           return;
       }
-      const la = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+      const la = regionAlerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
       counts.ALL += 1;
       if (la.some((a) => a.severity === "CRITICAL")) counts.CRITICAL += 1;
       if (la.some((a) => a.severity === "WARNING")) counts.WARNING += 1;
@@ -271,7 +279,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
       if (la.length === 0) counts.NORMAL += 1;
     });
     return counts;
-  }, [allLines, alerts, activeCategory, searchQuery]);
+  }, [allLines, regionAlerts, activeCategory, searchQuery]);
 
   // Calendar calculations
   const monthKeyPrefix = useMemo(() => {
@@ -638,6 +646,14 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             </div>
 
             {/* 2. THREE PRIMARY TABS */}
+            {allLines.length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <p className="text-xs text-slate-400 font-mono">
+                  {t.statusCenter.emptyRegion}
+                </p>
+              </div>
+            ) : (
+            <>
             <div
               role="tablist"
               aria-label={t.statusCenter.title}
@@ -832,7 +848,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                     </div>
                   ) : (
                     filteredLines.map((line) => {
-                      const lineAlerts = alerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
+                      const lineAlerts = regionAlerts.filter((a) => a.lineId === line.id && a.status === "ACTIVE");
                       const hasCritical = lineAlerts.some((a) => a.severity === "CRITICAL");
                       const hasWarning = lineAlerts.some((a) => a.severity === "WARNING");
                       const hasInfo = lineAlerts.some((a) => a.severity === "INFO");
@@ -1493,6 +1509,9 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                   })}
                 </div>
               </div>
+            )}
+
+            </>
             )}
 
             {/* 6. FOOTER BAR */}

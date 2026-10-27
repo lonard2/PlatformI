@@ -802,6 +802,7 @@ export interface TranslationDictionary {
     title: string;
     subtitle: string;
     tabLive: string;
+    emptyRegion: string;
     tabHistory: string;
     tabUptime: string;
     operationalNormalTitle: string;

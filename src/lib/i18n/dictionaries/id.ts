@@ -778,6 +778,7 @@ export const id: TranslationDictionary = {
     title: "Pusat Status & Informasi Jaringan",
     subtitle: "Kondisi operasional waktu nyata seluruh jalur dan riwayat keterandalan",
     tabLive: "Status Langsung",
+    emptyRegion: "Belum ada status layanan untuk wilayah ini.",
     tabHistory: "Kalender Gangguan",
     tabUptime: "Analisis Uptime & OTP",
     operationalNormalTitle: "Operasional Normal Tanpa Kendala",

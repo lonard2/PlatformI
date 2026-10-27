@@ -778,6 +778,7 @@ export const zh: TranslationDictionary = {
     title: "运营指挥与线网可靠性监控中心",
     subtitle: "全网各走廊实时运行指标、故障档案与历史准点率",
     tabLive: "实时状态",
+    emptyRegion: "该区域暂无服务状态。",
     tabHistory: "故障日志与日历",
     tabUptime: "准点率与在线率分析",
     operationalNormalTitle: "全网所有交通走廊按时刻表正常运行",

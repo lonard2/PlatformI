@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useActiveLines } from "@/lib/stores/useRegionStore";
 import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
 import { useTranslation } from "@/lib/i18n";
 import {
@@ -58,7 +59,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
     )
   );
 
-  const allLines = useTransitStore((state) => state.allLines);
+  const allLines = useActiveLines();
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectLine = useTransitStore((state) => state.selectLine);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);
@@ -154,14 +155,19 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
     setIsDismissed(false);
   };
 
-  // Filter alerts relevant to user's active modes, or include all if unfiltered
+  // Filter alerts relevant to user's active modes, or include all if unfiltered.
+  // Region parity: alerts whose line is not in the active region never
+  // surface — the old `return true` fallback for unknown lines leaked
+  // cross-region alerts into the banner.
   const relevantAlerts = alerts.filter((alert) => {
     const line = allLines.find((l) => l.id === alert.lineId);
-    if (!line) return true;
+    if (!line) return false;
     return selectedModes.includes(line.mode);
   });
 
-  const activeAlerts = relevantAlerts.length > 0 ? relevantAlerts : alerts;
+  const regionLineIds = new Set(allLines.map((l) => l.id));
+  const regionAlerts = alerts.filter((a) => regionLineIds.has(a.lineId));
+  const activeAlerts = relevantAlerts.length > 0 ? relevantAlerts : regionAlerts;
 
   const currentAlert = activeAlerts[currentIndex % activeAlerts.length];
   const affectedLine = currentAlert ? allLines.find((l) => l.id === currentAlert.lineId) : null;

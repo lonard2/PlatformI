@@ -778,6 +778,7 @@ export const en: TranslationDictionary = {
     title: "Operations & Reliability Command Center",
     subtitle: "Real-time network status, disruption logs, and historical uptime metrics",
     tabLive: "Live Status",
+    emptyRegion: "No service status for this region yet.",
     tabHistory: "Incident Logs & Calendar",
     tabUptime: "Uptime & Reliability Index",
     operationalNormalTitle: "All transit corridors operating on scheduled headways",

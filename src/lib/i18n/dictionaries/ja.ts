@@ -778,6 +778,7 @@ export const ja: TranslationDictionary = {
     title: "運行情報管理司令センター",
     subtitle: "全交通ネットワークのリアルタイム運行状況および過去の定時運行実績",
     tabLive: "現在運行状況",
+    emptyRegion: "この地域のサービス状況はまだありません。",
     tabHistory: "運行障害カレンダー",
     tabUptime: "定時性 & Uptime分析",
     operationalNormalTitle: "全線平常どおり運行中",
