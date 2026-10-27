@@ -47,9 +47,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
   const [isUndoVisible, setIsUndoVisible] = useState<boolean>(false);
   const [fetchFailed, setFetchFailed] = useState<boolean>(false);
-  // Mobile chrome diet: the strip collapses to a count dot after 4s unless
-  // the alert is critical or its details are open. Tapping restores it.
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
   const previousCriticalIdsRef = useRef<Set<string>>(
     new Set(
@@ -207,14 +204,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
   const badgeConfig = currentAlert ? getSeverityBadge(currentAlert.severity) : null;
 
-  // Collapse to a count dot after 4s; critical alerts and open details stay.
-  useEffect(() => {
-    setIsMinimized(false);
-    if (!currentAlert || currentAlert.severity === "CRITICAL" || isExpanded) return;
-    const timer = setTimeout(() => setIsMinimized(true), 4000);
-    return () => clearTimeout(timer);
-  }, [currentAlert, currentIndex, isExpanded]);
-
   const handleNextAlert = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIndex((prev) => (prev + 1) % activeAlerts.length);
@@ -265,33 +254,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
       )}
 
       {!isDismissed && !isUndoVisible && activeAlerts.length > 0 && currentAlert && badgeConfig && (
-        isMinimized && !isExpanded ? (
-          <motion.div
-            initial={false}
-            className="w-full px-3 sm:px-6 py-0.5 z-20 flex justify-start"
-          >
-            <button
-              type="button"
-              onClick={() => setIsMinimized(false)}
-              aria-label={`${t.navigation.serviceStatus}: ${activeAlerts.length}`}
-              title={currentAlert.title}
-              className="touch-target flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-900/95 px-2.5 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
-            >
-              <span className="relative flex items-center justify-center" aria-hidden="true">
-                <span
-                  className={`animate-ping motion-reduce:animate-none absolute inline-flex h-2 w-2 rounded-full opacity-75 ${badgeConfig.pulseColor}`}
-                  style={{ animationIterationCount: 1 }}
-                />
-              </span>
-              <OperatingStatusMark
-                status={operatingStatusForSeverity(currentAlert.severity)}
-                t={t}
-                className="text-[11px] font-mono font-bold whitespace-nowrap"
-              />
-              <span className="text-[11px] font-mono font-bold text-slate-300">{activeAlerts.length}</span>
-            </button>
-          </motion.div>
-        ) : (
         <motion.div
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -362,7 +324,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
                   onClick={handleOpenDrawer}
                   aria-label={t.common.viewStatus}
                   title={t.common.viewStatus}
-                  className="touch-target hidden sm:flex items-center gap-0.5 text-[10px] font-medium text-slate-300 hover:text-white px-1.5 py-0.5 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                  className="touch-target flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-white px-2.5 py-1 rounded bg-black/30 hover:bg-black/50 border border-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
                 >
                   <span>{t.common.viewStatus}</span>
                   <ArrowRight className="w-2.5 h-2.5" />
@@ -440,7 +402,6 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             )}
           </AnimatePresence>
         </motion.div>
-        )
       )}
     </AnimatePresence>
   );
