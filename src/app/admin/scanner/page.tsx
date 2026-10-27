@@ -19,6 +19,7 @@ import {
   Zap,
   Activity,
   Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import {
   generateRollingQRToken,
@@ -28,6 +29,7 @@ import {
 } from "@/lib/services/qrSecurityService";
 import { useTranslation } from "@/lib/i18n";
 import { recordShiftAction } from "@/lib/services/shiftLogService";
+import type { GuestTicketView } from "@/lib/ticketing/reservationContract";
 
 interface ScanAuditEntry {
   id: string;
@@ -51,6 +53,15 @@ export default function AdminScannerPage() {
   const [usedNonces, setUsedNonces] = useState<Set<string>>(new Set());
   const [auditLog, setAuditLog] = useState<ScanAuditEntry[]>([]);
   const gateResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // OCC-assisted reservation refunds: lookup first, refund second. The API
+  // stays the final arbiter (409 when the gate already consumed the ticket).
+  const [refundCode, setRefundCode] = useState<string>("");
+  const [refundPhone, setRefundPhone] = useState<string>("");
+  const [refundTicket, setRefundTicket] = useState<GuestTicketView | null>(null);
+  const [refundLookupError, setRefundLookupError] = useState<string | null>(null);
+  const [refundResult, setRefundResult] = useState<string | null>(null);
+  const [refundFailure, setRefundFailure] = useState<string | null>(null);
+  const [refundBusy, setRefundBusy] = useState<boolean>(false);
 
   useEffect(() => {
     return () => {
@@ -203,6 +214,70 @@ export default function AdminScannerPage() {
       }, 3500);
     }
   };
+
+  const handleRefundLookup = async () => {
+    if (!refundCode.trim() || !refundPhone.trim() || refundBusy) return;
+    setRefundBusy(true);
+    setRefundLookupError(null);
+    setRefundTicket(null);
+    setRefundResult(null);
+    setRefundFailure(null);
+    try {
+      const res = await fetch(
+        `/api/ticketing/guest-lookup?code=${encodeURIComponent(refundCode.trim())}&phone=${encodeURIComponent(refundPhone.trim())}`
+      );
+      const data = await res.json();
+      if (res.ok && data.success && data.ticket) {
+        setRefundTicket(data.ticket as GuestTicketView);
+      } else {
+        setRefundLookupError(data.error || "Reservation not found");
+      }
+    } catch (err) {
+      setRefundLookupError(err instanceof Error ? err.message : "Reservation not found");
+    } finally {
+      setRefundBusy(false);
+    }
+  };
+
+  const handleRefundConfirm = async () => {
+    if (!refundTicket || refundBusy) return;
+    setRefundBusy(true);
+    setRefundResult(null);
+    setRefundFailure(null);
+    try {
+      const res = await fetch("/api/ticketing/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketNumber: refundTicket.ticketNumber }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const done = t.admin.refundDone.replace("{code}", refundTicket.reservationCode);
+        setRefundResult(done);
+        setRefundTicket({ ...refundTicket, status: "REFUNDED" });
+        recordShiftAction({
+          actionType: "TICKET_REFUND",
+          summary: done,
+          badge: "REFUNDED",
+          params: {
+            code: refundTicket.reservationCode,
+            ticketId: refundTicket.ticketNumber,
+          },
+        });
+      } else {
+        setRefundFailure(data.error || "Failed to refund ticket");
+      }
+    } catch (err) {
+      setRefundFailure(err instanceof Error ? err.message : "Failed to refund ticket");
+    } finally {
+      setRefundBusy(false);
+    }
+  };
+
+  const isRefundable =
+    refundTicket !== null &&
+    refundTicket.status !== "REFUNDED" &&
+    refundTicket.status !== "COMPLETED";
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -522,6 +597,85 @@ export default function AdminScannerPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* 4. OCC-ASSISTED RESERVATION REFUND */}
+      <div data-testid="occ-refund-panel" className="rounded-2xl bg-slate-900/80 border border-white/10 p-5 space-y-4 shadow-xl">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+          <RotateCcw className="w-4 h-4 text-amber-400" />
+          <h3 className="text-sm font-bold text-white">{t.admin.refundTitle}</h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label htmlFor="refund-code-input" className="text-xs font-semibold text-slate-300">{t.admin.refundCodeLabel}</label>
+            <input
+              id="refund-code-input"
+              type="text"
+              value={refundCode}
+              onChange={(e) => setRefundCode(e.target.value)}
+              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="refund-phone-input" className="text-xs font-semibold text-slate-300">{t.admin.refundPhoneLabel}</label>
+            <input
+              id="refund-phone-input"
+              type="tel"
+              value={refundPhone}
+              onChange={(e) => setRefundPhone(e.target.value)}
+              className="w-full bg-slate-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 font-mono min-h-[44px]"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { void handleRefundLookup(); }}
+          disabled={!refundCode.trim() || !refundPhone.trim() || refundBusy}
+          className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition disabled:opacity-40 btn-tactile min-h-[44px]"
+        >
+          {t.admin.refundLookup}
+        </button>
+
+        {refundLookupError && (
+          <p role="alert" className="text-xs text-rose-300 font-mono">{refundLookupError}</p>
+        )}
+
+        {refundTicket && (
+          <div className="rounded-xl bg-slate-950/60 border border-white/10 p-4 space-y-2 text-xs font-mono">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="font-bold text-white">{refundTicket.ticketNumber}</span>
+              <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${
+                refundTicket.status === "REFUNDED"
+                  ? "bg-slate-800 border-slate-600 text-slate-300"
+                  : "bg-cyan-950/80 border-cyan-500/40 text-cyan-300"
+              }`}>
+                {refundTicket.status}
+              </span>
+            </div>
+            <p className="text-slate-400">
+              {refundTicket.reservationCode} &bull; {refundTicket.tripCode ?? "—"} &bull; {refundTicket.serviceClass ?? "—"}
+            </p>
+            {isRefundable && (
+              <button
+                type="button"
+                onClick={() => { void handleRefundConfirm(); }}
+                disabled={refundBusy}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold transition disabled:opacity-40 btn-tactile min-h-[44px]"
+              >
+                {t.admin.refundConfirm}
+              </button>
+            )}
+          </div>
+        )}
+
+        {refundResult && (
+          <p role="status" className="text-xs text-emerald-300 font-mono">{refundResult}</p>
+        )}
+        {refundFailure && (
+          <p role="alert" className="text-xs text-rose-300 font-mono">{refundFailure}</p>
+        )}
       </div>
     </div>
   );

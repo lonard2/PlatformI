@@ -1248,6 +1248,13 @@ export interface TranslationDictionary {
     fleetControl: string;
     disruptionManager: string;
     gateScanner: string;
+    refundTitle: string;
+    refundCodeLabel: string;
+    refundPhoneLabel: string;
+    refundLookup: string;
+    refundConfirm: string;
+    refundDone: string;
+    shiftLogTemplateTicketRefund: string;
     networkStudio: string;
     timetableManager: string;
     activeVehicles: string;

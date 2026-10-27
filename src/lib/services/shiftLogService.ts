@@ -31,7 +31,8 @@ export type ShiftActionType =
   | "FLEET_ADD"
   | "FLEET_BULK"
   | "FLEET_UNDO"
-  | "GATE_SCAN";
+  | "GATE_SCAN"
+  | "TICKET_REFUND";
 
 export interface ShiftLogEntry {
   id: string;
@@ -100,6 +101,10 @@ export function formatShiftLogSummary(entry: ShiftLogEntry, t: TranslationDictio
       return t.admin.shiftLogTemplateGateScan
         .replace("{gate}", String(p.gate ?? ""))
         .replace("{status}", String(p.status ?? ""))
+        .replace("{ticketId}", String(p.ticketId ?? ""));
+    case "TICKET_REFUND":
+      return t.admin.shiftLogTemplateTicketRefund
+        .replace("{code}", String(p.code ?? ""))
         .replace("{ticketId}", String(p.ticketId ?? ""));
     default:
       return entry.summary;
