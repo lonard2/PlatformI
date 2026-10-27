@@ -515,7 +515,10 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                                  <select
                    id="checkin-vehicle"
                    value={targetVehicleId}
-                  onChange={(e) => setTargetVehicleId(e.target.value)}
+                  onChange={(e) => {
+                    setTargetVehicleId(e.target.value);
+                    setErrorMessage(null);
+                  }}
                                      className={`touch-target w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition`}
                 >
                   <option value="" disabled>
