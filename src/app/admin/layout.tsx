@@ -25,6 +25,7 @@ import {
   HelpCircle,
   Route,
   Clock,
+  BusFront,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -182,6 +183,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: "/admin/timetables",
       label: t.admin.timetableManager,
       icon: <Clock className="w-4 h-4" />,
+      exact: false,
+    },
+    {
+      href: "/admin/intercity",
+      label: t.admin.intercityManager,
+      icon: <BusFront className="w-4 h-4" />,
       exact: false,
     },
   ];
