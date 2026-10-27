@@ -867,6 +867,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
   const activeGroup = destinationGroups?.find((g) => g.id === selectedGroupId) || destinationGroups?.[0];
 
   return (
+    <>
     <AnimatePresence>
       <div className="fixed inset-0 pointer-events-none z-40 flex flex-col justify-end lg:justify-start lg:items-end p-0 lg:p-4">
         {/* Mobile Backdrop */}
@@ -1684,6 +1685,7 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
           </div>
         </motion.aside>
       </div>
+    </AnimatePresence>
       <TimetableDialog
         open={timetableOpen}
         onClose={() => setTimetableOpen(false)}
@@ -1691,6 +1693,6 @@ export function HubDetailSheet({ stopId, onClose }: HubDetailSheetProps) {
         lines={allLines}
         t={t}
       />
-    </AnimatePresence>
+    </>
   );
 }
