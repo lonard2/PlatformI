@@ -19,17 +19,47 @@ export const JABODETABEK_REGION_ID = "reg-jabodetabek-01";
 interface RegionStoreState {
   activeRegionId: string | null;
   setActiveRegion: (regionId: string | null) => void;
+  regions: Region[];
+  regionsLoaded: boolean;
+  loadRegions: () => Promise<void>;
 }
 
 export const useRegionStore = create<RegionStoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       activeRegionId: JABODETABEK_REGION_ID,
       setActiveRegion: (regionId) => set({ activeRegionId: regionId }),
+      regions: [],
+      regionsLoaded: false,
+      loadRegions: async () => {
+        if (get().regionsLoaded) return;
+        try {
+          const res = await fetch("/api/network/regions");
+          const json = await res.json();
+          if (res.ok && json.success && Array.isArray(json.data)) {
+            set({ regions: json.data, regionsLoaded: true });
+          }
+        } catch {
+          // Fail-open: layers render unclipped until regions arrive.
+        }
+      },
     }),
-    { name: "platformi-region" }
+    {
+      name: "platformi-region",
+      partialize: (state) => ({ activeRegionId: state.activeRegionId }),
+    }
   )
 );
+
+/** The active region record, once the region list has loaded. */
+export function useActiveRegion(): Region | undefined {
+  const regions = useRegionStore((s) => s.regions);
+  const activeRegionId = useRegionStore((s) => s.activeRegionId);
+  return useMemo(
+    () => regions.find((r) => r.id === activeRegionId),
+    [regions, activeRegionId]
+  );
+}
 
 export interface CountryRegionGroup {
   countryCode: string;
