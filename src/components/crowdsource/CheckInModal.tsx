@@ -341,7 +341,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
-           className="fixed inset-0 z-50 flex items-end lg:items-center justify-center p-0 pb-[env(safe-area-inset-bottom)] lg:p-4 bg-black/75 backdrop-blur-md"
+           className="fixed inset-0 z-[600] flex items-end lg:items-center justify-center p-0 pb-[env(safe-area-inset-bottom)] lg:p-4 bg-black/75 backdrop-blur-md"
            onClick={onClose}
         >
           <motion.div
