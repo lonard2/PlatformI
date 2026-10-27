@@ -40,10 +40,11 @@ import {
   Upload,
   Wand2,
   Compass,
+  Globe,
   RotateCcw,
   Scissors,
 } from "lucide-react";
-import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
+import { Line, Stop, TransitCategory, TransitMode, FareStructureType, Coordinate, StationType, StationScale, Region } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { DynamicNetworkMap } from "@/components/admin/DynamicNetworkMap";
@@ -59,6 +60,7 @@ import {
   haversineDistanceMeters,
 } from "@/lib/geodesy/curveSmoothing";
 import { WILAYAH_CODES } from "@/lib/geodesy/wilayah";
+import { JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
 
 const CATEGORIES: { id: TransitCategory | "ALL"; labelKey: "netCatAll" | "netCatRail" | "netCatBusRoad" | "netCatAviation" | "netCatMaritime"; icon: React.ReactNode }[] = [
   { id: "ALL", labelKey: "netCatAll", icon: <Route className="w-3.5 h-3.5" /> },
@@ -151,6 +153,12 @@ export default function AdminNetworkStudioPage() {
   const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
   const [editingLine, setEditingLine] = useState<Partial<Line> | null>(null);
   const [editingStop, setEditingStop] = useState<Partial<Stop> | null>(null);
+  // Region manager dialog: OCC authoring for service regions.
+  const [isRegionManagerOpen, setIsRegionManagerOpen] = useState<boolean>(false);
+  const [regions, setRegions] = useState<Array<Region & { lineCount: number }>>([]);
+  const [editingRegion, setEditingRegion] = useState<Partial<Region> & { boundaryText?: string } | null>(null);
+  const [regionDeleteTarget, setRegionDeleteTarget] = useState<{ id: string; name: string; lineCount: number } | null>(null);
+  const [regionForceDelete, setRegionForceDelete] = useState<boolean>(false);
 
   // Status Alerts
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -912,7 +920,7 @@ export default function AdminNetworkStudioPage() {
 
       const payload: Partial<Line> = {
         ...editingLine,
-        regionId: editingLine.regionId || "region-jakarta",
+        regionId: editingLine.regionId || JABODETABEK_REGION.id,
         polylineCoordinates: editingLine.polylineCoordinates || [
           { latitude: -6.2, longitude: 106.816666 },
           { latitude: -6.21, longitude: 106.82 },
@@ -1012,6 +1020,92 @@ export default function AdminNetworkStudioPage() {
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Operation failed";
+      setStatusMessage({ type: "error", text: msg });
+    }
+  };
+
+  // 6b. Region manager: load, save, and delete service regions.
+  const loadRegions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/network/regions");
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setRegions(json.data || []);
+      } else {
+        setStatusMessage({ type: "error", text: json.error || "Failed to load regions" });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load regions";
+      setStatusMessage({ type: "error", text: msg });
+    }
+  }, []);
+
+  const openRegionManager = (): void => {
+    setIsRegionManagerOpen(true);
+    setEditingRegion(null);
+    setRegionDeleteTarget(null);
+    setRegionForceDelete(false);
+    void loadRegions();
+  };
+
+  const handleSaveRegion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRegion || !editingRegion.code?.trim() || !editingRegion.name?.trim()) return;
+    const lat = Number(editingRegion.centerLatitude);
+    const lng = Number(editingRegion.centerLongitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      setStatusMessage({ type: "error", text: t.admin.regionCenter });
+      return;
+    }
+    try {
+      const isExisting = Boolean(editingRegion.id && regions.some((r) => r.id === editingRegion.id));
+      const payload = isExisting
+        ? {
+            id: editingRegion.id,
+            code: editingRegion.code.trim(),
+            name: editingRegion.name.trim(),
+            centerLatitude: lat,
+            centerLongitude: lng,
+            zoomLevel: Number(editingRegion.zoomLevel) || 12,
+            boundaryCoordinatesJson: editingRegion.boundaryText ?? "[]",
+          }
+        : {
+            code: editingRegion.code.trim(),
+            name: editingRegion.name.trim(),
+            centerLatitude: lat,
+            centerLongitude: lng,
+            zoomLevel: Number(editingRegion.zoomLevel) || 12,
+            boundaryCoordinatesJson: editingRegion.boundaryText ?? "[]",
+          };
+      const res = await fetch("/api/network/regions", {
+        method: isExisting ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to save region");
+      setEditingRegion(null);
+      await loadRegions();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save region";
+      setStatusMessage({ type: "error", text: msg });
+    }
+  };
+
+  const confirmRegionDelete = async (): Promise<void> => {
+    if (!regionDeleteTarget) return;
+    try {
+      const res = await fetch(
+        `/api/network/regions?id=${encodeURIComponent(regionDeleteTarget.id)}${regionForceDelete ? "&force=true" : ""}`,
+        { method: "DELETE" }
+      );
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to delete region");
+      setRegionDeleteTarget(null);
+      setRegionForceDelete(false);
+      await loadRegions();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete region";
       setStatusMessage({ type: "error", text: msg });
     }
   };
@@ -1122,6 +1216,16 @@ export default function AdminNetworkStudioPage() {
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t.admin.netNewLine}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={openRegionManager}
+            title={t.admin.regionTitle}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition btn-tactile min-h-[36px]"
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{t.admin.regionManager}</span>
           </button>
         </div>
       </header>
@@ -2186,6 +2290,240 @@ export default function AdminNetworkStudioPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3f. MODAL: REGION MANAGER */}
+      {isRegionManagerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.admin.regionTitle}
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-white/10 rounded-2xl p-5 space-y-4 shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-bold text-white">{t.admin.regionTitle}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRegionManagerOpen(false);
+                  setEditingRegion(null);
+                  setRegionDeleteTarget(null);
+                }}
+                aria-label={t.common.close}
+                className="p-1 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {regions.length === 0 ? (
+              <p className="text-xs text-slate-500 font-mono">{t.admin.regionEmpty}</p>
+            ) : (
+              <ul className="space-y-2">
+                {regions.map((r) => (
+                  <li key={r.id} className="flex items-center justify-between gap-2 rounded-xl bg-slate-950/60 border border-white/5 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-white truncate">
+                        [{r.code}] {r.name}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-mono">
+                        {t.admin.regionLines.replace("{n}", String(r.lineCount))}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingRegion({
+                            id: r.id,
+                            code: r.code,
+                            name: r.name,
+                            centerLatitude: r.centerLatitude,
+                            centerLongitude: r.centerLongitude,
+                            zoomLevel: r.zoomLevel,
+                            boundaryText: JSON.stringify(r.boundaryCoordinates ?? []),
+                          })
+                        }
+                        aria-label={`${t.admin.regionEdit}: ${r.name}`}
+                        className="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition min-h-[36px]"
+                      >
+                        {t.admin.regionEdit}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRegionDeleteTarget({ id: r.id, name: r.name, lineCount: r.lineCount })
+                        }
+                        aria-label={`${t.admin.regionDelete}: ${r.name}`}
+                        className="px-2.5 py-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 text-xs font-semibold transition min-h-[36px]"
+                      >
+                        {t.admin.regionDelete}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <button
+              type="button"
+              onClick={() =>
+                setEditingRegion({
+                  code: "",
+                  name: "",
+                  centerLatitude: -6.2,
+                  centerLongitude: 106.83,
+                  zoomLevel: 12,
+                  boundaryText: "[]",
+                })
+              }
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition btn-tactile min-h-[36px]"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{t.admin.regionNew}</span>
+            </button>
+
+            {editingRegion && (
+              <form onSubmit={handleSaveRegion} className="space-y-3 text-xs text-slate-300 border-t border-white/10 pt-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="region-code" className="block text-[11px] text-slate-400 mb-1">{t.admin.regionCode}</label>
+                    <input
+                      id="region-code"
+                      type="text"
+                      required
+                      value={editingRegion.code || ""}
+                      onChange={(e) => setEditingRegion({ ...editingRegion, code: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono uppercase"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="region-name" className="block text-[11px] text-slate-400 mb-1">{t.admin.regionName}</label>
+                    <input
+                      id="region-name"
+                      type="text"
+                      required
+                      value={editingRegion.name || ""}
+                      onChange={(e) => setEditingRegion({ ...editingRegion, name: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label htmlFor="region-center" className="block text-[11px] text-slate-400 mb-1">{t.admin.regionCenter}</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="region-center"
+                        type="number"
+                        step="any"
+                        required
+                        value={editingRegion.centerLatitude ?? -6.2}
+                        onChange={(e) => setEditingRegion({ ...editingRegion, centerLatitude: Number(e.target.value) })}
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                      />
+                      <input
+                        type="number"
+                        step="any"
+                        required
+                        aria-label={t.admin.regionCenter}
+                        value={editingRegion.centerLongitude ?? 106.83}
+                        onChange={(e) => setEditingRegion({ ...editingRegion, centerLongitude: Number(e.target.value) })}
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="region-zoom" className="block text-[11px] text-slate-400 mb-1">{t.admin.regionZoom}</label>
+                    <input
+                      id="region-zoom"
+                      type="number"
+                      min="1"
+                      max="18"
+                      value={editingRegion.zoomLevel ?? 12}
+                      onChange={(e) => setEditingRegion({ ...editingRegion, zoomLevel: Number(e.target.value) })}
+                      className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="region-boundary" className="block text-[11px] text-slate-400 mb-1">{t.admin.regionBoundary}</label>
+                  <textarea
+                    id="region-boundary"
+                    value={editingRegion.boundaryText ?? "[]"}
+                    onChange={(e) => setEditingRegion({ ...editingRegion, boundaryText: e.target.value })}
+                    rows={3}
+                    spellCheck={false}
+                    className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white font-mono text-[11px]"
+                  />
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingRegion(null)}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs"
+                  >
+                    {t.common.cancel}
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition btn-tactile"
+                  >
+                    {t.admin.regionSave}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {regionDeleteTarget && (
+              <div role="alertdialog" aria-label={t.admin.regionDelete} className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 space-y-2">
+                <p className="text-xs text-rose-200">
+                  {t.admin.regionConfirmDelete.replace("{name}", regionDeleteTarget.name)}
+                </p>
+                {regionDeleteTarget.lineCount > 0 && (
+                  <>
+                    <p className="text-[11px] text-amber-200/90">
+                      {t.admin.regionBlockedNote.replace("{n}", String(regionDeleteTarget.lineCount))}
+                    </p>
+                    <label className="flex items-center gap-2 text-[11px] font-semibold text-amber-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={regionForceDelete}
+                        onChange={(e) => setRegionForceDelete(e.target.checked)}
+                        className="rounded border-amber-600 bg-slate-900 text-amber-500"
+                      />
+                      <span>{t.admin.regionForce}</span>
+                    </label>
+                  </>
+                )}
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegionDeleteTarget(null);
+                      setRegionForceDelete(false);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs"
+                  >
+                    {t.common.cancel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { void confirmRegionDelete(); }}
+                    disabled={regionDeleteTarget.lineCount > 0 && !regionForceDelete}
+                    className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition disabled:opacity-40 btn-tactile"
+                  >
+                    {t.admin.regionDelete}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
