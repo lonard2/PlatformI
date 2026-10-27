@@ -1905,6 +1905,7 @@ export interface TranslationDictionary {
     netLineCodePh: string;
     netLineColor: string;
     netWilayah: string;
+    regionPickTitle: string;
     regionManager: string;
     regionTitle: string;
     regionNew: string;

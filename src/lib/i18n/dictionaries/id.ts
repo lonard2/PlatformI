@@ -1895,6 +1895,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     netLineCodePh: "cth. M-01, TJ-14",
     netLineColor: "Warna Merek Jalur *",
     netWilayah: "Wilayah",
+    regionPickTitle: "Pilih wilayah layanan",
     regionManager: "Wilayah",
     regionTitle: "Wilayah layanan",
     regionNew: "Wilayah baru",

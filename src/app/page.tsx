@@ -42,6 +42,7 @@ import { AITransitAssistantModal } from "@/components/ai/AITransitAssistantModal
 import { AppSettingsModal } from "@/components/settings/AppSettingsModal";
 import { TransportationSystemBar } from "@/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
+import { RegionPicker } from "@/components/navigation/RegionPicker";
 import { useTranslation } from "@/lib/i18n";
 import { getHighestSeverity } from "@/lib/services/severityRollup";
 
@@ -314,6 +315,7 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
+          <RegionPicker variant="compact" />
           <button
             type="button"
             onClick={() => {
@@ -450,6 +452,7 @@ export default function Home() {
           <h1 className="text-base font-bold tracking-tight text-white">
             PlatformI
           </h1>
+          <RegionPicker variant="full" />
         </div>
 
         {/* Right Navigation (Desktop) */}

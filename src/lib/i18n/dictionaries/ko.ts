@@ -1895,6 +1895,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     netLineCodePh: "예: M-01, TJ-14",
     netLineColor: "노선 브랜드 색상 *",
     netWilayah: "서비스 지역",
+    regionPickTitle: "서비스 지역 선택",
     regionManager: "지역",
     regionTitle: "서비스 지역",
     regionNew: "새 지역",

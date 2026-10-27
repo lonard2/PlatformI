@@ -1895,6 +1895,7 @@ export const ar: TranslationDictionary = {
     netLineCodePh: "مثل: M-01، TJ-14",
     netLineColor: "لون علامة الخط *",
     netWilayah: "منطقة الخدمة",
+    regionPickTitle: "اختر منطقة الخدمة",
     regionManager: "المناطق",
     regionTitle: "مناطق الخدمة",
     regionNew: "منطقة جديدة",

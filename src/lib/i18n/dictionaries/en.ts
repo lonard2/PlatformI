@@ -1820,6 +1820,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     netLineCodePh: "e.g. M-01, TJ-14",
     netLineColor: "Line Brand Color *",
     netWilayah: "Service Area (Wilayah)",
+    regionPickTitle: "Choose service region",
     regionManager: "Regions",
     regionTitle: "Service regions",
     regionNew: "New region",

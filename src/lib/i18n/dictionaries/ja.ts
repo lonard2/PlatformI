@@ -1895,6 +1895,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     netLineCodePh: "例: M-01, TJ-14",
     netLineColor: "路線ブランドカラー *",
     netWilayah: "サービスエリア",
+    regionPickTitle: "サービス地域を選択",
     regionManager: "地域",
     regionTitle: "サービス地域",
     regionNew: "新規地域",

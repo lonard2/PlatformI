@@ -1895,6 +1895,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     netLineCodePh: "例如：M-01、TJ-14",
     netLineColor: "线路品牌颜色 *",
     netWilayah: "服务区域",
+    regionPickTitle: "选择服务区域",
     regionManager: "区域",
     regionTitle: "服务区域",
     regionNew: "新建区域",
