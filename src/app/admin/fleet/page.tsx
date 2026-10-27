@@ -315,9 +315,11 @@ function FleetManagementContent() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   // Post-deploy identity draft: re-seeded whenever a different vehicle opens.
   const [identityDraft, setIdentityDraft] = useState<IdentityDraft | null>(null);
+  const [photoDraft, setPhotoDraft] = useState({ url: "", caption: "", credit: "", tag: "" });
 
   useEffect(() => {
     setIdentityDraft(selectedVehicle ? identityFromVehicle(selectedVehicle) : null);
+    setPhotoDraft({ url: "", caption: "", credit: "", tag: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicle?.id]);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -799,6 +801,50 @@ function FleetManagementContent() {
       });
       return next;
     });
+  };
+
+  // Gallery attachments: URL-based photos appended to or removed from the
+  // vehicle's photo set via PUT; the API persists them as PhotoGallery rows.
+  const persistPhotos = (vehicle: Vehicle, photos: Vehicle["photos"]): void => {
+    const updated: Vehicle = { ...vehicle, photos };
+    updateSingleVehicle(updated);
+    if (selectedVehicle?.id === vehicle.id) {
+      setSelectedVehicle(updated);
+    }
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: vehicle.id, vehicleCode: vehicle.vehicleCode, photos }),
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: { vehicleCode: vehicle.vehicleCode },
+      });
+    });
+  };
+
+  const handleAddPhoto = (vehicle: Vehicle): void => {
+    const url = photoDraft.url.trim();
+    if (!url) return;
+    const entry = {
+      id: `photo-${vehicle.id}-${Date.now().toString(36)}`,
+      vehicleId: vehicle.id,
+      url,
+      caption: photoDraft.caption.trim(),
+      photographer: photoDraft.credit.trim(),
+      tag: photoDraft.tag.trim(),
+    };
+    persistPhotos(vehicle, [...(vehicle.photos ?? []), entry]);
+    setPhotoDraft({ url: "", caption: "", credit: "", tag: "" });
+  };
+
+  const handleRemovePhoto = (vehicle: Vehicle, photoId: string): void => {
+    persistPhotos(
+      vehicle,
+      (vehicle.photos ?? []).filter((p) => p.id !== photoId)
+    );
   };
 
   const handleUpdateCrowd = (
@@ -2658,6 +2704,90 @@ function FleetManagementContent() {
                   </button>
                 </details>
               )}
+
+              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-2">
+                <span className="text-slate-500 text-[10px] uppercase font-mono">
+                  {t.admin.fleetPhotoTitle}
+                </span>
+                {(selectedVehicle.photos ?? []).length === 0 ? (
+                  <p className="text-[11px] text-slate-500">{t.admin.fleetPhotosEmpty}</p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {(selectedVehicle.photos ?? []).map((p) => (
+                      <li key={p.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-900/80 border border-white/5 px-2.5 py-1.5">
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-slate-200 truncate font-mono">{p.url}</p>
+                          <p className="text-[10px] text-slate-500 truncate">
+                            {[p.caption, p.photographer, p.tag].filter(Boolean).join(" • ") || p.id}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto(selectedVehicle, p.id)}
+                          aria-label={`${t.admin.fleetPhotoRemove} ${p.url}`}
+                          className="p-2 rounded-lg text-rose-300/80 hover:text-rose-200 hover:bg-rose-950/60 transition shrink-0 min-h-[36px] min-w-[36px] flex items-center justify-center"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="col-span-2 space-y-1">
+                    <label htmlFor="tele-photo-url" className="text-[11px] text-slate-400">{t.admin.fleetPhotoUrl}</label>
+                    <input
+                      id="tele-photo-url"
+                      type="url"
+                      required
+                      value={photoDraft.url}
+                      onChange={(e) => setPhotoDraft({ ...photoDraft, url: e.target.value })}
+                      placeholder="https://…"
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[40px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="tele-photo-caption" className="text-[11px] text-slate-400">{t.admin.fleetPhotoCaption}</label>
+                    <input
+                      id="tele-photo-caption"
+                      type="text"
+                      value={photoDraft.caption}
+                      onChange={(e) => setPhotoDraft({ ...photoDraft, caption: e.target.value })}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 min-h-[40px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="tele-photo-credit" className="text-[11px] text-slate-400">{t.admin.fleetPhotoCredit}</label>
+                    <input
+                      id="tele-photo-credit"
+                      type="text"
+                      value={photoDraft.credit}
+                      onChange={(e) => setPhotoDraft({ ...photoDraft, credit: e.target.value })}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 min-h-[40px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="tele-photo-tag" className="text-[11px] text-slate-400">{t.admin.fleetPhotoTag}</label>
+                    <input
+                      id="tele-photo-tag"
+                      type="text"
+                      value={photoDraft.tag}
+                      onChange={(e) => setPhotoDraft({ ...photoDraft, tag: e.target.value })}
+                      className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[40px]"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => handleAddPhoto(selectedVehicle)}
+                      disabled={!photoDraft.url.trim()}
+                      className="w-full px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition disabled:opacity-40 btn-tactile min-h-[40px]"
+                    >
+                      {t.admin.fleetPhotoAdd}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
