@@ -42,6 +42,19 @@ function getStationTypeSvg(type: StationType, color: string, size = 12): string 
   }
 }
 
+/**
+ * Pulse rings mark attention, not decoration: only the selected stop and
+ * the journey endpoints throb. Everything else stays static so the map
+ * keeps a quiet canvas with a single focal point.
+ */
+export function shouldPulseRing(
+  stopId: string,
+  selectedStopId: string | null,
+  endpointIds: Set<string>
+): boolean {
+  return stopId === selectedStopId || endpointIds.has(stopId);
+}
+
 export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
   const { t } = useTranslation();
   const allStops = useActiveStops();
@@ -103,7 +116,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         !isSelected &&
         !endpointIds.has(stop.id) &&
         !candidateIds.has(stop.lineId);
-      const isHub = stop.isInterchange || (stop.connectedLineIds && stop.connectedLineIds.length > 0);
+      const pulseRing = shouldPulseRing(stop.id, selectedStopId, endpointIds);
       const parentLine = allLines.find((l) => l.id === stop.lineId);
       const primaryColor = parentLine?.colorHex || "#38bdf8";
 
@@ -123,7 +136,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
 
         markerHtml = `
           <div class="hub-marker-wrapper hub-scale-big" data-stop-id="${stop.id}" style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;">
-            <div class="hub-pulse-ring" style="position: absolute; width: 34px; height: 34px; border-radius: 50%; border: 2px solid ${primaryColor}; background: ${primaryColor}22; pointer-events: none;"></div>
+            ${pulseRing ? `<div class="hub-pulse-ring" style="position: absolute; width: 34px; height: 34px; border-radius: 50%; border: 2px solid ${primaryColor}; background: ${primaryColor}22; pointer-events: none;"></div>` : ""}
             <div style="
               width: 26px;
               height: 26px;
@@ -171,7 +184,7 @@ export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
         markerHtml = `
           <div class="hub-marker-wrapper hub-scale-medium" data-stop-id="${stop.id}" style="position: relative; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;">
             ${
-              isHub
+              pulseRing
                 ? `<div class="hub-pulse-ring" style="position: absolute; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid ${primaryColor}; background: ${primaryColor}18; pointer-events: none;"></div>`
                 : ""
             }
