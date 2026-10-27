@@ -443,6 +443,7 @@ export const ar: TranslationDictionary = {
     barScopeHint: "عرض {sector} في هذا الشريط فقط - أيقونة العين تبدل الخريطة",
     hideSectorItems: "إخفاء عناصر هذا القطاع",
     noLiveGeometry: "لا توجد بيانات مسار على الخريطة لهذا المسار",
+    noRegionCorridors: "لا ممرات منشورة في هذه المنطقة بعد.",
     partialMapCoverage: "خريطة حية لـ {m} من {n} مسارا - الباقي جدول فقط.",
   },
   modes: {

@@ -467,6 +467,7 @@ export interface TranslationDictionary {
     barScopeHint: string;
     hideSectorItems: string;
     noLiveGeometry: string;
+    noRegionCorridors: string;
     partialMapCoverage: string;
   };
   modes: {

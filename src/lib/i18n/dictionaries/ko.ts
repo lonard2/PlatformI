@@ -443,6 +443,7 @@ export const ko: TranslationDictionary = {
     barScopeHint: "이 막대에 {sector}만 표시 - 눈 아이콘은 지도를 전환",
     hideSectorItems: "이 부문 항목 숨기기",
     noLiveGeometry: "이 경로에 지도 선형 데이터가 없습니다",
+    noRegionCorridors: "이 지역에는 아직 게시된 노선이 없습니다.",
     partialMapCoverage: "{n}개 중 {m}개 노선만 실시간 지도 - 나머지 시간표.",
   },
   modes: {

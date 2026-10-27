@@ -30,7 +30,8 @@ import {
 } from "lucide-react";
 import { DisruptionAlert, DisruptionSeverity, Vehicle } from "@/types/transit";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
-import { DISRUPTION_ALERTS } from "@/lib/data/jakarta-dataset";
+import { DISRUPTION_ALERTS, JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
+import { useRegionStore } from "@/lib/stores/useRegionStore";
 import { useTranslation } from "@/lib/i18n";
 import { recordShiftAction } from "@/lib/services/shiftLogService";
 
@@ -54,6 +55,7 @@ export default function AdminAlertsPage() {
   const updateSingleVehicle = useTransitStore((state) => state.updateSingleVehicle);
 
   const [alerts, setAlerts] = useState<DisruptionAlert[]>(DISRUPTION_ALERTS);
+  const activeRegionId = useRegionStore((state) => state.activeRegionId);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
@@ -371,8 +373,15 @@ export default function AdminAlertsPage() {
   // Visible feed: triage order narrowed by the operator's filters.
   const visibleAlerts = useMemo(() => {
     const q = feedQuery.trim().toLowerCase();
+    const lineRegion = new Map(allLines.map((l) => [l.id, l.regionId]));
     return orderedAlerts.filter((a) => {
       if (statusFilter !== "ALL" && a.status !== statusFilter) return false;
+      if (
+        activeRegionId &&
+        (lineRegion.get(a.lineId) || JABODETABEK_REGION.id) !== activeRegionId
+      ) {
+        return false;
+      }
       if (severityFilter !== "ALL" && a.severity !== severityFilter) return false;
       if (q) {
         const line = allLines.find((l) => l.id === a.lineId);
@@ -382,7 +391,7 @@ export default function AdminAlertsPage() {
       }
       return true;
     });
-  }, [orderedAlerts, statusFilter, severityFilter, feedQuery, allLines]);
+  }, [orderedAlerts, statusFilter, severityFilter, feedQuery, allLines, activeRegionId]);
 
   const focusAuthoringForm = () => {
     const input = document.getElementById("alert-title-input");

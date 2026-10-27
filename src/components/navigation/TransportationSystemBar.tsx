@@ -41,6 +41,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useRegionStore } from "@/lib/stores/useRegionStore";
 import { TransitMode, TransitCategory, ServiceOperatingStatus, DisruptionAlert, Line } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 import {
@@ -81,6 +82,8 @@ export interface TransitSystemItem {
   status: ServiceOperatingStatus;
   statusReason: string;
   corridorsOrBuildings: SystemCorridorDetail[];
+  /** Regions this catalog entry serves. Undefined = legacy Jakarta catalog. */
+  regionIds?: string[];
 }
 
 export interface TransitSystemGroup {
@@ -90,6 +93,17 @@ export interface TransitSystemGroup {
   groupIcon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   accentColor: string;
   items: TransitSystemItem[];
+}
+
+// Legacy catalog entries predate regions; they serve home Jabodetabek.
+export const LEGACY_HOME_REGION_ID = "reg-jabodetabek-01";
+
+export function itemVisibleInRegion(
+  item: TransitSystemItem,
+  regionId: string | null | undefined
+): boolean {
+  if (!regionId) return true;
+  return (item.regionIds ?? [LEGACY_HOME_REGION_ID]).includes(regionId);
 }
 
 // Sector pill names (localized UI vocabulary; the data constants keep the
@@ -821,6 +835,13 @@ export function TransportationSystemBar() {
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<"ALL" | TransitCategory>("ALL");
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const activeRegionId = useRegionStore((state) => state.activeRegionId);
+
+  // A region switch closes any open tray: the previous region's corridors
+  // must never linger over the new region's map.
+  useEffect(() => {
+    setActiveItemId(null);
+  }, [activeRegionId]);
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   // Mobile shows the sector chips alone; the systems row opens on demand.
   const [showSystemsOnMobile, setShowSystemsOnMobile] = useState<boolean>(() => {
@@ -978,7 +999,16 @@ export function TransportationSystemBar() {
     }
   };
 
-  const activeItem = SYSTEM_GROUPS.flatMap((g) => g.items).find(
+  const visibleGroups = SYSTEM_GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((item) => itemVisibleInRegion(item, activeRegionId)),
+  })).filter((g) => {
+    if (g.items.length === 0) return false;
+    if (activeCategoryFilter === "ALL") return true;
+    return g.category === activeCategoryFilter;
+  });
+
+  const activeItem = visibleGroups.flatMap((g) => g.items).find(
     (item) => item.id === activeItemId
   );
   const liveTrayStatus = activeItem
@@ -1003,11 +1033,6 @@ export function TransportationSystemBar() {
       ? filteredCorridors
       : filteredCorridors.slice(0, TRAY_INITIAL_COUNT);
 
-  const visibleGroups = SYSTEM_GROUPS.filter((g) => {
-    if (activeCategoryFilter === "ALL") return true;
-    return g.category === activeCategoryFilter;
-  });
-
   return (
     <div
       ref={barWrapperRef}
@@ -1028,7 +1053,7 @@ export function TransportationSystemBar() {
             {t.navigation.allModes}
           </button>
 
-          {SYSTEM_GROUPS.map((g) => {
+          {visibleGroups.map((g) => {
             const isFilterActive = activeCategoryFilter === g.category;
             const isCatActiveOnMap = isCategoryActive(g.category);
 
@@ -1384,6 +1409,11 @@ export function TransportationSystemBar() {
               );
             })}
           </AnimatePresence>
+          {visibleGroups.length === 0 && (
+            <p className="px-3 sm:px-8 py-2 text-[11px] font-mono text-slate-500">
+              {t.navigation.noRegionCorridors}
+            </p>
+          )}
         </motion.div>
 
         {/* Right Scroll Arrow (Desktop) */}

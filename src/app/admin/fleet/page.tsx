@@ -40,8 +40,10 @@ import {
   generateExecutive22Seats,
   generateCommuterLongitudinalSeats,
   generateHiAceCaptainSeats,
+  JABODETABEK_REGION,
 } from "@/lib/data/jakarta-dataset";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
+import { useRegionStore } from "@/lib/stores/useRegionStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { recordShiftAction } from "@/lib/services/shiftLogService";
@@ -315,6 +317,7 @@ function FleetManagementContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const activeRegionId = useRegionStore((state) => state.activeRegionId);
   // Post-deploy identity draft: re-seeded whenever a different vehicle opens.
   const [identityDraft, setIdentityDraft] = useState<IdentityDraft | null>(null);
   const [photoDraft, setPhotoDraft] = useState({ url: "", caption: "", credit: "", tag: "" });
@@ -610,8 +613,15 @@ function FleetManagementContent() {
 
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
+    const lineRegion = new Map(allLines.map((l) => [l.id, l.regionId]));
     return simulatedVehicles.filter((v) => {
       if (activeCategory !== "ALL" && v.category !== activeCategory) {
+        return false;
+      }
+      if (
+        activeRegionId &&
+        (lineRegion.get(v.lineId) || JABODETABEK_REGION.id) !== activeRegionId
+      ) {
         return false;
       }
       if (searchQuery.trim()) {
@@ -624,7 +634,7 @@ function FleetManagementContent() {
       }
       return true;
     });
-  }, [simulatedVehicles, activeCategory, searchQuery]);
+  }, [simulatedVehicles, activeCategory, searchQuery, activeRegionId, allLines]);
 
   // Sorted board: deterministic order for corridor triage.
   const sortedVehicles = useMemo(() => {
