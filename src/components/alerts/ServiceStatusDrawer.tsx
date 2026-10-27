@@ -524,6 +524,12 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
     }
   };
 
+  useEffect(() => {
+    document
+      .getElementById(`status-tab-${activeMainTab}`)
+      ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [activeMainTab]);
+
   const handleSelectLine = (lineId: string) => {
     selectLine(lineId);
     onClose();
@@ -573,7 +579,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       {t.statusCenter.title}
                     </h2>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 font-mono font-bold">
-                      {stats.onTimePercentage}% {t.common.normal}
+                      {stats.onTimePercentage}% {t.statusCenter.linesNormalShort}
                     </span>
                   </div>
                   <p className="text-xs text-slate-400">
@@ -670,7 +676,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 aria-controls="status-panel-LIVE"
                 tabIndex={activeMainTab === "LIVE" ? 0 : -1}
                 onClick={() => setActiveMainTab("LIVE")}
-                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-t-xl text-[10px] sm:text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 sm:gap-2 ${
                   activeMainTab === "LIVE"
                     ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
                     : "border-transparent text-slate-400 hover:text-slate-200"
@@ -690,7 +696,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 aria-controls="status-panel-HISTORY"
                 tabIndex={activeMainTab === "HISTORY" ? 0 : -1}
                 onClick={() => setActiveMainTab("HISTORY")}
-                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-t-xl text-[10px] sm:text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 sm:gap-2 ${
                   activeMainTab === "HISTORY"
                     ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
                     : "border-transparent text-slate-400 hover:text-slate-200"
@@ -710,7 +716,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                 aria-controls="status-panel-UPTIME"
                 tabIndex={activeMainTab === "UPTIME" ? 0 : -1}
                 onClick={() => setActiveMainTab("UPTIME")}
-                className={`px-4 py-2.5 rounded-t-xl text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-t-xl text-[10px] sm:text-xs font-mono font-bold transition-all border-b-2 flex items-center gap-1.5 sm:gap-2 ${
                   activeMainTab === "UPTIME"
                     ? "border-cyan-400 text-cyan-300 bg-slate-800/80 shadow-md"
                     : "border-transparent text-slate-400 hover:text-slate-200"
@@ -781,7 +787,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                       <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
+                        className={`touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${
                           activeCategory === cat
                             ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
                             : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -830,7 +836,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         key={sev}
                         onClick={() => setSeverityFilter(sev)}
                         aria-pressed={isActive}
-                        className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition border flex items-center gap-1 ${
+                        className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition border flex items-center gap-1 ${
                           isActive
                             ? "bg-cyan-950 border-cyan-500/50 text-cyan-300 shadow-sm"
                             : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -1203,8 +1209,8 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         className="p-3.5 rounded-xl bg-slate-900/85 border border-slate-800 space-y-2 text-xs shadow-md"
                       >
                         {/* Line Header */}
-                        <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between pb-1.5 border-b border-white/5">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-[10px]">
                               [{item.lineCode}] {item.lineName}
                             </span>
@@ -1341,8 +1347,8 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         key={metric.mode}
                         className="p-3.5 rounded-xl bg-slate-900/85 border border-slate-800 space-y-2.5 text-xs shadow-sm"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <strong className="text-white font-bold">{metric.systemName}</strong>
                             <span className="text-[10px] text-slate-400 font-mono">
                               ({metric.totalTrips30Days.toLocaleString()} {t.statusCenter.tripsPerMonth})
@@ -1368,6 +1374,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                               {metric.statusHistory7Days.map((status, sIdx) => (
                                 <div
                                   key={sIdx}
+                                  role="img"
                                   aria-label={`${t.statusCenter.dayOffset}${7 - sIdx}: ${
                                     status === "NORMAL"
                                       ? t.statusCenter.sevNormal
@@ -1456,7 +1463,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                         style={{ top: "calc(16px + (100% - 30px) * 0.33)" }}
                       />
                     </div>
-                    <span className="absolute right-0 text-[10px] font-mono font-bold text-emerald-400" style={{ top: "calc(16px + (100% - 30px) * 0.33 - 12px)" }}>
+                    <span className="absolute right-1 text-[10px] font-mono font-bold text-emerald-400" style={{ top: "calc(16px + (100% - 30px) * 0.33 - 12px)" }}>
                       98%
                     </span>
                     <div className="grid grid-cols-12 gap-1 items-stretch h-24">
@@ -1489,7 +1496,7 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                            }}
                            className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center cursor-pointer group h-full rounded-sm`}
                          >
-                           <span className="h-4 flex items-end text-[10px] font-mono font-bold tabular-nums text-slate-300">
+                           <span className="hidden h-4 sm:flex items-end text-[10px] font-mono font-bold tabular-nums text-slate-300">
                              {m.avgUptime !== null ? `${m.avgUptime.toFixed(1)}%` : "–"}
                            </span>
                            <div className="flex-1 w-full flex items-end">
@@ -1498,12 +1505,10 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                              className={`w-full rounded-t transition-all ${
                                m.avgUptime === null
                                  ? "bg-slate-600"
-                                 : isTapped
-                                 ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
                                  : m.avgUptime >= 98
                                  ? "bg-emerald-500/80 group-hover:bg-emerald-400"
                                  : "bg-amber-500/80 group-hover:bg-amber-400"
-                             }`}
+                             }${isTapped ? " ring-2 ring-inset ring-cyan-300 shadow-lg shadow-cyan-400/50" : ""}`}
                            />
                             </div>
                            <span className="h-[14px] leading-[14px] text-[10px] font-mono text-slate-400 truncate max-w-full">
@@ -1518,6 +1523,9 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                      })}
                    </div>
                   </div>
+                   <div className="sm:hidden text-[10px] font-mono text-slate-500">
+                     {t.statusCenter.tapBarHint}
+                   </div>
                    <div className="text-right text-[10px] font-mono text-slate-500">
                      {t.statusCenter.bandNote}
                    </div>

@@ -850,6 +850,7 @@ export interface TranslationDictionary {
     sevNormal: string;
     noData: string;
     bandNote: string;
+    tapBarHint: string;
     scope30Days: string;
     headwayPrefix: string;
     todayShort: string;
@@ -857,6 +858,7 @@ export interface TranslationDictionary {
     incidentCountLabel: string;
     targetAbove98: string;
     uptimeLabel: string;
+    linesNormalShort: string;
     onTimeShort: string;
     tripsPerMonth: string;
     sevenDayStatus: string;
