@@ -197,7 +197,7 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
             "bg-gradient-to-r from-cyan-950/80 via-slate-950/90 to-cyan-950/70 border-cyan-500/40 text-cyan-200 shadow-lg shadow-cyan-950/30 ring-1 ring-cyan-500/20",
           tagStyle: "bg-cyan-900/80 text-cyan-300 border-cyan-500/40",
           pulseColor: "bg-cyan-500",
-          label: t.common.normal,
+          label: t.statusCenter.sevInfo,
         };
     }
   };
@@ -285,6 +285,10 @@ export const DisruptionAlertBanner: React.FC<DisruptionAlertBannerProps> = ({
 
                 <span className="text-[11px] font-mono font-bold text-slate-300 shrink-0">
                   {activeAlerts.length}
+                </span>
+
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0 ${badgeConfig.tagStyle}`}>
+                  {badgeConfig.label}
                 </span>
 
                 <span className="text-[11px] sm:text-xs font-semibold text-white truncate">
