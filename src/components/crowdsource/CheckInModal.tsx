@@ -192,6 +192,20 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
     [onClose]
   );
 
+  // Document-level Escape: catches focus paths that never bubble through
+  // the panel's React handler (e.g. focus stranded outside the dialog).
+  useEffect(() => {
+    if (!isOpen) return;
+    const onDocKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onDocKeyDown);
+    return () => document.removeEventListener("keydown", onDocKeyDown);
+  }, [isOpen, onClose]);
+
   // Minimal focus trap: wrap Tab cycling inside the modal
   const handleTrapKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "Tab") return;
