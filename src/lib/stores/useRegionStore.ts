@@ -10,7 +10,9 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Line, Region } from "@/types/transit";
+import { useMemo } from "react";
+import type { Line, Region, Stop, Vehicle } from "@/types/transit";
+import { useTransitStore } from "./useTransitStore";
 
 export const JABODETABEK_REGION_ID = "reg-jabodetabek-01";
 
@@ -62,4 +64,35 @@ export function linesInRegion<T extends { regionId: string }>(
 ): T[] {
   if (!regionId) return lines;
   return lines.filter((l) => l.regionId === regionId);
+}
+
+/** Stops served by the given (already region-filtered) lines. */
+export function stopsInRegion<T extends { lineId: string }, L extends { id: string }>(
+  stops: T[],
+  lines: L[]
+): T[] {
+  const lineIds = new Set(lines.map((l) => l.id));
+  return stops.filter((s) => lineIds.has(s.lineId));
+}
+
+/** Region-scoped live lists for map layers, planner inputs, and boards. */
+export function useActiveLines(): Line[] {
+  const allLines = useTransitStore((s) => s.allLines);
+  const regionId = useRegionStore((s) => s.activeRegionId);
+  return useMemo(() => linesInRegion(allLines, regionId), [allLines, regionId]);
+}
+
+export function useActiveStops(): Stop[] {
+  const allStops = useTransitStore((s) => s.allStops);
+  const activeLines = useActiveLines();
+  return useMemo(() => stopsInRegion(allStops, activeLines), [allStops, activeLines]);
+}
+
+export function useActiveVehicles(): Vehicle[] {
+  const vehicles = useTransitStore((s) => s.simulatedVehicles);
+  const activeLines = useActiveLines();
+  return useMemo(() => {
+    const lineIds = new Set(activeLines.map((l) => l.id));
+    return vehicles.filter((v) => lineIds.has(v.lineId));
+  }, [vehicles, activeLines]);
 }

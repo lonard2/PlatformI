@@ -61,6 +61,7 @@ import {
 } from "@/lib/geodesy/curveSmoothing";
 import { WILAYAH_CODES } from "@/lib/geodesy/wilayah";
 import { JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
+import { linesInRegion, useRegionStore } from "@/lib/stores/useRegionStore";
 
 const CATEGORIES: { id: TransitCategory | "ALL"; labelKey: "netCatAll" | "netCatRail" | "netCatBusRoad" | "netCatAviation" | "netCatMaritime"; icon: React.ReactNode }[] = [
   { id: "ALL", labelKey: "netCatAll", icon: <Route className="w-3.5 h-3.5" /> },
@@ -123,6 +124,17 @@ export default function AdminNetworkStudioPage() {
   const { t } = useTranslation();
   const allLines = useTransitStore((state) => state.allLines);
   const allStops = useTransitStore((state) => state.allStops);
+  const activeRegionId = useRegionStore((state) => state.activeRegionId);
+  // Studio boards follow the active region; unregioned legacy rows read as
+  // the home Jabodetabek network so nothing vanishes on upgrade.
+  const regionLines = useMemo(() => {
+    if (!activeRegionId) return allLines;
+    return allLines.filter((l) => (l.regionId || JABODETABEK_REGION.id) === activeRegionId);
+  }, [allLines, activeRegionId]);
+  const regionStops = useMemo(() => {
+    const lineIds = new Set(regionLines.map((l) => l.id));
+    return allStops.filter((s) => lineIds.has(s.lineId));
+  }, [allStops, regionLines]);
   const fetchNetworkData = useTransitStore((state) => state.fetchNetworkData);
   const upsertLine = useTransitStore((state) => state.upsertLine);
   const upsertStop = useTransitStore((state) => state.upsertStop);
@@ -339,7 +351,7 @@ export default function AdminNetworkStudioPage() {
 
   // Filtered lines
   const filteredLines = useMemo(() => {
-    return allLines.filter((line) => {
+    return regionLines.filter((line) => {
       const matchesCategory = activeCategory === "ALL" || line.category === activeCategory;
       const matchesSearch =
         searchQuery.trim() === "" ||
@@ -347,11 +359,11 @@ export default function AdminNetworkStudioPage() {
         line.code.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [allLines, activeCategory, searchQuery]);
+  }, [regionLines, activeCategory, searchQuery]);
 
   // Selected Line reference
   const selectedLine = useMemo(() => {
-    return allLines.find((l) => l.id === selectedLineId) || null;
+    return regionLines.find((l) => l.id === selectedLineId) || null;
   }, [allLines, selectedLineId]);
 
   // Detect unsaved polyline modifications compared to database baseline
@@ -400,7 +412,7 @@ export default function AdminNetworkStudioPage() {
       setTempPlacementCoord([lat, lng]);
       setIsAddStopMode(false);
 
-      const targetLine = selectedLine || allLines[0];
+      const targetLine = selectedLine || regionLines[0];
       const nextSeq = lineStops.length + 1;
       const cleanCode = targetLine
         ? targetLine.code.replace(/[^a-zA-Z0-9]/g, "")
@@ -1199,6 +1211,7 @@ export default function AdminNetworkStudioPage() {
                 name: "",
                 category: "RAIL",
                 mode: "MRT_JAKARTA",
+                regionId: activeRegionId || JABODETABEK_REGION.id,
                 colorHex: "#0284c7",
                 textColorHex: "#ffffff",
                 fareType: "PROGRESSIVE_DISTANCE",
@@ -1777,8 +1790,8 @@ export default function AdminNetworkStudioPage() {
           } md:flex`}
         >
           <DynamicNetworkMap
-            lines={allLines}
-            stops={allStops}
+            lines={regionLines}
+            stops={regionStops}
             selectedLine={selectedLine}
             selectedStop={selectedStop}
             onSelectLine={(l) => {
@@ -2567,7 +2580,7 @@ export default function AdminNetworkStudioPage() {
                   onChange={(e) => setEditingStop({ ...editingStop, lineId: e.target.value })}
                   className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white"
                 >
-                  {allLines.map((l) => (
+                  {regionLines.map((l) => (
                     <option key={l.id} value={l.id}>
                       [{l.code}] {l.name}
                     </option>

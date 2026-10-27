@@ -30,9 +30,11 @@ const HIGH_VOLUME_CONSOLIDATED_MODES = new Set<TransitMode>([
   "MARITIME_PELNI",
 ]);
 
+import { useActiveLines } from "@/lib/stores/useRegionStore";
+
 export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
   const { t } = useTranslation();
-  const allLines = useTransitStore((state) => state.allLines);
+  const allLines = useActiveLines();
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedLineId = useTransitStore((state) => state.selectedLineId);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);

@@ -12,6 +12,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
+import { useActiveStops, useActiveVehicles } from "@/lib/stores/useRegionStore";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { isInsideJabodetabek } from "@/lib/transit/regionBox";
@@ -57,11 +58,11 @@ export function selectVisibleVehicles(vehicles: Vehicle[]): Vehicle[] {
 }
 
 export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
-  const simulatedVehicles = useTransitStore((state) => state.simulatedVehicles);
+  const simulatedVehicles = useActiveVehicles();
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
   const plannedJourney = useTransitStore((state) => state.plannedJourney);
-  const allStops = useTransitStore((state) => state.allStops);
+  const allStops = useActiveStops();
   const selectVehicle = useTransitStore((state) => state.selectVehicle);
   const setHoveredEntity = useTransitStore((state) => state.setHoveredEntity);
 

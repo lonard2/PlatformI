@@ -43,13 +43,14 @@ import { AppSettingsModal } from "@/components/settings/AppSettingsModal";
 import { TransportationSystemBar } from "@/components/navigation/TransportationSystemBar";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { RegionPicker } from "@/components/navigation/RegionPicker";
+import { useActiveLines, useActiveStops } from "@/lib/stores/useRegionStore";
 import { useTranslation } from "@/lib/i18n";
 import { getHighestSeverity } from "@/lib/services/severityRollup";
 
 export default function Home() {
   const { t, formatCurrencyRp } = useTranslation();
-  const allLines = useTransitStore((state) => state.allLines);
-  const allStops = useTransitStore((state) => state.allStops);
+  const allLines = useActiveLines();
+  const allStops = useActiveStops();
   const simulationSpeed = useTransitStore((state) => state.simulationSpeed);
   const activeDrawer = useTransitStore((state) => state.activeDrawer);
   const setActiveDrawer = useTransitStore((state) => state.setActiveDrawer);

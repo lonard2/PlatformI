@@ -13,6 +13,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
+import { useActiveLines, useActiveStops } from "@/lib/stores/useRegionStore";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { StationType, StationScale } from "@/types/transit";
 import { getStationScaleLabel, getStationTypeLabel } from "@/lib/transit/stationLabels";
@@ -43,8 +44,8 @@ function getStationTypeSvg(type: StationType, color: string, size = 12): string 
 
 export function HubMarkerLayer({ map }: HubMarkerLayerProps) {
   const { t } = useTranslation();
-  const allStops = useTransitStore((state) => state.allStops);
-  const allLines = useTransitStore((state) => state.allLines);
+  const allStops = useActiveStops();
+  const allLines = useActiveLines();
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedStopId = useTransitStore((state) => state.selectedStopId);
   const plannedJourney = useTransitStore((state) => state.plannedJourney);
