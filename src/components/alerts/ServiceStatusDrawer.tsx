@@ -1322,101 +1322,6 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                    </div>
                 </div>
 
-                {/* 12-MONTH PROGRESSION TREND BAR CHART */}
-                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 shrink-0">
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-300 font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <BarChart3 className="w-4 h-4 text-cyan-400" />
-                      {t.statusCenter.monthlyTrendTitle}
-                    </span>
-                      <span className="text-[10px] text-emerald-400">{t.statusCenter.targetAbove98}</span>
-                  </div>
-
-                  {/* Bar Chart Visual */}
-                  <div className="grid grid-cols-12 gap-1 items-end h-20 pt-2 border-b border-white/5">
-                    {monthlyTrendAggregates.map((m) => {
-                       const isTapped = selectedTrendMonth === m.monthKey;
-                       const heightPercent =
-                         m.avgUptime !== null
-                           ? Math.max(0, (m.avgUptime - 94) * 16)
-                           : 3;
-
-                       return (
-                         <div
-                           key={m.monthKey}
-                           role="button"
-                           tabIndex={0}
-                           aria-pressed={isTapped}
-                           aria-label={`${m.monthLabel}: ${
-                             m.avgUptime !== null
-                               ? `${t.statusCenter.uptimeLabel} ${m.avgUptime}%`
-                               : t.statusCenter.noData
-                           }`}
-                           onClick={() =>
-                             setSelectedTrendMonth(isTapped ? null : m.monthKey)
-                           }
-                           onKeyDown={(e) => {
-                             if (e.key === "Enter" || e.key === " ") {
-                               e.preventDefault();
-                               setSelectedTrendMonth(isTapped ? null : m.monthKey);
-                             }
-                           }}
-                           className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center gap-1 cursor-pointer group h-full justify-end rounded-sm`}
-                         >
-                           <div
-                             style={{ height: `${heightPercent}%` }}
-                             className={`w-full rounded-t transition-all ${
-                               m.avgUptime === null
-                                 ? "bg-slate-600"
-                                 : isTapped
-                                 ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
-                                 : m.avgUptime >= 98
-                                 ? "bg-emerald-500/80 group-hover:bg-emerald-400"
-                                 : "bg-amber-500/80 group-hover:bg-amber-400"
-                             }`}
-                           />
-                           <span className="text-[10px] font-mono text-slate-400 truncate max-w-full">
-                             {formatMonthName(
-                               language,
-                               parseInt(m.monthKey.split("-")[1] ?? "1", 10) - 1,
-                               "short"
-                             )}
-                           </span>
-                         </div>
-                       );
-                     })}
-                   </div>
-                   <div className="text-right text-[10px] font-mono text-slate-500">
-                     {t.statusCenter.bandNote}
-                   </div>
-
-                  {/* Selected Month Tooltip */}
-                   {selectedTrendMonth &&
-                     (() => {
-                       const selected = monthlyTrendAggregates.find(
-                         (m) => m.monthKey === selectedTrendMonth
-                       );
-                       if (!selected) return null;
-                       return (
-                         <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
-                           <span className="text-white font-bold">{selected.monthLabel}:</span>
-                           {selected.avgUptime !== null ? (
-                             <>
-                               <span className="text-emerald-400">
-                                 {t.statusCenter.uptimeLabel}: {selected.avgUptime}%
-                               </span>
-                               <span className="text-cyan-300">
-                                 {t.statusCenter.onTimeShort}: {selected.avgOtp}%
-                               </span>
-                             </>
-                           ) : (
-                             <span className="text-slate-400">{t.statusCenter.noData}</span>
-                           )}
-                         </div>
-                       );
-                     })()}
-                </div>
-
                 {/* DETAILED MODE-BY-MODE UPTIME LIST WITH 12-MONTH EXPANSION */}
                 <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
                   <div className="text-xs font-mono text-slate-400 px-1">
@@ -1532,6 +1437,118 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                     );
                   })}
                 </div>
+
+                {/* 12-MONTH PROGRESSION TREND BAR CHART */}
+                <div data-testid="uptime-trend-chart" className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 shrink-0">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-300 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <BarChart3 className="w-4 h-4 text-cyan-400" />
+                      {t.statusCenter.monthlyTrendTitle}
+                    </span>
+                      <span className="text-[10px] text-emerald-400">{t.statusCenter.targetAbove98}</span>
+                  </div>
+
+                  {/* Bar Chart Visual with per-bar values and 98% target line */}
+                  <div className="relative">
+                    <div aria-hidden="true" className="absolute left-0 right-0 top-0 bottom-0 pointer-events-none">
+                      <div
+                        className="absolute left-0 right-0 border-t border-dashed border-emerald-400/60"
+                        style={{ top: "calc(16px + (100% - 30px) * 0.33)" }}
+                      />
+                    </div>
+                    <span className="absolute right-0 text-[10px] font-mono font-bold text-emerald-400" style={{ top: "calc(16px + (100% - 30px) * 0.33 - 12px)" }}>
+                      98%
+                    </span>
+                    <div className="grid grid-cols-12 gap-1 items-stretch h-24">
+                    {monthlyTrendAggregates.map((m) => {
+                       const isTapped = selectedTrendMonth === m.monthKey;
+                       const heightPercent =
+                         m.avgUptime !== null
+                           ? Math.max(0, (m.avgUptime - 94) * 16)
+                           : 3;
+
+                       return (
+                         <div
+                           key={m.monthKey}
+                           role="button"
+                           tabIndex={0}
+                           aria-pressed={isTapped}
+                           aria-label={`${m.monthLabel}: ${
+                             m.avgUptime !== null
+                               ? `${t.statusCenter.uptimeLabel} ${m.avgUptime}%`
+                               : t.statusCenter.noData
+                           }`}
+                           onClick={() =>
+                             setSelectedTrendMonth(isTapped ? null : m.monthKey)
+                           }
+                           onKeyDown={(e) => {
+                             if (e.key === "Enter" || e.key === " ") {
+                               e.preventDefault();
+                               setSelectedTrendMonth(isTapped ? null : m.monthKey);
+                             }
+                           }}
+                           className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 flex flex-col items-center cursor-pointer group h-full rounded-sm`}
+                         >
+                           <span className="h-4 flex items-end text-[10px] font-mono font-bold tabular-nums text-slate-300">
+                             {m.avgUptime !== null ? `${m.avgUptime.toFixed(1)}%` : "–"}
+                           </span>
+                           <div className="flex-1 w-full flex items-end">
+                             <div
+                               style={{ height: `${heightPercent}%` }}
+                             className={`w-full rounded-t transition-all ${
+                               m.avgUptime === null
+                                 ? "bg-slate-600"
+                                 : isTapped
+                                 ? "bg-cyan-400 shadow-lg shadow-cyan-400/50"
+                                 : m.avgUptime >= 98
+                                 ? "bg-emerald-500/80 group-hover:bg-emerald-400"
+                                 : "bg-amber-500/80 group-hover:bg-amber-400"
+                             }`}
+                           />
+                            </div>
+                           <span className="h-[14px] leading-[14px] text-[10px] font-mono text-slate-400 truncate max-w-full">
+                             {formatMonthName(
+                               language,
+                               parseInt(m.monthKey.split("-")[1] ?? "1", 10) - 1,
+                               "short"
+                             )}
+                           </span>
+                         </div>
+                       );
+                     })}
+                   </div>
+                  </div>
+                   <div className="text-right text-[10px] font-mono text-slate-500">
+                     {t.statusCenter.bandNote}
+                   </div>
+
+                  {/* Selected Month Tooltip */}
+                   {selectedTrendMonth &&
+                     (() => {
+                       const selected = monthlyTrendAggregates.find(
+                         (m) => m.monthKey === selectedTrendMonth
+                       );
+                       if (!selected) return null;
+                       return (
+                         <div className="p-2 rounded-lg bg-slate-950 border border-cyan-500/40 flex items-center justify-between text-xs font-mono">
+                           <span className="text-white font-bold">{selected.monthLabel}:</span>
+                           {selected.avgUptime !== null ? (
+                             <>
+                               <span className="text-emerald-400">
+                                 {t.statusCenter.uptimeLabel}: {selected.avgUptime}%
+                               </span>
+                               <span className="text-cyan-300">
+                                 {t.statusCenter.onTimeShort}: {selected.avgOtp}%
+                               </span>
+                             </>
+                           ) : (
+                             <span className="text-slate-400">{t.statusCenter.noData}</span>
+                           )}
+                         </div>
+                       );
+                     })()}
+                </div>
+
               </div>
             )}
 
