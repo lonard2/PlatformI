@@ -23,6 +23,7 @@ import {
   Clock,
     MessageSquare,
     Sparkles,
+    ChevronRight,
   } from "lucide-react";
 import { SESSION_ID, isSpotlit, markSpotlit } from "@/lib/session";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -32,12 +33,14 @@ import { useTranslation } from "@/lib/i18n";
 interface CommunityLiveFeedProps {
   onOpenCheckIn: (vehicleId?: string, lineId?: string) => void;
   refreshSignal?: number;
+  onVehicleLocate?: () => void;
   className?: string;
 }
 
 export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
   onOpenCheckIn,
   refreshSignal,
+  onVehicleLocate,
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -295,11 +298,16 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
                 key={item.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => selectVehicle(item.vehicleId)}
+                aria-label={`${item.vehicleCode} ${t.common.viewOnMap}`}
+                onClick={() => {
+                  selectVehicle(item.vehicleId);
+                  onVehicleLocate?.();
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     selectVehicle(item.vehicleId);
+                    onVehicleLocate?.();
                   }
                 }}
                 className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 p-3 rounded-xl border transition cursor-pointer space-y-2 shadow-sm ${
@@ -359,6 +367,12 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
                     <span>&ldquo;{item.note}&rdquo;</span>
                   </div>
                 )}
+                <div className="flex items-center justify-end pt-0.5" aria-hidden="true">
+                  <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-0.5">
+                    {t.common.viewOnMap}
+                    <ChevronRight className="w-3 h-3" />
+                  </span>
+                </div>
               </div>
             );
           })

@@ -1197,7 +1197,7 @@ export default function Home() {
               >
                 <X className="w-4 h-4" />
               </button>
-              <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} />
+              <CommunityLiveFeed onOpenCheckIn={handleOpenCheckIn} refreshSignal={feedRefreshSignal} onVehicleLocate={() => setActiveDrawer(null)} />
             </motion.div>
           )}
         </AnimatePresence>
