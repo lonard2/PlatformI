@@ -24,6 +24,7 @@ import {
   RotateCcw,
   Trash2,
   CircleAlert,
+  Users,
 } from "lucide-react";
 import {
   Vehicle,
@@ -44,6 +45,7 @@ import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { recordShiftAction } from "@/lib/services/shiftLogService";
+import type { FormattedFeedItem } from "@/app/api/crowdsource/feed/route";
 
 interface PendingFleetUndo {
   vehicleId: string;
@@ -316,12 +318,50 @@ function FleetManagementContent() {
   // Post-deploy identity draft: re-seeded whenever a different vehicle opens.
   const [identityDraft, setIdentityDraft] = useState<IdentityDraft | null>(null);
   const [photoDraft, setPhotoDraft] = useState({ url: "", caption: "", credit: "", tag: "" });
+  // Community moderation queue: real DB reports only (synthetic seed feed
+  // items are ephemeral and never moderated).
+  const [feedItems, setFeedItems] = useState<FormattedFeedItem[]>([]);
+  const [feedError, setFeedError] = useState<string | null>(null);
 
   useEffect(() => {
     setIdentityDraft(selectedVehicle ? identityFromVehicle(selectedVehicle) : null);
     setPhotoDraft({ url: "", caption: "", credit: "", tag: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicle?.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/crowdsource/feed?limit=20");
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || "Feed unavailable");
+        const items = (json.feed || []) as FormattedFeedItem[];
+        if (!cancelled) {
+          setFeedItems(items.filter((i) => !i.id.startsWith("SEED-REPORT-") && i.userId !== "seed"));
+        }
+      } catch (err) {
+        if (!cancelled) setFeedError(err instanceof Error ? err.message : "Feed unavailable");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleRemoveReport = async (reportId: string): Promise<void> => {
+    setFeedError(null);
+    try {
+      const res = await fetch(`/api/crowdsource/checkin?id=${encodeURIComponent(reportId)}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to remove report");
+      setFeedItems((prev) => prev.filter((i) => i.id !== reportId));
+    } catch (err) {
+      setFeedError(err instanceof Error ? err.message : "Failed to remove report");
+    }
+  };
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   // Board truth: explicit pull with visible state — never a silent merge.
@@ -2500,6 +2540,44 @@ function FleetManagementContent() {
             </tbody>
           </table>
         </div>
+        )}
+      </div>
+      {/* 3b. COMMUNITY CHECK-IN MODERATION QUEUE */}
+      <div data-testid="occ-community-feed" className="rounded-2xl bg-slate-900/80 border border-white/10 p-4 sm:p-5 space-y-3">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+          <Users className="w-4 h-4 text-cyan-400" />
+          <h3 className="text-sm font-bold text-white">{t.admin.fleetCommunityTitle}</h3>
+          <span className="text-[10px] font-mono text-slate-500">{feedItems.length}</span>
+        </div>
+        {feedError && (
+          <p role="alert" className="text-xs text-rose-300 font-mono">{feedError}</p>
+        )}
+        {feedItems.length === 0 ? (
+          <p className="text-xs text-slate-500 font-mono">{t.admin.fleetCommunityEmpty}</p>
+        ) : (
+          <ul className="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
+            {feedItems.map((item) => (
+              <li key={item.id} className="flex items-center justify-between gap-2 rounded-xl bg-slate-950/60 border border-white/5 px-3 py-2">
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-200 truncate font-mono">
+                    <span className="font-bold text-cyan-300">{item.vehicleCode}</span>
+                    {" "}{item.crowdLevel} • {item.acComfort}
+                  </p>
+                  <p className="text-[10px] text-slate-500 truncate">
+                    {item.note || item.userId} • {item.lineCode}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { void handleRemoveReport(item.id); }}
+                  aria-label={`${t.admin.fleetCommunityRemove} ${item.note || item.id}`}
+                  className="px-2.5 py-2 rounded-lg text-rose-300/80 hover:text-rose-200 hover:bg-rose-950/60 text-[11px] font-semibold transition shrink-0 min-h-[36px]"
+                >
+                  {t.admin.fleetCommunityRemove}
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       {/* 4. DETAIL INSPECTOR DRAWER / MODAL */}

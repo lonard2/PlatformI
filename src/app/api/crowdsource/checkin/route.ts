@@ -1,6 +1,7 @@
 /**
  * PlatformI - Commuter Crowdsourcing Check-In API Endpoint
- * POST /api/crowdsource/checkin
+ * POST /api/crowdsource/checkin — submit a crowd report.
+ * DELETE /api/crowdsource/checkin?id= — OCC moderation removal.
  *
  * Implements:
  * - Persisting commuter crowd density (Level 1-4) & AC comfort rating to SQLite
@@ -168,6 +169,41 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       { error: "Failed to submit crowdsource check-in", details: (err as Error).message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Missing required query parameter: id" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.crowdsourceCheckIn.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, error: `Check-in '${id}' not found` },
+        { status: 404 }
+      );
+    }
+
+    await db.crowdsourceCheckIn.delete({ where: { id } });
+    return NextResponse.json({
+      success: true,
+      message: `Check-in '${id}' removed`,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: err instanceof Error ? err.message : "Failed to delete check-in",
+      },
       { status: 500 }
     );
   }
