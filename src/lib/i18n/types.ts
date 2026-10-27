@@ -1113,6 +1113,9 @@ export interface TranslationDictionary {
     youChip: string;
     feedStaleNotice: string;
     selectVehiclePlaceholder: string;
+    matchCount: string;
+    clearScope: string;
+    noVehicleMatch: string;
   };
   journey: {
     journeyDirect: string;

@@ -1089,6 +1089,9 @@ export const zh: TranslationDictionary = {
     youChip: "你",
     feedStaleNotice: "连接问题 - 显示最后收到的报告",
     selectVehiclePlaceholder: "选择车辆",
+    matchCount: "{n} 辆车",
+    clearScope: "清除线路筛选",
+    noVehicleMatch: "没有匹配的车辆",
   },
   journey: {
     journeyDirect: "直达路线",

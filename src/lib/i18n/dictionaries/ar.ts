@@ -1089,6 +1089,9 @@ export const ar: TranslationDictionary = {
     youChip: "أنت",
     feedStaleNotice: "مشكلة في الاتصال - عرض أحدث التقارير",
     selectVehiclePlaceholder: "اختر المركبة",
+    matchCount: "{n} مركبة",
+    clearScope: "مسح مرشح الخط",
+    noVehicleMatch: "لا توجد مركبات مطابقة",
   },
   journey: {
     journeyDirect: "مسار مباشر",

@@ -1089,6 +1089,9 @@ export const ja: TranslationDictionary = {
     youChip: "あなた",
     feedStaleNotice: "接続エラー - 最後のレポートを表示中",
     selectVehiclePlaceholder: "車両を選択",
+    matchCount: "{n}台の車両",
+    clearScope: "路線フィルターをクリア",
+    noVehicleMatch: "一致する車両がありません",
   },
   journey: {
     journeyDirect: "直通ルート",

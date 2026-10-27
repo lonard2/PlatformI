@@ -156,6 +156,9 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
   const [isDockedViewport, setIsDockedViewport] = useState<boolean>(false);
+  const [listOpen, setListOpen] = useState<boolean>(false);
+  const [activeIdx, setActiveIdx] = useState<number>(0);
+  const [scopeCleared, setScopeCleared] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -233,6 +236,9 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
       setTargetVehicleId(activeId);
       setVehicleSearch("");
       setIsSubmitted(false);
+      setScopeCleared(false);
+      setListOpen(false);
+      setActiveIdx(0);
       setErrorMessage(null);
       setNote("");
       // Prefill density/AC from the target vehicle's current live values
@@ -261,20 +267,58 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   }, []);
 
   const currentVehicle = simulatedVehicles.find((v) => v.id === targetVehicleId);
+  const allLines = useTransitStore((state) => state.allLines);
+  const scopeLine = initialLineId
+    ? allLines.find((l) => l.id === initialLineId)
+    : undefined;
 
   // Fleet list scoped by feed line filter (when opened from the feed) and
   // by the commuter's search text
   const candidateVehicles = React.useMemo(() => {
     const query = vehicleSearch.trim().toLowerCase();
     return simulatedVehicles.filter((v) => {
-      if (initialLineId && v.lineId !== initialLineId) return false;
+      if (initialLineId && !scopeCleared && v.lineId !== initialLineId) return false;
       if (!query) return true;
       return (
         v.vehicleCode.toLowerCase().includes(query) ||
         v.name.toLowerCase().includes(query)
       );
     });
-  }, [simulatedVehicles, initialLineId, vehicleSearch]);
+  }, [simulatedVehicles, initialLineId, vehicleSearch, scopeCleared]);
+
+  const activeOption =
+    candidateVehicles.length > 0
+      ? candidateVehicles[Math.min(activeIdx, candidateVehicles.length - 1)]
+      : undefined;
+
+  const chooseVehicle = (vehicleId: string) => {
+    setTargetVehicleId(vehicleId);
+    setVehicleSearch("");
+    setListOpen(false);
+    setErrorMessage(null);
+  };
+
+  const handleComboKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setListOpen(true);
+      setActiveIdx((i) => Math.min(i + 1, Math.max(candidateVehicles.length - 1, 0)));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIdx((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" && listOpen && activeOption) {
+      e.preventDefault();
+      chooseVehicle(activeOption.id);
+    } else if (e.key === "Escape" && listOpen) {
+      e.stopPropagation();
+      setListOpen(false);
+    }
+  };
+
+  // Keep the highlighted option inside the filtered list
+  useEffect(() => {
+    setActiveIdx((i) => Math.min(i, Math.max(candidateVehicles.length - 1, 0)));
+  }, [candidateVehicles.length]);
 
   const handleSubmit = async () => {
     if (!targetVehicleId) {
@@ -500,36 +544,84 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
                   )}
                 </label>
 
+                {initialLineId && !scopeCleared && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setScopeCleared(true)}
+                      aria-label={t.crowdsource.clearScope}
+                      className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[10px] font-mono font-bold transition hover:bg-cyan-950"
+                    >
+                      <span className="truncate max-w-[180px]">
+                        {scopeLine ? `${scopeLine.code} · ${scopeLine.name}` : initialLineId}
+                      </span>
+                      <X className="w-3 h-3 shrink-0" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="text-[10px] font-mono text-slate-500" aria-live="polite">
+                  {t.crowdsource.matchCount.replace("{n}", String(candidateVehicles.length))}
+                </div>
+
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={vehicleSearch}
-                    onChange={(e) => setVehicleSearch(e.target.value)}
-                    placeholder={t.common.search}
-                    aria-label={t.crowdsource.targetVehicle}
+                    onChange={(e) => {
+                      setVehicleSearch(e.target.value);
+                      setListOpen(true);
+                      setActiveIdx(0);
+                    }}
+                    onFocus={() => setListOpen(true)}
+                    onKeyDown={handleComboKeyDown}
+                    role="combobox"
+                    aria-expanded={listOpen}
+                    aria-controls="checkin-vehicle-listbox"
+                    aria-activedescendant={activeOption ? `checkin-vehicle-opt-${activeOption.id}` : undefined}
+                    id="checkin-vehicle"
+                    placeholder={t.crowdsource.selectVehiclePlaceholder}
                     className={`touch-target w-full pl-9 pr-3 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition`}
                   />
+                  {listOpen && (
+                    <ul
+                      id="checkin-vehicle-listbox"
+                      role="listbox"
+                      aria-label={t.crowdsource.targetVehicle}
+                      className="absolute left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl shadow-black/60 py-1 z-10"
+                    >
+                      {candidateVehicles.length === 0 ? (
+                        <li className="px-3 py-2 text-xs text-slate-500">
+                          {t.crowdsource.noVehicleMatch}
+                        </li>
+                      ) : (
+                        candidateVehicles.map((v, idx) => (
+                          <li
+                            key={v.id}
+                            id={`checkin-vehicle-opt-${v.id}`}
+                            role="option"
+                            aria-selected={v.id === targetVehicleId}
+                            onClick={() => chooseVehicle(v.id)}
+                            onMouseEnter={() => setActiveIdx(idx)}
+                            className={`px-3 py-2 text-xs cursor-pointer flex items-center justify-between gap-2 ${
+                              idx === activeIdx
+                                ? "bg-cyan-950/80 text-cyan-200"
+                                : "text-slate-200"
+                            }`}
+                          >
+                            <span>
+                              [{v.vehicleCode}] {v.name}
+                            </span>
+                            {v.id === targetVehicleId && (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            )}
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
                 </div>
-
-                                 <select
-                   id="checkin-vehicle"
-                   value={targetVehicleId}
-                  onChange={(e) => {
-                    setTargetVehicleId(e.target.value);
-                    setErrorMessage(null);
-                  }}
-                                     className={`touch-target w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus-visible:ring-2 focus-visible:ring-cyan-400/70 transition`}
-                >
-                  <option value="" disabled>
-                    {t.crowdsource.selectVehiclePlaceholder}
-                  </option>
-                  {candidateVehicles.map((v) => (
-                    <option key={v.id} value={v.id} className="bg-slate-900 text-slate-200">
-                      [{v.vehicleCode}] {v.name}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               {/* 2. Crowd Density Rating (4 Levels) */}

@@ -1089,6 +1089,9 @@ export const en: TranslationDictionary = {
     youChip: "You",
     feedStaleNotice: "Connection issue - showing last known reports",
     selectVehiclePlaceholder: "Select vehicle",
+    matchCount: "{n} vehicles",
+    clearScope: "Clear line scope",
+    noVehicleMatch: "No vehicles match your search",
   },
   journey: {
     journeyDirect: "Direct Route",

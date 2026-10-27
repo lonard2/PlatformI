@@ -70,7 +70,7 @@ describe("crowd submit validation", () => {
     expect(post).not.toHaveBeenCalled();
   });
 
-  it("error clears once a vehicle is chosen in the dropdown", async () => {
+  it("error clears once a vehicle is chosen in the combobox", async () => {
     stubCheckin(true);
     useTransitStore.setState({
       simulatedVehicles: [
@@ -95,12 +95,12 @@ describe("crowd submit validation", () => {
       screen.getByRole("button", { name: "Submit Vehicle Check-In" })
     );
     await screen.findByRole("alert");
-    fireEvent.change(
-      screen.getByRole("combobox", { name: "Target Transit Vehicle" }),
-      {
-        target: { value: "veh-1" },
-      }
-    );
+    const box = screen.getByRole("combobox", {
+      name: /Target Transit Vehicle/,
+    });
+    fireEvent.focus(box);
+    fireEvent.change(box, { target: { value: "TS-01" } });
+    fireEvent.click(screen.getByRole("option", { name: /TS-01/ }));
     expect(screen.queryByRole("alert")).toBeNull();
   });
 

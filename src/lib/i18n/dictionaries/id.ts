@@ -1089,6 +1089,9 @@ export const id: TranslationDictionary = {
     youChip: "Anda",
     feedStaleNotice: "Masalah koneksi - menampilkan laporan terakhir",
     selectVehiclePlaceholder: "Pilih kendaraan",
+    matchCount: "{n} kendaraan",
+    clearScope: "Hapus filter lini",
+    noVehicleMatch: "Tidak ada kendaraan yang cocok",
   },
   journey: {
     journeyDirect: "Rute Langsung",

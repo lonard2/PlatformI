@@ -1089,6 +1089,9 @@ export const ko: TranslationDictionary = {
     youChip: "나",
     feedStaleNotice: "연결 문제 - 마지막 보고 표시 중",
     selectVehiclePlaceholder: "차량 선택",
+    matchCount: "차량 {n}대",
+    clearScope: "노선 필터 지우기",
+    noVehicleMatch: "일치하는 차량이 없습니다",
   },
   journey: {
     journeyDirect: "직통 노선",
