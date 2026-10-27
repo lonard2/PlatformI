@@ -14,6 +14,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import {
   useRegionStore,
+  useActiveRegion,
   groupRegionsByCountry,
 } from "@/lib/stores/useRegionStore";
 import type { Region } from "@/types/transit";
@@ -35,25 +36,14 @@ export function RegionPicker({ variant = "full" }: { variant?: "full" | "compact
   const selectStop = useTransitStore((s) => s.selectStop);
   const selectLine = useTransitStore((s) => s.selectLine);
   const clearPlannedJourney = useTransitStore((s) => s.clearPlannedJourney);
-  const [regions, setRegions] = useState<RegionRow[]>([]);
+  const regions = useRegionStore((s) => s.regions);
+  const loadRegions = useRegionStore((s) => s.loadRegions);
   const [open, setOpen] = useState<boolean>(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/network/regions");
-        const json = await res.json();
-        if (!cancelled && res.ok && json.success) setRegions(json.data || []);
-      } catch {
-        // Picker keeps the persisted active region when the list is unreachable.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void loadRegions();
+  }, [loadRegions]);
 
   useEffect(() => {
     if (!open) return;
@@ -73,7 +63,7 @@ export function RegionPicker({ variant = "full" }: { variant?: "full" | "compact
     };
   }, [open ]);
 
-  const active = regions.find((r) => r.id === activeRegionId);
+  const active = useActiveRegion();
   const groups = groupRegionsByCountry(regions);
 
   const choose = (region: RegionRow): void => {

@@ -13,6 +13,8 @@ import L from "leaflet";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
 import { useTranslation } from "@/lib/i18n";
 import { useActiveStops, useActiveVehicles } from "@/lib/stores/useRegionStore";
+import { useActiveRegion } from "@/lib/stores/useRegionStore";
+import { isVehicleVisibleInRegion } from "@/lib/geodesy/regionClip";
 import { journeyHasRoute } from "@/lib/services/journeyPlanner";
 import { TRANSIT_MODE_CONFIG } from "@/lib/constants/modes";
 import { isInsideJabodetabek } from "@/lib/transit/regionBox";
@@ -59,6 +61,8 @@ export function selectVisibleVehicles(vehicles: Vehicle[]): Vehicle[] {
 
 export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
   const simulatedVehicles = useActiveVehicles();
+  const activeRegion = useActiveRegion();
+  const activeBoundary = activeRegion?.boundaryCoordinates ?? [];
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
   const plannedJourney = useTransitStore((state) => state.plannedJourney);
@@ -246,6 +250,21 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
         continue;
       }
 
+      // Gateway vehicles show only inside the active region; schematic
+      // tails to far cities never get markers.
+      if (
+        !isVehicleVisibleInRegion(
+          {
+            mode: vehicle.mode,
+            currentLatitude: vehicle.currentLatitude,
+            currentLongitude: vehicle.currentLongitude,
+          },
+          activeBoundary
+        )
+      ) {
+        continue;
+      }
+
       activeVehicleIds.add(vehicle.id);
       const isSelected = selectedVehicleId === vehicle.id;
       const modeConfig = TRANSIT_MODE_CONFIG[vehicle.mode];
@@ -391,6 +410,7 @@ export function VehicleMarkerLayer({ map }: VehicleMarkerLayerProps) {
   }, [
     map,
     simulatedVehicles,
+    activeBoundary,
     selectedModes,
     selectedVehicleId,
     plannedJourney,

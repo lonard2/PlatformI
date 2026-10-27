@@ -19,7 +19,7 @@ export const JABODETABEK_REGION_ID = "reg-jabodetabek-01";
 interface RegionStoreState {
   activeRegionId: string | null;
   setActiveRegion: (regionId: string | null) => void;
-  regions: Region[];
+  regions: Array<Region & { lineCount?: number }>;
   regionsLoaded: boolean;
   loadRegions: () => Promise<void>;
 }

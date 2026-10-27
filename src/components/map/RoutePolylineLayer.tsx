@@ -31,10 +31,14 @@ const HIGH_VOLUME_CONSOLIDATED_MODES = new Set<TransitMode>([
 ]);
 
 import { useActiveLines } from "@/lib/stores/useRegionStore";
+import { useActiveRegion } from "@/lib/stores/useRegionStore";
+import { gatewayVisibleSegments } from "@/lib/geodesy/regionClip";
 
 export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
   const { t } = useTranslation();
   const allLines = useActiveLines();
+  const activeRegion = useActiveRegion();
+  const activeBoundary = activeRegion?.boundaryCoordinates ?? [];
   const selectedModes = useTransitStore((state) => state.selectedModes);
   const selectedLineId = useTransitStore((state) => state.selectedLineId);
   const selectedVehicleId = useTransitStore((state) => state.selectedVehicleId);
@@ -87,12 +91,17 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
         }
       }
 
-      const coords: L.LatLngExpression[] = line.polylineCoordinates.map((c) => [
-        c.latitude,
-        c.longitude,
-      ]);
+      // Gateway modes draw only their in-region segments; schematic tails
+      // to far cities stay off the map. Full corridors render whole.
+      const segments = gatewayVisibleSegments(line, activeBoundary)
+        .map((seg) =>
+          seg.map(
+            (c) => [c.latitude, c.longitude] as [number, number]
+          )
+        )
+        .filter((seg) => seg.length >= 2);
 
-      if (coords.length < 2) continue;
+      if (segments.length === 0) continue;
 
       const modeConfig = TRANSIT_MODE_CONFIG[line.mode];
       const isSelected = isLineExplicitlySelected || isVehicleOnThisLineSelected;
@@ -107,27 +116,30 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
         dashArray = "8, 6";
       }
 
-      // Outer glow for selected line
+      // Outer glow + main polylines per visible segment
       if (isSelected) {
-        const glowPolyline = L.polyline(coords, {
-          color: line.colorHex,
-          weight: 10,
-          opacity: 0.4,
-          lineCap: "round",
-          lineJoin: "round",
-        });
-        glowPolyline.addTo(layerGroup);
+        for (const coords of segments) {
+          const glowPolyline = L.polyline(coords, {
+            color: line.colorHex,
+            weight: 10,
+            opacity: 0.4,
+            lineCap: "round",
+            lineJoin: "round",
+          });
+          glowPolyline.addTo(layerGroup);
+        }
       }
 
-      // Main route polyline
-      const polyline = L.polyline(coords, {
-        color: line.colorHex,
-        weight: isSelected ? 6 : isHovered ? 5 : isDimmed ? 2 : 3.5,
-        opacity: isSelected ? 1.0 : isHovered ? 0.95 : isDimmed ? 0.2 : 0.75,
-        lineCap: "round",
-        lineJoin: "round",
-        dashArray,
-      });
+      for (const coords of segments) {
+        // Main route polyline
+        const polyline = L.polyline(coords, {
+          color: line.colorHex,
+          weight: isSelected ? 6 : isHovered ? 5 : isDimmed ? 2 : 3.5,
+          opacity: isSelected ? 1.0 : isHovered ? 0.95 : isDimmed ? 0.2 : 0.75,
+          lineCap: "round",
+          lineJoin: "round",
+          dashArray,
+        });
 
       // Tooltip content
       const tooltipContent = `
@@ -174,11 +186,13 @@ export function RoutePolylineLayer({ map }: RoutePolylineLayerProps) {
         selectLine(line.id);
       });
 
-      polyline.addTo(layerGroup);
+        polyline.addTo(layerGroup);
+      }
     }
   }, [
     map,
     allLines,
+    activeBoundary,
     selectedModes,
     selectedLineId,
     selectedVehicleId,
