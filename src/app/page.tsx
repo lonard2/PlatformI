@@ -1303,6 +1303,12 @@ export default function Home() {
       <ServiceStatusDrawer
         isOpen={activeDrawer === "alerts"}
         onClose={() => setActiveDrawer(null)}
+        onPlanAlternate={(origin) => {
+          setActiveDrawer(null);
+          setJourneyOrigin(origin);
+          setJourneyDest("");
+          setIsJourneyExpanded(true);
+        }}
       />
 
       {/* App Settings Modal */}

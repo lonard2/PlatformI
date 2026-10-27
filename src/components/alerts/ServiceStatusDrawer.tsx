@@ -58,6 +58,8 @@ import {
 export interface ServiceStatusDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Prefill the journey planner from an affected stop and open it. */
+  onPlanAlternate?: (originStopName: string) => void;
 }
 
 type MainTab = "LIVE" | "HISTORY" | "UPTIME";
@@ -91,6 +93,7 @@ function formatMonthName(
 export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   isOpen,
   onClose,
+  onPlanAlternate,
 }) => {
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
 
@@ -983,6 +986,27 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
                                         <strong>{alert.affectedStops.join(", ")}</strong>
                                       </div>
                                     )}
+                                    <div className="flex items-center gap-2 pt-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectLine(line.id)}
+                                        className="touch-target px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 hover:text-white hover:border-slate-500 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                                      >
+                                        {t.common.viewOnMap}
+                                      </button>
+                                      {onPlanAlternate && alert.affectedStops && alert.affectedStops.length > 0 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const first = alert.affectedStops[0].trim();
+                                            if (first) onPlanAlternate(first);
+                                          }}
+                                          className="touch-target px-2.5 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/60 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
+                                        >
+                                          {t.statusCenter.planAlternate}
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
                                 ))
                               )}

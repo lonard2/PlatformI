@@ -778,6 +778,7 @@ export const ko: TranslationDictionary = {
     title: "운행 관제 및 정시율 분석 센터",
     subtitle: "전 노선 실시간 운행 현황, 장애 이력 및 장기 가동률 통계",
     tabLive: "실시간 상황",
+    planAlternate: "대체 경로 계획",
     emptyRegion: "이 지역에는 아직 서비스 상태가 없습니다.",
     tabHistory: "운행 장애 캘린더",
     tabUptime: "가동률 & 정시율 분석",
