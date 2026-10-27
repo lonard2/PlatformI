@@ -306,7 +306,7 @@ export default function Home() {
       {/* 0. COMPACT MOBILE TOP BAR (mobile only; desktop uses the full header) */}
       <div
         data-testid="compact-topbar"
-        className="sm:hidden relative flex h-12 items-center justify-between gap-1 px-3 border-b border-white/10 glass-panel shrink-0 z-30"
+        className="sm:hidden relative flex h-12 items-center justify-between gap-1 px-3 border-b border-white/10 glass-panel shrink-0 z-40"
       >
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="w-6 h-6 rounded-lg bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 flex items-center justify-center shrink-0">
@@ -444,7 +444,7 @@ export default function Home() {
       </div>
 
       {/* 1. TOP PASSENGER HEADER (DESKTOP & TABLET ONLY) */}
-      <header className="hidden sm:flex h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-30 shrink-0">
+      <header className="hidden sm:flex h-14 border-b border-white/10 glass-panel px-3 sm:px-6 items-center justify-between z-40 shrink-0">
         {/* Left Brand */}
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-cyan-500/15 flex items-center justify-center border border-cyan-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
