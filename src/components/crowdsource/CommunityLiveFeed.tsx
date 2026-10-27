@@ -43,7 +43,19 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
   onVehicleLocate,
   className = "",
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const localeTag =
+    language === "id"
+      ? "id-ID"
+      : language === "ja"
+        ? "ja-JP"
+        : language === "zh"
+          ? "zh-CN"
+          : language === "ko"
+            ? "ko-KR"
+            : language === "ar"
+              ? "ar-EG"
+              : "en-GB";
   const allLines = useTransitStore((state) => state.allLines);
   const selectVehicle = useTransitStore((state) => state.selectVehicle);
 
@@ -212,7 +224,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
             <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
               {t.crowdsource.liveFeedTitle}
               <span
-                className={`w-2 h-2 rounded-full ${isStale ? "bg-amber-400" : "bg-emerald-400 animate-pulse"}`}
+                className={`w-2 h-2 rounded-full ${isStale ? "bg-amber-400" : "bg-emerald-400 animate-pulse motion-reduce:animate-none"}`}
                 aria-hidden="true"
               ></span>
             </h3>
@@ -386,7 +398,7 @@ export const CommunityLiveFeed: React.FC<CommunityLiveFeedProps> = ({
           <span className="truncate">{isStale ? t.crowdsource.feedStaleNotice : t.crowdsource.decayNote}</span>
         </span>
         <span>
-          {t.crowdsource.updatedPrefix} {lastRefreshedAt.toLocaleTimeString("id-ID", { hour12: false })}
+          {t.crowdsource.updatedPrefix} {lastRefreshedAt.toLocaleTimeString(localeTag, { hour12: false })}
         </span>
       </div>
     </div>
