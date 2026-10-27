@@ -1354,6 +1354,9 @@ export interface TranslationDictionary {
     fleetSubtitle: string;
     fleetTotalTrainsets: string;
     fleetBusRun: string;
+    fleetSaveIdentity: string;
+    fleetIdentityUpdated: string;
+    shiftLogTemplateFleetIdentity: string;
     fleetIdentityTitle: string;
     alertsSubtitle: string;
     scannerSubtitle: string;

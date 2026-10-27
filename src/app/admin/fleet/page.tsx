@@ -48,7 +48,7 @@ import { recordShiftAction } from "@/lib/services/shiftLogService";
 interface PendingFleetUndo {
   vehicleId: string;
   vehicleCode: string;
-  field: "status" | "crowdLevel" | "add" | "speed" | "delete" | "bulk";
+  field: "status" | "crowdLevel" | "add" | "speed" | "delete" | "bulk" | "identity";
   previous?: VehicleOperationalStatus | CrowdDensityLevel;
   previousSpeedKmh?: number;
   previousVehicle?: Vehicle;
@@ -66,6 +66,32 @@ interface PendingFleetUndo {
 
 /** Field edits tolerate a short undo window; add/delete get a longer one. */
 const UNDO_WINDOW_MS = 5000;
+
+interface IdentityDraft {
+  runNumber: string;
+  trainsetNumber: string;
+  totalTrainsets: string;
+  carFormation: string;
+  depotHome: string;
+  fleetNumber: string;
+  busRunNumber: string;
+  licensePlate: string;
+  operatorName: string;
+}
+
+function identityFromVehicle(v: Vehicle): IdentityDraft {
+  return {
+    runNumber: v.runNumber ?? "",
+    trainsetNumber: v.trainsetNumber ?? "",
+    totalTrainsets: v.totalTrainsets !== undefined ? String(v.totalTrainsets) : "",
+    carFormation: v.carFormation ?? "",
+    depotHome: v.depotHome ?? "",
+    fleetNumber: v.fleetNumber ?? "",
+    busRunNumber: v.busRunNumber ?? "",
+    licensePlate: v.licensePlate ?? "",
+    operatorName: v.operatorName ?? "",
+  };
+}
 const DESTRUCTIVE_UNDO_WINDOW_MS = 15000;
 
 interface FailedFleetSync {
@@ -287,6 +313,13 @@ function FleetManagementContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  // Post-deploy identity draft: re-seeded whenever a different vehicle opens.
+  const [identityDraft, setIdentityDraft] = useState<IdentityDraft | null>(null);
+
+  useEffect(() => {
+    setIdentityDraft(selectedVehicle ? identityFromVehicle(selectedVehicle) : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVehicle?.id]);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   // Board truth: explicit pull with visible state — never a silent merge.
@@ -693,6 +726,79 @@ function FleetManagementContent() {
         return next;
       });
     }
+  };
+
+  // Post-deploy identity correction: the nine static fields are editable
+  // after deployment, persisted via PUT, and covered by the undo family.
+  const handleSaveIdentity = (vehicle: Vehicle): void => {
+    if (!identityDraft) return;
+    const total = identityDraft.totalTrainsets.trim()
+      ? Number(identityDraft.totalTrainsets)
+      : undefined;
+    const updated: Vehicle = {
+      ...vehicle,
+      runNumber: identityDraft.runNumber.trim() || undefined,
+      trainsetNumber: identityDraft.trainsetNumber.trim() || undefined,
+      totalTrainsets: total,
+      carFormation: identityDraft.carFormation.trim() || undefined,
+      depotHome: identityDraft.depotHome.trim() || undefined,
+      fleetNumber: identityDraft.fleetNumber.trim() || undefined,
+      busRunNumber: identityDraft.busRunNumber.trim() || undefined,
+      licensePlate: identityDraft.licensePlate.trim() || undefined,
+      operatorName: identityDraft.operatorName.trim() || undefined,
+    };
+    updateSingleVehicle(updated);
+    if (selectedVehicle?.id === vehicle.id) {
+      setSelectedVehicle(updated);
+    }
+
+    fetch("/api/fleet/vehicles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        runNumber: updated.runNumber,
+        trainsetNumber: updated.trainsetNumber,
+        totalTrainsets: updated.totalTrainsets,
+        carFormation: updated.carFormation,
+        depotHome: updated.depotHome,
+        fleetNumber: updated.fleetNumber,
+        busRunNumber: updated.busRunNumber,
+        licensePlate: updated.licensePlate,
+        operatorName: updated.operatorName,
+      }),
+    }).catch(() => {
+      reportSyncFailure({
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        kind: "update",
+        update: {
+          vehicleCode: vehicle.vehicleCode,
+          runNumber: updated.runNumber,
+          licensePlate: updated.licensePlate,
+        },
+      });
+    });
+
+    recordShiftAction({
+      actionType: "FLEET_IDENTITY",
+      summary: `${vehicle.vehicleCode}: identity updated`,
+      badge: vehicle.vehicleCode,
+      params: { code: vehicle.vehicleCode },
+    });
+    setPendingUndos((prev) => {
+      const next = new Map(prev);
+      next.set(vehicle.id, {
+        vehicleId: vehicle.id,
+        vehicleCode: vehicle.vehicleCode,
+        field: "identity",
+        previousVehicle: vehicle,
+        label: t.admin.fleetIdentityUpdated.replace("{code}", vehicle.vehicleCode),
+        expiry: Date.now() + UNDO_WINDOW_MS,
+      });
+      return next;
+    });
   };
 
   const handleUpdateCrowd = (
@@ -1401,6 +1507,55 @@ function FleetManagementContent() {
               vehicleCode: current.vehicleCode,
               kind: "update",
               update: { vehicleCode: current.vehicleCode, crowdLevel: restored.crowdLevel },
+            });
+          });
+        } else if (pending.field === "identity" && pending.previousVehicle) {
+          // Identity restore: the nine static fields return; live
+          // coordinates, heading, and telemetry stay untouched.
+          const prev = pending.previousVehicle;
+          const restored: Vehicle = {
+            ...current,
+            runNumber: prev.runNumber,
+            trainsetNumber: prev.trainsetNumber,
+            totalTrainsets: prev.totalTrainsets,
+            carFormation: prev.carFormation,
+            depotHome: prev.depotHome,
+            fleetNumber: prev.fleetNumber,
+            busRunNumber: prev.busRunNumber,
+            licensePlate: prev.licensePlate,
+            operatorName: prev.operatorName,
+          };
+          updateSingleVehicle(restored);
+          if (selectedVehicle?.id === vehicleId) {
+            setSelectedVehicle(restored);
+            setIdentityDraft(identityFromVehicle(restored));
+          }
+          fetch("/api/fleet/vehicles", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: current.id,
+              vehicleCode: current.vehicleCode,
+              runNumber: restored.runNumber,
+              trainsetNumber: restored.trainsetNumber,
+              totalTrainsets: restored.totalTrainsets,
+              carFormation: restored.carFormation,
+              depotHome: restored.depotHome,
+              fleetNumber: restored.fleetNumber,
+              busRunNumber: restored.busRunNumber,
+              licensePlate: restored.licensePlate,
+              operatorName: restored.operatorName,
+            }),
+          }).catch(() => {
+            reportSyncFailure({
+              vehicleId,
+              vehicleCode: current.vehicleCode,
+              kind: "update",
+              update: {
+                vehicleCode: current.vehicleCode,
+                runNumber: restored.runNumber,
+                licensePlate: restored.licensePlate,
+              },
             });
           });
         } else if (pending.field === "speed" && pending.previousSpeedKmh !== undefined) {
@@ -2395,6 +2550,114 @@ function FleetManagementContent() {
                   </div>
                 </div>
               </div>
+
+              {identityDraft && (
+                <details className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2">
+                  <summary className="cursor-pointer text-xs font-semibold text-slate-300 py-1">
+                    {t.admin.fleetIdentityTitle}
+                  </summary>
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-run" className="text-xs font-semibold text-slate-300">{t.common.runNumber}</label>
+                      <input
+                        id="tele-id-run"
+                        type="text"
+                        value={identityDraft.runNumber}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, runNumber: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-trainset" className="text-xs font-semibold text-slate-300">{t.common.trainset}</label>
+                      <input
+                        id="tele-id-trainset"
+                        type="text"
+                        value={identityDraft.trainsetNumber}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, trainsetNumber: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-totaltrainsets" className="text-xs font-semibold text-slate-300">{t.admin.fleetTotalTrainsets}</label>
+                      <input
+                        id="tele-id-totaltrainsets"
+                        type="number"
+                        min="1"
+                        value={identityDraft.totalTrainsets}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, totalTrainsets: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-formation" className="text-xs font-semibold text-slate-300">{t.common.formation}</label>
+                      <input
+                        id="tele-id-formation"
+                        type="text"
+                        value={identityDraft.carFormation}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, carFormation: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-depot" className="text-xs font-semibold text-slate-300">{t.common.depot}</label>
+                      <input
+                        id="tele-id-depot"
+                        type="text"
+                        value={identityDraft.depotHome}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, depotHome: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-fleetno" className="text-xs font-semibold text-slate-300">{t.common.fleetNumber}</label>
+                      <input
+                        id="tele-id-fleetno"
+                        type="text"
+                        value={identityDraft.fleetNumber}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, fleetNumber: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-busrun" className="text-xs font-semibold text-slate-300">{t.admin.fleetBusRun}</label>
+                      <input
+                        id="tele-id-busrun"
+                        type="text"
+                        value={identityDraft.busRunNumber}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, busRunNumber: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="tele-id-plate" className="text-xs font-semibold text-slate-300">{t.common.licensePlate}</label>
+                      <input
+                        id="tele-id-plate"
+                        type="text"
+                        value={identityDraft.licensePlate}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, licensePlate: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 font-mono uppercase min-h-[44px]"
+                      />
+                    </div>
+                    <div className="space-y-1.5 col-span-2">
+                      <label htmlFor="tele-id-operator" className="text-xs font-semibold text-slate-300">{t.common.operator}</label>
+                      <input
+                        id="tele-id-operator"
+                        type="text"
+                        value={identityDraft.operatorName}
+                        onChange={(e) => setIdentityDraft({ ...identityDraft, operatorName: e.target.value })}
+                        className="w-full bg-slate-950 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-200 min-h-[44px]"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveIdentity(selectedVehicle)}
+                    className="mt-3 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold transition btn-tactile min-h-[40px]"
+                  >
+                    {t.admin.fleetSaveIdentity}
+                  </button>
+                </details>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
