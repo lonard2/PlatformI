@@ -20,6 +20,9 @@ import type { Region } from "@/types/transit";
 
 const COUNTRY_NAMES: Record<string, string> = {
   ID: "Indonesia",
+  MY: "Malaysia",
+  SG: "Singapore",
+  TH: "Thailand",
 };
 
 type RegionRow = Region & { lineCount: number };

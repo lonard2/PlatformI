@@ -17,6 +17,9 @@ const METRO_IDS = [
   "reg-medan-01",
   "reg-makassar-01",
   "reg-denpasar-01",
+  "reg-klangvalley-01",
+  "reg-singapore-01",
+  "reg-bangkok-01",
 ];
 
 describe("multi-region foundation", () => {
@@ -50,15 +53,18 @@ describe("multi-region foundation", () => {
     expect(window.localStorage.getItem("platformi-region")).toContain("reg-surabaya-01");
   });
 
-  it("groups regions by country and filters lines by region", () => {
+  it("groups regions by country with Indonesia first", () => {
     const regions = [
-      { id: "a", countryCode: "ID" },
+      { id: "a", countryCode: "TH" },
       { id: "b", countryCode: "ID" },
+      { id: "c", countryCode: "MY" },
     ] as Region[];
     const groups = groupRegionsByCountry(regions);
-    expect(groups.map((g) => g.countryCode)).toEqual(["ID"]);
-    expect(groups[0]?.regions.map((r) => r.id)).toEqual(["a", "b"]);
+    expect(groups.map((g) => g.countryCode)).toEqual(["ID", "MY", "TH"]);
+    expect(groups[0]?.regions.map((r) => r.id)).toEqual(["b"]);
+  });
 
+  it("filters lines by region, null means all", () => {
     const lines = [
       { id: "l1", regionId: "reg-jabodetabek-01" },
       { id: "l2", regionId: "reg-surabaya-01" },

@@ -131,6 +131,51 @@ export const METRO_REGIONS: Region[] = [
       { latitude: -8.75, longitude: 115.1 },
     ],
   },
+  {
+    id: "reg-klangvalley-01",
+    code: "KUL",
+    name: "Kuala Lumpur (Klang Valley)",
+    countryCode: "MY",
+    centerLatitude: 3.139,
+    centerLongitude: 101.6869,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: 2.9, longitude: 101.4 },
+      { latitude: 2.9, longitude: 101.95 },
+      { latitude: 3.3, longitude: 101.95 },
+      { latitude: 3.3, longitude: 101.4 },
+    ],
+  },
+  {
+    id: "reg-singapore-01",
+    code: "SIN",
+    name: "Singapore",
+    countryCode: "SG",
+    centerLatitude: 1.3521,
+    centerLongitude: 103.8198,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: 1.25, longitude: 103.6 },
+      { latitude: 1.25, longitude: 104.05 },
+      { latitude: 1.47, longitude: 104.05 },
+      { latitude: 1.47, longitude: 103.6 },
+    ],
+  },
+  {
+    id: "reg-bangkok-01",
+    code: "BKK",
+    name: "Bangkok",
+    countryCode: "TH",
+    centerLatitude: 13.7563,
+    centerLongitude: 100.5018,
+    zoomLevel: 11,
+    boundaryCoordinates: [
+      { latitude: 13.5, longitude: 100.3 },
+      { latitude: 13.5, longitude: 100.78 },
+      { latitude: 13.95, longitude: 100.78 },
+      { latitude: 13.95, longitude: 100.3 },
+    ],
+  },
 ];
 
 // ==========================================
