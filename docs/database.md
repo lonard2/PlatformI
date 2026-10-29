@@ -55,10 +55,10 @@ Use the pooled URL for the app and the direct URL for `db:push`.
 
 ## Troubleshooting
 
-- **Root `dev.db` trap**: `file:./dev.db` resolves to `prisma/dev.db` by
-  convention (`resolveSqliteFile()`); a stray `./dev.db` at the repo root
-  means a command ran with the wrong working directory or URL. Delete the
-  stray file, never commit it.
+- **Root `dev.db` trap**: the app resolves `file:./dev.db` to `prisma/dev.db`
+  (`resolveSqliteFile()`), but the Prisma CLI resolves it to `./dev.db` at
+  the repo root. Always use `file:./prisma/dev.db` in `.env` — the one form
+  both agree on. Delete any stray root `dev.db`, never commit it.
 - **Seed hangs against Postgres**: the `pg` Pool keeps the process alive.
   Scripts must `await pool.end()` (or process-exit explicitly) after seeding.
 - **Wrong adapter error**: `Unsupported DATABASE_URL scheme` means the URL
