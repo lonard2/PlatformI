@@ -234,3 +234,17 @@ model BoardingPoint {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 }
+
+model ScheduleRefreshRun {
+  id              String   @id @default(cuid())
+  startedAt       DateTime @default(now())
+  feedUrl         String
+  feedFingerprint String   @default("")
+  lineCount       Int      @default(0)
+  stopRowCount    Int      @default(0)
+  status          String
+  errorsJson      String   @default("[]")
+  driftJson       String   @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

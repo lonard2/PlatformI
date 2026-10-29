@@ -92,6 +92,7 @@ logs/
 *.sqlite
 *.sqlite3
 *.db
+var/
 
 # Temporary / Cache
 tmp/

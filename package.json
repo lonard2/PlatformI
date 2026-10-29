@@ -19,7 +19,8 @@
     "db:push": "prisma db push",
     "db:push:sqlite": "prisma db push --schema=prisma/schema.prisma",
     "db:push:pg": "prisma db push --schema=prisma/schema.postgresql.prisma",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "data:refresh-schedule": "bash scripts/refresh-schedule.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
