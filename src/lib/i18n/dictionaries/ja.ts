@@ -1207,7 +1207,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     guestBadge: "ゲスト",
     verifiedBadge: "認証済み",
     displayNameLabel: "表示名",
-    phoneLabel: "電話番号（任意）",
+    phoneLabel: "電話番号（登録は任意、サインインは必須）",
     registerWithPasskey: "パスキーで登録",
     continueWithPasskey: "パスキーで続行",
     continueAs: "{name}として続行",

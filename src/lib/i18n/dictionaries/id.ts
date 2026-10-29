@@ -1207,7 +1207,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     guestBadge: "Tamu",
     verifiedBadge: "Terverifikasi",
     displayNameLabel: "Nama tampilan",
-    phoneLabel: "Telepon (opsional)",
+    phoneLabel: "Telepon (opsional untuk daftar, wajib untuk masuk)",
     registerWithPasskey: "Daftar dengan kunci sandi",
     continueWithPasskey: "Lanjutkan dengan kunci sandi",
     continueAs: "Lanjutkan sebagai {name}",

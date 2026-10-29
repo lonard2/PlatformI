@@ -1207,7 +1207,7 @@ export const ar: TranslationDictionary = {
     guestBadge: "ضيف",
     verifiedBadge: "موثّق",
     displayNameLabel: "الاسم المعروض",
-    phoneLabel: "الهاتف (اختياري)",
+    phoneLabel: "الهاتف (اختياري للتسجيل، مطلوب لتسجيل الدخول)",
     registerWithPasskey: "التسجيل باستخدام مفتاح المرور",
     continueWithPasskey: "المتابعة باستخدام مفتاح المرور",
     continueAs: "المتابعة باسم {name}",

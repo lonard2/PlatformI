@@ -1207,7 +1207,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     guestBadge: "게스트",
     verifiedBadge: "인증됨",
     displayNameLabel: "표시 이름",
-    phoneLabel: "전화번호(선택)",
+    phoneLabel: "전화번호(가입 시 선택, 로그인 시 필수)",
     registerWithPasskey: "패스키로 가입하기",
     continueWithPasskey: "패스키로 계속하기",
     continueAs: "{name}(으)로 계속하기",

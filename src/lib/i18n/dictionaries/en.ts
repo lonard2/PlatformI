@@ -1207,7 +1207,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     guestBadge: "Guest",
     verifiedBadge: "Verified",
     displayNameLabel: "Display name",
-    phoneLabel: "Phone (optional)",
+    phoneLabel: "Phone (optional to register, required to sign in)",
     registerWithPasskey: "Register with passkey",
     continueWithPasskey: "Continue with passkey",
     continueAs: "Continue as {name}",

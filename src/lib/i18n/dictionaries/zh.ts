@@ -1207,7 +1207,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     guestBadge: "访客",
     verifiedBadge: "已验证",
     displayNameLabel: "显示名称",
-    phoneLabel: "电话（可选）",
+    phoneLabel: "电话（注册可选，登录必填）",
     registerWithPasskey: "使用通行密钥注册",
     continueWithPasskey: "使用通行密钥继续",
     continueAs: "以{name}身份继续",
