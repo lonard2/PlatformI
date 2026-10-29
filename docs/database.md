@@ -44,6 +44,15 @@ Paste the Neon connection string as `DATABASE_URL`. No other change is
 needed: the adapter, schema selection, and seeds all follow the URL.
 Use the pooled URL for the app and the direct URL for `db:push`.
 
+## Dataset vintages (refresh log newest first)
+
+| Dataset | Vintage | Source of truth |
+|---------|---------|-----------------|
+| GTFS-derived bus schedules | 2026-10-29T13:10:29Z (`sha256:63b4fb14…`) | `src/lib/data/gtfs-derived.json` (`generatedAt` + `feedFingerprint`); history in `docs/gtfs-schedule-refresh.md` |
+| OSM operator-tagged stops | Oct 2026 pull | `docs/gtfs-schedule-refresh.md` (verify before next GTFS run) |
+| Hand-authored timetables / lines | repo HEAD | `src/lib/data/jakarta-dataset.ts`, `defaultTimetables.ts` (authoritative over GTFS drift) |
+| Transit seed (59 lines / 2254 stops / 28 vehicles) | reproducible via `npm run db:seed:scratch` | `prisma/seed.ts` + `tests/seed-determinism.test.ts` |
+
 ## Troubleshooting
 
 - **Root `dev.db` trap**: `file:./dev.db` resolves to `prisma/dev.db` by
