@@ -51,7 +51,7 @@
 
 **Interfaces:**
 - Consumes: nothing (foundation task).
-- Produces: `Member { id, phone?, email?, displayName, passkeyCredentialJson?, role: "MEMBER"|"PARTNER", verifiedAt?, createdAt }`; session cookie `platformi_member_session` (HMAC, httpOnly, 30-day); `requireMember(req): Member | null`.
+- Produces: `Member { id, phone?, email?, displayName, passkeyCredentialJson?, role: "MEMBER"|"PARTNER", verifiedAt?, createdAt }`; session cookie `platformi_member_session` (HMAC, httpOnly, 30-day); `requireMember(cookieHeader): {id, role} | null` (raw header string, not a Request — same effect, testable without DOM fetch globals).
 
 - [ ] **Step 1: Write the failing test**
 

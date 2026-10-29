@@ -29,6 +29,7 @@ import {
   type ReservationLegInput,
 } from "@/lib/ticketing/reservationContract";
 import { OPERATOR_POINT_LISTS } from "@/lib/transit/salesMatrix";
+import { requireMember } from "@/lib/services/memberAuthService";
 
 const KNOWN_DROP_OFF_POINTS: string[] = Array.from(
   new Set(Object.values(OPERATOR_POINT_LISTS).flat())
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
       seatId: (body.seatId ?? "").trim() || null,
       serviceClass: (body.serviceClass ?? "").trim() || null,
       reservationCode,
-      claimedByUserId: null,
+      claimedByUserId: requireMember(request.headers.get("cookie"))?.id ?? null,
     };
 
     let createdTicket;
