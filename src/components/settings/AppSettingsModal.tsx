@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
@@ -63,12 +63,12 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
     { speed: 5, label: t.settings.hyperSpeed5x, desc: t.settings.speedHyperDesc },
   ];
 
-  const modalRef = useRef<HTMLDivElement>(null);
   const modalTitleId = "settings-modal-title";
 
   // Dialog grammar: focus is trapped while the modal is open and restored to
-  // the trigger on close.
-  useDialogFocusTrap<HTMLDivElement>({ isOpen, onClose });
+  // the trigger on close. The hook owns the container ref — attaching a
+  // separate ref would leave autofocus and Tab-cycling inert.
+  const { containerRef } = useDialogFocusTrap<HTMLDivElement>({ isOpen, onClose });
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -106,7 +106,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           onClick={onClose}
         >
           <motion.div
-            ref={modalRef}
+            ref={containerRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
