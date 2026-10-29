@@ -24,6 +24,13 @@ run the suite, commit. If route coverage drops below 41 or a canonical stop
 id no longer joins the dataset, treat the diff as a GTFS shape change and
 investigate before committing.
 
+## Refresh log (newest first)
+
+| Date (UTC) | Feed fingerprint | Lines | Verdict |
+|------------|------------------|-------|---------|
+| 2026-10-29T13:10:29Z | `sha256:63b4fb14…0cf64fb22` | 41 | promoted (first scheduled run; `ScheduleRefreshRun` in Postgres) |
+| 2026-10-21 | (pre-provenance; backfilled `generatedAt` from artifact commit) | 41 | manual derive, no gates |
+
 ## Drift policy (report-only, never auto-overwrite)
 `reportScheduleDrift()` compares GTFS medians against hand-authored
 `headwayMinutes` / `firstDeparture` / `lastDeparture`. Hand-authored values

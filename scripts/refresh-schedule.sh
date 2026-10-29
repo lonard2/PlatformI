@@ -17,9 +17,11 @@ CANDIDATE="$WORKDIR/gtfs-derived.json"
 REPORT="$WORKDIR/report.json"
 
 # The generated client is provider-bound: make sure its flavor matches DATABASE_URL.
+GENERATED_PG=0
 if [[ "${DATABASE_URL:-}" == postgres* ]]; then
   echo "[refresh] generating postgres client..."
   npx prisma generate --schema=prisma/schema.postgresql.prisma
+  GENERATED_PG=1
 fi
 
 echo "[refresh] deriving to temp..."
@@ -44,6 +46,14 @@ set -e
 if [ "$CODE" -eq 0 ]; then
   cp "$CANDIDATE" "$ARTIFACT"
   echo "[refresh] PROMOTED $ARTIFACT"
+fi
+
+if [ "$GENERATED_PG" -eq 1 ]; then
+  echo "[refresh] restoring default sqlite client..."
+  npx prisma generate --schema=prisma/schema.prisma
+fi
+
+if [ "$CODE" -eq 0 ]; then
   exit 0
 fi
 
