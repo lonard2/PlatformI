@@ -66,7 +66,7 @@ export const MemberAccountPanel: React.FC = () => {
   const [checking, setChecking] = useState<boolean>(true);
   const [displayName, setDisplayName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [busyAction, setBusyAction] = useState<null | "register" | "login" | "trip">(null);
+  const [busyAction, setBusyAction] = useState<null | "register" | "login" | "trip" | "link">(null);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const ceremonyRunId = useRef<number>(0);
@@ -77,6 +77,9 @@ export const MemberAccountPanel: React.FC = () => {
   const [tripOrigin, setTripOrigin] = useState<string>("");
   const [tripDestination, setTripDestination] = useState<string>("");
   const [tripLabel, setTripLabel] = useState<string>("");
+  const [linkCode, setLinkCode] = useState<string>("");
+  const [linkPhone, setLinkPhone] = useState<string>("");
+  const [showAllHistory, setShowAllHistory] = useState<boolean>(false);
   const [lastMember, setLastMember] = useState<{ id: string; displayName: string } | null>(null);
 
   const refreshMe = useCallback(async (): Promise<MemberProfile | null> => {
@@ -254,6 +257,36 @@ export const MemberAccountPanel: React.FC = () => {
     }
   }
 
+  function mapClaimError(code: string): string {
+    if (code === "TICKET_NOT_FOUND") return t.account.linkNotFound;
+    if (code === "ALREADY_CLAIMED") return t.account.linkClaimed;
+    return t.account.errorGeneric;
+  }
+
+  async function handleLinkTicket(): Promise<void> {
+    if (!linkCode.trim() || !linkPhone.trim() || busyAction !== null) return;
+    setBusyAction("link");
+    setError(null);
+    setStatusMessage(null);
+    try {
+      const res = await fetch("/api/members/claim", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ reservationCode: linkCode.trim(), phone: linkPhone.trim() }),
+      });
+      const json = (await res.json().catch(() => null)) as { success?: boolean; error?: string } | null;
+      if (!res.ok || !json?.success) throw new Error(typeof json?.error === "string" ? json.error : "LINK_FAILED");
+      setLinkCode("");
+      setLinkPhone("");
+      await refreshCollections();
+    } catch (err) {
+      setError(mapClaimError((err as Error).message));
+    } finally {
+      setBusyAction((cur) => (cur === "link" ? null : cur));
+    }
+  }
+
   async function handleLogout(): Promise<void> {
     await fetch("/api/members/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
     setMe(null);
@@ -395,24 +428,75 @@ export const MemberAccountPanel: React.FC = () => {
       </div>
 
       <div>
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mb-1.5">
-          <History className="w-3.5 h-3.5 text-slate-500" />
-          {t.account.purchaseHistory}
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+            <History className="w-3.5 h-3.5 text-slate-500" />
+            {t.account.purchaseHistory}
+          </span>
+          {history.length > 0 && (
+            <span className="text-[10px] font-mono text-slate-500">
+              {t.account.ticketsCount.replace("{n}", String(history.length))}
+            </span>
+          )}
+        </div>
+        <div className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/60 space-y-2 mb-1.5">
+          <span className="text-[11px] font-semibold text-slate-300">{t.account.linkTitle}</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            <input
+              value={linkCode}
+              onChange={(e) => setLinkCode(e.target.value)}
+              placeholder={t.account.linkCode}
+              aria-label={t.account.linkCode}
+              autoComplete="off"
+              className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+            />
+            <input
+              value={linkPhone}
+              onChange={(e) => setLinkPhone(e.target.value)}
+              placeholder={t.account.phoneLabel}
+              aria-label={t.account.phoneLabel}
+              inputMode="tel"
+              autoComplete="tel"
+              className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleLinkTicket()}
+            disabled={busyAction === "link" || linkCode.trim() === "" || linkPhone.trim() === ""}
+            className="touch-target w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
+          >
+            {t.account.linkButton}
+          </button>
         </div>
         {history.length === 0 ? (
           <p className="text-[11px] text-slate-500">{t.account.emptyState}</p>
         ) : (
-          <ul className="space-y-1">
-            {history.slice(0, 5).map((ticket) => (
-              <li
-                key={ticket.id}
-                className="flex items-center justify-between text-[11px] font-mono text-slate-300 bg-slate-950/60 rounded-lg px-2.5 py-1.5 border border-slate-800/60"
+          <>
+            <ul className="space-y-1">
+              {(showAllHistory ? history : history.slice(0, 5)).map((ticket) => (
+                <li
+                  key={ticket.id}
+                  className="flex items-center justify-between gap-2 text-[11px] text-slate-300 bg-slate-950/60 rounded-lg px-2.5 py-1.5 border border-slate-800/60"
+                >
+                  <span className="truncate min-w-0">
+                    <strong className="text-slate-100 font-mono">{ticket.reservationCode}</strong>
+                    <span className="text-slate-500"> {ticket.originStopId} → {ticket.destinationStopId}</span>
+                  </span>
+                  <span className="text-emerald-400 font-mono shrink-0">{ticket.status}</span>
+                </li>
+              ))}
+            </ul>
+            {history.length > 5 && (
+              <button
+                type="button"
+                onClick={() => setShowAllHistory((v) => !v)}
+                className="mt-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300"
               >
-                <span className="truncate">{ticket.reservationCode}</span>
-                <span className="text-slate-500 shrink-0 ml-2">{ticket.status}</span>
-              </li>
-            ))}
-          </ul>
+                {showAllHistory ? t.account.showLess : t.account.viewAll}
+              </button>
+            )}
+          </>
         )}
       </div>
 

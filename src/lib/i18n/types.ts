@@ -1237,6 +1237,14 @@ export interface TranslationDictionary {
     errorSessionExpired: string;
     statusWaiting: string;
     statusExpired: string;
+    linkTitle: string;
+    linkCode: string;
+    linkButton: string;
+    linkNotFound: string;
+    linkClaimed: string;
+    ticketsCount: string;
+    viewAll: string;
+    showLess: string;
   };
   preferences: {
     title: string;
