@@ -159,6 +159,13 @@ export const MemberAccountPanel: React.FC = () => {
     };
   }, []);
 
+  function mapAccountError(code: string): string {
+    if (code === "UNKNOWN_MEMBER") return t.account.errorNoAccount;
+    if (code === "ALREADY_REGISTERED") return t.account.errorAlreadyRegistered;
+    if (/challenge|expired|timeout/i.test(code)) return t.account.errorSessionExpired;
+    return t.account.errorGeneric;
+  }
+
   async function handleRegister(): Promise<void> {
     if (!displayName.trim() || busyAction !== null) return;
     const runId = beginCeremony("register");
@@ -171,7 +178,7 @@ export const MemberAccountPanel: React.FC = () => {
         body: JSON.stringify({ displayName: displayName.trim(), phone: phone.trim() || undefined }),
       });
       const beginJson = (await beginRes.json()) as ApiEnvelope<{ provisionalId: string; options: never }>;
-      if (!beginJson.success || !beginJson.data) throw new Error("REGISTRATION_START_FAILED");
+      if (!beginJson.success || !beginJson.data) throw new Error(beginJson.error || "REGISTRATION_START_FAILED");
       const credential = await startRegistration({ optionsJSON: beginJson.data.options });
       const finishRes = await fetch("/api/members/register/finish", {
         method: "POST",
@@ -185,7 +192,7 @@ export const MemberAccountPanel: React.FC = () => {
         }),
       });
       const finishJson = (await finishRes.json()) as ApiEnvelope<MemberProfile>;
-      if (!finishJson.success || !finishJson.data) throw new Error("REGISTRATION_FAILED");
+      if (!finishJson.success || !finishJson.data) throw new Error(finishJson.error || "REGISTRATION_FAILED");
       if (!endCeremony(runId)) return;
       setMe(finishJson.data);
       window.localStorage.setItem(
@@ -196,7 +203,11 @@ export const MemberAccountPanel: React.FC = () => {
       await refreshCollections();
     } catch (err) {
       if (!endCeremony(runId)) return;
-      setError((err as Error).name === "NotAllowedError" ? t.account.cancelledAuth : t.account.errorGeneric);
+      if ((err as Error).name === "NotAllowedError") {
+        setError(t.account.cancelledAuth);
+      } else {
+        setError(mapAccountError((err as Error).message));
+      }
     }
   }
 
@@ -215,7 +226,7 @@ export const MemberAccountPanel: React.FC = () => {
         memberId: string;
         options: never;
       }>;
-      if (!beginJson.success || !beginJson.data) throw new Error("LOGIN_START_FAILED");
+      if (!beginJson.success || !beginJson.data) throw new Error(beginJson.error || "LOGIN_START_FAILED");
       const credential = await startAuthentication({ optionsJSON: beginJson.data.options });
       const finishRes = await fetch("/api/members/login/finish", {
         method: "POST",
@@ -224,7 +235,7 @@ export const MemberAccountPanel: React.FC = () => {
         body: JSON.stringify({ memberId: beginJson.data.memberId, credential }),
       });
       const finishJson = (await finishRes.json()) as ApiEnvelope<MemberProfile>;
-      if (!finishJson.success || !finishJson.data) throw new Error("LOGIN_FAILED");
+      if (!finishJson.success || !finishJson.data) throw new Error(finishJson.error || "LOGIN_FAILED");
       if (!endCeremony(runId)) return;
       setMe(finishJson.data);
       window.localStorage.setItem(
@@ -235,7 +246,11 @@ export const MemberAccountPanel: React.FC = () => {
       await refreshCollections();
     } catch (err) {
       if (!endCeremony(runId)) return;
-      setError((err as Error).name === "NotAllowedError" ? t.account.cancelledAuth : t.account.errorGeneric);
+      if ((err as Error).name === "NotAllowedError") {
+        setError(t.account.cancelledAuth);
+      } else {
+        setError(mapAccountError((err as Error).message));
+      }
     }
   }
 

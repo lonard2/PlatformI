@@ -1232,6 +1232,9 @@ export interface TranslationDictionary {
     deleteTrip: string;
     errorGeneric: string;
     cancelledAuth: string;
+    errorNoAccount: string;
+    errorAlreadyRegistered: string;
+    errorSessionExpired: string;
     statusWaiting: string;
     statusExpired: string;
   };
