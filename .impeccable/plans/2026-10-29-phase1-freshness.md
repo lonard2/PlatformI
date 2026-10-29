@@ -209,11 +209,11 @@ git push origin main
 
 **Interfaces:**
 - Consumes: Task 1 (`generatedAt` in artifact).
-- Produces: visible "Updated <date>" + stale badge past 120 days; no silent-stale states.
+- Produces: visible "Updated <date>" + stale badge past 90 days; no silent-stale states.
 
 - [ ] **Step 1: Write the failing test**
 
-Render the surface hosting the stamp with the real artifact (whose `generatedAt` predates the threshold in test time — or inject via the same override seam as Task 1): assert the rendered "Updated" text contains the artifact date, and that a stale badge appears when `generatedAt` is older than 120 days. (Concrete selectors follow the attribution markup found in recon.)
+Render the surface hosting the stamp with the real artifact (whose `generatedAt` predates the threshold in test time — or inject via the same override seam as Task 1): assert the rendered "Updated" text contains the artifact date, and that a stale badge appears when `generatedAt` is older than 90 days. (Concrete selectors follow the attribution markup found in recon.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
