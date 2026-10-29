@@ -29,11 +29,9 @@
 
 ## File Structure
 
-- Modify: `prisma/schema.prisma` → deleted, replaced by:
-  - Create: `prisma/models.prisma` (all 12 models, verbatim move, no datasource/generator blocks)
-  - Create: `prisma/datasource.sqlite.prisma` (generator + `provider = "sqlite"`)
-  - Create: `prisma/datasource.postgresql.prisma` (generator + `provider = "postgresql"`)
-- Modify: `prisma.config.ts` (schema path selection), `package.json` (generate/push scripts per provider, add `@prisma/adapter-pg` + `pg`)
+- Modify: `prisma/schema.prisma` → untouched default (sqlite; every existing command keeps working byte-identically)
+  - Create: `prisma/schema.postgresql.prisma` (full copy, exactly one line differs: `provider = "postgresql"`)
+- Modify: `prisma.config.ts` (no change needed — default path already points at `prisma/schema.prisma`), `package.json` (generate/push scripts per provider, add `@prisma/adapter-pg` + `pg` in Task 2)
 - Modify: `src/lib/db.ts` (URL-scheme adapter routing; keep `resolveSqliteFile()` behavior byte-identical)
 - Create: `docker-compose.yml` (postgres:16-alpine, named volume, healthcheck, non-default port mapping to avoid local clashes)
 - Modify: `.env.example` (commented Postgres URL template + which commands use which provider)
@@ -53,7 +51,7 @@
 
 **Interfaces:**
 - Consumes: nothing (first task).
-- Produces: `prisma validate --schema <each file>` passes for both; `prisma generate --schema <each file>` emits a working client for both dialects.
+- Produces: `prisma validate --schema <each file>` passes for both; `prisma generate --schema <each file>` emits a full client for both dialects. Design note: repeated `--schema` flags compose for `validate` but `generate` uses a single file, so the design keeps two full schema files (one-line difference) guarded by `tests/prisma-schema-parity.test.ts` instead of a shared-models split.
 
 - [ ] **Step 1: Write the failing check**
 
@@ -66,10 +64,10 @@ Expected: FAIL (`datasource.postgresql.prisma` does not exist yet).
 
 Run the command above. Expected: non-zero exit, file-not-found error.
 
-- [ ] **Step 3: Move models verbatim into `prisma/models.prisma` plus one datasource file per provider**
+- [ ] **Step 3: Add the postgresql twin and wire per-provider scripts**
 
-`models.prisma` holds the 12 existing models byte-identical (Region, Line, Stop, Vehicle, TechnicalSpec, PhotoGallery, DisruptionAlert, CrowdsourceCheckIn, Ticket, TimetableRun, IntercityOperator, BoardingPoint). Each datasource file holds its own `generator client` + `datasource db` block and nothing else. Update `prisma.config.ts` schema path to `prisma/models.prisma` + `prisma/datasource.sqlite.prisma` (default), and add `package.json` scripts:
-`db:generate:sqlite`, `db:generate:pg`, `db:push:sqlite`, `db:push:pg` (each passing explicit `--schema` files), keeping `db:generate`/`db:push` as the sqlite defaults.
+Create `prisma/schema.postgresql.prisma` as a copy of `prisma/schema.prisma` with exactly one line changed (`provider = "postgresql"`); leave `prisma/schema.prisma` untouched so every existing command keeps working. Update `prisma.config.ts` only if the default path needs it (it already points at `prisma/schema.prisma` — no change expected), and add `package.json` scripts:
+`db:generate:sqlite` (`--schema=prisma/schema.prisma`), `db:generate:pg` (`--schema=prisma/schema.postgresql.prisma`), `db:push:sqlite`, `db:push:pg`, keeping `db:generate`/`db:push` as the sqlite defaults. Add `tests/prisma-schema-parity.test.ts` pinning byte-identical models and the single-line provider difference.
 
 - [ ] **Step 4: Run validation + generation for both dialects**
 

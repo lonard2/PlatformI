@@ -13,7 +13,11 @@
     "start": "next start",
     "test": "vitest run",
     "db:generate": "prisma generate",
+    "db:generate:sqlite": "prisma generate --schema=prisma/schema.prisma",
+    "db:generate:pg": "prisma generate --schema=prisma/schema.postgresql.prisma",
     "db:push": "prisma db push",
+    "db:push:sqlite": "prisma db push --schema=prisma/schema.prisma",
+    "db:push:pg": "prisma db push --schema=prisma/schema.postgresql.prisma",
     "db:seed": "tsx prisma/seed.ts"
   },
   "prisma": {
