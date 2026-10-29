@@ -4,8 +4,7 @@
  * technical specs, photo galleries, disruption alerts, and demo tickets.
  */
 
-import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { db as prisma, closeDb } from "../src/lib/db";
 import {
   JABODETABEK_REGION,
   METRO_REGIONS,
@@ -15,13 +14,8 @@ import {
   VEHICLE_TECHNICAL_SPECS,
   DISRUPTION_ALERTS,
 } from "../src/lib/data/jakarta-dataset";
-import { resolveSqliteFile } from "../src/lib/db";
 import { wilayahForCoordinate, wilayahForStops } from "../src/lib/geodesy/wilayah";
 import { seedIntercity } from "./seed-intercity";
-
-const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({ url: resolveSqliteFile() }),
-});
 
 async function main() {
   console.log("[PlatformI Seeder] Starting database population...");
@@ -281,5 +275,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await closeDb();
   });

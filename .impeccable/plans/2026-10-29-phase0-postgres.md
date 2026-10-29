@@ -196,6 +196,7 @@ git push origin main
 
 **Files:**
 - Test: `tests/db-pg-smoke.test.ts`
+- Modify (found live): `prisma/seed.ts`, `prisma/seed-intercity.ts` (shared `db` export instead of hardcoded sqlite clients), `src/lib/db.ts` (`closeDb()`), `package.json` (`build:pg`), `docs/database.md` (client-flavor rule)
 
 **Interfaces:**
 - Consumes: Tasks 1–3.

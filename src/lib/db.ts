@@ -43,6 +43,11 @@ function createAdapter(url: string) {
   return new PrismaBetterSqlite3({ url: resolveSqliteFile() });
 }
 
+/** End the underlying pool/connection. Scripts must call this or the process hangs (pg Pool keeps the loop alive). */
+export async function closeDb(): Promise<void> {
+  await db.$disconnect();
+}
+
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({

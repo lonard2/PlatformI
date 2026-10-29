@@ -12,6 +12,14 @@
 (`file:` → better-sqlite3, `postgres*:` → `pg` Pool). Anything else throws
 instead of connecting somewhere unexpected.
 
+> **Client flavor follows the last generate.** The generated Prisma Client
+> is provider-bound: `@prisma/client` in `node_modules` works only with
+> the provider it was generated from. Regenerate whenever you switch
+> (`npm run db:generate` vs `db:generate:pg`), and deploy with
+> `npm run build:pg` when `DATABASE_URL` is Postgres. Seeds and scripts
+> must use the shared `db` export (never construct their own client) and
+> call `closeDb()` on exit, or the `pg` Pool hangs the process.
+
 ## Schemas (two files, one-line difference)
 
 - `prisma/schema.prisma` — sqlite, the default for every existing command.
