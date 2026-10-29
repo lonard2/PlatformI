@@ -82,6 +82,8 @@ export const MemberAccountPanel: React.FC = () => {
   const [showAllHistory, setShowAllHistory] = useState<boolean>(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const linkErrorRef = useRef<HTMLParagraphElement | null>(null);
   const [lastMember, setLastMember] = useState<{ id: string; displayName: string } | null>(null);
 
   const refreshMe = useCallback(async (): Promise<MemberProfile | null> => {
@@ -164,6 +166,10 @@ export const MemberAccountPanel: React.FC = () => {
       if (deleteTimer.current) clearTimeout(deleteTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (linkError) linkErrorRef.current?.focus();
+  }, [linkError]);
 
   function mapAccountError(code: string): string {
     if (code === "UNKNOWN_MEMBER") return t.account.errorNoAccount;
@@ -269,7 +275,7 @@ export const MemberAccountPanel: React.FC = () => {
   async function handleLinkTicket(): Promise<void> {
     if (!linkCode.trim() || !linkPhone.trim() || busyAction !== null) return;
     setBusyAction("link");
-    setError(null);
+    setLinkError(null);
     setStatusMessage(null);
     try {
       const res = await fetch("/api/members/claim", {
@@ -284,7 +290,7 @@ export const MemberAccountPanel: React.FC = () => {
       setLinkPhone("");
       await refreshCollections();
     } catch (err) {
-      setError(mapClaimError((err as Error).message));
+      setLinkError(mapClaimError((err as Error).message));
     } finally {
       setBusyAction((cur) => (cur === "link" ? null : cur));
     }
@@ -504,6 +510,11 @@ export const MemberAccountPanel: React.FC = () => {
           >
             {t.account.linkButton}
           </button>
+          {linkError && (
+            <p ref={linkErrorRef} tabIndex={-1} role="alert" className="text-[11px] text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 rounded">
+              {linkError}
+            </p>
+          )}
         </div>
         {history.length === 0 ? (
           <p className="text-[11px] text-slate-500">{t.account.emptyState}</p>
