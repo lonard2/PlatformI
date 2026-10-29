@@ -34,6 +34,7 @@ import { CrowdDensityLevel, ACComfortRating } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 import type { TranslationDictionary } from "@/lib/i18n/types";
 import { SESSION_ID, getCooldownRemaining, setLastSubmitNow, setCooldownRemaining } from "@/lib/session";
+import { STANDARD_COOLDOWN_SECONDS, VERIFIED_COOLDOWN_SECONDS } from "@/lib/services/memberTrust";
 
 interface CheckInModalProps {
   isOpen: boolean;
@@ -159,6 +160,8 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
   const [listOpen, setListOpen] = useState<boolean>(false);
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [scopeCleared, setScopeCleared] = useState<boolean>(false);
+  const [isVerifiedMember, setIsVerifiedMember] = useState<boolean>(false);
+  const cooldownWindow = isVerifiedMember ? VERIFIED_COOLDOWN_SECONDS : STANDARD_COOLDOWN_SECONDS;
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -241,6 +244,13 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
       setActiveIdx(0);
       setErrorMessage(null);
       setNote("");
+      setIsVerifiedMember(false);
+      void fetch("/api/members/me", { credentials: "same-origin" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: { success?: boolean; data?: { verifiedAt?: string | null } } | null) => {
+          if (data?.success && data.data?.verifiedAt) setIsVerifiedMember(true);
+        })
+        .catch(() => {});
       // Prefill density/AC from the target vehicle's current live values
       const target = simulatedVehicles.find((v) => v.id === activeId);
       if (target) {
@@ -250,14 +260,15 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
     }
   }, [isOpen, initialVehicleId, initialLineId, selectedVehicleId, simulatedVehicles]);
 
-  // Per-vehicle cooldown: recompute immediately on target change, then tick
+  // Per-vehicle cooldown: recompute immediately on target change, then tick.
+  // Verified members get the shorter window (mirrors the server gate).
   useEffect(() => {
-    setCooldownSeconds(getCooldownRemaining(targetVehicleId));
+    setCooldownSeconds(getCooldownRemaining(targetVehicleId, cooldownWindow));
     const interval = setInterval(() => {
-      setCooldownSeconds(getCooldownRemaining(targetVehicleId));
+      setCooldownSeconds(getCooldownRemaining(targetVehicleId, cooldownWindow));
     }, 1000);
     return () => clearInterval(interval);
-  }, [targetVehicleId]);
+  }, [targetVehicleId, cooldownWindow]);
 
   // Abort in-flight submit on unmount
   useEffect(() => {
@@ -377,7 +388,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
 
       setLastSubmitNow(targetVehicleId);
       setIsSubmitted(true);
-      setCooldownSeconds(getCooldownRemaining(targetVehicleId));
+      setCooldownSeconds(getCooldownRemaining(targetVehicleId, cooldownWindow));
     } catch (err) {
       // Rollback the optimistic update on failure
       if (prevVehicleRef.current) {
@@ -741,7 +752,7 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
               <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400">
                 <Shield className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>
-                  {t.crowdsource.antiSpamNotice}
+                  {t.crowdsource.antiSpamNotice.replace("{n}", String(cooldownWindow))}
                 </span>
               </div>
             </form>

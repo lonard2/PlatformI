@@ -1212,6 +1212,27 @@ export interface TranslationDictionary {
     speedFastDesc: string;
     speedHyperDesc: string;
   };
+  account: {
+    title: string;
+    guestBadge: string;
+    verifiedBadge: string;
+    displayNameLabel: string;
+    phoneLabel: string;
+    registerWithPasskey: string;
+    continueWithPasskey: string;
+    continueAs: string;
+    signOut: string;
+    purchaseHistory: string;
+    savedTrips: string;
+    emptyState: string;
+    tripOriginLabel: string;
+    tripDestinationLabel: string;
+    tripLabel: string;
+    addTrip: string;
+    deleteTrip: string;
+    errorGeneric: string;
+    cancelledAuth: string;
+  };
   preferences: {
     title: string;
     subtitle: string;

@@ -14,6 +14,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { CrowdDensityLevel, ACComfortRating } from "@/types/transit";
+import { requireMember } from "@/lib/services/memberAuthService";
+import {
+  reporterWeightFor,
+  cooldownSecondsFor,
+} from "@/lib/services/memberTrust";
 
 const CROWDSOURCE_HALF_LIFE_SECONDS = 600; // 10 minutes
 const RATE_LIMIT_SECONDS = 60;
@@ -60,8 +65,27 @@ export async function POST(request: NextRequest) {
 
     const acComfortStr: ACComfortRating = (acComfort as string).toUpperCase() as ACComfortRating;
 
-    // 0. Server-side rate limit: 1 report per 60s per vehicle+user (the
-    // client cooldown is a UX affordance; this is the enforcement)
+    // 0. Server-side rate limit, verified-aware: verified members get the
+    // shorter window (the client countdown is a UX affordance; this is enforcement).
+    // Reporter identity resolves from the member session; everyone else counts at unity.
+    let reporterVerifiedAt: string | null = null;
+    const sessionMember = requireMember(request.headers.get("cookie"));
+    if (sessionMember) {
+      try {
+        const member = await db.member.findUnique({
+          where: { id: sessionMember.id },
+          select: { verifiedAt: true },
+        });
+        if (member?.verifiedAt) reporterVerifiedAt = member.verifiedAt.toISOString();
+      } catch {
+        reporterVerifiedAt = null;
+      }
+    }
+    const reporter = reporterVerifiedAt
+      ? { id: sessionMember?.id ?? "self", role: "MEMBER", verifiedAt: reporterVerifiedAt }
+      : null;
+    const reportWeight = reporterWeightFor(reporter);
+    const windowSecs = cooldownSecondsFor(reporter);
     if (userId) {
       try {
         const last = await db.crowdsourceCheckIn.findFirst({
@@ -70,11 +94,11 @@ export async function POST(request: NextRequest) {
         });
         if (last) {
           const elapsed = (Date.now() - last.timestamp.getTime()) / 1000;
-          if (elapsed < RATE_LIMIT_SECONDS) {
+          if (elapsed < windowSecs) {
             return NextResponse.json(
               {
-                error: "Rate limit: 1 report per 60 seconds per vehicle",
-                retryAfter: Math.ceil(RATE_LIMIT_SECONDS - elapsed),
+                error: `Rate limit: 1 report per ${windowSecs} seconds per vehicle`,
+                retryAfter: Math.ceil(windowSecs - elapsed),
               },
               { status: 429 }
             );
@@ -85,7 +109,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 1. Create check-in entry in SQLite (with try/catch fallback if vehicle relation does not exist in SQLite)
+    // 1. Create check-in entry (with try/catch fallback if vehicle relation does not exist in SQLite)
+    // Verified reporters carry extra weight into the aggregation below.
+    // Flags never grant immunity: Phase 2 down-weights flagged reports on top of this.
     let savedCheckIn;
     try {
       savedCheckIn = await db.crowdsourceCheckIn.create({
@@ -95,6 +121,7 @@ export async function POST(request: NextRequest) {
           crowdLevel: crowdLevelStr,
           acComfort: acComfortStr,
           note: note || null,
+          weight: reportWeight,
           timestamp: new Date(),
         },
       });
@@ -112,7 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Fetch recent check-ins for this vehicle from DB to compute exponential decay score
-    let recentCheckIns: { crowdLevel: string; acComfort: string; timestamp: Date }[] = [];
+    let recentCheckIns: { crowdLevel: string; acComfort: string; timestamp: Date; weight?: number | null }[] = [];
     try {
       recentCheckIns = await db.crowdsourceCheckIn.findMany({
         where: { vehicleId },
@@ -135,7 +162,7 @@ export async function POST(request: NextRequest) {
     let totalWeight = 0;
 
     for (const report of recentCheckIns) {
-      const weight = calculateDecayWeight(report.timestamp.getTime(), nowMs);
+      const weight = calculateDecayWeight(report.timestamp.getTime(), nowMs) * (report.weight ?? 1);
       const rating = parseDensityToNumeric(report.crowdLevel);
       weightedSum += weight * rating;
       totalWeight += weight;

@@ -39,10 +39,13 @@ export function setCooldownRemaining(vehicleId: string, seconds: number): void {
   lastSubmitByVehicle.set(vehicleId, Date.now() - (COOLDOWN_SECONDS - seconds) * 1000);
 }
 
-export function getCooldownRemaining(vehicleId: string | null | undefined): number {
+export function getCooldownRemaining(
+  vehicleId: string | null | undefined,
+  cooldownSeconds: number = COOLDOWN_SECONDS
+): number {
   if (!vehicleId) return 0;
   const last = lastSubmitByVehicle.get(vehicleId);
   if (last === undefined) return 0;
   const elapsed = Math.floor((Date.now() - last) / 1000);
-  return Math.max(0, COOLDOWN_SECONDS - elapsed);
+  return Math.max(0, cooldownSeconds - elapsed);
 }

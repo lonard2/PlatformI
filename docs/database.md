@@ -61,6 +61,7 @@ Use the pooled URL for the app and the direct URL for `db:push`.
   both agree on. Delete any stray root `dev.db`, never commit it.
 - **Seed hangs against Postgres**: the `pg` Pool keeps the process alive.
   Scripts must `await pool.end()` (or process-exit explicitly) after seeding.
+- **Schema change without regenerate**: after editing either schema file, run `npm run db:generate` (and `db:generate:pg` before pg deploys) *before* running tests — otherwise the generated client lacks the new fields, writes fall into in-memory fallbacks, and feed tests fail while the DB is actually fine.
 - **Wrong adapter error**: `Unsupported DATABASE_URL scheme` means the URL
   is neither `file:` nor `postgres*:` — check for typos, not the code.
 - **Docker daemon down**: `docker compose` commands fail; start Docker

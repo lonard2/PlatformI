@@ -160,6 +160,7 @@ model CrowdsourceCheckIn {
   crowdLevel String
   acComfort  String
   note       String?
+  weight     Float    @default(1.0)
   timestamp  DateTime @default(now())
 }
 

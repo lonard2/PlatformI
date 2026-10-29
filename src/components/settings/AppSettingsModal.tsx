@@ -21,11 +21,13 @@ import {
   X,
   Check,
   RotateCcw,
+  User,
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { useAccessibilityStore } from "@/lib/stores/useAccessibilityStore";
 import { useDialogFocusTrap } from "@/lib/hooks/useDialogFocusTrap";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
+import { MemberAccountPanel } from "@/components/settings/MemberAccountPanel";
 
 export interface AppSettingsModalProps {
   isOpen: boolean;
@@ -285,6 +287,15 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 {t.navigation.adminPanel}
               </a>
             </div>
+          </div>
+
+          {/* Section: Member Account */}
+          <div className="space-y-2.5">
+            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 font-mono">
+              <User className="w-3.5 h-3.5 text-cyan-400" />
+              {t.account.title}
+            </label>
+            <MemberAccountPanel />
           </div>
         </div>
 
