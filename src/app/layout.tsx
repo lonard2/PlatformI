@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description:
     "Unified regional transit intelligence for Jakarta, Greater Jabodetabek, and Intercity networks.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
   },
 };
 
