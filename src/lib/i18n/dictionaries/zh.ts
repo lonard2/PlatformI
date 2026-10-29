@@ -1222,6 +1222,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     deleteTrip: "删除",
     errorGeneric: "出现问题，请重试。",
     cancelledAuth: "已取消",
+    statusWaiting: "正在等待您的设备…请查看此设备或手机上的提示。",
+    statusExpired: "尝试已超时。没有任何更改，请重试。",
   },
   preferences: {
     title: "交通模式与路线偏好",

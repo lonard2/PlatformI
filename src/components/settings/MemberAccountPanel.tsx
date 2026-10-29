@@ -8,7 +8,7 @@
  * history, saved trips. No emojis; Lucide only; strict TypeScript.
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { User, LogOut, BadgeCheck, History, MapPin, Plus, Trash2, Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
@@ -66,8 +66,12 @@ export const MemberAccountPanel: React.FC = () => {
   const [checking, setChecking] = useState<boolean>(true);
   const [displayName, setDisplayName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [busy, setBusy] = useState<boolean>(false);
+  const [busyAction, setBusyAction] = useState<null | "register" | "login" | "trip">(null);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const ceremonyRunId = useRef<number>(0);
+  const ceremonyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const CEREMONY_TIMEOUT_MS = 75_000;
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const [history, setHistory] = useState<PurchasedTicket[]>([]);
   const [tripOrigin, setTripOrigin] = useState<string>("");
@@ -119,10 +123,45 @@ export const MemberAccountPanel: React.FC = () => {
     };
   }, [refreshMe, refreshCollections]);
 
-  async function handleRegister(): Promise<void> {
-    if (!displayName.trim() || busy) return;
-    setBusy(true);
+  // A ceremony is one register/login attempt. Only the started action locks;
+  // a run id + timeout pair guarantees a stuck ceremony always releases the UI.
+  function beginCeremony(kind: "register" | "login"): number {
+    const runId = ceremonyRunId.current + 1;
+    ceremonyRunId.current = runId;
+    setBusyAction(kind);
     setError(null);
+    setStatusMessage(t.account.statusWaiting);
+    if (ceremonyTimer.current) clearTimeout(ceremonyTimer.current);
+    ceremonyTimer.current = setTimeout(() => {
+      if (ceremonyRunId.current !== runId) return;
+      ceremonyRunId.current += 1;
+      setBusyAction(null);
+      setStatusMessage(t.account.statusExpired);
+    }, CEREMONY_TIMEOUT_MS);
+    return runId;
+  }
+
+  function endCeremony(runId: number): boolean {
+    if (ceremonyRunId.current !== runId) return false;
+    ceremonyRunId.current += 1;
+    if (ceremonyTimer.current) {
+      clearTimeout(ceremonyTimer.current);
+      ceremonyTimer.current = null;
+    }
+    setBusyAction(null);
+    setStatusMessage(null);
+    return true;
+  }
+
+  useEffect(() => {
+    return () => {
+      if (ceremonyTimer.current) clearTimeout(ceremonyTimer.current);
+    };
+  }, []);
+
+  async function handleRegister(): Promise<void> {
+    if (!displayName.trim() || busyAction !== null) return;
+    const runId = beginCeremony("register");
     try {
       const { startRegistration } = await import("@simplewebauthn/browser");
       const beginRes = await fetch("/api/members/register/begin", {
@@ -147,6 +186,7 @@ export const MemberAccountPanel: React.FC = () => {
       });
       const finishJson = (await finishRes.json()) as ApiEnvelope<MemberProfile>;
       if (!finishJson.success || !finishJson.data) throw new Error("REGISTRATION_FAILED");
+      if (!endCeremony(runId)) return;
       setMe(finishJson.data);
       window.localStorage.setItem(
         LAST_MEMBER_KEY,
@@ -155,16 +195,14 @@ export const MemberAccountPanel: React.FC = () => {
       setLastMember({ id: finishJson.data.id, displayName: finishJson.data.displayName });
       await refreshCollections();
     } catch (err) {
+      if (!endCeremony(runId)) return;
       setError((err as Error).name === "NotAllowedError" ? t.account.cancelledAuth : t.account.errorGeneric);
-    } finally {
-      setBusy(false);
     }
   }
 
   async function handleLogin(memberId?: string, loginPhone?: string): Promise<void> {
-    if (busy) return;
-    setBusy(true);
-    setError(null);
+    if (busyAction !== null) return;
+    const runId = beginCeremony("login");
     try {
       const { startAuthentication } = await import("@simplewebauthn/browser");
       const beginRes = await fetch("/api/members/login/begin", {
@@ -187,6 +225,7 @@ export const MemberAccountPanel: React.FC = () => {
       });
       const finishJson = (await finishRes.json()) as ApiEnvelope<MemberProfile>;
       if (!finishJson.success || !finishJson.data) throw new Error("LOGIN_FAILED");
+      if (!endCeremony(runId)) return;
       setMe(finishJson.data);
       window.localStorage.setItem(
         LAST_MEMBER_KEY,
@@ -195,9 +234,8 @@ export const MemberAccountPanel: React.FC = () => {
       setLastMember({ id: finishJson.data.id, displayName: finishJson.data.displayName });
       await refreshCollections();
     } catch (err) {
+      if (!endCeremony(runId)) return;
       setError((err as Error).name === "NotAllowedError" ? t.account.cancelledAuth : t.account.errorGeneric);
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -209,8 +247,8 @@ export const MemberAccountPanel: React.FC = () => {
   }
 
   async function handleAddTrip(): Promise<void> {
-    if (!tripOrigin.trim() || !tripDestination.trim() || busy) return;
-    setBusy(true);
+    if (!tripOrigin.trim() || !tripDestination.trim() || busyAction !== null) return;
+    setBusyAction("trip");
     setError(null);
     try {
       const res = await fetch("/api/members/trips", {
@@ -232,7 +270,7 @@ export const MemberAccountPanel: React.FC = () => {
     } catch {
       setError(t.account.errorGeneric);
     } finally {
-      setBusy(false);
+      setBusyAction((current) => (current === "trip" ? null : current));
     }
   }
 
@@ -279,7 +317,7 @@ export const MemberAccountPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => void handleRegister()}
-            disabled={busy || displayName.trim() === ""}
+            disabled={busyAction === "register" || displayName.trim() === ""}
             className="touch-target px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold disabled:opacity-50 transition"
           >
             {t.account.registerWithPasskey}
@@ -287,7 +325,7 @@ export const MemberAccountPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => void handleLogin()}
-            disabled={busy || phone.trim() === ""}
+            disabled={busyAction === "login" || phone.trim() === ""}
             className="touch-target px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
           >
             {t.account.continueWithPasskey}
@@ -296,13 +334,18 @@ export const MemberAccountPanel: React.FC = () => {
             <button
               type="button"
               onClick={() => void handleLogin(lastMember.id)}
-              disabled={busy}
+              disabled={busyAction === "login"}
               className="touch-target px-3.5 py-2 rounded-xl bg-slate-800 border border-cyan-500/40 text-xs font-medium text-cyan-300 hover:bg-slate-700 disabled:opacity-50 transition"
             >
               {t.account.continueAs.replace("{name}", lastMember.displayName)}
             </button>
           )}
         </div>
+        {statusMessage && (
+          <p role="status" className="text-[11px] text-cyan-300">
+            {statusMessage}
+          </p>
+        )}
         {error && <p className="text-[11px] text-rose-400">{error}</p>}
       </div>
     );
@@ -390,7 +433,7 @@ export const MemberAccountPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => void handleAddTrip()}
-            disabled={busy || tripOrigin.trim() === "" || tripDestination.trim() === ""}
+            disabled={busyAction === "trip" || tripOrigin.trim() === "" || tripDestination.trim() === ""}
             className="touch-target px-3 py-2 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-xs font-bold hover:bg-cyan-900/60 disabled:opacity-50 transition flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" />

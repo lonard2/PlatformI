@@ -1222,6 +1222,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     deleteTrip: "삭제",
     errorGeneric: "문제가 발생했습니다. 다시 시도해 주세요.",
     cancelledAuth: "취소됨",
+    statusWaiting: "기기를 기다리는 중… 이 기기나 휴대전화의 안내를 확인하세요.",
+    statusExpired: "시도가 시간 초과되었습니다. 변경된 내용은 없습니다. 다시 시도해 주세요.",
   },
   preferences: {
     title: "선호 교통수단 & 경로 우선순위",

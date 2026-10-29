@@ -1222,6 +1222,8 @@ export const ar: TranslationDictionary = {
     deleteTrip: "حذف",
     errorGeneric: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     cancelledAuth: "ملغي",
+    statusWaiting: "بانتظار جهازك… تحقق من المطالبة على هذا الجهاز أو هاتفك.",
+    statusExpired: "انتهت مهلة المحاولة. لم يتغير أي شيء — حاول مرة أخرى.",
   },
   preferences: {
     title: "وسائل النقل المفضلة وأولويات المسار",

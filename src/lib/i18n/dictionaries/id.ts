@@ -1222,6 +1222,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     deleteTrip: "Hapus trip",
     errorGeneric: "Terjadi kesalahan. Silakan coba lagi.",
     cancelledAuth: "Dibatalkan",
+    statusWaiting: "Menunggu perangkat Anda… Periksa perintah di perangkat ini atau ponsel Anda.",
+    statusExpired: "Upaya kedaluwarsa. Tidak ada yang berubah — silakan coba lagi.",
   },
   preferences: {
     title: "Preferensi Moda & Prioritas Rute",

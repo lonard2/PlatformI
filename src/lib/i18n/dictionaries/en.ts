@@ -1222,6 +1222,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     deleteTrip: "Delete trip",
     errorGeneric: "Something went wrong. Please try again.",
     cancelledAuth: "Cancelled",
+    statusWaiting: "Waiting for your device… Check the prompt on this device or your phone.",
+    statusExpired: "The attempt timed out. Nothing was changed — please try again.",
   },
   preferences: {
     title: "Transit Modes & Route Priorities",
