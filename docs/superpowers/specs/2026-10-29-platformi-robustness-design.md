@@ -119,3 +119,29 @@ regressions; critique → fix → polish → re-critique per surface.
   → money → hardening); resist starting Phase 3 before Phase 1 gates.
 - Rejected expanding scope to new-region data or GTFS-RT hardware.
 - Kept all existing product/design constraints as hard gates.
+
+## Builder-check settlements (author's calls — veto at approval)
+
+From the builder review 2026-10-29; settled without partner input:
+
+- **Fail-closed behavior**: a failed GTFS validation quarantines the run
+  and keeps serving the last-good dataset; nothing half-imported. The
+  drift report persists per run and surfaces in OCC. Block thresholds:
+  stop loss >5% per mode, median segment-time shift >30% on any
+  corridor, route-coverage floor = current line count per mode (no silent
+  line drops). Warn-only: timetable text/naming diffs.
+- **Freshness TTL defaults**: alerts 5 min, GTFS-derived schedules per
+  successful refresh run (stale badge past 7 days), hand-authored
+  timetables 30 days with owner re-confirm, simulated positions 30 s,
+  crowdsource 10-min fade (existing). "Updated" stamps check these.
+- **Alert lifecycle**: OCC-owned (admin alerts board authors/resolves).
+  Duplicate = same line + overlapping active window; latest record wins,
+  history retained.
+- **Model-vs-cut**: skybridge/hub entries stay display-only (transfer
+  guidance, never routing weight) until a dedicated intermodal phase;
+  cross-region lines are cut from routing (already clipped in map) and
+  shown as text-only destinations; any UI implying a supported transfer
+  that isn't modeled gets removed, not disabled.
+- **Crowdsource write path**: stays low-friction (no mandatory account);
+  anonymous submissions rate-limited per device + cooldown, visibly
+  down-weighted until corroborated (see open question on enforcement).
