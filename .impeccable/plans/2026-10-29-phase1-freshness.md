@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-29-platformi-robustness-design.md` (Phase 1 + TTL settlements; one deviation noted below).
 
-**Deviation from spec (author call):** the design's 7-day stale default assumed dynamic sources. Static GTFS is pulled quarterly, so a 7-day badge would be permanently on — the plan uses **120 days** for the static artifact (quarterly cadence + buffer). Dynamic sources keep short TTLs later.
+**Deviation from spec (author call, partner-confirmed 2026-10-29):** the design's 7-day stale default assumed dynamic sources. Static GTFS uses a two-tier model instead: a lightweight **7-day check** (fingerprint the feed; unchanged → log a "no change" run and finish; changed → full derive + gates), and a **90-day hard line** — no successful refresh for 90 days triggers the stale badge, a failing scheduled check, and an OCC-visible alert. Never re-derive identical data just to reset the clock. Run reports persist to Postgres (confirmed beneficial for later phases); file log is fallback only.
 
 ## Global Constraints
 
@@ -25,7 +25,7 @@
 
 - A derive run against a changed upstream feed that silently drops a route (coverage gate must catch <41 lines and abort the promote).
 - `generatedAt` formats that don't parse across locales (pin ISO-8601 UTC with `Z`, never locale strings).
-- Quarantine that still leaks: a failed run must not touch the committed artifact, the dev DB, or the UI stamps (test asserts artifact bytes + stamp unchanged).
+- Quarantine that still leaks: a failed run must not touch the committed artifact, the dev DB, or the UI stamps (test asserts artifact bytes + stamp unchanged). A no-change check run must also leave the artifact byte-identical.
 - Drift-report writes that fail when Postgres is unreachable (runner must degrade to file log, exit code still reflects validation).
 - Stale-badge thresholds evaluated in the wrong timezone (compute age in UTC ms, never calendar days).
 
@@ -152,7 +152,7 @@ Expected: FAIL (`scheduleRefresh.ts` does not exist).
 
 - [ ] **Step 3: Implement the gate helper, the model, and the wrapper**
 
-`src/lib/services/scheduleRefresh.ts`: `assessRefresh(candidate, current)` — quarantine on any `validateDerivedArtifact` error, `<41` lines, or any line losing all directions vs current; return reasons list. Add the `ScheduleRefreshRun` model to **both** schema files (identical block; parity test covers it), `db:push` sqlite (and pg when reachable). `scripts/refresh-schedule.sh`: derive to temp (`--out` flag — add if missing), run validators via `npx tsx`, coverage-compare via `assessRefresh`, promote (`cp` over the committed artifact) or quarantine to `var/quarantine/<ts>/` with `report.json`, then record the `ScheduleRefreshRun` row (file-log fallback to `var/runs.log` when Postgres is unreachable; exit code still reflects validation).
+`src/lib/services/scheduleRefresh.ts`: `assessRefresh(candidate, current)` — quarantine on any `validateDerivedArtifact` error, `<41` lines, or any line losing all directions vs current; return reasons list. Add the `ScheduleRefreshRun` model to **both** schema files (identical block; parity test covers it), `db:push` sqlite (and pg when reachable). `scripts/refresh-schedule.sh`: two-tier run. (1) Check: fetch feed headers (ETag/Last-Modified; full download only if moved), fingerprint; unchanged vs last `ok` run → record a `checked-no-change` run and exit `0` without touching the artifact. (2) Changed: derive to temp (`--out` flag — add if missing), run validators via `npx tsx`, coverage-compare via `assessRefresh`, promote (`cp` over the committed artifact) or quarantine to `var/quarantine/<ts>/` with `report.json`, then record the `ScheduleRefreshRun` row (file-log fallback to `var/runs.log` when Postgres is unreachable; exit code still reflects validation: `0` promoted/unchanged, `2` quarantined).
 
 - [ ] **Step 4: Run tests, typecheck, and gates**
 
@@ -179,10 +179,10 @@ git push origin main
 - Consumes: Tasks 1–2.
 - Produces: a promoted fresh artifact **or** a quarantine report + unchanged artifact; either way a `ScheduleRefreshRun` row.
 
-- [ ] **Step 1: Run the scheduled refresh for real**
+- [ ] **Step 1: Run the scheduled check for real (7-day cadence starts here)**
 
 Run: `npm run data:refresh-schedule`
-Expected: exit `0` (promoted) or `2` (quarantined with `report.json`).
+Expected: exit `0` (unchanged or promoted) or `2` (quarantined with `report.json`).
 
 - [ ] **Step 2: Verify promotion safety (or confirm quarantine integrity)**
 
@@ -222,7 +222,7 @@ Expected: FAIL (no stamp exists).
 
 - [ ] **Step 3: Implement stamp + badge + keys**
 
-Read `generatedAt` from the artifact, format via `Intl` (locale-aware, UTC-based age math in ms — never calendar days), badge when age > 120 days. Audit remaining dataset-max-as-today labels (HISTORY-style) and reword to latest-data language. New keys (×6 + types) following the existing attribution copy voice.
+Read `generatedAt` from the artifact, format via `Intl` (locale-aware, UTC-based age math in ms — never calendar days), badge when age > 90 days with escalation copy (stale + check-failing state already covered by the runner). Audit remaining dataset-max-as-today labels (HISTORY-style) and reword to latest-data language. New keys (×6 + types) following the existing attribution copy voice.
 
 - [ ] **Step 4: Run tests + typecheck + suite**
 
