@@ -831,6 +831,7 @@ export interface TranslationDictionary {
     timeframe180Days: string;
     timeframe365Days: string;
     monthlyTrendTitle: string;
+    scheduleUpdated: string;
     modeReliabilityTable: string;
     monthHistorySubpanel: string;
     targetSlaPrima: string;

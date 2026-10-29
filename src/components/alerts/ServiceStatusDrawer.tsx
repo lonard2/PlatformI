@@ -49,6 +49,10 @@ import {
   HISTORICAL_INCIDENTS,
   SYSTEM_UPTIME_METRICS,
 } from "@/lib/data/jakarta-dataset";
+import {
+  getArtifactGeneratedAt,
+  isScheduleStale,
+} from "@/lib/services/gtfsSchedule";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import {
   OPERATING_STATUS_ORDER,
@@ -418,6 +422,24 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
   }, [uptimeTimeframe]);
 
   // 12-Month System Wide Progression Trend
+  const scheduleVintage = useMemo(() => {
+    const generatedAt = getArtifactGeneratedAt();
+    const stale = isScheduleStale(generatedAt);
+    let label = t.statusCenter.scheduleUpdated.replace("{date}", "—");
+    if (generatedAt) {
+      try {
+        const formatted = new Intl.DateTimeFormat(language, {
+          dateStyle: "medium",
+          timeZone: "UTC",
+        }).format(new Date(generatedAt));
+        label = t.statusCenter.scheduleUpdated.replace("{date}", formatted);
+      } catch {
+        label = t.statusCenter.scheduleUpdated.replace("{date}", generatedAt.slice(0, 10));
+      }
+    }
+    return { label, stale };
+  }, [t, language]);
+
   const monthlyTrendAggregates = useMemo(() => {
     const months = [
       "2025-09",
@@ -1567,6 +1589,12 @@ export const ServiceStatusDrawer: React.FC<ServiceStatusDrawerProps> = ({
             <div className="px-5 py-3 border-t border-white/10 bg-slate-950/90 text-slate-400 text-xs flex items-center justify-between font-mono shrink-0">
               <span className="flex items-center gap-2">
  {fetchFailed && (
+                  <span className="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px]">
+                    {t.common.stale}
+                  </span>
+                )}
+                <span>{scheduleVintage.label}</span>
+                {scheduleVintage.stale && (
                   <span className="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px]">
                     {t.common.stale}
                   </span>

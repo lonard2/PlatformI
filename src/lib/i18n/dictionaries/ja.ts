@@ -807,6 +807,7 @@ export const ja: TranslationDictionary = {
     timeframe180Days: "180日間",
     timeframe365Days: "1年間",
     monthlyTrendTitle: "過去12ヶ月間の信頼性推移",
+    scheduleUpdated: "時刻表データ：{date}",
     modeReliabilityTable: "交通事業者別信頼性評価",
     monthHistorySubpanel: "12ヶ月詳細データ",
     targetSlaPrima: "目標：99％以上が正常運行",

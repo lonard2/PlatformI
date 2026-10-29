@@ -807,6 +807,7 @@ export const id: TranslationDictionary = {
     timeframe180Days: "180 Hari",
     timeframe365Days: "1 Tahun",
     monthlyTrendTitle: "Tren Keandalan 12 Bulan Terakhir",
+    scheduleUpdated: "Data jadwal: {date}",
     modeReliabilityTable: "Rincian Keandalan per Sektor Moda",
     monthHistorySubpanel: "Riwayat Performa Bulanan",
     targetSlaPrima: "Target: ≥99% Lin Normal",

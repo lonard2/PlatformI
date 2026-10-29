@@ -807,6 +807,7 @@ export const en: TranslationDictionary = {
     timeframe180Days: "180 Days",
     timeframe365Days: "1 Year",
     monthlyTrendTitle: "Monthly Reliability Trend (12 Months)",
+    scheduleUpdated: "Schedule data: {date}",
     modeReliabilityTable: "Operator Reliability Breakdown",
     monthHistorySubpanel: "12-Month Historical Breakdown",
     targetSlaPrima: "Goal: 99%+ Lines Normal",

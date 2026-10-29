@@ -807,6 +807,7 @@ export const ko: TranslationDictionary = {
     timeframe180Days: "180일 (반기)",
     timeframe365Days: "1년 (연간)",
     monthlyTrendTitle: "최근 12개월 신뢰도 추이",
+    scheduleUpdated: "시간표 데이터: {date}",
     modeReliabilityTable: "교통 운영사별 신뢰성 지표",
     monthHistorySubpanel: "12개월 상세 통계",
     targetSlaPrima: "목표: 99% 이상 정상 운행",

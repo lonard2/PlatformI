@@ -44,6 +44,22 @@ interface GtfsDerivedArtifact {
 
 const ARTIFACT: GtfsDerivedArtifact = derivedArtifact as GtfsDerivedArtifact;
 
+/** Days after generation when the static schedule counts as stale (90-day hard line). */
+export const SCHEDULE_STALE_AFTER_DAYS = 90;
+
+/** ISO-8601 generation stamp of the committed artifact, if present. */
+export function getArtifactGeneratedAt(): string | undefined {
+  return ARTIFACT.generatedAt;
+}
+
+/** True when the artifact is older than the stale threshold (UTC ms math, never calendar days). */
+export function isScheduleStale(generatedAt: string | undefined, nowMs: number = Date.now()): boolean {
+  if (!generatedAt) return true;
+  const generatedMs = Date.parse(generatedAt);
+  if (Number.isNaN(generatedMs)) return true;
+  return nowMs - generatedMs > SCHEDULE_STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+}
+
 /** Schedule for a dataset line id, or undefined for rail / unmapped lines. */
 export function getGtfsLineSchedule(lineId: string): GtfsLineSchedule | undefined {
   return ARTIFACT.lines[lineId];

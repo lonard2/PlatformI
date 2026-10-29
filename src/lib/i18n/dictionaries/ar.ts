@@ -807,6 +807,7 @@ export const ar: TranslationDictionary = {
     timeframe180Days: "180 يوماً (نصف سنوي)",
     timeframe365Days: "عام كامل (سنوي)",
     monthlyTrendTitle: "مؤشر الموثوقية لآخر 12 شهراً",
+    scheduleUpdated: "بيانات الجداول: {date}",
     modeReliabilityTable: "مقارنة موثوقية قطاعات النقل المختلفة",
     monthHistorySubpanel: "السجل التفصيلي لآخر 12 شهراً",
     targetSlaPrima: "الهدف: 99%+ خطوط طبيعية",

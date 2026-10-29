@@ -807,6 +807,7 @@ export const zh: TranslationDictionary = {
     timeframe180Days: "180天 (半年度)",
     timeframe365Days: "1年 (整年累计)",
     monthlyTrendTitle: "近12个月可靠性趋势",
+    scheduleUpdated: "时刻表数据：{date}",
     modeReliabilityTable: "各交通板块可靠性指标对比",
     monthHistorySubpanel: "12个月历史运行明细",
     targetSlaPrima: "目标：99%以上线路正常",
