@@ -7,6 +7,7 @@
   "HR"
  ],
  "feedUrl": "https://gtfs.transjakarta.co.id/files/file_gtfs.zip",
+ "generatedAt": "2026-10-21T05:05:27Z",
  "generatedNote": "Derived from official Transjakarta static GTFS. Times are headway templates, not promised departures.",
  "lines": {
   "line-tj-cor-1": {

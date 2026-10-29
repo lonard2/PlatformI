@@ -37,6 +37,8 @@ interface GtfsDerivedArtifact {
   generatedNote: string;
   feedUrl: string;
   allowedServices: string[];
+  generatedAt?: string;
+  feedFingerprint?: string;
   lines: Record<string, GtfsLineSchedule>;
 }
 
@@ -75,11 +77,26 @@ function isHhMm(value: string | null): boolean {
 }
 
 /** Structural validation of the committed artifact. Returns error strings (empty = valid). */
-export function validateDerivedArtifact(): string[] {
+export function validateDerivedArtifact(artifact: GtfsDerivedArtifact = ARTIFACT): string[] {
   const errors: string[] = [];
-  const lineIds = Object.keys(ARTIFACT.lines);
+  if (
+    typeof artifact.generatedAt !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(artifact.generatedAt)
+  ) {
+    errors.push(
+      "artifact: missing or malformed generatedAt (want ISO-8601 UTC, e.g. 2026-10-29T00:00:00Z)"
+    );
+  }
+  if (
+    artifact.feedFingerprint !== undefined &&
+    !/^sha256:[0-9a-f]+$/.test(artifact.feedFingerprint)
+  ) {
+    errors.push("artifact: malformed feedFingerprint (want sha256:<hex>)");
+  }
+  const lines = artifact.lines ?? {};
+  const lineIds = Object.keys(lines);
   if (lineIds.length === 0) errors.push("artifact contains no lines");
-  for (const [lineId, entry] of Object.entries(ARTIFACT.lines)) {
+  for (const [lineId, entry] of Object.entries(lines)) {
     if (entry.directions.length === 0) errors.push(`${lineId}: no directions`);
     if (entry.tripCount <= 0) errors.push(`${lineId}: tripCount <= 0`);
     for (const dir of entry.directions) {

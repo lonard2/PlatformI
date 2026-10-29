@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import os
 import statistics
@@ -30,6 +31,7 @@ import tempfile
 import urllib.request
 import zipfile
 from collections import Counter, defaultdict
+from datetime import datetime, timezone
 
 FEED_URL_DEFAULT = "https://gtfs.transjakarta.co.id/files/file_gtfs.zip"
 ALLOWED_SERVICES = ["SH", "HK", "HL", "HM", "HR"]
@@ -84,15 +86,25 @@ def main() -> int:
 
     workdir = args.input
     tmp: tempfile.TemporaryDirectory | None = None
+    feed_fingerprint = ""
     if workdir is None:
         tmp = tempfile.TemporaryDirectory(prefix="tj-gtfs-")
         zpath = os.path.join(tmp.name, "feed.zip")
         print(f"[derive] downloading {args.feed_url}", flush=True)
         urllib.request.urlretrieve(args.feed_url, zpath)
+        with open(zpath, "rb") as f:
+            feed_fingerprint = "sha256:" + hashlib.sha256(f.read()).hexdigest()
         with zipfile.ZipFile(zpath) as z:
             z.extractall(tmp.name)
         workdir = tmp.name
         print(f"[derive] extracted to {workdir}", flush=True)
+    else:
+        digest = hashlib.sha256()
+        for root, _, files in sorted(os.walk(workdir)):
+            for name in sorted(files):
+                with open(os.path.join(root, name), "rb") as f:
+                    digest.update(f.read())
+        feed_fingerprint = "sha256:" + digest.hexdigest()
 
     routes = read_csv(os.path.join(workdir, "routes.txt"))
     trips = read_csv(os.path.join(workdir, "trips.txt"))
@@ -207,6 +219,8 @@ def main() -> int:
     out = {
         "generatedNote": "Derived from official Transjakarta static GTFS. Times are headway templates, not promised departures.",
         "feedUrl": args.feed_url,
+        "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "feedFingerprint": feed_fingerprint,
         "allowedServices": ALLOWED_SERVICES,
         "lines": dict(sorted(lines.items())),
     }
