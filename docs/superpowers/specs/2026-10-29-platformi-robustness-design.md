@@ -80,15 +80,17 @@ regressions; critique → fix → polish → re-critique per surface.
 - Exit: re-run `$impeccable critique` on homepage + status + crowdsource;
   no silent-stale states.
 
-### Phase 3 — Finished money path
+### Phase 3 — Finished money path (intercity first, all-mode windows)
 - Ticket lifecycle state machine (reserved → paid → fulfilled/used,
   refund states already partially modeled in wallet); idempotency keys
-  on all ticketing writes; payment integration (provider TBD — see open
-  questions) behind the existing hub UI; webhook reconciliation.
-- Guest + member flows, OCC refund panel already exists — wire it to
-  the real lifecycle.
-- Exit: a ticket can be bought, used, and refunded without manual DB
-  edits; duplicate-submit safe.
+  on all ticketing writes; payment integration behind the existing hub
+  UI; webhook reconciliation. Goes live for intercity seats first.
+- Urban modes keep visible purchasing windows (entry + quote); money
+  movement per mode follows once the lifecycle is proven.
+- Guest + member flows (guest purchase stays, with incentives to join),
+  OCC refund panel wired to the real lifecycle.
+- Exit: an intercity ticket can be bought, used, and refunded without
+  manual DB edits; duplicate-submit safe.
 
 ### Phase 4 — Hardened writes + admin gaps
 - AuthN/authZ on all write routes (alerts, fleet, network, timetables,
@@ -104,6 +106,33 @@ regressions; critique → fix → polish → re-critique per surface.
 - Priority order inside the work: collision + Esc class fixes before
   affordances; verify-then-fix for silent paths.
 - Each phase ends with critique evidence, not just green tests.
+- **Money scope (Q1 = a)**: the finished money path covers intercity
+  seats first (KAI intercity, AKAP, executive shuttles). All modes keep
+  visible ticket-purchasing windows (entry points + fare quotes via the
+  existing per-line modal); money movement goes live per mode only after
+  the lifecycle is proven on intercity.
+- **Identity matrix (Q2 = a)**: guests may purchase and crowd-report
+  (vehicles now, buildings later) with limits — rate limits, lower
+  priority/weight, guest badges. Accounts earn incentives: verified
+  badge, full report weight, purchase history, saved routes/trips,
+  cooldown relief, crowdsource standing. Admin + partner-only for all
+  OCC/operations surfaces. Signed-in users get near-complete user-side
+  privileges: profile, passes/wallet, history, preferences, report
+  standing and appeal visibility.
+- **Store (Q3 = b)**: move Prisma to Postgres (e.g. Neon) for
+  future-proofing, as a Phase 0 prerequisite before the scheduled
+  pipeline and the money path land.
+- **Trust enforcement (Q4 = a)**: quiet down-weight for flagged reports
+  (stay visible, count less) + OCC review queue, no user-facing penalty;
+  verified/account reports weigh more, which doubles as the account
+  incentive. Crowd-report benefits (freshness, coverage) stay public.
+
+## Phase 0 — Postgres migration (new prerequisite)
+
+- Move Prisma from SQLite to Postgres; dual-run SQLite for tests,
+  Postgres for dev/prod parity; migrate seed + drift-report storage.
+- Exit: scheduled jobs, concurrent reservations, and webhooks have a
+  real transactional store; SQLite remains only as the fast test DB.
 
 ## Left to the builder
 
