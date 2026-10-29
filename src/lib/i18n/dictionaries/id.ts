@@ -1220,6 +1220,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     tripLabel: "Nama trip",
     addTrip: "Simpan trip",
     deleteTrip: "Hapus trip",
+    confirmDelete: "Konfirmasi hapus",
     errorGeneric: "Terjadi kesalahan. Silakan coba lagi.",
     cancelledAuth: "Dibatalkan",
     errorNoAccount: "Tidak ada akun untuk nomor ini. Coba daftar — isian Anda tetap tersimpan.",

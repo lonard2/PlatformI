@@ -80,6 +80,8 @@ export const MemberAccountPanel: React.FC = () => {
   const [linkCode, setLinkCode] = useState<string>("");
   const [linkPhone, setLinkPhone] = useState<string>("");
   const [showAllHistory, setShowAllHistory] = useState<boolean>(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lastMember, setLastMember] = useState<{ id: string; displayName: string } | null>(null);
 
   const refreshMe = useCallback(async (): Promise<MemberProfile | null> => {
@@ -159,6 +161,7 @@ export const MemberAccountPanel: React.FC = () => {
   useEffect(() => {
     return () => {
       if (ceremonyTimer.current) clearTimeout(ceremonyTimer.current);
+      if (deleteTimer.current) clearTimeout(deleteTimer.current);
     };
   }, []);
 
@@ -323,6 +326,19 @@ export const MemberAccountPanel: React.FC = () => {
   }
 
   async function handleDeleteTrip(id: string): Promise<void> {
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      if (deleteTimer.current) clearTimeout(deleteTimer.current);
+      deleteTimer.current = setTimeout(() => {
+        setPendingDeleteId((current) => (current === id ? null : current));
+      }, 5000);
+      return;
+    }
+    if (deleteTimer.current) {
+      clearTimeout(deleteTimer.current);
+      deleteTimer.current = null;
+    }
+    setPendingDeleteId(null);
     const res = await fetch(`/api/members/trips/${id}`, { method: "DELETE", credentials: "same-origin" }).catch(() => null);
     if (res && res.ok) setTrips((prev) => prev.filter((trip) => trip.id !== id));
   }
@@ -346,27 +362,37 @@ export const MemberAccountPanel: React.FC = () => {
             {t.account.guestBadge}
           </span>
         </div>
-        <input
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          placeholder={t.account.displayNameLabel}
-          aria-label={t.account.displayNameLabel}
-          className="touch-target w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-        />
-        <input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder={t.account.phoneLabel}
-          aria-label={t.account.phoneLabel}
-          inputMode="tel"
-          className="touch-target w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-        />
+        <div className="space-y-1">
+          <label htmlFor="member-display-name" className="text-[11px] font-medium text-slate-400">
+            {t.account.displayNameLabel}
+          </label>
+          <input
+            id="member-display-name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder={t.account.displayNameLabel}
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+          />
+        </div>
+        <div className="space-y-1">
+          <label htmlFor="member-phone" className="text-[11px] font-medium text-slate-400">
+            {t.account.phoneLabel}
+          </label>
+          <input
+            id="member-phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder={t.account.phoneLabel}
+            inputMode="tel"
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+          />
+        </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => void handleRegister()}
             disabled={busyAction === "register" || displayName.trim() === ""}
-            className="touch-target px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold disabled:opacity-50 transition"
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold disabled:opacity-50 transition"
           >
             {t.account.registerWithPasskey}
           </button>
@@ -374,7 +400,7 @@ export const MemberAccountPanel: React.FC = () => {
             type="button"
             onClick={() => void handleLogin()}
             disabled={busyAction === "login" || phone.trim() === ""}
-            className="touch-target px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
           >
             {t.account.continueWithPasskey}
           </button>
@@ -383,7 +409,7 @@ export const MemberAccountPanel: React.FC = () => {
               type="button"
               onClick={() => void handleLogin(lastMember.id)}
               disabled={busyAction === "login"}
-              className="touch-target px-3.5 py-2 rounded-xl bg-slate-800 border border-cyan-500/40 text-xs font-medium text-cyan-300 hover:bg-slate-700 disabled:opacity-50 transition"
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-slate-800 border border-cyan-500/40 text-xs font-medium text-cyan-300 hover:bg-slate-700 disabled:opacity-50 transition"
             >
               {t.account.continueAs.replace("{name}", lastMember.displayName)}
             </button>
@@ -394,7 +420,7 @@ export const MemberAccountPanel: React.FC = () => {
             {statusMessage}
           </p>
         )}
-        {error && <p className="text-[11px] text-rose-400">{error}</p>}
+        {error && <p role="alert" className="text-[11px] text-rose-400">{error}</p>}
       </div>
     );
   }
@@ -419,7 +445,7 @@ export const MemberAccountPanel: React.FC = () => {
         <button
           type="button"
           onClick={() => void handleLogout()}
-          className="touch-target p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
+          className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition"
           aria-label={t.account.signOut}
           title={t.account.signOut}
         >
@@ -442,29 +468,39 @@ export const MemberAccountPanel: React.FC = () => {
         <div className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/60 space-y-2 mb-1.5">
           <span className="text-[11px] font-semibold text-slate-300">{t.account.linkTitle}</span>
           <div className="grid grid-cols-2 gap-1.5">
-            <input
-              value={linkCode}
-              onChange={(e) => setLinkCode(e.target.value)}
-              placeholder={t.account.linkCode}
-              aria-label={t.account.linkCode}
-              autoComplete="off"
-              className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
-            />
-            <input
-              value={linkPhone}
-              onChange={(e) => setLinkPhone(e.target.value)}
-              placeholder={t.account.phoneLabel}
-              aria-label={t.account.phoneLabel}
-              inputMode="tel"
-              autoComplete="tel"
-              className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-            />
+            <div className="space-y-1 min-w-0">
+              <label htmlFor="member-link-code" className="text-[11px] font-medium text-slate-400">
+                {t.account.linkCode}
+              </label>
+              <input
+                id="member-link-code"
+                value={linkCode}
+                onChange={(e) => setLinkCode(e.target.value)}
+                placeholder={t.account.linkCode}
+                autoComplete="off"
+                className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+              />
+            </div>
+            <div className="space-y-1 min-w-0">
+              <label htmlFor="member-link-phone" className="text-[11px] font-medium text-slate-400">
+                {t.account.phoneLabel}
+              </label>
+              <input
+                id="member-link-phone"
+                value={linkPhone}
+                onChange={(e) => setLinkPhone(e.target.value)}
+                placeholder={t.account.phoneLabel}
+                inputMode="tel"
+                autoComplete="tel"
+                className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
           </div>
           <button
             type="button"
             onClick={() => void handleLinkTicket()}
             disabled={busyAction === "link" || linkCode.trim() === "" || linkPhone.trim() === ""}
-            className="touch-target w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
           >
             {t.account.linkButton}
           </button>
@@ -491,7 +527,7 @@ export const MemberAccountPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowAllHistory((v) => !v)}
-                className="mt-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300"
+                className="mt-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded"
               >
                 {showAllHistory ? t.account.showLess : t.account.viewAll}
               </button>
@@ -506,34 +542,49 @@ export const MemberAccountPanel: React.FC = () => {
           {t.account.savedTrips}
         </div>
         <div className="grid grid-cols-2 gap-1.5 mb-1.5">
-          <input
-            value={tripOrigin}
-            onChange={(e) => setTripOrigin(e.target.value)}
-            placeholder={t.account.tripOriginLabel}
-            aria-label={t.account.tripOriginLabel}
-            className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-          />
-          <input
-            value={tripDestination}
-            onChange={(e) => setTripDestination(e.target.value)}
-            placeholder={t.account.tripDestinationLabel}
-            aria-label={t.account.tripDestinationLabel}
-            className="touch-target min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-          />
+          <div className="space-y-1 min-w-0">
+            <label htmlFor="member-trip-origin" className="text-[11px] font-medium text-slate-400">
+              {t.account.tripOriginLabel}
+            </label>
+            <input
+              id="member-trip-origin"
+              value={tripOrigin}
+              onChange={(e) => setTripOrigin(e.target.value)}
+              placeholder={t.account.tripOriginLabel}
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          <div className="space-y-1 min-w-0">
+            <label htmlFor="member-trip-destination" className="text-[11px] font-medium text-slate-400">
+              {t.account.tripDestinationLabel}
+            </label>
+            <input
+              id="member-trip-destination"
+              value={tripDestination}
+              onChange={(e) => setTripDestination(e.target.value)}
+              placeholder={t.account.tripDestinationLabel}
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
         </div>
-        <div className="flex gap-1.5">
-          <input
-            value={tripLabel}
-            onChange={(e) => setTripLabel(e.target.value)}
-            placeholder={t.account.tripLabel}
-            aria-label={t.account.tripLabel}
-            className="touch-target flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-          />
+        <div className="flex gap-1.5 items-end">
+          <div className="flex-1 min-w-0 space-y-1">
+            <label htmlFor="member-trip-label" className="text-[11px] font-medium text-slate-400">
+              {t.account.tripLabel}
+            </label>
+            <input
+              id="member-trip-label"
+              value={tripLabel}
+              onChange={(e) => setTripLabel(e.target.value)}
+              placeholder={t.account.tripLabel}
+              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 w-full"
+            />
+          </div>
           <button
             type="button"
             onClick={() => void handleAddTrip()}
             disabled={busyAction === "trip" || tripOrigin.trim() === "" || tripDestination.trim() === ""}
-            className="touch-target px-3 py-2 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-xs font-bold hover:bg-cyan-900/60 disabled:opacity-50 transition flex items-center gap-1"
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3 py-2 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-xs font-bold hover:bg-cyan-900/60 disabled:opacity-50 transition flex items-center gap-1"
           >
             <Plus className="w-3.5 h-3.5" />
             {t.account.addTrip}
@@ -550,21 +601,32 @@ export const MemberAccountPanel: React.FC = () => {
                   <strong className="text-slate-100">{trip.label}</strong>
                   <span className="text-slate-500"> {trip.origin} → {trip.destination}</span>
                 </span>
+                {pendingDeleteId === trip.id ? (
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteTrip(trip.id)}
+                    aria-label={`${t.account.confirmDelete}: ${trip.label}`}
+                    className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-500/50 text-rose-300 text-[11px] font-bold transition shrink-0"
+                  >
+                    {t.account.confirmDelete}
+                  </button>
+                ) : (
                 <button
                   type="button"
                   onClick={() => void handleDeleteTrip(trip.id)}
                   aria-label={`${t.account.deleteTrip}: ${trip.label}`}
-                  className="touch-target p-1.5 rounded-lg text-slate-500 hover:text-rose-400 transition shrink-0"
+                  className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 transition shrink-0"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
+                )}
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      {error && <p className="text-[11px] text-rose-400">{error}</p>}
+      {error && <p role="alert" className="text-[11px] text-rose-400">{error}</p>}
     </div>
   );
 };

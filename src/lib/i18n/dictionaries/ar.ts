@@ -1220,6 +1220,7 @@ export const ar: TranslationDictionary = {
     tripLabel: "اسم الرحلة",
     addTrip: "حفظ الرحلة",
     deleteTrip: "حذف",
+    confirmDelete: "تأكيد الحذف",
     errorGeneric: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     cancelledAuth: "ملغي",
     errorNoAccount: "لا يوجد حساب لهذا الرقم. جرّب التسجيل — ستبقى إدخالاتك محفوظة.",

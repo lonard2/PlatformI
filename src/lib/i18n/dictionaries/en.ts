@@ -1220,6 +1220,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     tripLabel: "Trip label",
     addTrip: "Save trip",
     deleteTrip: "Delete trip",
+    confirmDelete: "Confirm delete",
     errorGeneric: "Something went wrong. Please try again.",
     cancelledAuth: "Cancelled",
     errorNoAccount: "No account found for this number. Try registering instead — your entries are kept.",

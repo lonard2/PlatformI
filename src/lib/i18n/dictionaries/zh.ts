@@ -1220,6 +1220,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     tripLabel: "行程名称",
     addTrip: "保存行程",
     deleteTrip: "删除",
+    confirmDelete: "确认删除",
     errorGeneric: "出现问题，请重试。",
     cancelledAuth: "已取消",
     errorNoAccount: "未找到此号码的账户，请尝试注册——您的输入会保留。",

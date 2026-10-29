@@ -1230,6 +1230,7 @@ export interface TranslationDictionary {
     tripLabel: string;
     addTrip: string;
     deleteTrip: string;
+    confirmDelete: string;
     errorGeneric: string;
     cancelledAuth: string;
     errorNoAccount: string;
