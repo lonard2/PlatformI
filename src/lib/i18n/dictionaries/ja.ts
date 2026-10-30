@@ -1224,6 +1224,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     chooserHint: "初めての方：パスキーを登録。おかえりなさい：下から続行してください。",
     errorGeneric: "問題が発生しました。もう一度お試しください。",
     cancelledAuth: "キャンセル済み",
+    countdownLeft: "（残り{n}秒）",
     busyWaiting: "待機中…",
     errorNoAccount: "この番号のアカウントが見つかりません。登録をお試しください。入力内容は保持されます。",
     errorAlreadyRegistered: "この番号は既に登録されています。サインインに進んでください。",

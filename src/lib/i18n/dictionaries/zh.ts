@@ -1224,6 +1224,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     chooserHint: "新用户？请注册通行密钥。老用户？请在下方继续。",
     errorGeneric: "出现问题，请重试。",
     cancelledAuth: "已取消",
+    countdownLeft: "（剩{n}秒）",
     busyWaiting: "等待中…",
     errorNoAccount: "未找到此号码的账户，请尝试注册——您的输入会保留。",
     errorAlreadyRegistered: "该号码已注册，请继续登录。",

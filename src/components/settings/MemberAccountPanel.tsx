@@ -70,7 +70,8 @@ export const MemberAccountPanel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const ceremonyRunId = useRef<number>(0);
-  const ceremonyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ceremonyTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const ceremonyStartedAt = useRef<number>(0);
   const CEREMONY_TIMEOUT_MS = 75_000;
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const [history, setHistory] = useState<PurchasedTicket[]>([]);
@@ -131,28 +132,55 @@ export const MemberAccountPanel: React.FC = () => {
   }, [refreshMe, refreshCollections]);
 
   // A ceremony is one register/login attempt. Only the started action locks;
-  // a run id + timeout pair guarantees a stuck ceremony always releases the UI.
-  function beginCeremony(kind: "register" | "login"): number {
+  // a run id + abort controller + countdown pair guarantees a stuck ceremony
+  // always releases the UI, ignores late completions, and cancels in-flight
+  // fetches. Clearing the timeout alone would leave the fetch hanging.
+  const ceremonyAbortRef = useRef<AbortController | null>(null);
+
+  function renderWaitingWithCountdown(): void {
+    const elapsed = Date.now() - ceremonyStartedAt.current;
+    const remainingS = Math.max(
+      0,
+      Math.ceil((CEREMONY_TIMEOUT_MS - elapsed) / 1000)
+    );
+    setStatusMessage(
+      `${t.account.statusWaiting} ${t.account.countdownLeft.replace("{n}", String(remainingS))}`
+    );
+  }
+
+  function beginCeremony(kind: "register" | "login"): { runId: number; signal: AbortSignal } {
     const runId = ceremonyRunId.current + 1;
     ceremonyRunId.current = runId;
     setBusyAction(kind);
     setError(null);
-    setStatusMessage(t.account.statusWaiting);
-    if (ceremonyTimer.current) clearTimeout(ceremonyTimer.current);
-    ceremonyTimer.current = setTimeout(() => {
+    if (ceremonyTimer.current) clearInterval(ceremonyTimer.current);
+    if (ceremonyAbortRef.current) ceremonyAbortRef.current.abort();
+    const controller = new AbortController();
+    ceremonyAbortRef.current = controller;
+    ceremonyStartedAt.current = Date.now();
+    renderWaitingWithCountdown();
+    ceremonyTimer.current = setInterval(() => {
       if (ceremonyRunId.current !== runId) return;
-      ceremonyRunId.current += 1;
-      setBusyAction(null);
-      setStatusMessage(t.account.statusExpired);
-    }, CEREMONY_TIMEOUT_MS);
-    return runId;
+      if (Date.now() - ceremonyStartedAt.current >= CEREMONY_TIMEOUT_MS) {
+        ceremonyRunId.current += 1;
+        if (ceremonyTimer.current) {
+          clearInterval(ceremonyTimer.current);
+          ceremonyTimer.current = null;
+        }
+        setBusyAction(null);
+        setStatusMessage(t.account.statusExpired);
+        return;
+      }
+      renderWaitingWithCountdown();
+    }, 1000);
+    return { runId, signal: controller.signal };
   }
 
   function endCeremony(runId: number): boolean {
     if (ceremonyRunId.current !== runId) return false;
     ceremonyRunId.current += 1;
     if (ceremonyTimer.current) {
-      clearTimeout(ceremonyTimer.current);
+      clearInterval(ceremonyTimer.current);
       ceremonyTimer.current = null;
     }
     setBusyAction(null);
@@ -160,9 +188,24 @@ export const MemberAccountPanel: React.FC = () => {
     return true;
   }
 
+  function cancelCeremony(): void {
+    ceremonyRunId.current += 1;
+    if (ceremonyTimer.current) {
+      clearInterval(ceremonyTimer.current);
+      ceremonyTimer.current = null;
+    }
+    ceremonyAbortRef.current?.abort();
+    ceremonyAbortRef.current = null;
+    if (busyAction !== null) {
+      setBusyAction(null);
+      setStatusMessage(t.account.cancelledAuth);
+    }
+  }
+
   useEffect(() => {
     return () => {
-      if (ceremonyTimer.current) clearTimeout(ceremonyTimer.current);
+      if (ceremonyTimer.current) clearInterval(ceremonyTimer.current);
+      if (ceremonyAbortRef.current) ceremonyAbortRef.current.abort();
       if (deleteTimer.current) clearTimeout(deleteTimer.current);
     };
   }, []);
@@ -180,13 +223,14 @@ export const MemberAccountPanel: React.FC = () => {
 
   async function handleRegister(): Promise<void> {
     if (!displayName.trim() || busyAction !== null) return;
-    const runId = beginCeremony("register");
+    const { runId, signal } = beginCeremony("register");
     try {
       const { startRegistration } = await import("@simplewebauthn/browser");
       const beginRes = await fetch("/api/members/register/begin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
+        signal,
         body: JSON.stringify({ displayName: displayName.trim(), phone: phone.trim() || undefined }),
       });
       const beginJson = (await beginRes.json()) as ApiEnvelope<{ provisionalId: string; options: never }>;
@@ -196,6 +240,7 @@ export const MemberAccountPanel: React.FC = () => {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
+        signal,
         body: JSON.stringify({
           provisionalId: beginJson.data.provisionalId,
           displayName: displayName.trim(),
@@ -215,6 +260,7 @@ export const MemberAccountPanel: React.FC = () => {
       await refreshCollections();
     } catch (err) {
       if (!endCeremony(runId)) return;
+      if ((err as Error).name === "AbortError") return;
       if ((err as Error).name === "NotAllowedError") {
         setError(t.account.cancelledAuth);
       } else {
@@ -225,13 +271,14 @@ export const MemberAccountPanel: React.FC = () => {
 
   async function handleLogin(memberId?: string, loginPhone?: string): Promise<void> {
     if (busyAction !== null) return;
-    const runId = beginCeremony("login");
+    const { runId, signal } = beginCeremony("login");
     try {
       const { startAuthentication } = await import("@simplewebauthn/browser");
       const beginRes = await fetch("/api/members/login/begin", {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
+        signal,
         body: JSON.stringify(memberId ? { memberId } : { phone: (loginPhone ?? phone).trim() }),
       });
       const beginJson = (await beginRes.json()) as ApiEnvelope<{
@@ -244,6 +291,7 @@ export const MemberAccountPanel: React.FC = () => {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
+        signal,
         body: JSON.stringify({ memberId: beginJson.data.memberId, credential }),
       });
       const finishJson = (await finishRes.json()) as ApiEnvelope<MemberProfile>;
@@ -258,6 +306,7 @@ export const MemberAccountPanel: React.FC = () => {
       await refreshCollections();
     } catch (err) {
       if (!endCeremony(runId)) return;
+      if ((err as Error).name === "AbortError") return;
       if ((err as Error).name === "NotAllowedError") {
         setError(t.account.cancelledAuth);
       } else {
@@ -443,9 +492,20 @@ export const MemberAccountPanel: React.FC = () => {
           )}
         </div>
         {statusMessage && (
-          <p role="status" className="text-[11px] text-cyan-300">
-            {statusMessage}
-          </p>
+          <div className="flex items-center gap-2">
+            <p role="status" className="text-[11px] text-cyan-300 flex-1">
+              {statusMessage}
+            </p>
+            {(busyAction === "register" || busyAction === "login") && (
+              <button
+                type="button"
+                onClick={() => void cancelCeremony()}
+                className="touch-target min-h-[44px] px-2.5 py-1 text-[11px] font-semibold text-slate-300 underline underline-offset-4 decoration-slate-500 hover:text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded shrink-0"
+              >
+                {t.common.cancel}
+              </button>
+            )}
+          </div>
         )}
         {error && <p role="alert" className="text-[11px] text-rose-400">{error}</p>}
       </div>
