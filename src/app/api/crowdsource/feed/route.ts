@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { TRANSIT_VEHICLES, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
+import { FLAG_THRESHOLD_COUNT } from "@/lib/services/memberTrust";
 
 export interface FormattedFeedItem {
   id: string;
@@ -30,6 +31,8 @@ export interface FormattedFeedItem {
   note: string | null;
   timestamp: string;
   timestampMs: number;
+  /** True once the report reaches the flag threshold (counts stay private). */
+  flagged: boolean;
 }
 
 export async function GET(request: NextRequest) {
@@ -47,6 +50,7 @@ export async function GET(request: NextRequest) {
       acComfort: string;
       note: string | null;
       timestamp: Date;
+      flagCount: number;
     }[] = [];
 
     try {
@@ -89,6 +93,7 @@ export async function GET(request: NextRequest) {
         note: report.note,
         timestamp: report.timestamp.toISOString(),
         timestampMs: report.timestamp.getTime(),
+        flagged: report.flagCount >= FLAG_THRESHOLD_COUNT,
       });
     }
 
@@ -129,6 +134,7 @@ export async function GET(request: NextRequest) {
               : null,
           timestamp: reportTime.toISOString(),
           timestampMs: reportTime.getTime(),
+          flagged: false,
         });
       });
     }

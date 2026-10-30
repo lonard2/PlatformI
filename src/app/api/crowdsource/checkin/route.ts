@@ -18,6 +18,7 @@ import { requireMember } from "@/lib/services/memberAuthService";
 import {
   reporterWeightFor,
   cooldownSecondsFor,
+  effectiveReportWeight,
 } from "@/lib/services/memberTrust";
 import { requireOperator } from "@/lib/services/adminAuthService";
 
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Fetch recent check-ins for this vehicle from DB to compute exponential decay score
-    let recentCheckIns: { crowdLevel: string; acComfort: string; timestamp: Date; weight?: number | null }[] = [];
+    let recentCheckIns: { crowdLevel: string; acComfort: string; timestamp: Date; weight?: number | null; flagCount?: number | null }[] = [];
     try {
       recentCheckIns = await db.crowdsourceCheckIn.findMany({
         where: { vehicleId },
@@ -163,7 +164,10 @@ export async function POST(request: NextRequest) {
     let totalWeight = 0;
 
     for (const report of recentCheckIns) {
-      const weight = calculateDecayWeight(report.timestamp.getTime(), nowMs) * (report.weight ?? 1);
+      // Quiet down-weight: flagged reports stay in the mix but count less.
+      const weight =
+        calculateDecayWeight(report.timestamp.getTime(), nowMs) *
+        effectiveReportWeight(report.weight ?? 1, report.flagCount ?? 0);
       const rating = parseDensityToNumeric(report.crowdLevel);
       weightedSum += weight * rating;
       totalWeight += weight;

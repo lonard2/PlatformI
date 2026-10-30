@@ -161,7 +161,20 @@ model CrowdsourceCheckIn {
   acComfort  String
   note       String?
   weight     Float    @default(1.0)
+  flagCount  Int      @default(0)
+  flags      CrowdsourceFlag[]
   timestamp  DateTime @default(now())
+}
+
+model CrowdsourceFlag {
+  id         String           @id @default(cuid())
+  checkInId  String
+  checkIn    CrowdsourceCheckIn @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  memberId   String
+  reason     String
+  createdAt  DateTime         @default(now())
+
+  @@unique([checkInId, memberId])
 }
 
 model Ticket {
