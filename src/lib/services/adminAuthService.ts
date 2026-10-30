@@ -375,3 +375,24 @@ export function authenticateOperator(
     token,
   };
 }
+
+/**
+ * Resolve the calling operator from a raw Cookie header value.
+ * Returns null when there is no usable operator session; callers map
+ * that to 401. Role gating (e.g. finance-only) stays with the caller so
+ * each route declares exactly what it requires.
+ */
+export function requireOperator(
+  cookieHeader: string | null | undefined
+): { id: string; role: string } | null {
+  if (!cookieHeader) return null;
+  const part = cookieHeader
+    .split(";")
+    .map((p) => p.trim())
+    .find((p) => p.startsWith(`${OPERATOR_COOKIE_NAME}=`));
+  if (!part) return null;
+  const token = decodeURIComponent(part.slice(OPERATOR_COOKIE_NAME.length + 1));
+  const validation = verifyOperatorSessionToken(token);
+  if (!validation.isValid || !validation.operatorId) return null;
+  return { id: validation.operatorId, role: validation.role ?? "CHIEF_DISPATCHER" };
+}
