@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { Coordinate, Region } from "@/types/transit";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 function parseBoundary(raw: unknown): { ok: true; points: Coordinate[] } | { ok: false; error: string } {
   if (raw === undefined || raw === null || raw === "") {
@@ -77,13 +78,23 @@ function toView(row: RegionRow, lineCount: number): Region & { lineCount: number
   };
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request?: Request): Promise<NextResponse> {
   try {
     const rows = await db.region.findMany({
       orderBy: { name: "asc" },
       include: { _count: { select: { lines: true } } },
     });
-    return NextResponse.json({ success: true, data: rows.map((r) => toView(r, r._count.lines)) });
+    const regionPage = paginate(
+      rows.map((r) => toView(r, r._count.lines)),
+      readPageParams(request?.url ?? "http://localhost/")
+    );
+    return NextResponse.json({
+      success: true,
+      data: regionPage.items,
+      page: regionPage.page,
+      pageSize: regionPage.pageSize,
+      total: regionPage.total,
+    });
   } catch (error) {
     return NextResponse.json(
       {

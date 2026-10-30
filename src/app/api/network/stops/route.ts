@@ -13,6 +13,7 @@ import { Stop, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 import { wilayahForCoordinate } from "@/lib/geodesy/wilayah";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 function inferStationType(s: { name: string; lineId: string; isInterchange?: boolean }): StationType {
   const nameLower = s.name.toLowerCase();
@@ -177,10 +178,14 @@ export async function GET(request: NextRequest) {
       stops = stops.filter((s) => s.lineId === lineId);
     }
 
+    const stopPage = paginate(stops, readPageParams(request.url));
     return NextResponse.json({
       success: true,
-      count: stops.length,
-      data: stops,
+      count: stopPage.items.length,
+      data: stopPage.items,
+      page: stopPage.page,
+      pageSize: stopPage.pageSize,
+      total: stopPage.total,
     });
   } catch (error) {
     return NextResponse.json(

@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { DISRUPTION_ALERTS, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 // In-memory runtime cache ensuring operational alerts persist during session
 let runtimeAlerts: DisruptionAlert[] = [...DISRUPTION_ALERTS];
@@ -70,11 +71,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    const alertPage = paginate(alerts, readPageParams(request.url));
     return NextResponse.json(
       {
         success: true,
-        count: alerts.length,
-        data: alerts,
+        count: alertPage.items.length,
+        data: alertPage.items,
+        page: alertPage.page,
+        pageSize: alertPage.pageSize,
+        total: alertPage.total,
       },
       { status: 200 }
     );

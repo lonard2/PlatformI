@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { Line, TransitMode, TransitCategory, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_LINES, JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 // In-memory runtime cache ensuring operational continuity if DB is temporarily locked
 let runtimeLines: Line[] = [...TRANSIT_LINES];
@@ -98,10 +99,14 @@ export async function GET(request: NextRequest) {
       lines = lines.filter((l) => l.category === category);
     }
 
+    const linePage = paginate(lines, readPageParams(request.url));
     return NextResponse.json({
       success: true,
-      count: lines.length,
-      data: lines,
+      count: linePage.items.length,
+      data: linePage.items,
+      page: linePage.page,
+      pageSize: linePage.pageSize,
+      total: linePage.total,
     });
   } catch (error) {
     return NextResponse.json(

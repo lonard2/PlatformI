@@ -17,6 +17,7 @@ import {
 } from "@/types/transit";
 import { DEFAULT_TIMETABLE_RUNS } from "@/lib/data/defaultTimetables";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 // Runtime in-memory cache ensuring instant availability and offline resilience
 let runtimeTimetableRuns: TimetableRun[] = [...DEFAULT_TIMETABLE_RUNS];
@@ -149,10 +150,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const runPage = paginate(runs, readPageParams(request.url));
     return NextResponse.json({
       success: true,
-      count: runs.length,
-      data: runs,
+      count: runPage.items.length,
+      data: runPage.items,
+      page: runPage.page,
+      pageSize: runPage.pageSize,
+      total: runPage.total,
     });
   } catch (error) {
     return NextResponse.json(

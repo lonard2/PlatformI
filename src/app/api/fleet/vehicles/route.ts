@@ -21,6 +21,7 @@ import {
 } from "@/types/transit";
 import { TRANSIT_VEHICLES } from "@/lib/data/jakarta-dataset";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 // In-memory runtime cache ensuring operational continuity if DB is temporarily locked or offline
 let runtimeVehicles: Vehicle[] = [...TRANSIT_VEHICLES];
@@ -144,10 +145,14 @@ export async function GET(request: NextRequest) {
       vehicles = vehicles.filter((v) => v.mode === mode);
     }
 
+    const vehiclePage = paginate(vehicles, readPageParams(request.url));
     return NextResponse.json({
       success: true,
-      count: vehicles.length,
-      data: vehicles,
+      count: vehiclePage.items.length,
+      data: vehiclePage.items,
+      page: vehiclePage.page,
+      pageSize: vehiclePage.pageSize,
+      total: vehiclePage.total,
     });
   } catch (error) {
     return NextResponse.json(

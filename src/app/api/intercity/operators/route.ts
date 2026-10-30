@@ -13,9 +13,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { IntercityOperator, TransitMode } from "@/types/transit";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
-export async function GET(_request?: Request): Promise<NextResponse> {
-  void _request;
+export async function GET(request?: Request): Promise<NextResponse> {
   try {
     const rows = await db.intercityOperator.findMany({
       orderBy: { name: "asc" },
@@ -28,7 +28,13 @@ export async function GET(_request?: Request): Promise<NextResponse> {
       serviceTier: row.serviceTier,
     }));
 
-    return NextResponse.json({ operators });
+    const operatorPage = paginate(operators, readPageParams(request?.url ?? "http://localhost/"));
+    return NextResponse.json({
+      operators: operatorPage.items,
+      page: operatorPage.page,
+      pageSize: operatorPage.pageSize,
+      total: operatorPage.total,
+    });
   } catch (error) {
     return NextResponse.json(
       {

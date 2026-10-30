@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { BoardingPoint, BoardingPointKind } from "@/types/transit";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { paginate, readPageParams } from "@/lib/api/pagination";
 
 const BOARDING_POINT_KINDS: BoardingPointKind[] = ["TERMINAL", "AGEN", "POOL", "GATE", "PIER"];
 
@@ -38,7 +39,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       orderBy: { label: "asc" },
     });
 
-    return NextResponse.json({ success: true, data: rows.map(toView) });
+    const pointPage = paginate(
+      rows.map(toView),
+      readPageParams(request.url)
+    );
+    return NextResponse.json({
+      success: true,
+      data: pointPage.items,
+      page: pointPage.page,
+      pageSize: pointPage.pageSize,
+      total: pointPage.total,
+    });
   } catch (error) {
     return NextResponse.json(
       {
