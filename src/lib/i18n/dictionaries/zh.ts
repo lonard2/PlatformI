@@ -1160,6 +1160,8 @@ export const zh: TranslationDictionary = {
 暂时无法与外部AI服务建立安全的实时连接。
 
 您仍可通过地图控件查看实时线路与时刻表, 或在服务状态面板中浏览有效的运营中断公告。`,
+    signinRequired: `### 需要会员登录
+AI 出行助手是会员功能。请从账户面板登录后咨询路线和票价问题。`,
     resetMessage: `### 聊天记录已重置
 AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个目的地或票价政策?`,
     multiModelBadge: "多模型",

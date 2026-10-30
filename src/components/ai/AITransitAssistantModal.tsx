@@ -174,6 +174,18 @@ export const AITransitAssistantModal: React.FC<AITransitAssistantModalProps> = (
         }),
       });
 
+      if (res.status === 401) {
+        const signinMsg: ExtendedChatMessage = {
+          id: `asst-signin-${Date.now()}`,
+          role: "assistant",
+          content: t.aiAdvisor.signinRequired,
+          modelUsed: selectedModel,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, signinMsg]);
+        return;
+      }
+
       if (!res.ok) {
         throw new Error(`API responded with HTTP ${res.status}`);
       }

@@ -1160,6 +1160,8 @@ Anda dapat menanyakan apa saja tentang:
 Saya tidak dapat membuat koneksi waktu nyata yang aman ke penyedia AI eksternal.
 
 Namun, Anda masih dapat memeriksa jalur transit dan jadwal langsung melalui kontrol peta kartografi atau menelusuri buletin gangguan aktif di panel Status Layanan.`,
+    signinRequired: `### Perlu Masuk Anggota
+Asisten AI transit adalah fitur anggota. Silakan masuk dari panel akun untuk bertanya tentang rute dan tarif.`,
     resetMessage: `### Riwayat Obrolan Direset
 AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi atau kebijakan tarif apa yang ingin Anda jelajahi?`,
     multiModelBadge: "Multi-Model",

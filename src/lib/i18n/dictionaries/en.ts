@@ -1160,6 +1160,8 @@ You can ask me anything about:
 I was unable to establish a secure real-time link to the external AI provider.
 
 However, you can still inspect live transit lines and schedules via the cartography map controls or browse active disruption bulletins in the Service Status drawer.`,
+    signinRequired: `### Member Sign-In Required
+The AI transit advisor is a member feature. Please sign in from the account panel to ask route and fare questions.`,
     resetMessage: `### Chat History Reset
 AI Transit Advisor is ready for your next transit inquiry. What destination or fare policy would you like to explore?`,
     multiModelBadge: "Multi-Model",

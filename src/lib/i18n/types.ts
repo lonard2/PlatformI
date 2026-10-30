@@ -1170,6 +1170,7 @@ export interface TranslationDictionary {
     routingRecommendations: string;
     welcomeMessage: string;
     offlineMessage: string;
+    signinRequired: string;
     resetMessage: string;
     multiModelBadge: string;
     openrouterModels: string;

@@ -9,8 +9,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { queryTransitAdvisor, AIChatMessage, DEFAULT_AI_MODEL_ID, SUPPORTED_AI_MODELS } from "@/lib/services/aiTransitService";
+import { requireMember } from "@/lib/services/memberAuthService";
 
 export async function POST(req: NextRequest) {
+  // Keyed compute, not public data: only signed-in members may use the
+  // assistant. Guests are invited to sign in from the chat UI.
+  if (!requireMember(req.headers.get("cookie"))) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = (await req.json()) as {
       messages?: AIChatMessage[];
