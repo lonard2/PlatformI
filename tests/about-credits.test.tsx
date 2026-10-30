@@ -26,6 +26,9 @@ describe("about and credits", () => {
     render(<AboutPage />);
     expect(screen.getByRole("heading", { name: /about platformi/i })).toBeInTheDocument();
     expect(screen.getByText(/one map for every jakarta way to move/i)).toBeInTheDocument();
+    expect(screen.getByText(/reserve first, pay on confirmation/i)).toBeInTheDocument();
+    expect(screen.getByText(/base map \(odbl\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/passkey sign-in/i)).toBeInTheDocument();
     expect(screen.getAllByText(/lonard steven/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/openstreetmap contributors/i)).toBeInTheDocument();
     expect(screen.getByText(/mit-licensed/i)).toBeInTheDocument();
@@ -38,6 +41,8 @@ describe("about and credits", () => {
     expect(screen.getByText(/satu peta untuk semua cara bergerak/i)).toBeInTheDocument();
     // Proper names stay untranslated across locales.
     expect(screen.getAllByText(/lonard steven/i).length).toBeGreaterThan(0);
+    // Details localize too.
+    expect(screen.getByText(/pesan dulu, bayar setelah konfirmasi/i)).toBeInTheDocument();
   });
 
   it("covers every credit group with entries", () => {

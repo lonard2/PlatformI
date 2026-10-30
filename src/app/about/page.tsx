@@ -62,7 +62,7 @@ export default function AboutPage() {
             {group.entries.map((entry) => (
               <li key={entry.name} className="text-sm">
                 <span className="font-semibold text-slate-100">{entry.name}</span>
-                <span className="text-slate-400"> — {entry.detail}</span>
+                <span className="text-slate-400"> — {a[entry.detailKey]}</span>
               </li>
             ))}
           </ul>

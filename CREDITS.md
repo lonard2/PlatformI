@@ -15,10 +15,10 @@ People, data, and open work this project stands on. The in-app
   Non-BRT, MikroTrans, AKAP coaches, executive shuttles, Pelni, and
   Kepulauan Seribu speedboats. Operator names stay authentic and
   untranslated by project rule.
-- **GTFS schedule refresh** — validated import pipeline with drift
-  reports (Phase 1). Schedules belong to their publishing operators.
-- **Empty-but-honest regions** — new metros ship with zero invented
-  lines; see `docs/multi-region.md`.
+- **GTFS schedule refresh** — validated schedule imports with drift
+  reports. Schedules belong to their publishing operators.
+- **Empty regions** — new metros ship with zero invented lines and are
+  shown empty on purpose; see `docs/multi-region.md`.
 
 ## Maps
 
@@ -30,8 +30,9 @@ People, data, and open work this project stands on. The in-app
 ## Built with (all open source, see package.json for versions)
 
 Next.js · React · Prisma (SQLite + PostgreSQL) · Tailwind CSS · Leaflet ·
-Zustand · Framer Motion · Lucide (icons — the project uses zero emoji) ·
-SimpleWebAuthn (passkeys) · Vitest · TypeScript (strict, no-`any` rule) ·
+Zustand · Framer Motion · Lucide (icons throughout — no emoji anywhere) ·
+SimpleWebAuthn (passkeys) · Vitest (automated test suite) · TypeScript
+(strict types throughout) ·
 Geist (Vercel) + Noto (Google Fonts) typefaces.
 
 ## AI
