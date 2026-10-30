@@ -124,6 +124,7 @@ export async function POST(request: NextRequest) {
           acComfort: acComfortStr,
           note: note || null,
           weight: reportWeight,
+          memberId: sessionMember?.id ?? null,
           timestamp: new Date(),
         },
       });
@@ -136,6 +137,7 @@ export async function POST(request: NextRequest) {
         crowdLevel: crowdLevelStr,
         acComfort: acComfortStr,
         note: note || null,
+        memberId: sessionMember?.id ?? null,
         timestamp: new Date(),
       };
     }

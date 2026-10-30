@@ -162,6 +162,7 @@ model CrowdsourceCheckIn {
   note       String?
   weight     Float    @default(1.0)
   flagCount  Int      @default(0)
+  memberId   String?
   flags      CrowdsourceFlag[]
   timestamp  DateTime @default(now())
 }

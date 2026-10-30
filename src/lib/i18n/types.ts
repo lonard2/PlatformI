@@ -1233,6 +1233,10 @@ export interface TranslationDictionary {
     signOut: string;
     purchaseHistory: string;
     savedTrips: string;
+    reportStandingTitle: string;
+    reportStandingEmpty: string;
+    reportStandingFlagged: string;
+    reportStandingFinal: string;
     emptyState: string;
     tripOriginLabel: string;
     tripDestinationLabel: string;

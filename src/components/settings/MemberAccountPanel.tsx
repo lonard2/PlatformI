@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { User, LogOut, BadgeCheck, History, MapPin, Plus, Trash2, Loader2 } from "lucide-react";
+import { User, LogOut, BadgeCheck, History, MapPin, Plus, Trash2, Loader2, Flag } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 
 interface MemberProfile {
@@ -36,6 +36,21 @@ interface PurchasedTicket {
   status: string;
   originStopId: string;
   destinationStopId: string;
+}
+
+interface StandingReport {
+  id: string;
+  vehicleId: string;
+  crowdLevel: string;
+  timestamp: string;
+  flagCount: number;
+  flagged: boolean;
+}
+
+interface ReportStanding {
+  reports: StandingReport[];
+  submitted: number;
+  flagged: number;
 }
 
 interface ApiEnvelope<T> {
@@ -75,6 +90,7 @@ export const MemberAccountPanel: React.FC = () => {
   const CEREMONY_TIMEOUT_MS = 75_000;
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const [history, setHistory] = useState<PurchasedTicket[]>([]);
+  const [reportStanding, setReportStanding] = useState<ReportStanding | null>(null);
   const [tripOrigin, setTripOrigin] = useState<string>("");
   const [tripDestination, setTripDestination] = useState<string>("");
   const [tripLabel, setTripLabel] = useState<string>("");
@@ -102,9 +118,10 @@ export const MemberAccountPanel: React.FC = () => {
 
   const refreshCollections = useCallback(async () => {
     try {
-      const [tripsRes, histRes] = await Promise.all([
+      const [tripsRes, histRes, standingRes] = await Promise.all([
         fetch("/api/members/trips", { credentials: "same-origin" }),
         fetch("/api/members/tickets", { credentials: "same-origin" }),
+        fetch("/api/members/reports", { credentials: "same-origin" }),
       ]);
       if (tripsRes.ok) {
         const json = (await tripsRes.json()) as ApiEnvelope<SavedTrip[]>;
@@ -113,6 +130,21 @@ export const MemberAccountPanel: React.FC = () => {
       if (histRes.ok) {
         const json = (await histRes.json()) as ApiEnvelope<PurchasedTicket[]>;
         if (json.success && Array.isArray(json.data)) setHistory(json.data);
+      }
+      if (standingRes.ok) {
+        const json = (await standingRes.json()) as {
+          success: boolean;
+          reports?: StandingReport[];
+          submitted?: number;
+          flagged?: number;
+        };
+        if (json.success && Array.isArray(json.reports)) {
+          setReportStanding({
+            reports: json.reports,
+            submitted: json.submitted ?? json.reports.length,
+            flagged: json.flagged ?? json.reports.filter((r) => r.flagged).length,
+          });
+        }
       }
     } catch {
       /* collections are best-effort; profile is the source of truth */
@@ -378,6 +410,7 @@ export const MemberAccountPanel: React.FC = () => {
     setMe(null);
     setTrips([]);
     setHistory([]);
+    setReportStanding(null);
     setLinkCode("");
     setLinkPhone("");
     setLinkError(null);
@@ -787,6 +820,42 @@ export const MemberAccountPanel: React.FC = () => {
               </li>
             ))}
           </ul>
+        )}
+      </div>
+
+      <div>
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 mb-1.5">
+          <Flag className="w-3.5 h-3.5 text-slate-500" />
+          {t.account.reportStandingTitle}
+        </div>
+        {reportStanding === null || reportStanding.submitted === 0 ? (
+          <p className="text-[11px] text-slate-500">{t.account.reportStandingEmpty}</p>
+        ) : (
+          <div className="space-y-1.5">
+            {reportStanding.flagged > 0 && (
+              <p className="text-[11px] font-semibold text-amber-300">
+                {t.account.reportStandingFlagged.replace("{n}", String(reportStanding.flagged))}
+              </p>
+            )}
+            <ul className="space-y-1">
+              {reportStanding.reports.slice(0, 5).map((report) => (
+                <li
+                  key={report.id}
+                  className="flex items-center justify-between text-[11px] text-slate-300 bg-slate-950/60 rounded-lg px-2.5 py-1.5 border border-slate-800/60"
+                >
+                  <span className="truncate font-mono">
+                    {report.vehicleId} · {report.crowdLevel}
+                  </span>
+                  {report.flagged && (
+                    <span className="rounded-full border border-amber-500/50 px-2 py-0.5 text-[10px] text-amber-300 shrink-0">
+                      {t.account.reportStandingFlagged.replace("{n}", String(report.flagCount))}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="text-[10px] text-slate-500">{t.account.reportStandingFinal}</p>
+          </div>
         )}
       </div>
 
