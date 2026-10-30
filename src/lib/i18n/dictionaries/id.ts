@@ -1221,6 +1221,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     addTrip: "Simpan trip",
     deleteTrip: "Hapus trip",
     confirmDelete: "Konfirmasi hapus",
+    chooserHint: "Baru di sini? Daftarkan kunci sandi. Sudah pernah? Lanjutkan di bawah.",
     errorGeneric: "Terjadi kesalahan. Silakan coba lagi.",
     cancelledAuth: "Dibatalkan",
     errorNoAccount: "Tidak ada akun untuk nomor ini. Coba daftar — isian Anda tetap tersimpan.",

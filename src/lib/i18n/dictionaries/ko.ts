@@ -1221,6 +1221,7 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     addTrip: "여정 저장",
     deleteTrip: "삭제",
     confirmDelete: "삭제 확인",
+    chooserHint: "처음이신가요? 패스키를 등록하세요. 기존 사용자라면 아래에서 계속하세요.",
     errorGeneric: "문제가 발생했습니다. 다시 시도해 주세요.",
     cancelledAuth: "취소됨",
     errorNoAccount: "이 번호의 계정을 찾을 수 없습니다. 가입을 시도해 보세요. 입력 내용은 유지됩니다.",

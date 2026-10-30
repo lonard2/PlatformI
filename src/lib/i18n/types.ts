@@ -1231,6 +1231,7 @@ export interface TranslationDictionary {
     addTrip: string;
     deleteTrip: string;
     confirmDelete: string;
+    chooserHint: string;
     errorGeneric: string;
     cancelledAuth: string;
     errorNoAccount: string;

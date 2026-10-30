@@ -1221,6 +1221,7 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     addTrip: "旅程を保存",
     deleteTrip: "削除",
     confirmDelete: "削除を確認",
+    chooserHint: "初めての方：パスキーを登録。おかえりなさい：下から続行してください。",
     errorGeneric: "問題が発生しました。もう一度お試しください。",
     cancelledAuth: "キャンセル済み",
     errorNoAccount: "この番号のアカウントが見つかりません。登録をお試しください。入力内容は保持されます。",

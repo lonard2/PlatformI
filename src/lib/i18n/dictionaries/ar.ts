@@ -1221,6 +1221,7 @@ export const ar: TranslationDictionary = {
     addTrip: "حفظ الرحلة",
     deleteTrip: "حذف",
     confirmDelete: "تأكيد الحذف",
+    chooserHint: "جديد هنا؟ سجّل مفتاح مرور. عائد؟ تابع أدناه.",
     errorGeneric: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     cancelledAuth: "ملغي",
     errorNoAccount: "لا يوجد حساب لهذا الرقم. جرّب التسجيل — ستبقى إدخالاتك محفوظة.",

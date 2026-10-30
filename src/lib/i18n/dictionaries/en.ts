@@ -1221,6 +1221,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     addTrip: "Save trip",
     deleteTrip: "Delete trip",
     confirmDelete: "Confirm delete",
+    chooserHint: "New here? Register a passkey. Returning? Continue below.",
     errorGeneric: "Something went wrong. Please try again.",
     cancelledAuth: "Cancelled",
     errorNoAccount: "No account found for this number. Try registering instead — your entries are kept.",

@@ -393,7 +393,8 @@ export const MemberAccountPanel: React.FC = () => {
             className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <p className="text-[11px] text-slate-400">{t.account.chooserHint}</p>
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => void handleRegister()}
@@ -415,7 +416,7 @@ export const MemberAccountPanel: React.FC = () => {
               type="button"
               onClick={() => void handleLogin(lastMember.id)}
               disabled={busyAction === "login"}
-              className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-slate-800 border border-cyan-500/40 text-xs font-medium text-cyan-300 hover:bg-slate-700 disabled:opacity-50 transition"
+              className="touch-target min-h-[44px] px-1 py-2 text-xs font-medium text-cyan-300 underline underline-offset-4 decoration-cyan-500/50 hover:text-cyan-200 disabled:opacity-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded"
             >
               {t.account.continueAs.replace("{name}", lastMember.displayName)}
             </button>

@@ -1221,6 +1221,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     addTrip: "保存行程",
     deleteTrip: "删除",
     confirmDelete: "确认删除",
+    chooserHint: "新用户？请注册通行密钥。老用户？请在下方继续。",
     errorGeneric: "出现问题，请重试。",
     cancelledAuth: "已取消",
     errorNoAccount: "未找到此号码的账户，请尝试注册——您的输入会保留。",
