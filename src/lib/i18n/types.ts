@@ -1184,6 +1184,21 @@ export interface TranslationDictionary {
     poweredBy: string;
     engineName: string;
   };
+  about: {
+    title: string;
+    tagline: string;
+    missionTitle: string;
+    missionBody: string;
+    coverageTitle: string;
+    coverageBody: string;
+    creditsTitle: string;
+    dataTitle: string;
+    mapsTitle: string;
+    techTitle: string;
+    licenseTitle: string;
+    licenseBody: string;
+    linkDesc: string;
+  };
   settings: {
     title: string;
     subtitle: string;

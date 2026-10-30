@@ -22,6 +22,7 @@ import {
   Check,
   RotateCcw,
   User,
+  Info,
 } from "lucide-react";
 import { useTransitStore, TileLayerId, SimulationSpeed } from "@/lib/stores/useTransitStore";
 import { useAccessibilityStore } from "@/lib/stores/useAccessibilityStore";
@@ -276,6 +277,25 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
                 className="touch-target px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
               >
                 {t.navigation.adminPanel}
+              </a>
+            </div>
+          </div>
+
+          {/* Section: About & Credits Link */}
+          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-semibold text-white text-xs flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-cyan-400" />
+                  {t.about.title}
+                </div>
+                <div className="text-[11px] text-slate-400">{t.about.linkDesc}</div>
+              </div>
+              <a
+                href="/about"
+                className="touch-target px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold transition"
+              >
+                {t.about.title}
               </a>
             </div>
           </div>
