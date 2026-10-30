@@ -43,6 +43,7 @@ describe("intercity data models", () => {
         departureTime: "25:00",
         arrivalTime: "16:30",
         operatorCode: "KAI",
+        fareRp: 150000,
       }),
     ).toThrow(/KA-999/);
   });
@@ -59,6 +60,7 @@ describe("intercity data models", () => {
         arrivalTime: "16:30",
         operatorCode: "KAI",
         boardingPointCodes: ["GMR-GATE-C"],
+        fareRp: 800000,
       }),
     ).toThrow(/GMR-GATE-C/);
   });

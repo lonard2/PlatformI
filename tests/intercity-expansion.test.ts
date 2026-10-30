@@ -2,11 +2,16 @@
  * RED: intercity expansion — dual-region lines appear in both scopes;
  * slice v2 covers Senen gateway + Bandung/Yogya AKAP/Pelni corridors;
  * the dataset backfills Halim, Marina Ancol, island and port stops.
+ * Todo 2: runs carry representative class fares, hub prefers them.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
+import { NextRequest } from "next/server";
+import { GET as routesGet } from "@/app/api/intercity/routes/route";
 import { linesInRegion } from "@/lib/stores/useRegionStore";
 import { TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 import { INTERCITY_OPERATORS, INTERCITY_RUNS } from "../prisma/seed-intercity";
+import { resolveIntercityFare } from "@/components/ticketing/IntercityTicketHub";
+import { db } from "@/lib/db";
 
 const INTERCITY = "reg-intercity-01";
 const JABODETABEK = "reg-jabodetabek-01";
@@ -53,5 +58,55 @@ describe("intercity expansion", () => {
     ]) {
       expect(names.some((n) => n.includes(must)), must).toBe(true);
     }
+  });
+});
+
+describe("intercity run fares", () => {
+  const createdIds: string[] = [];
+
+  afterEach(async () => {
+    if (createdIds.length > 0) {
+      await db.timetableRun.deleteMany({ where: { id: { in: createdIds } } }).catch(() => {});
+      createdIds.length = 0;
+    }
+  });
+
+  it("prices every slice run with a representative class fare", () => {
+    for (const row of INTERCITY_RUNS) {
+      expect(Number.isInteger(row.fareRp), row.tripCode).toBe(true);
+      expect(row.fareRp as number, row.tripCode).toBeGreaterThan(0);
+    }
+  });
+
+  it("prefers the run fare over the mode base in the hub", () => {
+    expect(resolveIntercityFare("KAI_INTERCITY", "Eksekutif Taksaka", 500000)).toBe(500000);
+    expect(resolveIntercityFare("KAI_INTERCITY", "Eksekutif Taksaka")).toBeGreaterThan(0);
+    expect(resolveIntercityFare("KAI_INTERCITY", "Eksekutif Taksaka", null)).toBeGreaterThan(0);
+  });
+
+  it("serves run fares through the routes API", async () => {
+    const created = await db.timetableRun.create({
+      data: {
+        id: "run-fare-probe",
+        lineId: "line-kai-intercity",
+        tripCode: "KA-PROBE-1",
+        origin: "Stasiun Gambir (GMR)",
+        destination: "Stasiun Bandung (BD)",
+        departureTime: "06:30",
+        arrivalTime: "09:35",
+        operatorName: "PT Kereta Api Indonesia (Persero)",
+        operatorId: "op-kai",
+        serviceClass: "Eksekutif Parahyangan",
+        fareRp: 150000,
+      },
+    });
+    createdIds.push(created.id);
+    const res = await routesGet(
+      new NextRequest("http://localhost:3000/api/intercity/routes?origin=gambir", { method: "GET" })
+    );
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { runs: Array<{ tripCode: string; fareRp?: number }> };
+    const mine = json.runs.find((r) => r.tripCode === "KA-PROBE-1");
+    expect(mine?.fareRp).toBe(150000);
   });
 });

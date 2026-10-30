@@ -226,18 +226,23 @@ function classMultiplier(serviceClass: string | undefined): number {
  */
 export function resolveIntercityFareParts(
   mode: TransitMode,
-  serviceClass: string | undefined
+  serviceClass: string | undefined,
+  runFareRp?: number | null
 ): { base: number; multiplier: number; total: number } {
   const base = INTERCITY_BASE_FARES[mode] ?? 150000;
   const multiplier = classMultiplier(serviceClass);
+  if (typeof runFareRp === "number" && Number.isFinite(runFareRp) && runFareRp > 0) {
+    return { base, multiplier, total: Math.round(runFareRp) };
+  }
   return { base, multiplier, total: Math.round((base * multiplier) / 1000) * 1000 };
 }
 
 export function resolveIntercityFare(
   mode: TransitMode,
-  serviceClass: string | undefined
+  serviceClass: string | undefined,
+  runFareRp?: number | null
 ): number {
-  return resolveIntercityFareParts(mode, serviceClass).total;
+  return resolveIntercityFareParts(mode, serviceClass, runFareRp).total;
 }
 
 /**
@@ -330,11 +335,11 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     [selectedRun, vehicleType]
   );
   const fareRp = useMemo(
-    () => resolveIntercityFare(selectedMode, selectedRun?.serviceClass),
+    () => resolveIntercityFare(selectedMode, selectedRun?.serviceClass, selectedRun?.fareRp),
     [selectedMode, selectedRun]
   );
   const fareParts = useMemo(
-    () => resolveIntercityFareParts(selectedMode, selectedRun?.serviceClass),
+    () => resolveIntercityFareParts(selectedMode, selectedRun?.serviceClass, selectedRun?.fareRp),
     [selectedMode, selectedRun]
   );
 

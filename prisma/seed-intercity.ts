@@ -20,7 +20,7 @@ import type { BoardingPointKind, TransitMode } from "../src/types/transit";
 import { JABODETABEK_REGION, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
 import { db } from "../src/lib/db";
 
-export const INTERCITY_SEED_VERSION = 2;
+export const INTERCITY_SEED_VERSION = 3;
 
 const HH_MM_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -47,6 +47,8 @@ export interface IntercitySeedRow {
   arrivalTime: string;
   operatorCode: string;
   serviceClass?: string;
+  /** Representative class fare in rupiah (public timetables move; marked representative). */
+  fareRp: number;
   gateOrBay?: string;
   daysOfWeek?: number[];
   boardingPointCodes?: string[];
@@ -109,6 +111,7 @@ export const INTERCITY_OPERATORS: IntercitySeedOperator[] = [
 export const INTERCITY_RUNS: IntercitySeedRow[] = [
   {
     tripCode: "KA-101",
+    fareRp: 800000,
     lineCode: "KAI",
     origin: "Stasiun Gambir (GMR)",
     destination: "Surabaya Pasarturi (SBI)",
@@ -122,6 +125,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "KA-13",
+    fareRp: 550000,
     lineCode: "KAI",
     origin: "Stasiun Gambir (GMR)",
     destination: "Solo Balapan (SLO)",
@@ -135,6 +139,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "KA-55",
+    fareRp: 600000,
     lineCode: "KAI",
     origin: "Stasiun Gambir (GMR)",
     destination: "Malang (ML)",
@@ -150,6 +155,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   // times here are stable daily banks, not live departures).
   {
     tripCode: "KA-201",
+    fareRp: 150000,
     lineCode: "KAI",
     origin: "Stasiun Gambir (GMR)",
     destination: "Stasiun Bandung (BD)",
@@ -163,6 +169,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "KA-202",
+    fareRp: 500000,
     lineCode: "KAI",
     origin: "Stasiun Gambir (GMR)",
     destination: "Stasiun Yogyakarta (YK)",
@@ -176,6 +183,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "KA-304",
+    fareRp: 300000,
     lineCode: "KAI",
     origin: "Stasiun Pasar Senen (PSN)",
     destination: "Stasiun Surabaya Pasarturi (SBI)",
@@ -189,6 +197,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "SJ-101",
+    fareRp: 180000,
     lineCode: "AKAP-JKT",
     origin: "Terminal Terpadu Pulo Gebang",
     destination: "Terminal Cicaheum Bandung",
@@ -202,6 +211,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "SJ-102",
+    fareRp: 320000,
     lineCode: "AKAP-JKT",
     origin: "Terminal Terpadu Pulo Gebang",
     destination: "Terminal Giwangan Yogyakarta",
@@ -215,6 +225,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "SJ-103",
+    fareRp: 450000,
     lineCode: "AKAP-JKT",
     origin: "Terminal Kampung Rambutan",
     destination: "Terminal Purabaya Surabaya",
@@ -228,6 +239,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "PEL-01",
+    fareRp: 400000,
     lineCode: "PELNI",
     origin: "Pelabuhan Tanjung Priok",
     destination: "Pelabuhan Belawan Medan",
@@ -241,6 +253,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "SRB-01",
+    fareRp: 175000,
     lineCode: "SBD",
     origin: "Pelabuhan Muara Angke (Dermaga Kali Adem)",
     destination: "Pulau Tidung",
@@ -254,6 +267,7 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
   },
   {
     tripCode: "SRB-02",
+    fareRp: 200000,
     lineCode: "SBD",
     origin: "Pelabuhan Marina Ancol",
     destination: "Pulau Pramuka",
@@ -290,6 +304,11 @@ export function validateIntercitySeedRow(row: IntercitySeedRow): void {
   if (!row.operatorCode) missing.push("operator");
   if (missing.length > 0) {
     throw new Error(`Invalid timetable row ${row.tripCode}: missing required ${missing.join(", ")}`);
+  }
+  if (!Number.isInteger(row.fareRp) || row.fareRp <= 0) {
+    throw new Error(
+      `Invalid timetable row ${row.tripCode}: fareRp must be a positive integer`,
+    );
   }
   const times: Array<[string, string]> = [
     ["departureTime", row.departureTime],
@@ -435,6 +454,7 @@ export async function seedIntercity(externalClient?: PrismaClient): Promise<Seed
           boardingPointIdsJson: JSON.stringify(boardingPointIds),
           serviceClass: row.serviceClass,
           gateOrBay: row.gateOrBay,
+          fareRp: row.fareRp,
           daysOfWeekJson: JSON.stringify(row.daysOfWeek ?? [1, 2, 3, 4, 5, 6, 0]),
         },
         create: {
@@ -450,6 +470,7 @@ export async function seedIntercity(externalClient?: PrismaClient): Promise<Seed
           boardingPointIdsJson: JSON.stringify(boardingPointIds),
           serviceClass: row.serviceClass,
           gateOrBay: row.gateOrBay,
+          fareRp: row.fareRp,
           daysOfWeekJson: JSON.stringify(row.daysOfWeek ?? [1, 2, 3, 4, 5, 6, 0]),
         },
       });

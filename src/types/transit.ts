@@ -449,6 +449,8 @@ export interface TimetableRun {
   boardingPointIds?: string[];
   serviceClass?: string;
   gateOrBay?: string;
+  /** Representative class fare in rupiah (ingester-set; hub prefers it over mode base). */
+  fareRp?: number | null;
   notes?: string;
   baggageBelt?: string;
   daysOfWeek?: number[];

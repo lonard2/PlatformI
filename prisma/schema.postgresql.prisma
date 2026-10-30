@@ -223,6 +223,7 @@ model TimetableRun {
   operatorName   String
   serviceClass   String?
   gateOrBay      String?
+  fareRp         Int?
   notes          String?
   baggageBelt    String?
   daysOfWeekJson        String?
