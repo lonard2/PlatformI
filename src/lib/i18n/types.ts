@@ -1248,6 +1248,7 @@ export interface TranslationDictionary {
     statusExpired: string;
     linkTitle: string;
     linkCode: string;
+    linkPhone: string;
     linkButton: string;
     linkNotFound: string;
     linkClaimed: string;

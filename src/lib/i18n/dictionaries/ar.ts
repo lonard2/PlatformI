@@ -1238,6 +1238,7 @@ export const ar: TranslationDictionary = {
     statusExpired: "انتهت مهلة المحاولة. لم يتغير أي شيء — حاول مرة أخرى.",
     linkTitle: "ربط تذكرة",
     linkCode: "رمز الحجز",
+    linkPhone: "رقم هاتف الشراء (يجب أن يتطابق)",
     linkButton: "ربط التذكرة",
     linkNotFound: "لا توجد تذكرة مطابقة لهذا الرمز ورقم الهاتف.",
     linkClaimed: "هذه التذكرة مرتبطة بحساب آخر بالفعل.",

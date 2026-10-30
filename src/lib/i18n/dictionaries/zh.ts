@@ -1238,6 +1238,7 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     statusExpired: "尝试已超时。没有任何更改，请重试。",
     linkTitle: "关联票券",
     linkCode: "预订代码",
+    linkPhone: "购票电话（必须一致）",
     linkButton: "关联票券",
     linkNotFound: "没有与该代码和电话匹配的票券。",
     linkClaimed: "该票券已关联到其他账户。",

@@ -1238,6 +1238,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     statusExpired: "The attempt timed out. Nothing was changed — please try again.",
     linkTitle: "Link a ticket",
     linkCode: "Reservation code",
+    linkPhone: "Purchase phone number (must match)",
     linkButton: "Link ticket",
     linkNotFound: "No ticket matches that code and phone.",
     linkClaimed: "That ticket is already linked to another account.",

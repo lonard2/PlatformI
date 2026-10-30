@@ -1238,6 +1238,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     statusExpired: "Upaya kedaluwarsa. Tidak ada yang berubah — silakan coba lagi.",
     linkTitle: "Tautkan tiket",
     linkCode: "Kode reservasi",
+    linkPhone: "Nomor telepon pembelian (harus cocok)",
     linkButton: "Tautkan tiket",
     linkNotFound: "Tidak ada tiket yang cocok dengan kode dan telepon itu.",
     linkClaimed: "Tiket itu sudah ditautkan ke akun lain.",
