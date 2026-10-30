@@ -1006,7 +1006,10 @@ export interface TranslationDictionary {
     hubBack: string;
     hubContinue: string;
     hubPayNow: string;
-    hubPurchased: string;
+    hubReserveNow: string;
+    hubAwaitingPayment: string;
+    hubPaymentRef: string;
+    hubCheckingPayment: string;    hubPurchased: string;
     hubPaidFor: string;
     hubBuyerLine: string;
     hubErrorLoad: string;

@@ -46,6 +46,8 @@ export type IntercityHubRun = TimetableRun & { mode?: TransitMode };
 export interface IntercityTicketHubProps {
   initialMode?: TransitMode;
   preselectedRun?: IntercityHubRun | null;
+  /** Status poll cadence while a reservation awaits OCC confirmation. */
+  statusPollIntervalMs?: number;
 }
 
 export const INTERCITY_MODES: TransitMode[] = [
@@ -258,9 +260,17 @@ export function resolveOccupiedSeats(runId: string, vehicleType: string): string
 
 type HubStep = 1 | 2 | 3 | 4;
 
+interface PendingReservation {
+  ticketNumber: string;
+  reservationCode: string;
+  paymentRef: string | null;
+  paymentInstructions: string | null;
+}
+
 export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
   initialMode,
   preselectedRun = null,
+  statusPollIntervalMs = 5000,
 }) => {
   const { t } = useTranslation();
 
@@ -283,7 +293,8 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
   const [buyer, setBuyer] = useState<BuyerRecord | null>(null);
   const [isPaying, setIsPaying] = useState<boolean>(false);
   const [payError, setPayError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"JAKLINGKO_CARD" | "QRIS" | "E_WALLET">("JAKLINGKO_CARD");
+  const [pendingReservation, setPendingReservation] = useState<PendingReservation | null>(null);
+  const [isCheckingPayment, setIsCheckingPayment] = useState<boolean>(false);
   const [purchased, setPurchased] = useState<boolean>(false);
   const [purchasedTicket, setPurchasedTicket] = useState<Ticket | null>(null);
 
@@ -326,12 +337,6 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
     () => resolveIntercityFareParts(selectedMode, selectedRun?.serviceClass),
     [selectedMode, selectedRun]
   );
-  const paymentMethodLabel =
-    paymentMethod === "JAKLINGKO_CARD"
-      ? t.ticketing.payJaklingko
-      : paymentMethod === "QRIS"
-        ? t.ticketing.payQris
-        : t.ticketing.payEwallet;
 
   const handleSearch = useCallback(async (): Promise<void> => {
     setIsSearching(true);
@@ -375,13 +380,57 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
       setBuyer(null);
       setPurchased(false);
       setPurchasedTicket(null);
+      setPendingReservation(null);
       setPayError(null);
       setStep(2);
     },
     [mode]
   );
 
-  const handlePay = useCallback(async (): Promise<void> => {
+  const buildWalletTicket = useCallback(
+    (ticketNumber: string, reservationCode: string, status: TicketStatus): Ticket | null => {
+      if (!selectedRun || !buyer) return null;
+      const originStopId = `INTERCITY:${selectedRun.id}:ORIGIN`;
+      const destinationStopId = `INTERCITY:${selectedRun.id}:DESTINATION`;
+      return {
+        id: `hub-${ticketNumber}`,
+        ticketNumber,
+        userId: "guest",
+        originStopId,
+        destinationStopId,
+        legs: [
+          {
+            legIndex: 0,
+            lineId: selectedRun.lineId,
+            originStopId,
+            destinationStopId,
+            mode: selectedMode,
+            fareRp,
+            distanceKm: 0,
+          },
+        ],
+        totalFareRp: fareRp,
+        isJakLingkoCapped: false,
+        status,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        rollingToken: `PLATFORMI:${ticketNumber}:guest:0:hub`,
+        guestEmail: buyer.email,
+        guestPhone: buyer.phone,
+        idNumber: buyer.idNumber,
+        seatId: seatId ?? undefined,
+        serviceClass: selectedRun.serviceClass ?? undefined,
+        reservationCode,
+        claimedByUserId: null,
+      };
+    },
+    [selectedRun, buyer, selectedMode, fareRp, seatId]
+  );
+
+  // Reserve-then-pay: the hub only ever creates an unpaid (WAITING)
+  // reservation and shows the transfer instructions. The pass issues when
+  // the OCC confirm flips the reservation to ACTIVE (see the poll below).
+  const handleReserve = useCallback(async (): Promise<void> => {
     if (!selectedRun || !buyer) return;
     setIsPaying(true);
     setPayError(null);
@@ -420,8 +469,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
           serviceClass: selectedRun.serviceClass ?? undefined,
           meal: buyer.meal ?? undefined,
           dropOffPointId: buyer.dropOffPointId ?? undefined,
-          paymentResult: "success",
-          paymentMethod,
+          paymentResult: "pending",
         }),
       });
       if (!res.ok) throw new Error(t.ticketing.errorPaymentFailed);
@@ -429,49 +477,74 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
         ticketNumber?: string;
         reservationCode?: string;
         status?: TicketStatus;
+        paymentRef?: string | null;
+        paymentInstructions?: string | null;
       };
       if (!data.ticketNumber || !data.reservationCode) {
         throw new Error(t.ticketing.errorPaymentFailed);
       }
-      // Inject the fresh pass into the wallet so checkout never loses it.
-      setPurchasedTicket({
-        id: `hub-${data.ticketNumber}`,
+      if (data.status === "ACTIVE") {
+        // Zero-fare or already-settled reservations issue immediately.
+        const ticket = buildWalletTicket(data.ticketNumber, data.reservationCode, "ACTIVE");
+        if (!ticket) throw new Error(t.ticketing.errorPaymentFailed);
+        setPurchasedTicket(ticket);
+        setPurchased(true);
+        return;
+      }
+      setPendingReservation({
         ticketNumber: data.ticketNumber,
-        userId: "guest",
-        originStopId,
-        destinationStopId,
-        legs: [
-          {
-            legIndex: 0,
-            lineId: selectedRun.lineId,
-            originStopId,
-            destinationStopId,
-            mode: selectedMode,
-            fareRp,
-            distanceKm: 0,
-          },
-        ],
-        totalFareRp: fareRp,
-        isJakLingkoCapped: false,
-        status: data.status ?? "ACTIVE",
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-        rollingToken: `PLATFORMI:${data.ticketNumber}:guest:0:hub`,
-        guestEmail: buyer.email,
-        guestPhone: buyer.phone,
-        idNumber: buyer.idNumber,
-        seatId: seatId ?? undefined,
-        serviceClass: selectedRun.serviceClass ?? undefined,
         reservationCode: data.reservationCode,
-        claimedByUserId: null,
+        paymentRef: data.paymentRef ?? null,
+        paymentInstructions: data.paymentInstructions ?? null,
       });
-      setPurchased(true);
     } catch (err) {
       setPayError(err instanceof Error ? err.message : t.ticketing.errorPaymentFailed);
     } finally {
       setIsPaying(false);
     }
-  }, [selectedRun, buyer, selectedMode, fareRp, date, seatId, paymentMethod, t]);
+  }, [selectedRun, buyer, selectedMode, fareRp, date, seatId, buildWalletTicket, t]);
+
+  // Poll the guest lookup until the OCC confirm flips the pending
+  // reservation to ACTIVE, then issue the pass. Stops on unmount or when
+  // another reservation supersedes the pending one.
+  useEffect(() => {
+    if (!pendingReservation || !buyer) return;
+    let cancelled = false;
+    const checkStatus = async (): Promise<void> => {
+      setIsCheckingPayment(true);
+      try {
+        const res = await fetch(
+          `/api/ticketing/guest-lookup?code=${encodeURIComponent(pendingReservation.reservationCode)}&phone=${encodeURIComponent(buyer.phone)}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) return;
+        const json = (await res.json()) as { ticket?: { status?: TicketStatus } };
+        if (cancelled || json.ticket?.status !== "ACTIVE") return;
+        const ticket = buildWalletTicket(
+          pendingReservation.ticketNumber,
+          pendingReservation.reservationCode,
+          "ACTIVE"
+        );
+        if (cancelled || !ticket) return;
+        // Inject the fresh pass into the wallet so checkout never loses it.
+        setPurchasedTicket(ticket);
+        setPendingReservation(null);
+        setPurchased(true);
+      } catch {
+        // Transient lookup failure: the next tick retries.
+      } finally {
+        if (!cancelled) setIsCheckingPayment(false);
+      }
+    };
+    void checkStatus();
+    const timer = setInterval(() => {
+      void checkStatus();
+    }, statusPollIntervalMs);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [pendingReservation, buyer, buildWalletTicket, statusPollIntervalMs]);
 
   const stepLabels = [
     t.ticketing.hubStepTrip,
@@ -812,35 +885,6 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
           </div>
 
           <div className="space-y-2">
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
-              <CreditCard aria-hidden="true" className="h-3.5 w-3.5 text-cyan-400" />
-              <span>{t.ticketing.selectPayment}</span>
-            </p>
-            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.ticketing.selectPayment}>
-              {(
-                [
-                  ["JAKLINGKO_CARD", t.ticketing.payJaklingko, Wallet],
-                  ["QRIS", t.ticketing.payQris, QrCode],
-                  ["E_WALLET", t.ticketing.payEwallet, CreditCard],
-                ] as const
-              ).map(([method, label, Icon]) => (
-                <button
-                  key={method}
-                  type="button"
-                  role="radio"
-                  aria-checked={paymentMethod === method}
-                  onClick={() => setPaymentMethod(method)}
-                  className={`flex flex-col items-center gap-1 rounded-xl border p-2.5 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${
-                    paymentMethod === method
-                      ? "border-cyan-400 bg-cyan-950/60"
-                      : "border-slate-800 bg-slate-900/70 hover:border-slate-700"
-                  }`}
-                >
-                  <Icon aria-hidden="true" className="h-4 w-4 text-cyan-400" />
-                  <span className="text-[11px] font-bold text-slate-200">{label}</span>
-                </button>
-              ))}
-            </div>
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
@@ -881,14 +925,32 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
                   {t.ticketing.hubReservationCode}: {purchasedTicket.reservationCode}
                 </p>
               )}
-              <p className="text-[11px] text-slate-400">
-                {paymentMethodLabel}
+            </div>
+          ) : pendingReservation ? (
+            <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2.5">
+              <p className="text-xs font-bold text-amber-200">{t.ticketing.hubAwaitingPayment}</p>
+              <p className="font-mono text-[11px] text-slate-300">
+                {t.ticketing.hubReservationCode}: {pendingReservation.reservationCode}
               </p>
+              {pendingReservation.paymentRef && (
+                <p className="font-mono text-[11px] text-slate-300">
+                  {t.ticketing.hubPaymentRef}: {pendingReservation.paymentRef}
+                </p>
+              )}
+              {pendingReservation.paymentInstructions && (
+                <p className="text-xs text-slate-300">{pendingReservation.paymentInstructions}</p>
+              )}
+              {isCheckingPayment && (
+                <p className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                  <span>{t.ticketing.hubCheckingPayment}</span>
+                </p>
+              )}
             </div>
           ) : (
             <button
               type="button"
-              onClick={() => void handlePay()}
+              onClick={() => void handleReserve()}
               disabled={isPaying}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 disabled:opacity-50"
             >
@@ -898,7 +960,7 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
                 <Wallet aria-hidden="true" className="h-4 w-4" />
               )}
               <span>
-                {t.ticketing.hubPayNow} · {formatRupiah(fareRp)}
+                {t.ticketing.hubReserveNow} · {formatRupiah(fareRp)}
               </span>
             </button>
           )}

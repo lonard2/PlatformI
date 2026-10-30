@@ -122,22 +122,16 @@ describe("IntercityTicketHub pay reassurance", () => {
     await screen.findByText("4. Wallet");
   }
 
-  it("offers a payment method choice with fare math before paying", async () => {
+  it("shows fare math and a reserve action before paying", async () => {
     await reachPayStep();
-    expect(screen.getByText(/select payment method/i)).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /qris/i })).toBeInTheDocument();
     expect(screen.getByText(/base fare/i)).toBeInTheDocument();
     expect(screen.getByText(/class x/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /reserve seat/i })).toBeInTheDocument();
   });
 
-  it("shows the reservation code and chosen method after a successful pay", async () => {
+  it("shows the reservation code after a successful pay", async () => {
     await reachPayStep();
-    fireEvent.click(screen.getByRole("radio", { name: /qris/i }));
-    fireEvent.click(screen.getByRole("button", { name: /pay now ·/i }));
+    fireEvent.click(screen.getByRole("button", { name: /reserve seat/i }));
     expect(await screen.findByText(/RSV-PAY-01/)).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /qris/i })).toHaveAttribute(
-      "aria-checked",
-      "true"
-    );
   });
 });

@@ -30,10 +30,69 @@ import {
 } from "@/lib/ticketing/reservationContract";
 import { OPERATOR_POINT_LISTS } from "@/lib/transit/salesMatrix";
 import { requireMember } from "@/lib/services/memberAuthService";
+import {
+  buildManualTransferInstructions,
+  createManualSettlementProvider,
+} from "@/lib/ticketing/manualSettlementProvider";
 
 const KNOWN_DROP_OFF_POINTS: string[] = Array.from(
   new Set(Object.values(OPERATOR_POINT_LISTS).flat())
 );
+
+interface UnpaidCharge {
+  paymentRef: string;
+  paymentInstructions: string;
+  paymentExpiresAt: string | null;
+}
+
+type ChargeableTicket = {
+  id: string;
+  ticketNumber: string;
+  reservationCode: string | null;
+  totalFareRp: number;
+  status: string;
+  paymentStatus: string;
+  paymentRef: string | null;
+};
+
+/**
+ * Every unpaid (WAITING) reservation carries a manual-settlement charge so
+ * the buyer sees exactly what to transfer and which ref to quote. Tickets
+ * created before charges existed get one attached on replay.
+ */
+async function ensureUnpaidCharge(ticket: ChargeableTicket): Promise<UnpaidCharge | null> {
+  if (ticket.status !== "WAITING") return null;
+  if (ticket.paymentStatus === "PAID" || ticket.paymentStatus === "REFUNDED") return null;
+  if (ticket.totalFareRp <= 0) return null;
+  const code = (ticket.reservationCode ?? "").trim() || ticket.ticketNumber;
+  if (ticket.paymentRef) {
+    return {
+      paymentRef: ticket.paymentRef,
+      paymentInstructions: buildManualTransferInstructions(ticket.totalFareRp, code, ticket.paymentRef),
+      paymentExpiresAt: null,
+    };
+  }
+  let charge;
+  try {
+    charge = createManualSettlementProvider().createCharge({
+      amountRp: ticket.totalFareRp,
+      ticketNumber: ticket.ticketNumber,
+      reservationCode: code,
+    });
+  } catch {
+    return null;
+  }
+  try {
+    await db.ticket.update({ where: { id: ticket.id }, data: { paymentRef: charge.paymentRef } });
+  } catch {
+    // Charge details still go back to the buyer; persistence is best-effort.
+  }
+  return {
+    paymentRef: charge.paymentRef,
+    paymentInstructions: charge.instructions,
+    paymentExpiresAt: charge.expiresAt.toISOString(),
+  };
+}
 
 interface PurchaseBody {
   userId?: string;
@@ -150,6 +209,7 @@ export async function POST(request: NextRequest) {
             { status: 409 }
           );
         }
+        const charge = await ensureUnpaidCharge(existing);
         return NextResponse.json(
           {
             success: true,
@@ -158,6 +218,9 @@ export async function POST(request: NextRequest) {
             reservationCode: existing.reservationCode,
             status: existing.status,
             ticket: existing,
+            paymentRef: charge?.paymentRef ?? existing.paymentRef,
+            paymentInstructions: charge?.paymentInstructions ?? null,
+            paymentExpiresAt: charge?.paymentExpiresAt ?? null,
           },
           { status: 200 }
         );
@@ -184,6 +247,7 @@ export async function POST(request: NextRequest) {
           return candidateKey === tripKey && (envelope.trip.travelDate ?? "") === travelDate;
         });
         if (replay) {
+          const charge = await ensureUnpaidCharge(replay);
           return NextResponse.json(
             {
               success: true,
@@ -192,6 +256,9 @@ export async function POST(request: NextRequest) {
               reservationCode: replay.reservationCode,
               status: replay.status,
               ticket: replay,
+              paymentRef: charge?.paymentRef ?? replay.paymentRef,
+              paymentInstructions: charge?.paymentInstructions ?? null,
+              paymentExpiresAt: charge?.paymentExpiresAt ?? null,
             },
             { status: 200 }
           );
@@ -241,7 +308,28 @@ export async function POST(request: NextRequest) {
       reservationCode,
       claimedByUserId: requireMember(request.headers.get("cookie"))?.id ?? null,
       idempotencyKey,
+      paymentRef: null as string | null,
     };
+
+    // Unpaid reservations are born with their settlement charge attached.
+    let createdCharge: UnpaidCharge | null = null;
+    if (status === "WAITING" && totalFareRp > 0) {
+      try {
+        const charge = createManualSettlementProvider().createCharge({
+          amountRp: totalFareRp,
+          ticketNumber,
+          reservationCode,
+        });
+        record.paymentRef = charge.paymentRef;
+        createdCharge = {
+          paymentRef: charge.paymentRef,
+          paymentInstructions: charge.instructions,
+          paymentExpiresAt: charge.expiresAt.toISOString(),
+        };
+      } catch {
+        createdCharge = null;
+      }
+    }
 
     let createdTicket;
     try {
@@ -258,6 +346,9 @@ export async function POST(request: NextRequest) {
         status: createdTicket.status,
         ticket: createdTicket,
         tokenDetails: tokenResult,
+        paymentRef: createdCharge?.paymentRef ?? createdTicket.paymentRef,
+        paymentInstructions: createdCharge?.paymentInstructions ?? null,
+        paymentExpiresAt: createdCharge?.paymentExpiresAt ?? null,
       },
       { status: 201 }
     );

@@ -36,6 +36,18 @@ function formatRupiah(amountRp: number): string {
   return `Rp${amountRp.toLocaleString("id-ID")}`;
 }
 
+export function buildManualTransferInstructions(
+  amountRp: number,
+  reservationCode: string,
+  paymentRef: string
+): string {
+  return (
+    `Transfer ${formatRupiah(amountRp)} to the operator account and ` +
+    `quote code ${reservationCode.trim()} in the transfer note ` +
+    `(ref ${paymentRef}). An OCC finance officer confirms receipt before boarding.`
+  );
+}
+
 export function createManualSettlementProvider(): PaymentProvider {
   return {
     id: MANUAL_PROVIDER_ID,
@@ -50,10 +62,11 @@ export function createManualSettlementProvider(): PaymentProvider {
       const paymentRef = `MAN-${input.reservationCode.trim()}-${randomSuffix()}`;
       return {
         paymentRef,
-        instructions:
-          `Transfer ${formatRupiah(input.amountRp)} to the operator account and ` +
-          `quote code ${input.reservationCode.trim()} in the transfer note. ` +
-          `An OCC finance officer confirms receipt before boarding.`,
+        instructions: buildManualTransferInstructions(
+          input.amountRp,
+          input.reservationCode,
+          paymentRef
+        ),
         amountRp: input.amountRp,
         expiresAt: new Date(Date.now() + CONFIRM_WINDOW_MS),
       };
