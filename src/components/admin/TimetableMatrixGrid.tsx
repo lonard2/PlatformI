@@ -1005,8 +1005,8 @@ export function TimetableMatrixGrid({
                                     {stopTime?.peronOrTrack || `Peron ${(stopIdx % 2) + 1}`}
                                   </span>
                                   {hasPlatformConflict && (
-                                    <span className="px-1 rounded text-[9px] bg-rose-900/80 text-rose-200 border border-rose-500/60 font-bold uppercase">
-                                      Bentrok
+                                    <span className="px-1 rounded text-[10px] bg-rose-900/80 text-rose-200 border border-rose-500/60 font-bold uppercase">
+                                      {t.admin.tbPlatformConflict}
                                     </span>
                                   )}
                                 </div>
