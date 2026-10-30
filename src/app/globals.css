@@ -1,7 +1,19 @@
 @import "leaflet/dist/leaflet.css";
 
 @import "tailwindcss";
-@config "../../tailwind.config.ts";
+
+/* Class-based dark mode (same strategy as the retired tailwind.config.ts):
+   `.dark` is set on <html> by the root layout. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens, CSS-first. `inline` inlines the Next/font variables into
+   the utilities instead of emitting a self-referential :root variable.
+   (The retired config's transit palette, backdrop-blur-xs, and custom
+   animations had zero render sites and were dropped, not ported.) */
+@theme inline {
+  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
 :root {
   --background: #080c16;
