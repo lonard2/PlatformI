@@ -15,7 +15,7 @@ Ledger in this file; rulings inline.
 |---|------|-------|--------|--------|
 | 1 | harden bulk ops | Bulk-hold confirm dialog (delete-confirm idiom) + single aggregate undo entry | DONE (615/615) | be3981d |
 | 2 | clarify sort + legend | Needs-attention-first status ordering, color legend for amber collision | DONE (617/617) | — |
-| 3 | distill coupling callout | Inline coupling microcopy at status control + telemetry modal callout | TODO | — |
+| 3 | distill coupling callout | Inline coupling microcopy at status control + telemetry modal callout | DONE (Task 0) | — |
 | 4 | quieter focus + finalizer | Stop per-row focus steal, fleet single-shot finalizer mirroring alerts | DONE (622/622) | — |
 | 5 | layout empty/loading/mobile | Empty state + Clear filters, skeleton rows, 24px checkboxes, frozen columns | DONE (626/626) | — |
 | 6 | final review via fresh subagent | Whole-branch review, fix Critical/Important RED→GREEN, ledger minors | DONE (629/629) | — |
@@ -46,3 +46,4 @@ Ruling: skipped fail-safe injections (retry sync banner, failed undo restore) we
 Ruling: no supervisor tel: link — inventing a contact number would be fabrication; the lockout copy directs to the supervisor and a real number from the user unlocks the link. (Re-affirmed: no contact details were harmed.)
 Ruling: test mock for useSearchParams must be referentially stable — an inline object literal makes the URL-sync effect fire every render and clobber typed filters. New tests use a hoisted stable mock.
 Ruling: role=status is not name-from-content in ARIA — the telemetry empty-state test asserts via testid + textContent instead of a name query that can never match.
+- Task 0 reconciliation (Phase 6, 2026-10-30): Todo 3 verified DONE — status-coupling-callout with testid renders fleetStatusSpeedNote (src/app/admin/fleet/page.tsx:3003-3011). Table updated.

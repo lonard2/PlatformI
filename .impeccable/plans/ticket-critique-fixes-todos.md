@@ -16,7 +16,7 @@ Ledger in this file; rulings inline.
 | 3 | harden buyer errors | Inline per-field errors + aria-describedby, focus first invalid, visible required markers | DONE (508/508) | — |
 | 4 | layout guest lookup | Progressive disclosure: code+phone first, collapsible fallback fields | DONE (509/509) | — |
 | 5 | clarify step-4 summary | Humanized class/seat, masked contact, Edit links to steps 2/3 | DONE (511/511) | — |
-| 6 | typeset micro-type | Three `text-[9px]` usages up to DESIGN.md ramp (or documented exemption) | TODO | — |
+| 6 | typeset micro-type | Three `text-[9px]` usages up to DESIGN.md ramp (or documented exemption) | DONE (Task 0) | — |
 | 7 | polish final pass | Whole-path pass per polish.md triage order; detector clean | DONE (511/511) | — |
 
 ## Ledger
@@ -28,3 +28,4 @@ Ledger in this file; rulings inline.
 - Todo 5: seat row keeps the existing Seat label key and omits itself when no seat is picked. Ruling: masking keeps first-4/last-2 for phones and first-char plus domain for emails; no unmask control by design.
 - Todo 6: mono usages to 11px, metadata line to 10px per DESIGN.md ramp (10/11/14/16). Ruling: left the #3B82F6 fallback finding alone — runtime value, documented false positive from the critique.
 - Todo 7: branch diff scanned for console/TODO/hack debris: none. Ruling: modal focus-trap/Esc gap stays out of scope (Sam red flag, not in the approved 5+micro-type list; pre-existing behavior). No code change in this todo.
+- Task 0 reconciliation (Phase 6, 2026-10-30): Todo 6 verified DONE — no text-[9px] remains in ticketing components (repo-wide hit is TimetableMatrixGrid admin, carried to Phase 6 Task 3). Table updated.

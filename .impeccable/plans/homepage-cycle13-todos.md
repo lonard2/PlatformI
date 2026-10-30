@@ -13,7 +13,7 @@ Verified tile facts (viewed, not assumed):
 
 | # | Command | Fix | Status | Commit |
 |---|---------|-----|--------|--------|
-| 1 | harden | Keyed CARTO (env key) + OSM fallback + tile-error boundary; map-chrome focus rings | TODO | — |
+| 1 | harden | Keyed CARTO (env key) + OSM fallback + tile-error boundary; map-chrome focus rings | DONE (Task 0) | — |
 | 2 | quieter | Declutter: fade non-journey markers/lines once a route is plotted | DONE | 06860f6 |
 | 3 | clarify | Minimized banner dot: severity colour + count + single pulse | DONE | f45db41 |
 | 4 | onboard | Persistent mini-legend for dot/status language in status drawer | DONE | e5aa351 |
@@ -25,3 +25,4 @@ Verified tile facts (viewed, not assumed):
   ramp in VehicleMarkerLayer (a file no prior detector run scanned) and the
   tab-indicator false positives in ServiceStatusDrawer. None introduced here.
 - Cycle-12 snapshot NOT closed: confirming the P0/P1 needs a re-critique run.
+- Task 0 reconciliation (Phase 6, 2026-10-30): Todo 1 verified DONE — tile-error boundary (TILE_ERROR_THRESHOLD, src/components/map/TransitMap.tsx:36-60), keyed-host→OSM fallback (TransitMap.tsx:139-154), map-chrome focus rings (src/components/map/MapControls.tsx:156,192). Table updated.
