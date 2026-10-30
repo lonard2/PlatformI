@@ -1424,6 +1424,8 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     fleetSaveIdentity: "保存身份信息",
     fleetCommunityTitle: "社区拥挤报告",
     fleetCommunityEmpty: "审核队列中暂无社区报告。",
+    fleetCommunityDismiss: "消除举报",
+    fleetCommunityFlagged: "{n} 项举报",
     fleetCommunityRemove: "删除报告",
     fleetPhotoTitle: "车辆照片",
     fleetPhotoUrl: "照片链接",

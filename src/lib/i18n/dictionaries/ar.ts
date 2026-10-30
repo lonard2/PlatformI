@@ -1424,6 +1424,8 @@ export const ar: TranslationDictionary = {
     fleetSaveIdentity: "حفظ الهوية",
     fleetCommunityTitle: "بلاغات الزحام المجتمعية",
     fleetCommunityEmpty: "لا بلاغات مجتمعية في قائمة المراجعة.",
+    fleetCommunityDismiss: "رفض البلاغات",
+    fleetCommunityFlagged: "{n} بلاغات",
     fleetCommunityRemove: "إزالة البلاغ",
     fleetPhotoTitle: "صور المركبة",
     fleetPhotoUrl: "رابط الصورة",

@@ -1424,6 +1424,8 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     fleetSaveIdentity: "識別情報を保存",
     fleetCommunityTitle: "コミュニティ混雑レポート",
     fleetCommunityEmpty: "モデレーション待ちのレポートはありません。",
+    fleetCommunityDismiss: "通報を取り下げる",
+    fleetCommunityFlagged: "通報 {n} 件",
     fleetCommunityRemove: "レポートを削除",
     fleetPhotoTitle: "車両写真",
     fleetPhotoUrl: "写真URL",

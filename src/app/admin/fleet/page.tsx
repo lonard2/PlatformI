@@ -325,6 +325,9 @@ function FleetManagementContent() {
   // items are ephemeral and never moderated).
   const [feedItems, setFeedItems] = useState<FormattedFeedItem[]>([]);
   const [feedError, setFeedError] = useState<string | null>(null);
+  // OCC flag state: checkInId -> { flagCount, reasons }. Dismissing clears
+  // the entry; removing the report drops its row from the feed list.
+  const [flagMap, setFlagMap] = useState<Record<string, { flagCount: number; reasons: string[] }>>({});
 
   useEffect(() => {
     setIdentityDraft(selectedVehicle ? identityFromVehicle(selectedVehicle) : null);
@@ -346,12 +349,45 @@ function FleetManagementContent() {
       } catch (err) {
         if (!cancelled) setFeedError(err instanceof Error ? err.message : "Feed unavailable");
       }
+      try {
+        const res = await fetch("/api/crowdsource/flags");
+        const json = (await res.json()) as {
+          success?: boolean;
+          reports?: Array<{ checkInId: string; flagCount: number; reasons: string[] }>;
+        };
+        if (!cancelled && res.ok && json.success && Array.isArray(json.reports)) {
+          const map: Record<string, { flagCount: number; reasons: string[] }> = {};
+          for (const r of json.reports) {
+            map[r.checkInId] = { flagCount: r.flagCount, reasons: r.reasons };
+          }
+          setFlagMap(map);
+        }
+      } catch {
+        // Flag queue is advisory; the feed list stands on its own.
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
+  const handleDismissFlags = async (reportId: string): Promise<void> => {
+    setFeedError(null);
+    try {
+      const res = await fetch(`/api/crowdsource/flag?id=${encodeURIComponent(reportId)}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to dismiss flags");
+      setFlagMap((prev) => {
+        const next = { ...prev };
+        delete next[reportId];
+        return next;
+      });
+    } catch (err) {
+      setFeedError(err instanceof Error ? err.message : "Failed to dismiss flags");
+    }
+  };
   const handleRemoveReport = async (reportId: string): Promise<void> => {
     setFeedError(null);
     try {
@@ -2572,19 +2608,40 @@ function FleetManagementContent() {
                   <p className="text-xs text-slate-200 truncate font-mono">
                     <span className="font-bold text-cyan-300">{item.vehicleCode}</span>
                     {" "}{item.crowdLevel} • {item.acComfort}
+                    {flagMap[item.id] && (
+                      <span
+                        className="ml-2 rounded-full border border-amber-500/50 px-2 py-0.5 text-[10px] text-amber-300"
+                        title={flagMap[item.id].reasons.join("; ")}
+                      >
+                        {t.admin.fleetCommunityFlagged.replace("{n}", String(flagMap[item.id].flagCount))}
+                      </span>
+                    )}
                   </p>
                   <p className="text-[10px] text-slate-500 truncate">
                     {item.note || item.userId} • {item.lineCode}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { void handleRemoveReport(item.id); }}
-                  aria-label={`${t.admin.fleetCommunityRemove} ${item.note || item.id}`}
-                  className="px-2.5 py-2 rounded-lg text-rose-300/80 hover:text-rose-200 hover:bg-rose-950/60 text-[11px] font-semibold transition shrink-0 min-h-[36px]"
-                >
-                  {t.admin.fleetCommunityRemove}
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  {flagMap[item.id] && (
+                    <button
+                      type="button"
+                      onClick={() => { void handleDismissFlags(item.id); }}
+                      aria-label={`${t.admin.fleetCommunityDismiss} ${item.note || item.id}`}
+                      title={flagMap[item.id].reasons.join("; ")}
+                      className="px-2.5 py-2 rounded-lg text-amber-300/80 hover:text-amber-200 hover:bg-amber-950/60 text-[11px] font-semibold transition min-h-[36px]"
+                    >
+                      {t.admin.fleetCommunityDismiss}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => { void handleRemoveReport(item.id); }}
+                    aria-label={`${t.admin.fleetCommunityRemove} ${item.note || item.id}`}
+                    className="px-2.5 py-2 rounded-lg text-rose-300/80 hover:text-rose-200 hover:bg-rose-950/60 text-[11px] font-semibold transition shrink-0 min-h-[36px]"
+                  >
+                    {t.admin.fleetCommunityRemove}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

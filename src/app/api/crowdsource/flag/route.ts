@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireMember } from "@/lib/services/memberAuthService";
+import { requireOperator } from "@/lib/services/adminAuthService";
 import {
   FLAG_RATE_LIMIT_COUNT,
   FLAG_RATE_LIMIT_WINDOW_SECONDS,
@@ -65,6 +66,36 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : "Failed to flag report" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Dismiss OCC review: clears every flag on the report and restores its
+ * aggregation weight. Operator-only; the report itself stays.
+ */
+export async function DELETE(request: NextRequest) {
+  if (!requireOperator(request.headers.get("cookie"))) {
+    return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
+  }
+  const checkInId = new URL(request.url).searchParams.get("id")
+    ?? new URL(request.url).searchParams.get("checkInId")
+    ?? "";
+  if (checkInId === "") {
+    return NextResponse.json({ success: false, error: "MISSING_CHECKIN_ID" }, { status: 400 });
+  }
+  try {
+    const report = await db.crowdsourceCheckIn.findUnique({ where: { id: checkInId } });
+    if (!report) {
+      return NextResponse.json({ success: false, error: "REPORT_NOT_FOUND" }, { status: 404 });
+    }
+    await db.crowdsourceFlag.deleteMany({ where: { checkInId } });
+    await db.crowdsourceCheckIn.update({ where: { id: checkInId }, data: { flagCount: 0 } });
+    return NextResponse.json({ success: true, checkInId });
+  } catch (err) {
+    return NextResponse.json(
+      { success: false, error: err instanceof Error ? err.message : "Failed to dismiss flags" },
       { status: 500 }
     );
   }

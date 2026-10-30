@@ -1424,6 +1424,8 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     fleetSaveIdentity: "Simpan identitas",
     fleetCommunityTitle: "Laporan check-in komunitas",
     fleetCommunityEmpty: "Tidak ada laporan komunitas dalam antrean moderasi.",
+    fleetCommunityDismiss: "Abaikan tanda",
+    fleetCommunityFlagged: "{n} tanda",
     fleetCommunityRemove: "Hapus laporan",
     fleetPhotoTitle: "Foto kendaraan",
     fleetPhotoUrl: "URL foto",

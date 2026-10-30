@@ -184,12 +184,81 @@ describe("occ community reports section", () => {
         } as Response);
       })
     );
+  });
+
+  it("dismisses flags on a flagged report without removing it", async () => {
+    const dismissed: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).includes("/api/crowdsource/flags")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              success: true,
+              reports: dismissed.includes("chk-occ-1")
+                ? []
+                : [
+                    {
+                      checkInId: "chk-occ-1",
+                      vehicleId: VEHICLE.id,
+                      flagCount: 2,
+                      reasons: ["wrong vehicle", "staged"],
+                    },
+                  ],
+            }),
+          } as Response);
+        }
+        if (String(url).includes("/api/crowdsource/feed")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              success: true,
+              feed: [
+                {
+                  id: "chk-occ-1",
+                  userId: "USR-SPAM",
+                  vehicleId: VEHICLE.id,
+                  vehicleCode: VEHICLE.vehicleCode,
+                  vehicleName: VEHICLE.name,
+                  lineId: VEHICLE.lineId,
+                  lineCode: "TJ-1",
+                  lineName: "Corridor 1",
+                  lineColorHex: "#3B82F6",
+                  mode: VEHICLE.mode,
+                  crowdLevel: "LEVEL_4_FULL_CRUSH",
+                  acComfort: "POOR",
+                  note: "spam report",
+                  timestamp: new Date().toISOString(),
+                  timestampMs: Date.now(),
+                  flagged: true,
+                },
+              ],
+            }),
+          } as Response);
+        }
+        if (String(url).includes("/api/crowdsource/flag") && init?.method === "DELETE") {
+          dismissed.push("chk-occ-1");
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ success: true }),
+          } as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as Response);
+      })
+    );
     render(<AdminFleetPage />);
     const section = await screen.findByTestId("occ-community-feed");
-    expect(within(section).getByText(/spam report/)).toBeInTheDocument();
-    fireEvent.click(within(section).getByRole("button", { name: /remove.*spam report/i }));
+    expect(await within(section).findByText(/2 flags/i)).toBeInTheDocument();
+    fireEvent.click(within(section).getByRole("button", { name: /dismiss flags/i }));
     await waitFor(() => {
-      expect(within(section).queryByText(/spam report/)).not.toBeInTheDocument();
+      // The report stays (dismiss is not removal)…
+      expect(within(section).getByText(/spam report/)).toBeInTheDocument();
+      // …but the flag badge clears.
+      expect(within(section).queryByText(/2 flags/i)).not.toBeInTheDocument();
     });
   });
 });

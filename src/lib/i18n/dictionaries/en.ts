@@ -1424,6 +1424,8 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     fleetSaveIdentity: "Save identity",
     fleetCommunityTitle: "Community check-in reports",
     fleetCommunityEmpty: "No community reports in the moderation queue.",
+    fleetCommunityDismiss: "Dismiss flags",
+    fleetCommunityFlagged: "{n} flags",
     fleetCommunityRemove: "Remove report",
     fleetPhotoTitle: "Vehicle photos",
     fleetPhotoUrl: "Photo URL",

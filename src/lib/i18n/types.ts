@@ -1432,6 +1432,8 @@ export interface TranslationDictionary {
     fleetCommunityTitle: string;
     fleetCommunityEmpty: string;
     fleetCommunityRemove: string;
+    fleetCommunityDismiss: string;
+    fleetCommunityFlagged: string;
     fleetPhotoTitle: string;
     fleetPhotoUrl: string;
     fleetPhotoCaption: string;

@@ -1424,6 +1424,8 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     fleetSaveIdentity: "식별 정보 저장",
     fleetCommunityTitle: "커뮤니티 혼잡 리포트",
     fleetCommunityEmpty: "검토 대기 중인 커뮤니티 리포트가 없습니다.",
+    fleetCommunityDismiss: "신고 기각",
+    fleetCommunityFlagged: "신고 {n}건",
     fleetCommunityRemove: "리포트 삭제",
     fleetPhotoTitle: "차량 사진",
     fleetPhotoUrl: "사진 URL",
