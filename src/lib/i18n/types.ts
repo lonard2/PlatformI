@@ -1787,6 +1787,7 @@ export interface TranslationDictionary {
     tbOverwriting: string;
     tbConfirmOverwrite: string;
     tbConflicts: string;
+    tbPlatformConflict: string;
     tbGenerating: string;
     tbFirstStop: string;
     tbLastStop: string;
@@ -2055,6 +2056,12 @@ export interface TranslationDictionary {
     netToastSimplifyShort: string;
     netToastSnapEmpty: string;
     netToastSaveFailed: string;
+    netToastDeleteStopFailed: string;
+    netToastSaveStopFailed: string;
+    netToastSaveCoordsFailed: string;
+    netToastGeoJsonEmpty: string;
+    netToastCreateStopFailed: string;
+    netToastDeleteLineFailed: string;
     netToastSplineApplied: string;
     netToastCalibrated: string;
     netToastVertexDeleted: string;

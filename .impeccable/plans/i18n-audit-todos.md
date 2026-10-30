@@ -19,7 +19,7 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 | C | ticket-settings | DynamicQRCode copy, trip.status mapping, prefs modal labels; verify modes/PROMPT_SUGGESTIONS upstream | DONE (412/412) | — |
 | D1 | admin | alerts + fleet pages | DONE | — |
 | D2 | admin+lib | network + timetables pages, layout metadata, timetableMatrix/modes/SIM_SPEED strings | DONE (Task 0) | — |
-| E1 | inspector-enums | acStatus/seat-type/features/photo-tag/fareType enum mappings, gallery aria + Photo by | TODO | — |
+| E1 | inspector-enums | acStatus/seat-type/features/photo-tag/fareType enum mappings, gallery aria + Photo by | DONE (Task 2) | — |
 | E2 | inspector-content | TechnicalSpecs sentences, gallery captions, HubDetailSheet procedural copy | DONE (416/416) | — |
 | E3 | skybridge | SKYBRIDGE_HUBS_DATA + chrome to dictionaries | DONE (416/416) | — |
 
@@ -38,3 +38,4 @@ Protocol: ponytail, no emoji, strict TS, TDD where logic exists (pure helpers/va
 - D2d: recovered en.ts after a script truncated it (restored from HEAD, replayed uncommitted keys; verified via parity+tsc+tests). Lesson: verify file size after every scripted dict write.
 - Rulings log: R1 WIB exempt (timezone code); R2 {n}/{named} templates, no ICU lib; R3 statusText/statusReason dead, untouched; R4 free-form operational content to dictionaries; R5 SYSTEM_GROUPS names/descriptions exempt as operator data (reversible); R6 PROMPT_SUGGESTIONS exempt as sample user utterances; R7 DynamicQRCode t.aiAdvisor.copy left as-is; R8 lib defaults mapped at render; R9 SIMULATION_SPEED_OPTIONS dead, untouched; R10 server metadata stays EN (no locale cookie infra); R11 modes description/headwayText/operatingHours dead, untouched; R12 fareDescription tariffs exempt as operator data; R13 template labels stay identifiers, notes localized at apply; R14 skybridge location identifiers exempt.
 - Task 0 reconciliation (Phase 6, 2026-10-30): B2 verified DONE — noMatchingRoutes parameterized (TransportationSystemBar.tsx:1669-1670), statusText/statusReason are static entity data only. D2 verified DONE per D2a-d ledger with spot check (network page shows identifiers + English error fallbacks only; fallback-toast localization carried as residue into Phase 6 Task 2). E1 stays OPEN — no render-site audit on record; carried to Phase 6 Task 2. Tables updated.
+- Task 2 (Phase 6, 2026-10-30): E1 verified — all five enum mappers wired at render sites (vehicleLabels.ts + inspector sheets + gallery); evidence test tests/inspector-enum-labels.test.ts pins all-locales mapping + unknown-value prettify. Error-fallback residue fixed: 6 hardcoded network-studio error strings moved to netToast* keys (all locales, RED test in id). Table updated.

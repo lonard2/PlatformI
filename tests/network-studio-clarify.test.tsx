@@ -122,4 +122,26 @@ describe("network studio clarify", () => {
     expect(linePuts()).toHaveLength(0);
     expect(stopPuts()).toHaveLength(0);
   });
+
+  it("localizes the save-stop failure instead of hardcoded English", async () => {
+    useLanguageStore.setState({ language: "id" });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+        if (String(url).includes("/api/network/stops") && init?.method === "PUT") {
+          return Promise.resolve({ ok: false, status: 500, json: async () => ({}) } as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as Response);
+      })
+    );
+    await selectFirstLineWithStops();
+    fireEvent.click(screen.getByText("sim-drag-first-stop"));
+    fireEvent.click(screen.getByText("sim-drag-first-vertex"));
+    fireEvent.click(within(stagedBar()).getByRole("button", { name: /sinkron db/i }));
+    expect(await screen.findByText(/gagal menyimpan halte/i)).toBeInTheDocument();
+    expect(screen.queryByText(/failed to save stop/i)).not.toBeInTheDocument();
+  });
 });

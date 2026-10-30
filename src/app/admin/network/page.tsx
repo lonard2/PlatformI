@@ -269,7 +269,7 @@ export default function AdminNetworkStudioPage() {
           const res = await fetch(`/api/network/stops?id=${encodeURIComponent(id)}`, {
             method: "DELETE",
           });
-          if (!res.ok) throw new Error("Failed to delete stop");
+          if (!res.ok) throw new Error(t.admin.netToastDeleteStopFailed);
           published += 1;
         } else if (JSON.stringify(now) !== JSON.stringify(before)) {
           const res = await fetch("/api/network/stops", {
@@ -277,7 +277,7 @@ export default function AdminNetworkStudioPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(now),
           });
-          if (!res.ok) throw new Error("Failed to save stop");
+          if (!res.ok) throw new Error(t.admin.netToastSaveStopFailed);
           published += 1;
         }
       }
@@ -604,7 +604,7 @@ export default function AdminNetworkStudioPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to save coordinates to database");
+      if (!res.ok) throw new Error(t.admin.netToastSaveCoordsFailed);
       const savedRes = await res.json();
       const savedData: Line = savedRes.data || savedRes;
       upsertLine(savedData);
@@ -832,7 +832,7 @@ export default function AdminNetworkStudioPage() {
         const parsed = parseGeoJSONToLine(text);
 
         if (parsed.polylineCoordinates.length === 0 && parsed.stops.length === 0) {
-          throw new Error("No LineString or Point geometries found in GeoJSON");
+          throw new Error(t.admin.netToastGeoJsonEmpty);
         }
 
         const updatedLine: Line = {
@@ -882,7 +882,7 @@ export default function AdminNetworkStudioPage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(newStop),
             });
-            if (!res.ok) throw new Error("Failed to create stop");
+            if (!res.ok) throw new Error(t.admin.netToastCreateStopFailed);
             const savedRes = await res.json();
             const savedStop: Stop = savedRes.data || savedRes;
             upsertStop(savedStop);
@@ -977,7 +977,7 @@ export default function AdminNetworkStudioPage() {
         const res = await fetch(`/api/network/lines?id=${encodeURIComponent(id)}`, {
           method: "DELETE",
         });
-        if (!res.ok) throw new Error("Failed to delete line");
+        if (!res.ok) throw new Error(t.admin.netToastDeleteLineFailed);
 
         removeLineFromStore(id);
         if (selectedLineId === id) setSelectedLineId(null);
