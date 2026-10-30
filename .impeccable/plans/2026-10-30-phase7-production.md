@@ -1,4 +1,14 @@
-# Phase 7 — Production readiness
+# Phase 7 — Production readiness — SHELVED (2026-10-30)
+
+Parker decision: revisit once features are more complete and the app is
+ready for public deployment. Task 0 (audit) and the Task 1 config
+hardening that needed no hosting/PSP/roster answers are DONE and
+shipped; everything requiring those three decisions stays parked.
+
+Shipped: `fd19a7f` (audit), `77d6083` (config hardening).
+Parked: Dockerfile/CI per hosting target, PSP adapter, operator
+provisioning mechanism, data-durability runbook, observability minimum,
+go-live checklist.
 
 **Goal:** the codebase can ship to real users without inventing anything
 at deploy time — secrets, operators, money, data, and observability are
