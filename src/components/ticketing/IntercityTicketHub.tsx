@@ -727,7 +727,8 @@ export const IntercityTicketHub: React.FC<IntercityTicketHubProps> = ({
                   {runs.map((run) => {
                     const runFare = resolveIntercityFare(
                       run.mode ?? ((mode as TransitMode) || "KAI_INTERCITY"),
-                      run.serviceClass
+                      run.serviceClass,
+                      run.fareRp
                     );
                     return (
                       <li
