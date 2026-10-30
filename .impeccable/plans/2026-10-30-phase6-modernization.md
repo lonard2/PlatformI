@@ -94,7 +94,13 @@ anything already complete is closed, not re-done.
 - Test: `next build` clean + `impeccable detect --json` empty on touched
   lines; full suite green.
 
-- [ ] **Step 1–5:** standard loop. Commit — `chore(build): warning-free production build` + push.
+- [x] **Steps 1–5 done.** Commit — `chore(build): warning-free production build` + push.
+- Verdict (2026-10-30): the Turbopack `process.cwd()` tracing warning in
+  `db.ts` is inherent to runtime SQLite path resolution — `outputFileTracingRoot`
+  was tried and does not silence the pattern warning (reverted).
+  Accepted as benign: it only widens the standalone trace, and no
+  standalone deployment exists yet (Phase 7 owns the Dockerfile, where the
+  trace root gets fixed for real). Documented here instead of suppressed.
 
 ---
 
