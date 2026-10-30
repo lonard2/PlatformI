@@ -6,6 +6,7 @@ export const ja: TranslationDictionary = {
     tagline: "ジャカルタ首都圏・広域総合公共交通プラットフォーム",
     search: "検索...",
     close: "閉じる",
+    done: "完了",
     back: "戻る",
     filter: "交通機関絞り込み",
     all: "すべて",

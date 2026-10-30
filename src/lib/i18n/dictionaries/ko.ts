@@ -6,6 +6,7 @@ export const ko: TranslationDictionary = {
     tagline: "자카르타 수도권 및 광역 통합 대중교통 플랫폼",
     search: "검색...",
     close: "닫기",
+    done: "완료",
     back: "뒤로",
     filter: "교통 부문 필터",
     all: "전체",

@@ -6,6 +6,7 @@ export const en: TranslationDictionary = {
     tagline: "Integrated Public Transportation Platform for Greater Jakarta & Beyond",
     search: "Search...",
     close: "Close",
+    done: "Done",
     back: "Back",
     filter: "Sectors & Filter",
     all: "All",

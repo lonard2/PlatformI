@@ -30,6 +30,7 @@ export interface TranslationDictionary {
     tagline: string;
     search: string;
     close: string;
+    done: string;
     back: string;
     filter: string;
     all: string;

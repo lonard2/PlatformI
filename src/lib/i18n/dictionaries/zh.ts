@@ -6,6 +6,7 @@ export const zh: TranslationDictionary = {
     tagline: "大雅加达及全国综合公共交通枢纽平台",
     search: "搜索...",
     close: "关闭",
+    done: "完成",
     back: "返回",
     filter: "交通板块筛选",
     all: "全部",

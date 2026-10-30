@@ -6,6 +6,7 @@ export const id: TranslationDictionary = {
     tagline: "Sistem Transportasi Terintegrasi Jabodetabek & Nasional",
     search: "Cari...",
     close: "Tutup",
+    done: "Selesai",
     back: "Kembali",
     filter: "Sektor & Filter",
     all: "Semua",

@@ -6,6 +6,7 @@ export const ar: TranslationDictionary = {
     tagline: "منصة النقل العام الموحدة لمنطقة جاكر타 الكبرى وعموم إندونيسيا",
     search: "بحث...",
     close: "إغلاق",
+    done: "تم",
     back: "رجوع",
     filter: "تصفية القطاعات",
     all: "الكل",

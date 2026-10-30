@@ -47,7 +47,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
   const resetAccessibility = useAccessibilityStore((state) => state.resetAccessibility);
 
   // Local state for app-level toggles
-  const [saveToast, setSaveToast] = useState<boolean>(false);
 
   const tileOptions: { id: TileLayerId; label: string; desc: string }[] = [
     { id: "dark", label: t.settings.darkMatter, desc: t.settings.tileDarkDesc },
@@ -79,14 +78,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
     },
     [onClose]
   );
-
-  const handleSave = () => {
-    setSaveToast(true);
-    setTimeout(() => {
-      setSaveToast(false);
-      onClose();
-    }, 600);
-  };
 
   const handleReset = () => {
     setTileLayer("dark");
@@ -312,22 +303,10 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({ isOpen, onCl
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="touch-target px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 btn-tactile transition"
-            >
-              {t.common.cancel}
-            </button>
-            <button
-              onClick={handleSave}
+              aria-label={t.common.done}
               className="touch-target px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-xs font-bold text-slate-950 shadow-md flex items-center gap-1.5 btn-tactile transition"
             >
-              {saveToast ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-950" />
-                  <span>{t.common.success}</span>
-                </>
-              ) : (
-                <span>{t.common.save}</span>
-              )}
+              <span>{t.common.done}</span>
             </button>
           </div>
         </div>
