@@ -26,6 +26,7 @@ import {
   Route,
   Clock,
   BusFront,
+  Wallet,
 } from "lucide-react";
 import { useTranslation, SupportedLanguage } from "@/lib/i18n";
 import { useTransitStore } from "@/lib/stores/useTransitStore";
@@ -189,6 +190,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       href: "/admin/intercity",
       label: t.admin.intercityManager,
       icon: <BusFront className="w-4 h-4" />,
+      exact: false,
+    },
+    {
+      href: "/admin/finance",
+      label: t.admin.financeQueueTitle,
+      icon: <Wallet className="w-4 h-4" />,
       exact: false,
     },
   ];

@@ -192,6 +192,8 @@ model Ticket {
   idempotencyKey    String?   @unique
   refundReason      String?
   refundedAt        DateTime?
+  confirmedBy       String?
+  refundedBy        String?
 }
 
 model TimetableRun {

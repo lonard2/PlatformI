@@ -14,7 +14,7 @@
 export interface OperatorProfile {
   id: string;
   name: string;
-  role: "CHIEF_DISPATCHER" | "LINE_CONTROLLER" | "TELEMETRY_ENGINEER" | "SECURITY_AUDITOR";
+  role: "CHIEF_DISPATCHER" | "LINE_CONTROLLER" | "TELEMETRY_ENGINEER" | "SECURITY_AUDITOR" | "FINANCE_OFFICER" | "FINANCE_SUPERVISOR";
   stationHub: string;
   badgeNumber: string;
 }
@@ -83,6 +83,27 @@ export const REGISTERED_OPERATORS: Record<
       role: "SECURITY_AUDITOR",
       stationHub: "Central Transit Operations Command",
       badgeNumber: "SYS-ADMIN-0001",
+    },
+  },
+  // Demo finance operators (operator-supplied credentials replace these in production).
+  "OCC-FIN-01": {
+    passkey: "finance2026",
+    profile: {
+      id: "OCC-FIN-01",
+      name: "Dewi Lestari",
+      role: "FINANCE_OFFICER",
+      stationHub: "Central Transit Operations Command",
+      badgeNumber: "FIN-2026-0001",
+    },
+  },
+  "OCC-FIN-02": {
+    passkey: "treasury2026",
+    profile: {
+      id: "OCC-FIN-02",
+      name: "Ahmad Hidayat",
+      role: "FINANCE_SUPERVISOR",
+      stationHub: "Central Transit Operations Command",
+      badgeNumber: "FIN-2026-0002",
     },
   },
 };
@@ -395,4 +416,34 @@ export function requireOperator(
   const validation = verifyOperatorSessionToken(token);
   if (!validation.isValid || !validation.operatorId) return null;
   return { id: validation.operatorId, role: validation.role ?? "CHIEF_DISPATCHER" };
+}
+
+/** Refunds at or above this amount require FINANCE_SUPERVISOR, not just any finance role. */
+export const FINANCE_SUPERVISOR_THRESHOLD_RP = 500000;
+
+export type FinanceAction = "confirm" | "refund";
+
+/**
+ * Finance gate for money-moving endpoints. Returns the acting operator on
+ * success, or an HTTP-ready error. Confirmations need any finance role;
+ * refunds at or above the supervisor threshold need FINANCE_SUPERVISOR.
+ */
+export function requireFinanceRole(
+  cookieHeader: string | null | undefined,
+  action: FinanceAction,
+  opts?: { amountRp?: number }
+): { ok: true; id: string; role: string } | { ok: false; error: string; status: 401 | 403 } {
+  const operator = requireOperator(cookieHeader);
+  if (!operator) return { ok: false, error: "UNAUTHENTICATED", status: 401 };
+  if (operator.role !== "FINANCE_OFFICER" && operator.role !== "FINANCE_SUPERVISOR") {
+    return { ok: false, error: "FORBIDDEN_NOT_FINANCE", status: 403 };
+  }
+  if (
+    action === "refund" &&
+    (opts?.amountRp ?? 0) >= FINANCE_SUPERVISOR_THRESHOLD_RP &&
+    operator.role !== "FINANCE_SUPERVISOR"
+  ) {
+    return { ok: false, error: "REQUIRES_SUPERVISOR", status: 403 };
+  }
+  return { ok: true, id: operator.id, role: operator.role };
 }

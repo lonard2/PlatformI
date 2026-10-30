@@ -1311,6 +1311,15 @@ export interface TranslationDictionary {
     refundLookup: string;
     refundConfirm: string;
     refundDone: string;
+    financeQueueTitle: string;
+    financeQueueSubtitle: string;
+    financeQueueEmpty: string;
+    financeConfirmPayment: string;
+    financeRefund: string;
+    financeNeedsSupervisor: string;
+    financeDenied: string;
+    financeConfirmed: string;
+    financeRefunded: string;
     shiftLogTemplateTicketRefund: string;
     networkStudio: string;
     timetableManager: string;

@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { NextRequest } from "next/server";
+import { createOperatorSessionToken, OPERATOR_COOKIE_NAME } from "@/lib/services/adminAuthService";
 import type { Ticket, TicketStatus } from "@/types/transit";
 import { POST as purchasePost } from "@/app/api/ticketing/purchase/route";
 import { POST as validatePost } from "@/app/api/ticketing/validate/route";
@@ -59,9 +60,14 @@ const ORIGIN_REF = `INTERCITY:${RUN_ID}:ORIGIN`;
 const DESTINATION_REF = `INTERCITY:${RUN_ID}:DESTINATION`;
 const createdTicketNumbers: string[] = [];
 
-function postJson(handler: (req: NextRequest) => Promise<Response>, url: string, body: unknown): Promise<{ status: number; json: Record<string, unknown> }> {
+function opCookie(role = "FINANCE_OFFICER"): string {
+  return `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", role))}`;
+}
+
+function postJson(handler: (req: NextRequest) => Promise<Response>, url: string, body: unknown, headers: Record<string, string> = {}) {
   const req = new NextRequest(url, {
     method: "POST",
+    headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
   return (handler(req) as Promise<Response>).then(async (res) => ({
@@ -81,7 +87,12 @@ function validateTicket(body: Record<string, unknown>): Promise<Record<string, u
 }
 
 function refundTicket(ticketNumber: string): Promise<{ status: number; json: Record<string, unknown> }> {
-  return postJson(refundPost, "http://localhost:3000/api/ticketing/refund", { ticketNumber });
+  return postJson(
+    refundPost,
+    "http://localhost:3000/api/ticketing/refund",
+    { ticketNumber },
+    { Cookie: opCookie() }
+  );
 }
 
 function guestLookup(code: string, phone: string, extra: Record<string, string> = {}): Promise<{ status: number; json: Record<string, unknown> }> {

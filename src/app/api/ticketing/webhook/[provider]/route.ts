@@ -1,24 +1,18 @@
 /**
  * POST /api/ticketing/webhook/[provider] — shared payment webhook entry.
  *
- * Validates the shared envelope, dispatches to the registered provider,
- * and requires an authenticated operator session (PSP signature verification
- * plugs in per provider as adapters land; the manual provider is
- * OCC-confirmed, so the operator session IS the authentication).
+ * Validates the shared envelope, dispatches to the registered provider
+ * through the shared finance actions, and requires an authenticated
+ * operator: PSP signature verification plugs in per provider as adapters
+ * land; the manual provider is OCC-confirmed, so the operator session IS
+ * the authentication. Finance role gating applies to both directions.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import {
-  parseWebhookEnvelope,
-  type TicketUpdate,
-} from "@/lib/ticketing/paymentProvider";
-import {
-  MANUAL_PROVIDER_ID,
-  createManualSettlementProvider,
-} from "@/lib/ticketing/manualSettlementProvider";
-import { requireOperator } from "@/lib/services/adminAuthService";
-
-const manual = createManualSettlementProvider();
+import { parseWebhookEnvelope } from "@/lib/ticketing/paymentProvider";
+import { MANUAL_PROVIDER_ID } from "@/lib/ticketing/manualSettlementProvider";
+import { requireFinanceRole } from "@/lib/services/adminAuthService";
+import { confirmTicketPayment, refundTicketPayment, FinanceError } from "@/lib/ticketing/financeActions";
 
 export async function POST(
   request: NextRequest,
@@ -40,65 +34,79 @@ export async function POST(
     return NextResponse.json({ success: false, error: "UNKNOWN_PROVIDER" }, { status: 404 });
   }
 
-  const operator = requireOperator(request.headers.get("cookie"));
-  if (!operator) {
-    return NextResponse.json({ success: false, error: "UNAUTHENTICATED" }, { status: 401 });
-  }
-
   const { event, payload } = parsed.value;
   if (event !== "payment.confirmed" && event !== "payment.refunded") {
     return NextResponse.json({ success: false, error: "UNKNOWN_EVENT" }, { status: 400 });
   }
+
+  // Authenticate before business-field validation so unauthenticated callers
+  // always see 401/403, never field-level errors. The refund direction
+  // re-checks the supervisor threshold after loading the stored amount.
+  const baseGate =
+    event === "payment.confirmed"
+      ? requireFinanceRole(request.headers.get("cookie"), "confirm")
+      : requireFinanceRole(request.headers.get("cookie"), "refund");
+  if (!baseGate.ok) {
+    return NextResponse.json({ success: false, error: baseGate.error }, { status: baseGate.status });
+  }
+
   const paymentRef = typeof payload.paymentRef === "string" ? payload.paymentRef.trim() : "";
   if (!paymentRef) {
     return NextResponse.json({ success: false, error: "MISSING_PAYMENT_REF" }, { status: 400 });
   }
 
-  const ticket = await db.ticket.findFirst({ where: { paymentRef } });
-  if (!ticket) {
-    return NextResponse.json({ success: false, error: "TICKET_NOT_FOUND" }, { status: 404 });
-  }
-
-  let update: TicketUpdate;
   try {
     if (event === "payment.confirmed") {
       const proof = typeof payload.proof === "string" ? payload.proof : undefined;
-      update = manual.confirmPayment({
+      const { ticket, idempotent } = await confirmTicketPayment({
         paymentRef,
         proof,
-        actor: operator,
-        current: ticket.paymentStatus === "PAID" ? { paymentStatus: "PAID" } : undefined,
+        actorId: baseGate.id,
+        actorRole: baseGate.role,
       });
-    } else {
-      const reason = typeof payload.reason === "string" ? payload.reason : "";
-      update = manual.refundPayment({
-        paymentRef,
-        reason,
-        actor: operator,
-        current: { paymentStatus: ticket.status === "REFUNDED" ? "REFUNDED" : ticket.paymentStatus, gateConsumed: ticket.gateScannedAt !== null },
+      return NextResponse.json({
+        success: true,
+        idempotent,
+        data: {
+          id: ticket.id,
+          ticketNumber: ticket.ticketNumber,
+          paymentStatus: ticket.paymentStatus,
+          paidAt: ticket.paidAt?.toISOString() ?? null,
+        },
       });
     }
+
+    const reason = typeof payload.reason === "string" ? payload.reason : "";
+    const lookup = await db.ticket.findFirst({ where: { paymentRef } });
+    if (!lookup) {
+      return NextResponse.json({ success: false, error: "TICKET_NOT_FOUND" }, { status: 404 });
+    }
+    const gate = requireFinanceRole(request.headers.get("cookie"), "refund", {
+      amountRp: lookup.totalFareRp,
+    });
+    if (!gate.ok) {
+      return NextResponse.json({ success: false, error: gate.error }, { status: gate.status });
+    }
+    const { ticket, idempotent } = await refundTicketPayment({
+      id: lookup.id,
+      reason,
+      actorId: gate.id,
+      actorRole: gate.role,
+    });
+    return NextResponse.json({
+      success: true,
+      idempotent,
+      data: {
+        id: ticket.id,
+        ticketNumber: ticket.ticketNumber,
+        paymentStatus: ticket.paymentStatus,
+      },
+    });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "WEBHOOK_FAILED";
-    const status = /FORBIDDEN/.test(message) ? 403 : 400;
-    return NextResponse.json({ success: false, error: message }, { status });
+    if (err instanceof FinanceError) {
+      const status = err.code === "TICKET_NOT_FOUND" ? 404 : err.code === "GATE_CONSUMED" ? 409 : 400;
+      return NextResponse.json({ success: false, error: err.code }, { status });
+    }
+    return NextResponse.json({ success: false, error: "WEBHOOK_FAILED" }, { status: 500 });
   }
-
-  const data: Record<string, unknown> = { paymentStatus: update.paymentStatus };
-  if (update.paidAt !== undefined) data.paidAt = update.paidAt;
-  if (update.paymentRef !== undefined) data.paymentRef = update.paymentRef;
-  if (update.paymentMethod !== undefined) data.paymentMethod = update.paymentMethod;
-  if (update.refundedAt !== undefined) data.refundedAt = update.refundedAt;
-  if (update.refundReason !== undefined) data.refundReason = update.refundReason;
-
-  const nextTicket = await db.ticket.update({ where: { id: ticket.id }, data });
-  return NextResponse.json({
-    success: true,
-    data: {
-      id: nextTicket.id,
-      ticketNumber: nextTicket.ticketNumber,
-      paymentStatus: nextTicket.paymentStatus,
-      paidAt: nextTicket.paidAt?.toISOString() ?? null,
-    },
-  });
 }
