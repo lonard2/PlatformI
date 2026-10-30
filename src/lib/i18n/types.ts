@@ -910,6 +910,10 @@ export interface TranslationDictionary {
     routeLabel: string;
     paidAmount: string;
     activeReadyTap: string;
+    quoteTitle: string;
+    quotePending: string;
+    quoteAction: string;
+    quoteTotal: string;
     proceedPayment: string;
     errorSelectStations: string;
     errorPaymentFailed: string;

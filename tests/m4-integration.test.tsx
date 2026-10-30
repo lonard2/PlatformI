@@ -85,7 +85,7 @@ describe("Milestone 4: UI Components Integration", () => {
   });
 
   describe("4. TicketPurchaseModal Component", () => {
-    it("renders multimodal route selector and payment method cards", () => {
+    it("renders multimodal route selector and a reserve-quote action", () => {
       const onClose = vi.fn();
       render(<TicketPurchaseModal isOpen={true} onClose={onClose} />);
 
@@ -93,8 +93,8 @@ describe("Milestone 4: UI Components Integration", () => {
       expect(screen.getByText(/Select Transit Line \/ Network/i)).toBeInTheDocument();
       expect(screen.getByText(/Origin Station \/ Stop/i)).toBeInTheDocument();
       expect(screen.getByText(/Destination Station \/ Stop/i)).toBeInTheDocument();
-      expect(screen.getByText(/JakLingko Card/i)).toBeInTheDocument();
-      expect(screen.getByText(/QRIS Instant/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Select Payment Method/i)).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /reserve quote/i })).toBeInTheDocument();
     });
   });
 

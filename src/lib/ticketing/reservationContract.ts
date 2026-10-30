@@ -84,11 +84,9 @@ export function resolveReservationStatus(options: {
 }): TicketStatus {
   if (options.paymentResult === "success") return "ACTIVE";
   if (options.paymentResult === "failed") return "FAILED";
-  const userId = (options.userId ?? "").trim();
-  if (userId === "" || userId === GUEST_USER_ID || options.hasBuyerContact === true) {
-    return "WAITING";
-  }
-  return "ACTIVE";
+  // No silent ACTIVE: without an explicit payment success every reservation
+  // is an unpaid WAITING quote until the money path confirms it.
+  return "WAITING";
 }
 
 /** Normalizes legacy lowercase hub refs to the canonical virtual form. */

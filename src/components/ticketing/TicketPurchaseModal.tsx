@@ -20,9 +20,7 @@ import {
   Bus,
   ShieldCheck,
   ArrowRight,
-  CreditCard,
-  QrCode,
-  Wallet,
+  ReceiptText,
   CheckCircle2,
   AlertCircle,
   X,
@@ -39,7 +37,7 @@ import {
   JakLingkoLegInput,
   JakLingkoTripResult,
 } from "@/lib/services/fareCalculator";
-import { Ticket, Stop, Line, TimetableRun } from "@/types/transit";
+import { Ticket, Stop, Line, TimetableRun, TicketStatus } from "@/types/transit";
 import { useTranslation } from "@/lib/i18n";
 
 interface TicketPurchaseModalProps {
@@ -66,7 +64,6 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
   const [selectedLineId, setSelectedLineId] = useState<string>("");
   const [originStopId, setOriginStopId] = useState<string>("");
   const [destinationStopId, setDestinationStopId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"JAKLINGKO_CARD" | "QRIS" | "E_WALLET">("JAKLINGKO_CARD");
 
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [isPurchasing, setIsPurchasing] = useState<boolean>(false);
@@ -190,6 +187,9 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
           ],
           totalFareRp: fareResult.totalFareRp,
           isJakLingkoCapped: fareResult.isCapped,
+          // Urban is quote-only: never claim payment here. The reservation
+          // stays WAITING until the money path confirms it.
+          paymentResult: "pending",
         }),
       });
 
@@ -217,7 +217,8 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
         ],
         totalFareRp: data.ticket.totalFareRp,
         isJakLingkoCapped: data.ticket.isJakLingkoCapped,
-        status: "ACTIVE",
+        // Server truth: quotes stay WAITING. Never upgrade to ACTIVE here.
+        status: (data.ticket.status as TicketStatus) ?? "WAITING",
         createdAt: data.ticket.createdAt,
         expiresAt: data.ticket.expiresAt,
         rollingToken: data.ticket.rollingToken,
@@ -286,16 +287,16 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5 no-scrollbar">
           {purchaseSuccess && createdTicket ? (
-            <div className="p-6 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-center space-y-4 animate-in zoom-in-95 duration-200">
-              <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/20">
+            <div className="p-6 rounded-xl bg-amber-950/40 border border-amber-500/40 text-center space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shadow-xl shadow-amber-500/20">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-emerald-300">
-                  {t.ticketing.purchaseSuccess}
+                <h3 className="text-base font-bold text-amber-300">
+                  {t.ticketing.quoteTitle}
                 </h3>
                 <p className="text-xs text-slate-300 mt-1 font-mono">
-                  {t.ticketing.issuedPassNumber}: #{createdTicket.ticketNumber}
+                  {t.ticketing.hubReservationCode}: {createdTicket.reservationCode}
                 </p>
               </div>
 
@@ -307,21 +308,21 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">{t.ticketing.paidAmount}</span>
-                  <span className="text-emerald-400 font-bold font-mono">
+                  <span className="text-slate-400">{t.ticketing.quoteTotal}</span>
+                  <span className="text-amber-300 font-bold font-mono">
                     {formatRupiah(createdTicket.totalFareRp)}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                   <span className="text-slate-400">{t.ticketing.statusPrefix}</span>
-                  <span className="text-emerald-400 font-semibold">{t.ticketing.activeReadyTap}</span>
+                  <span className="text-amber-300 font-semibold text-right">{t.ticketing.quotePending}</span>
                 </div>
               </div>
 
               <div className="pt-2 flex justify-center gap-3">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md btn-tactile transition"
+                  className="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-md btn-tactile transition"
                 >
                   {t.ticketing.passWallet}
                 </button>
@@ -454,53 +455,9 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 </div>
               </div>
 
-              {/* 4. Payment Method Picker */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
-                  {t.ticketing.selectPayment}
-                </label>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("JAKLINGKO_CARD")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
-                      paymentMethod === "JAKLINGKO_CARD"
-                        ? "bg-emerald-950/80 border-emerald-400 shadow-md shadow-emerald-950/50"
-                        : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <Wallet className="w-4 h-4 text-emerald-400" />
-                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payJaklingko}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("QRIS")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
-                      paymentMethod === "QRIS"
-                        ? "bg-cyan-950/80 border-cyan-400 shadow-md shadow-cyan-950/50"
-                        : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <QrCode className="w-4 h-4 text-cyan-400" />
-                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payQris}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("E_WALLET")}
-                    className={`p-2.5 rounded-xl border text-center transition flex flex-col items-center gap-1 btn-tactile ${
-                      paymentMethod === "E_WALLET"
-                        ? "bg-blue-950/80 border-blue-400 shadow-md shadow-blue-950/50"
-                        : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4 text-blue-400" />
-                    <span className="text-[11px] font-bold text-slate-200">{t.ticketing.payEwallet}</span>
-                  </button>
-                </div>
+              {/* 4. Quote note: urban is quote-only, no payment is taken here. */}
+              <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200/90">
+                {t.ticketing.quotePending}
               </div>
             </>
           )}
@@ -529,8 +486,8 @@ export const TicketPurchaseModal: React.FC<TicketPurchaseModalProps> = ({
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-3.5 h-3.5" />
-                  {t.ticketing.buyNow} ({formatRupiah(fareResult.totalFareRp)})
+                  <ReceiptText className="w-3.5 h-3.5" />
+                  {t.ticketing.quoteAction} ({formatRupiah(fareResult.totalFareRp)})
                 </>
               )}
             </button>
