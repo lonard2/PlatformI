@@ -301,6 +301,10 @@ export const MemberAccountPanel: React.FC = () => {
     setMe(null);
     setTrips([]);
     setHistory([]);
+    setLinkCode("");
+    setLinkPhone("");
+    setLinkError(null);
+    setStatusMessage(t.account.signedOutNote);
   }
 
   async function handleAddTrip(): Promise<void> {
@@ -484,12 +488,13 @@ export const MemberAccountPanel: React.FC = () => {
           </span>
           {history.length > 0 && (
             <span className="text-[10px] font-mono text-slate-500">
-              {t.account.ticketsCount.replace("{n}", String(history.length))}
+              {(history.length === 1 ? t.account.ticketsCountOne : t.account.ticketsCount).replace("{n}", String(history.length))}
             </span>
           )}
         </div>
         <div className="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/60 space-y-2 mb-1.5">
           <span className="text-[11px] font-semibold text-slate-300">{t.account.linkTitle}</span>
+          <p className="text-[11px] text-slate-500">{t.account.linkHint}</p>
           <div className="grid grid-cols-2 gap-1.5">
             <div className="space-y-1 min-w-0">
               <label htmlFor="member-link-code" className="text-[11px] font-medium text-slate-400">
@@ -534,7 +539,10 @@ export const MemberAccountPanel: React.FC = () => {
           )}
         </div>
         {history.length === 0 ? (
-          <p className="text-[11px] text-slate-500">{t.account.emptyState}</p>
+          <>
+            <p className="text-[11px] text-slate-500">{t.account.emptyState}</p>
+            <p className="text-[11px] text-slate-500">{t.account.linkEmptyHint}</p>
+          </>
         ) : (
           <>
             <ul className="space-y-1">

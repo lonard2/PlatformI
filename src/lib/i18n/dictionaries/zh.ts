@@ -1238,6 +1238,10 @@ AI出行顾问已准备好解答您的下一个出行问题。您想探索哪个
     ticketsCount: "共{n}张票",
     viewAll: "查看全部",
     showLess: "收起",
+    linkHint: "可在访客购票收据或确认邮件中找到。",
+    ticketsCountOne: "共{n}张票",
+    linkEmptyHint: "先在上方关联一张票券以开始。",
+    signedOutNote: "已退出登录，我们后会有期。",
   },
   preferences: {
     title: "交通模式与路线偏好",

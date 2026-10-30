@@ -1238,6 +1238,10 @@ export const ar: TranslationDictionary = {
     ticketsCount: "{n} تذاكر",
     viewAll: "عرض الكل",
     showLess: "عرض أقل",
+    linkHint: "ستجده في إيصال الشراء كضيف أو رسالة التأكيد الإلكترونية.",
+    ticketsCountOne: "تذكرة {n}",
+    linkEmptyHint: "اربط تذكرة أعلاه للبدء.",
+    signedOutNote: "تم تسجيل الخروج. نراكم قريبًا.",
   },
   preferences: {
     title: "وسائل النقل المفضلة وأولويات المسار",

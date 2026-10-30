@@ -1248,6 +1248,10 @@ export interface TranslationDictionary {
     ticketsCount: string;
     viewAll: string;
     showLess: string;
+    linkHint: string;
+    ticketsCountOne: string;
+    linkEmptyHint: string;
+    signedOutNote: string;
   };
   preferences: {
     title: string;

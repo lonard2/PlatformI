@@ -1238,6 +1238,10 @@ AI交通アドバイザーは次のご質問の準備ができています。ど
     ticketsCount: "{n}件のチケット",
     viewAll: "すべて表示",
     showLess: "折りたたむ",
+    linkHint: "ゲスト購入時のレシートまたは確認メールで確認できます。",
+    ticketsCountOne: "{n}件のチケット",
+    linkEmptyHint: "まずは上の「チケットをリンク」から始めましょう。",
+    signedOutNote: "サインアウトしました。またのご利用をお待ちしています。",
   },
   preferences: {
     title: "利用交通機関 & 経路優先設定",

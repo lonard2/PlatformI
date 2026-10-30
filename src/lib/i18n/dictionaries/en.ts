@@ -1238,6 +1238,10 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     ticketsCount: "{n} tickets",
     viewAll: "View all",
     showLess: "Show less",
+    linkHint: "Find it on your guest purchase receipt or confirmation email.",
+    ticketsCountOne: "{n} ticket",
+    linkEmptyHint: "Link a ticket above to get started.",
+    signedOutNote: "Signed out. See you soon.",
   },
   preferences: {
     title: "Transit Modes & Route Priorities",

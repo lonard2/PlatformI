@@ -1238,6 +1238,10 @@ AI 대중교통 어드바이저가 다음 교통 문의를 준비했습니다. �
     ticketsCount: "티켓 {n}장",
     viewAll: "모두 보기",
     showLess: "접기",
+    linkHint: "게스트 구매 영수증 또는 확인 이메일에서 확인할 수 있습니다.",
+    ticketsCountOne: "티켓 {n}장",
+    linkEmptyHint: "위에서 티켓을 연결하여 시작하세요.",
+    signedOutNote: "로그아웃했습니다. 다음에 만나요.",
   },
   preferences: {
     title: "선호 교통수단 & 경로 우선순위",

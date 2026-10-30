@@ -1238,6 +1238,10 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     ticketsCount: "{n} tiket",
     viewAll: "Lihat semua",
     showLess: "Tampilkan lebih sedikit",
+    linkHint: "Temukan di struk pembelian tamu atau email konfirmasi.",
+    ticketsCountOne: "{n} tiket",
+    linkEmptyHint: "Tautkan tiket di atas untuk memulai.",
+    signedOutNote: "Berhasil keluar. Sampai jumpa.",
   },
   preferences: {
     title: "Preferensi Moda & Prioritas Rute",
