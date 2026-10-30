@@ -88,12 +88,12 @@ export function groupRegionsByCountry(regions: Region[]): CountryRegionGroup[] {
 }
 
 /** Lines of one region; null/undefined regionId means the unfiltered network. */
-export function linesInRegion<T extends { regionId: string }>(
+export function linesInRegion<T extends { regionId: string; regionIds?: string[] | null }>(
   lines: T[],
   regionId: string | null | undefined
 ): T[] {
   if (!regionId) return lines;
-  return lines.filter((l) => l.regionId === regionId);
+  return lines.filter((l) => l.regionId === regionId || (l.regionIds ?? []).includes(regionId));
 }
 
 /** Stops served by the given (already region-filtered) lines. */

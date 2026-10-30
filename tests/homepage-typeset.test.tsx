@@ -80,6 +80,35 @@ describe("homepage typeset", () => {
   });
 
   it("gives the coverage note an icon and readable contrast", async () => {
+    // Backfill a stopless line through the network API: the disclaimer must
+    // appear with an icon, since the planner cannot route on it.
+    const probe = {
+      ...TRANSIT_LINES[0],
+      id: "line-stopless-probe",
+      code: "PROBE",
+      name: "Stopless Probe Line",
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).includes("/api/network/lines")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ success: true, data: [...TRANSIT_LINES, probe] }),
+          } as Response);
+        }
+        if (String(url).includes("/api/network/stops")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({ success: true, data: TRANSIT_STOPS }),
+          } as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        } as Response);
+      })
+    );
     const dialog = await openAnswer();
     const note = Array.from(dialog.querySelectorAll("p")).find((el) =>
       /map-only/i.test(el.textContent ?? "")

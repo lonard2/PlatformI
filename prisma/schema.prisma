@@ -24,6 +24,7 @@ model Line {
   id                      String            @id @default(cuid())
   regionId                String
   region                  Region            @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  regionIds               Json?
   code                    String            @unique
   name                    String
   category                String

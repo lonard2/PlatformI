@@ -7,6 +7,7 @@
 import { db as prisma, closeDb } from "../src/lib/db";
 import {
   JABODETABEK_REGION,
+  INTERCITY_REGION,
   METRO_REGIONS,
   TRANSIT_LINES,
   TRANSIT_STOPS,
@@ -15,7 +16,7 @@ import {
   DISRUPTION_ALERTS,
 } from "../src/lib/data/jakarta-dataset";
 import { wilayahForCoordinate, wilayahForStops } from "../src/lib/geodesy/wilayah";
-import { seedIntercity } from "./seed-intercity";
+import { seedIntercity, INTERCITY_SEED_VERSION } from "./seed-intercity";
 
 async function main() {
   console.log("[PlatformI Seeder] Starting database population...");
@@ -65,6 +66,23 @@ async function main() {
   }
   console.log(`[PlatformI Seeder] Inserted ${METRO_REGIONS.length} metro regions.`);
 
+  // 2c. Intercity edition region (city-to-city corridors; see INTERCITY_REGION).
+  await prisma.region.upsert({
+    where: { id: INTERCITY_REGION.id },
+    update: {},
+    create: {
+      id: INTERCITY_REGION.id,
+      code: INTERCITY_REGION.code,
+      name: INTERCITY_REGION.name,
+      countryCode: INTERCITY_REGION.countryCode,
+      centerLatitude: INTERCITY_REGION.centerLatitude,
+      centerLongitude: INTERCITY_REGION.centerLongitude,
+      zoomLevel: INTERCITY_REGION.zoomLevel,
+      boundaryCoordinatesJson: JSON.stringify(INTERCITY_REGION.boundaryCoordinates),
+    },
+  });
+  console.log(`[PlatformI Seeder] Inserted Intercity region (${INTERCITY_REGION.code}).`);
+
   // 3. Insert Lines (wilayah = unanimous stop region, else null)
   for (const line of TRANSIT_LINES) {
     const lineStops = TRANSIT_STOPS.filter((s) => s.lineId === line.id);
@@ -72,6 +90,7 @@ async function main() {
       data: {
         id: line.id,
         regionId: line.regionId,
+        regionIds: line.regionIds ?? undefined,
         code: line.code,
         name: line.name,
         category: line.category,
@@ -265,7 +284,7 @@ async function main() {
   // city tables to upsert operators, boarding points, and runs idempotently.
   const intercity = await seedIntercity(prisma);
   console.log(
-    `[PlatformI Seeder] Seeded intercity v1: ${intercity.operators} operators, ${intercity.runs} runs.`,
+    `[PlatformI Seeder] Seeded intercity v${INTERCITY_SEED_VERSION}: ${intercity.operators} operators, ${intercity.runs} runs.`,
   );
 }
 

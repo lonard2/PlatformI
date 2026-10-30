@@ -173,6 +173,8 @@ export interface Stop {
 export interface Line {
   id: string;
   regionId: string;
+  /** Additional regions this line serves (e.g. Whoosh in Jabodetabek + Intercity). */
+  regionIds?: string[] | null;
   code: string;
   name: string;
   category: TransitCategory;

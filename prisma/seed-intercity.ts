@@ -20,7 +20,7 @@ import type { BoardingPointKind, TransitMode } from "../src/types/transit";
 import { JABODETABEK_REGION, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
 import { db } from "../src/lib/db";
 
-export const INTERCITY_SEED_VERSION = 1;
+export const INTERCITY_SEED_VERSION = 2;
 
 const HH_MM_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -68,6 +68,39 @@ export const INTERCITY_OPERATORS: IntercitySeedOperator[] = [
     boardingPoints: [
       { code: "GMR-GATE-A", label: "Gerbang A (Jalur 1-2)", kind: "GATE" },
       { code: "GMR-GATE-B", label: "Gerbang B (Jalur 3-4)", kind: "GATE" },
+      { code: "PSN-GATE-A", label: "Gerbang A Pasar Senen", kind: "GATE" },
+    ],
+  },
+  /** Slice v2: AKAP bus operators on the shared Jakarta corridor line. */
+  {
+    code: "SJ",
+    name: "PT Sinar Jaya Megah Langgeng",
+    mode: "AKAP_INTERCITY_BUS",
+    serviceTier: "INTERCITY_BUS",
+    boardingPoints: [
+      { code: "SJ-PGB-BAY", label: "Pulo Gebang Bay 1-4", kind: "TERMINAL" },
+      { code: "SJ-KPR-BAY", label: "Kampung Rambutan Bay 2", kind: "TERMINAL" },
+    ],
+  },
+  /** Slice v2: Pelni sea corridor on the Tanjung Priok line. */
+  {
+    code: "PELNI",
+    name: "PT Pelayaran Nasional Indonesia (Persero)",
+    mode: "MARITIME_PELNI",
+    serviceTier: "INTERCITY_SEA",
+    boardingPoints: [
+      { code: "TPK-DERMAGA", label: "Dermaga Terminal Penumpang Nusantara", kind: "TERMINAL" },
+    ],
+  },
+  /** Slice v2: Thousand Islands speedboats, operator-set daily banks. */
+  {
+    code: "SERIBU",
+    name: "Kepulauan Seribu Speedboat Pool",
+    mode: "MARITIME_SPEEDBOAT",
+    serviceTier: "INTERCITY_SEA",
+    boardingPoints: [
+      { code: "MRA-KALI-ADEM", label: "Dermaga Kali Adem Muara Angke", kind: "POOL" },
+      { code: "ANC-MARINA", label: "Dermaga Marina Ancol", kind: "POOL" },
     ],
   },
 ];
@@ -112,6 +145,125 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
     gateOrBay: "Jalur 2 (Peron 1)",
     daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
     boardingPointCodes: ["GMR-GATE-A", "GMR-GATE-B"],
+  },
+  // Slice v2: representative corridor banks (public Gapeka timetables move;
+  // times here are stable daily banks, not live departures).
+  {
+    tripCode: "KA-201",
+    lineCode: "KAI",
+    origin: "Stasiun Gambir (GMR)",
+    destination: "Stasiun Bandung (BD)",
+    departureTime: "06:30",
+    arrivalTime: "09:35",
+    operatorCode: "KAI",
+    serviceClass: "Eksekutif Parahyangan",
+    gateOrBay: "Jalur 1 (Peron 1)",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["GMR-GATE-A"],
+  },
+  {
+    tripCode: "KA-202",
+    lineCode: "KAI",
+    origin: "Stasiun Gambir (GMR)",
+    destination: "Stasiun Yogyakarta (YK)",
+    departureTime: "08:00",
+    arrivalTime: "15:20",
+    operatorCode: "KAI",
+    serviceClass: "Eksekutif Taksaka",
+    gateOrBay: "Jalur 3 (Peron 2)",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["GMR-GATE-B"],
+  },
+  {
+    tripCode: "KA-304",
+    lineCode: "KAI",
+    origin: "Stasiun Pasar Senen (PSN)",
+    destination: "Stasiun Surabaya Pasarturi (SBI)",
+    departureTime: "13:00",
+    arrivalTime: "23:40",
+    operatorCode: "KAI",
+    serviceClass: "Ekonomi Jayabaya",
+    gateOrBay: "Gerbang A",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["PSN-GATE-A"],
+  },
+  {
+    tripCode: "SJ-101",
+    lineCode: "AKAP-JKT",
+    origin: "Terminal Terpadu Pulo Gebang",
+    destination: "Terminal Cicaheum Bandung",
+    departureTime: "07:00",
+    arrivalTime: "10:30",
+    operatorCode: "SJ",
+    serviceClass: "Eksekutif 28 Seat",
+    gateOrBay: "Bay 1-4",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["SJ-PGB-BAY"],
+  },
+  {
+    tripCode: "SJ-102",
+    lineCode: "AKAP-JKT",
+    origin: "Terminal Terpadu Pulo Gebang",
+    destination: "Terminal Giwangan Yogyakarta",
+    departureTime: "19:00",
+    arrivalTime: "03:30",
+    operatorCode: "SJ",
+    serviceClass: "Eksekutif 28 Seat",
+    gateOrBay: "Bay 1-4",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["SJ-PGB-BAY"],
+  },
+  {
+    tripCode: "SJ-103",
+    lineCode: "AKAP-JKT",
+    origin: "Terminal Kampung Rambutan",
+    destination: "Terminal Purabaya Surabaya",
+    departureTime: "16:00",
+    arrivalTime: "04:30",
+    operatorCode: "SJ",
+    serviceClass: "Sleeper Suite",
+    gateOrBay: "Bay 2",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["SJ-KPR-BAY"],
+  },
+  {
+    tripCode: "PEL-01",
+    lineCode: "PELNI",
+    origin: "Pelabuhan Tanjung Priok",
+    destination: "Pelabuhan Belawan Medan",
+    departureTime: "14:00",
+    arrivalTime: "08:00",
+    operatorCode: "PELNI",
+    serviceClass: "Ekonomi KM Kelud",
+    gateOrBay: "Dermaga Terminal Penumpang Nusantara",
+    daysOfWeek: [3],
+    boardingPointCodes: ["TPK-DERMAGA"],
+  },
+  {
+    tripCode: "SRB-01",
+    lineCode: "SBD",
+    origin: "Pelabuhan Muara Angke (Dermaga Kali Adem)",
+    destination: "Pulau Tidung",
+    departureTime: "07:30",
+    arrivalTime: "09:00",
+    operatorCode: "SERIBU",
+    serviceClass: "Speedboat Reguler",
+    gateOrBay: "Dermaga Kali Adem",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["MRA-KALI-ADEM"],
+  },
+  {
+    tripCode: "SRB-02",
+    lineCode: "SBD",
+    origin: "Pelabuhan Marina Ancol",
+    destination: "Pulau Pramuka",
+    departureTime: "08:00",
+    arrivalTime: "09:30",
+    operatorCode: "SERIBU",
+    serviceClass: "Speedboat Reguler",
+    gateOrBay: "Marina Ancol",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["ANC-MARINA"],
   },
 ];
 

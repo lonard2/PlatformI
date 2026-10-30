@@ -29,7 +29,7 @@ const NETWORK_BOUNDING_BOX = {
 // Jakarta & Bodetabek Core Urban Rail/Bus Bounding Box
 const CORE_JABODETABEK_BBOX = {
   minLat: -7.1, // Extends to Tegalluar (Bandung)
-  maxLat: -5.7, // Thousand Islands
+  maxLat: -5.6, // Thousand Islands (Pulau Harapan, the northernmost DKI islet)
   minLon: 106.2, // Rangkasbitung
   maxLon: 107.8, // Tegalluar
 };
@@ -83,13 +83,21 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
     it("All defined transit stops should have authentic coordinates within network bounds", () => {
       expect(TRANSIT_STOPS.length).toBeGreaterThanOrEqual(20);
 
+      const lineRegion = new Map(TRANSIT_LINES.map((l) => [l.id, l.regionId]));
       for (const stop of TRANSIT_STOPS) {
-        expect(stop.latitude).toBeLessThan(0);
-        expect(stop.longitude).toBeGreaterThan(100);
-        expect(stop.latitude).toBeGreaterThan(CORE_JABODETABEK_BBOX.minLat);
-        expect(stop.latitude).toBeLessThan(CORE_JABODETABEK_BBOX.maxLat);
-        expect(stop.longitude).toBeGreaterThan(CORE_JABODETABEK_BBOX.minLon);
-        expect(stop.longitude).toBeLessThan(CORE_JABODETABEK_BBOX.maxLon);
+        // Intercity corridors span the archipelago; metro stops stay in the core box.
+        const intercity = lineRegion.get(stop.lineId) === "reg-intercity-01";
+        const box = intercity
+          ? { minLat: -11, maxLat: 6, minLon: 95, maxLon: 142 }
+          : CORE_JABODETABEK_BBOX;
+        if (!intercity) {
+          expect(stop.latitude).toBeLessThan(0);
+          expect(stop.longitude).toBeGreaterThan(100);
+        }
+        expect(stop.latitude).toBeGreaterThan(box.minLat);
+        expect(stop.latitude).toBeLessThan(box.maxLat);
+        expect(stop.longitude).toBeGreaterThan(box.minLon);
+        expect(stop.longitude).toBeLessThan(box.maxLon);
       }
     });
   });
@@ -316,8 +324,9 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
       const ticketCount = await db.ticket.count();
       const checkinCount = await db.crowdsourceCheckIn.count();
 
-      // Seeded world: Jabodetabek home region plus metro region records.
-      expect(regionCount).toBe(1 + METRO_REGIONS.length);
+      // Seeded world: Jabodetabek home region plus metro region records
+      // plus the intercity edition region.
+      expect(regionCount).toBe(1 + METRO_REGIONS.length + 1);
       expect(lineCount).toBe(TRANSIT_LINES.length);
       expect(stopCount).toBe(TRANSIT_STOPS.length);
       expect(vehicleCount).toBe(TRANSIT_VEHICLES.length);

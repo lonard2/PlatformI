@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
         lines = dbLines.map((l) => ({
           id: l.id,
           regionId: l.regionId,
+          regionIds: Array.isArray(l.regionIds) ? (l.regionIds as string[]) : undefined,
           code: l.code,
           name: l.name,
           category: l.category as TransitCategory,
