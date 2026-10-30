@@ -47,7 +47,7 @@ describe("account panel ceremony states", () => {
     vi.useRealTimers();
   });
 
-  it("freezes only the started action and narrates the wait", async () => {
+  it("freezes the whole ceremony surface with the running action named", async () => {
     vi.useFakeTimers();
     render(<MemberAccountPanel />);
     await act(async () => {
@@ -57,13 +57,12 @@ describe("account panel ceremony states", () => {
     fireEvent.change(nameInput, { target: { value: "Uji" } });
     fireEvent.change(screen.getByLabelText(/^Phone/), { target: { value: "081234567890" } });
     const registerBtn = screen.getByRole("button", { name: /register with passkey/i });
-    const loginBtn = screen.getByRole("button", { name: /continue with passkey/i });
     fireEvent.click(registerBtn);
     await act(async () => {
       for (let i = 0; i < 10; i++) await Promise.resolve();
     });
-    expect(registerBtn).toBeDisabled();
-    expect(loginBtn).not.toBeDisabled();
+    // The other ceremony button is visibly disabled — no clickable-but-dead controls.
+    expect(screen.getByRole("button", { name: /continue with passkey/i })).toBeDisabled();
     expect(screen.getByText(/waiting for your device/i)).toBeInTheDocument();
   });
 

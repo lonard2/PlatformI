@@ -1224,6 +1224,7 @@ AI Transit Advisor is ready for your next transit inquiry. What destination or f
     chooserHint: "New here? Register a passkey. Returning? Continue below.",
     errorGeneric: "Something went wrong. Please try again.",
     cancelledAuth: "Cancelled",
+    busyWaiting: "Waiting…",
     errorNoAccount: "No account found for this number. Try registering instead — your entries are kept.",
     errorAlreadyRegistered: "This number is already registered. Continue with sign-in instead.",
     errorSessionExpired: "Your attempt expired with no changes. Please try again.",

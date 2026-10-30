@@ -1234,6 +1234,7 @@ export interface TranslationDictionary {
     chooserHint: string;
     errorGeneric: string;
     cancelledAuth: string;
+    busyWaiting: string;
     errorNoAccount: string;
     errorAlreadyRegistered: string;
     errorSessionExpired: string;

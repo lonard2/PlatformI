@@ -398,24 +398,40 @@ export const MemberAccountPanel: React.FC = () => {
           <button
             type="button"
             onClick={() => void handleRegister()}
-            disabled={busyAction === "register" || displayName.trim() === ""}
-            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold disabled:opacity-50 transition"
+            disabled={busyAction !== null || displayName.trim() === ""}
+            aria-busy={busyAction === "register"}
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-xs font-bold disabled:opacity-50 transition flex items-center gap-1.5 justify-center"
           >
-            {t.account.registerWithPasskey}
+            {busyAction === "register" ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                <span>{t.account.busyWaiting}</span>
+              </>
+            ) : (
+              t.account.registerWithPasskey
+            )}
           </button>
           <button
             type="button"
             onClick={() => void handleLogin()}
-            disabled={busyAction === "login" || phone.trim() === ""}
-            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition"
+            disabled={busyAction !== null || phone.trim() === ""}
+            aria-busy={busyAction === "login"}
+            className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition flex items-center gap-1.5 justify-center"
           >
-            {t.account.continueWithPasskey}
+            {busyAction === "login" ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                <span>{t.account.busyWaiting}</span>
+              </>
+            ) : (
+              t.account.continueWithPasskey
+            )}
           </button>
           {lastMember && (
             <button
               type="button"
               onClick={() => void handleLogin(lastMember.id)}
-              disabled={busyAction === "login"}
+              disabled={busyAction !== null}
               className="touch-target min-h-[44px] px-1 py-2 text-xs font-medium text-cyan-300 underline underline-offset-4 decoration-cyan-500/50 hover:text-cyan-200 disabled:opacity-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded"
             >
               {t.account.continueAs.replace("{name}", lastMember.displayName)}

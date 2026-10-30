@@ -1224,6 +1224,7 @@ AI Transit Advisor siap untuk pertanyaan transportasi Anda berikutnya. Destinasi
     chooserHint: "Baru di sini? Daftarkan kunci sandi. Sudah pernah? Lanjutkan di bawah.",
     errorGeneric: "Terjadi kesalahan. Silakan coba lagi.",
     cancelledAuth: "Dibatalkan",
+    busyWaiting: "Menunggu…",
     errorNoAccount: "Tidak ada akun untuk nomor ini. Coba daftar — isian Anda tetap tersimpan.",
     errorAlreadyRegistered: "Nomor ini sudah terdaftar. Lanjutkan dengan masuk.",
     errorSessionExpired: "Upaya kedaluwarsa tanpa perubahan. Silakan coba lagi.",

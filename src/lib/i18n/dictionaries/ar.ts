@@ -1224,6 +1224,7 @@ export const ar: TranslationDictionary = {
     chooserHint: "جديد هنا؟ سجّل مفتاح مرور. عائد؟ تابع أدناه.",
     errorGeneric: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     cancelledAuth: "ملغي",
+    busyWaiting: "جارٍ الانتظار…",
     errorNoAccount: "لا يوجد حساب لهذا الرقم. جرّب التسجيل — ستبقى إدخالاتك محفوظة.",
     errorAlreadyRegistered: "هذا الرقم مسجل بالفعل. تابع بتسجيل الدخول.",
     errorSessionExpired: "انتهت صلاحية المحاولة دون أي تغيير. حاول مرة أخرى.",
