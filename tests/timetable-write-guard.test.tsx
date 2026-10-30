@@ -8,13 +8,26 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { PUT, DELETE, POST, GET } from "@/app/api/network/timetables/route";
 import { BatchScheduleModal } from "@/components/admin/BatchScheduleModal";
 import { TRANSIT_LINES, TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 import { useLanguageStore } from "@/lib/i18n";
 
 function putReq(body: unknown): NextRequest {
-  return new NextRequest("http://localhost:3000/api/network/timetables", {
+  return authed("http://localhost:3000/api/network/timetables", {
     method: "PUT",
     body: JSON.stringify(body),
   });
@@ -38,7 +51,7 @@ describe("timetable write guards", () => {
     const body = await res.json();
     expect(body.success).toBe(false);
     const list = await GET(
-      new NextRequest("http://localhost:3000/api/network/timetables")
+      authed("http://localhost:3000/api/network/timetables")
     );
     const listBody = await list.json();
     const runs = (listBody.data || listBody) as Array<{ id: string }>;
@@ -59,7 +72,7 @@ describe("timetable write guards", () => {
     });
     for (const n of [1, 2]) {
       const res = await POST(
-        new NextRequest("http://localhost:3000/api/network/timetables", {
+        authed("http://localhost:3000/api/network/timetables", {
           method: "POST",
           body: JSON.stringify(mk(n)),
         })
@@ -67,7 +80,7 @@ describe("timetable write guards", () => {
       expect(res.status).toBe(201);
     }
     const del = await DELETE(
-      new NextRequest(`http://localhost:3000/api/network/timetables?lineId=${lineId}`, {
+      authed(`http://localhost:3000/api/network/timetables?lineId=${lineId}`, {
         method: "DELETE",
       })
     );
@@ -75,7 +88,7 @@ describe("timetable write guards", () => {
     expect(delBody.success).toBe(true);
     expect(delBody.deletedCount).toBe(2);
     const after = await GET(
-      new NextRequest(`http://localhost:3000/api/network/timetables?lineId=${lineId}`)
+      authed(`http://localhost:3000/api/network/timetables?lineId=${lineId}`)
     );
     const afterBody = await after.json();
     expect((afterBody.data || afterBody) as unknown[]).toHaveLength(0);

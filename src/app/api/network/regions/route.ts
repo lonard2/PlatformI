@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { Coordinate, Region } from "@/types/transit";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 function parseBoundary(raw: unknown): { ok: true; points: Coordinate[] } | { ok: false; error: string } {
   if (raw === undefined || raw === null || raw === "") {
@@ -95,6 +96,13 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { code, name, centerLatitude, centerLongitude } = body;
@@ -140,6 +148,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { id } = body;
@@ -198,6 +213,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

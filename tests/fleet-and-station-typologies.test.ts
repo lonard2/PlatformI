@@ -1,6 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
+import {
   StationType,
   StationScale,
   Stop,
@@ -431,7 +444,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   let createdVehicleId = "";
 
   it("GET: returns list of vehicles with success flag and count", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles");
+    const req = authed("http://localhost:3000/api/fleet/vehicles");
     const res = await getVehicles(req);
     expect(res.status).toBe(200);
 
@@ -451,7 +464,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("POST: rejects creation with 400 when required fields are missing", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+    const req = authed("http://localhost:3000/api/fleet/vehicles", {
       method: "POST",
       body: JSON.stringify({ name: "Incomplete Vehicle" }),
     });
@@ -464,7 +477,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("POST: creates a new vehicle and returns 201 with created vehicle payload", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+    const req = authed("http://localhost:3000/api/fleet/vehicles", {
       method: "POST",
       body: JSON.stringify({
         vehicleCode: testVehicleCode,
@@ -493,7 +506,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("PUT: updates vehicle properties (status, speed, crowd level)", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+    const req = authed("http://localhost:3000/api/fleet/vehicles", {
       method: "PUT",
       body: JSON.stringify({
         id: createdVehicleId,
@@ -513,7 +526,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("PUT: returns 400 when id or vehicleCode is missing", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+    const req = authed("http://localhost:3000/api/fleet/vehicles", {
       method: "PUT",
       body: JSON.stringify({
         speedKmh: 55,
@@ -527,7 +540,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("DELETE: deletes vehicle by id query param", async () => {
-    const req = new NextRequest(
+    const req = authed(
       `http://localhost:3000/api/fleet/vehicles?id=${createdVehicleId}`,
       { method: "DELETE" }
     );
@@ -540,7 +553,7 @@ describe("Fleet Persistence REST API (/api/fleet/vehicles)", () => {
   });
 
   it("DELETE: returns 400 when id and vehicleCode query param are omitted", async () => {
-    const req = new NextRequest("http://localhost:3000/api/fleet/vehicles", {
+    const req = authed("http://localhost:3000/api/fleet/vehicles", {
       method: "DELETE",
     });
     const res = await deleteVehicle(req);
@@ -555,7 +568,7 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
   const testStopId = `stop-test-typology-${Date.now()}`;
 
   it("GET: returns transit stops with mapped stationType and scale properties", async () => {
-    const req = new NextRequest("http://localhost:3000/api/network/stops");
+    const req = authed("http://localhost:3000/api/network/stops");
     const res = await getStops(req);
     expect(res.status).toBe(200);
 
@@ -570,7 +583,7 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
   });
 
   it("POST: persists stop with explicit stationType and scale", async () => {
-    const req = new NextRequest("http://localhost:3000/api/network/stops", {
+    const req = authed("http://localhost:3000/api/network/stops", {
       method: "POST",
       body: JSON.stringify({
         id: testStopId,
@@ -598,7 +611,7 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
   });
 
   it("PUT: updates stop stationType and scale dynamically", async () => {
-    const req = new NextRequest("http://localhost:3000/api/network/stops", {
+    const req = authed("http://localhost:3000/api/network/stops", {
       method: "PUT",
       body: JSON.stringify({
         id: testStopId,
@@ -617,7 +630,7 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
   });
 
   it("GET: retrieves updated stop retaining stationType and scale", async () => {
-    const req = new NextRequest("http://localhost:3000/api/network/stops");
+    const req = authed("http://localhost:3000/api/network/stops");
     const res = await getStops(req);
     expect(res.status).toBe(200);
 
@@ -629,7 +642,7 @@ describe("Station Typologies & Scale REST API (/api/network/stops)", () => {
   });
 
   it("DELETE: removes test stop from persistence", async () => {
-    const req = new NextRequest(`http://localhost:3000/api/network/stops?id=${testStopId}`, {
+    const req = authed(`http://localhost:3000/api/network/stops?id=${testStopId}`, {
       method: "DELETE",
     });
     const res = await deleteStop(req);

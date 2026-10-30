@@ -5,6 +5,10 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+import {
   GET as getOperators,
   POST as postOperator,
   PUT as putOperator,
@@ -20,6 +24,10 @@ import {
 function req(url: string, method: string, body?: unknown): NextRequest {
   return new NextRequest(url, {
     method,
+    headers: {
+      "content-type": "application/json",
+      cookie: `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`,
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }

@@ -17,6 +17,19 @@
 
 import { describe, it, expect } from "vitest";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { GET as getLines, POST as postLine, PUT as putLine, DELETE as deleteLine } from "@/app/api/network/lines/route";
 import { GET as getStops, POST as postStop, PUT as putStop, DELETE as deleteStop } from "@/app/api/network/stops/route";
 import { smoothPolyline, coordinatesToLatLngTuples, haversineDistanceMeters } from "@/lib/geodesy/curveSmoothing";
@@ -28,7 +41,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
 
   describe("1. Transit Lines API (/api/network/lines)", () => {
     it("GET: returns non-empty list of transit lines", async () => {
-      const req = new NextRequest("http://localhost:3000/api/network/lines");
+      const req = authed("http://localhost:3000/api/network/lines");
       const res = await getLines(req);
       expect(res.status).toBe(200);
 
@@ -41,7 +54,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
     });
 
     it("POST: rejects creation when required fields are missing", async () => {
-      const req = new NextRequest("http://localhost:3000/api/network/lines", {
+      const req = authed("http://localhost:3000/api/network/lines", {
         method: "POST",
         body: JSON.stringify({ name: "Incomplete Line" }),
       });
@@ -75,7 +88,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
         ],
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/lines", {
+      const req = authed("http://localhost:3000/api/network/lines", {
         method: "POST",
         body: JSON.stringify(newLinePayload),
       });
@@ -103,7 +116,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
         polylineCoordinates: smoothed,
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/lines", {
+      const req = authed("http://localhost:3000/api/network/lines", {
         method: "PUT",
         body: JSON.stringify(updatePayload),
       });
@@ -117,7 +130,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
     });
 
     it("DELETE: removes line by query id", async () => {
-      const req = new NextRequest(`http://localhost:3000/api/network/lines?id=${testLineId}`, {
+      const req = authed(`http://localhost:3000/api/network/lines?id=${testLineId}`, {
         method: "DELETE",
       });
       const res = await deleteLine(req);
@@ -130,7 +143,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
 
   describe("2. Transit Stops API (/api/network/stops)", () => {
     it("GET: returns non-empty list of transit stops", async () => {
-      const req = new NextRequest("http://localhost:3000/api/network/stops");
+      const req = authed("http://localhost:3000/api/network/stops");
       const res = await getStops(req);
       expect(res.status).toBe(200);
 
@@ -160,7 +173,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
         platformType: "ISLAND",
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/stops", {
+      const req = authed("http://localhost:3000/api/network/stops", {
         method: "POST",
         body: JSON.stringify(newStopPayload),
       });
@@ -182,7 +195,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
         sequence: 100,
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/stops", {
+      const req = authed("http://localhost:3000/api/network/stops", {
         method: "PUT",
         body: JSON.stringify(updatePayload),
       });
@@ -196,7 +209,7 @@ describe("Network & Map Studio REST API & Geometry Engine", () => {
     });
 
     it("DELETE: removes stop by query id", async () => {
-      const req = new NextRequest(`http://localhost:3000/api/network/stops?id=${testStopId}`, {
+      const req = authed(`http://localhost:3000/api/network/stops?id=${testStopId}`, {
         method: "DELETE",
       });
       const res = await deleteStop(req);

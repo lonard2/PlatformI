@@ -7,6 +7,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
 import { POST as postCheckin, DELETE as deleteCheckin } from "@/app/api/crowdsource/checkin/route";
 import { GET as getFeed } from "@/app/api/crowdsource/feed/route";
 import AdminFleetPage from "@/app/admin/fleet/page";
@@ -26,6 +30,10 @@ const VEHICLE: Vehicle = TRANSIT_VEHICLES[0];
 function req(url: string, method: string, body?: unknown): NextRequest {
   return new NextRequest(url, {
     method,
+    headers: {
+      "content-type": "application/json",
+      cookie: `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`,
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }

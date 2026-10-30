@@ -1,6 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
+import {
   GET as getTimetables,
   POST as postTimetable,
   PUT as putTimetable,
@@ -14,7 +27,7 @@ import { id as idDictionary } from "../src/lib/i18n/dictionaries/id";
 describe("Timetable & Schedule Management Suite", () => {
   describe("REST API: /api/network/timetables", () => {
     it("GET: retrieves list of scheduled timetable runs", async () => {
-      const req = new NextRequest("http://localhost:3000/api/network/timetables");
+      const req = authed("http://localhost:3000/api/network/timetables");
       const res = await getTimetables(req);
       expect(res.status).toBe(200);
 
@@ -39,7 +52,7 @@ describe("Timetable & Schedule Management Suite", () => {
 
     it("GET: filters by lineId, origin, destination, and search query", async () => {
       // Filter by lineId
-      const lineReq = new NextRequest(
+      const lineReq = authed(
         "http://localhost:3000/api/network/timetables?lineId=line-whoosh-hsr"
       );
       const lineRes = await getTimetables(lineReq);
@@ -48,7 +61,7 @@ describe("Timetable & Schedule Management Suite", () => {
       expect(lineJson.data.every((r: TimetableRun) => r.lineId === "line-whoosh-hsr")).toBe(true);
 
       // Filter by origin
-      const originReq = new NextRequest(
+      const originReq = authed(
         "http://localhost:3000/api/network/timetables?origin=Halim"
       );
       const originRes = await getTimetables(originReq);
@@ -57,7 +70,7 @@ describe("Timetable & Schedule Management Suite", () => {
       expect(originJson.data.some((r: TimetableRun) => r.origin.includes("Halim"))).toBe(true);
 
       // Filter by search query
-      const searchReq = new NextRequest(
+      const searchReq = authed(
         "http://localhost:3000/api/network/timetables?search=Garuda"
       );
       const searchRes = await getTimetables(searchReq);
@@ -68,7 +81,7 @@ describe("Timetable & Schedule Management Suite", () => {
 
     it("POST: validates required fields and time formats", async () => {
       // Missing tripCode
-      const missingReq = new NextRequest("http://localhost:3000/api/network/timetables", {
+      const missingReq = authed("http://localhost:3000/api/network/timetables", {
         method: "POST",
         body: JSON.stringify({
           lineId: "line-whoosh-hsr",
@@ -86,7 +99,7 @@ describe("Timetable & Schedule Management Suite", () => {
       expect(missingJson.error).toContain("Missing required fields");
 
       // Invalid time format
-      const invalidTimeReq = new NextRequest("http://localhost:3000/api/network/timetables", {
+      const invalidTimeReq = authed("http://localhost:3000/api/network/timetables", {
         method: "POST",
         body: JSON.stringify({
           tripCode: "G9999",
@@ -121,7 +134,7 @@ describe("Timetable & Schedule Management Suite", () => {
         daysOfWeek: [5, 6, 0],
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/timetables", {
+      const req = authed("http://localhost:3000/api/network/timetables", {
         method: "POST",
         body: JSON.stringify(validPayload),
       });
@@ -145,7 +158,7 @@ describe("Timetable & Schedule Management Suite", () => {
         notes: "Departure shifted by 15 mins for track maintenance.",
       };
 
-      const req = new NextRequest("http://localhost:3000/api/network/timetables", {
+      const req = authed("http://localhost:3000/api/network/timetables", {
         method: "PUT",
         body: JSON.stringify(updatePayload),
       });
@@ -162,14 +175,14 @@ describe("Timetable & Schedule Management Suite", () => {
 
     it("DELETE: removes scheduled run by id", async () => {
       // Missing id
-      const missingIdReq = new NextRequest("http://localhost:3000/api/network/timetables", {
+      const missingIdReq = authed("http://localhost:3000/api/network/timetables", {
         method: "DELETE",
       });
       const missingIdRes = await deleteTimetable(missingIdReq);
       expect(missingIdRes.status).toBe(400);
 
       // Valid delete
-      const delReq = new NextRequest(
+      const delReq = authed(
         "http://localhost:3000/api/network/timetables?id=run-test-whoosh-extra",
         { method: "DELETE" }
       );
@@ -179,7 +192,7 @@ describe("Timetable & Schedule Management Suite", () => {
       expect(delJson.success).toBe(true);
 
       // Verify deletion in GET
-      const getReq = new NextRequest("http://localhost:3000/api/network/timetables?search=G1099");
+      const getReq = authed("http://localhost:3000/api/network/timetables?search=G1099");
       const getRes = await getTimetables(getReq);
       const getJson = await getRes.json();
       expect(getJson.data.some((r: TimetableRun) => r.id === "run-test-whoosh-extra")).toBe(false);

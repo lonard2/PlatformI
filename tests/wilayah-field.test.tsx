@@ -7,6 +7,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { POST as postStop, PUT as putStop, GET as getStops, DELETE as deleteStop } from "@/app/api/network/stops/route";
 import { POST as postLine, GET as getLines, DELETE as deleteLine } from "@/app/api/network/lines/route";
 import AdminNetworkStudioPage from "@/app/admin/network/page";
@@ -20,7 +33,7 @@ vi.mock("@/components/admin/DynamicNetworkMap", () => ({
 }));
 
 function req(url: string, method: string, body?: unknown): NextRequest {
-  return new NextRequest(url, {
+  return authed(url, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
   });

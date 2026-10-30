@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { DisruptionAlert, DisruptionSeverity } from "@/types/transit";
 import { DISRUPTION_ALERTS, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 // In-memory runtime cache ensuring operational alerts persist during session
 let runtimeAlerts: DisruptionAlert[] = [...DISRUPTION_ALERTS];
@@ -90,6 +91,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const {
@@ -171,6 +179,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { id, status, title, description, severity, estimatedEndTime, lineId, affectedStops } = body;
@@ -260,6 +275,13 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

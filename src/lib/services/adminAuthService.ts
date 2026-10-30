@@ -381,6 +381,16 @@ export function authenticateOperator(
   const normalizedId = operatorId.trim().toUpperCase();
   const operator = REGISTERED_OPERATORS[normalizedId];
 
+  // The compiled-in catalog is demo credentials. They authenticate local
+  // and preview environments only; production refuses them outright so a
+  // leaked demo passkey is useless against the live OCC.
+  if (process.env.NODE_ENV === "production" && operator) {
+    return {
+      success: false,
+      error: "Demo operator credentials are disabled in production. Contact the systems administrator for a provisioned operator account.",
+    };
+  }
+
   if (!operator || !constantTimeEqual(operator.passkey, passkey.trim())) {
     return {
       success: false,

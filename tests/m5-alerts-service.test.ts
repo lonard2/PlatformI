@@ -10,6 +10,19 @@
 
 import { describe, it, expect, afterAll } from "vitest";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { GET, POST, PATCH, DELETE } from "@/app/api/alerts/route";
 import { db } from "@/lib/db";
 
@@ -28,7 +41,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
   });
 
   it("GET /api/alerts retrieves list of seeded disruption bulletins", async () => {
-    const req = new NextRequest("http://localhost:3000/api/alerts");
+    const req = authed("http://localhost:3000/api/alerts");
     const res = await GET(req);
     expect(res.status).toBe(200);
 
@@ -39,7 +52,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
   });
 
   it("GET /api/alerts?severity=WARNING filters alerts accurately", async () => {
-    const req = new NextRequest("http://localhost:3000/api/alerts?severity=WARNING");
+    const req = authed("http://localhost:3000/api/alerts?severity=WARNING");
     const res = await GET(req);
     expect(res.status).toBe(200);
 
@@ -51,7 +64,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
   });
 
   it("POST /api/alerts validates required fields and rejects incomplete payloads", async () => {
-    const req = new NextRequest("http://localhost:3000/api/alerts", {
+    const req = authed("http://localhost:3000/api/alerts", {
       method: "POST",
       body: JSON.stringify({ title: "Incomplete Alert" }),
     });
@@ -73,7 +86,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
       estimatedEndTime: new Date(Date.now() + 3600000).toISOString(),
     };
 
-    const req = new NextRequest("http://localhost:3000/api/alerts", {
+    const req = authed("http://localhost:3000/api/alerts", {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -92,7 +105,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
 
   it("PATCH /api/alerts updates status to RESOLVED and severity to CRITICAL", async () => {
     // 1. Create a test alert first
-    const createReq = new NextRequest("http://localhost:3000/api/alerts", {
+    const createReq = authed("http://localhost:3000/api/alerts", {
       method: "POST",
       body: JSON.stringify({
         lineId: "line-krl-bogor",
@@ -106,7 +119,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
     createdAlertIds.push(created.id);
 
     // 2. Patch status to RESOLVED
-    const patchReq = new NextRequest("http://localhost:3000/api/alerts", {
+    const patchReq = authed("http://localhost:3000/api/alerts", {
       method: "PATCH",
       body: JSON.stringify({
         id: created.id,
@@ -122,7 +135,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
   });
 
   it("DELETE /api/alerts deletes an alert by ID", async () => {
-    const createReq = new NextRequest("http://localhost:3000/api/alerts", {
+    const createReq = authed("http://localhost:3000/api/alerts", {
       method: "POST",
       body: JSON.stringify({
         lineId: "line-tj-cor-1",
@@ -134,7 +147,7 @@ describe("Milestone 5: Disruption Alerts REST API", () => {
     const createRes = await POST(createReq);
     const created = (await createRes.json()).data;
 
-    const deleteReq = new NextRequest(`http://localhost:3000/api/alerts?id=${created.id}`, {
+    const deleteReq = authed(`http://localhost:3000/api/alerts?id=${created.id}`, {
       method: "DELETE",
     });
     const deleteRes = await DELETE(deleteReq);

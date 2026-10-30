@@ -5,12 +5,25 @@
  */
 import { describe, it, expect, afterEach } from "vitest";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { GET, POST, PUT, DELETE } from "@/app/api/network/regions/route";
 
 const URL = "http://localhost:3000/api/network/regions";
 
 function req(method: string, query = "", body?: unknown): NextRequest {
-  return new NextRequest(`${URL}${query}`, {
+  return authed(`${URL}${query}`, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -24,7 +37,7 @@ describe("region CRUD", () => {
     const { DELETE: deleteLine } = await import("@/app/api/network/lines/route");
     for (const id of createdLineIds.splice(0)) {
       await deleteLine(
-        new NextRequest(`http://localhost:3000/api/network/lines?id=${id}`, { method: "DELETE" })
+        authed(`http://localhost:3000/api/network/lines?id=${id}`, { method: "DELETE" })
       );
     }
     for (const id of createdRegionIds.splice(0)) {
@@ -101,7 +114,7 @@ describe("region CRUD", () => {
 
     const { POST: postLine } = await import("@/app/api/network/lines/route");
     const lineRes = await postLine(
-      new NextRequest("http://localhost:3000/api/network/lines", {
+      authed("http://localhost:3000/api/network/lines", {
         method: "POST",
         body: JSON.stringify({
           code: "TST-FL",

@@ -19,6 +19,7 @@ import {
   reporterWeightFor,
   cooldownSecondsFor,
 } from "@/lib/services/memberTrust";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 const CROWDSOURCE_HALF_LIFE_SECONDS = 600; // 10 minutes
 const RATE_LIMIT_SECONDS = 60;
@@ -202,6 +203,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

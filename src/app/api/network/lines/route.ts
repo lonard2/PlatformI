@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { Line, TransitMode, TransitCategory, FareStructureType, Coordinate, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_LINES, JABODETABEK_REGION } from "@/lib/data/jakarta-dataset";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 // In-memory runtime cache ensuring operational continuity if DB is temporarily locked
 let runtimeLines: Line[] = [...TRANSIT_LINES];
@@ -115,6 +116,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const {
@@ -235,6 +243,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { id } = body;
@@ -304,6 +319,13 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

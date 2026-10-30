@@ -16,6 +16,7 @@ import {
   DivergenceReason,
 } from "@/types/transit";
 import { DEFAULT_TIMETABLE_RUNS } from "@/lib/data/defaultTimetables";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 // Runtime in-memory cache ensuring instant availability and offline resilience
 let runtimeTimetableRuns: TimetableRun[] = [...DEFAULT_TIMETABLE_RUNS];
@@ -165,6 +166,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const rawBody = await request.json();
 
@@ -367,6 +375,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = (await request.json()) as Partial<TimetableRun> & { id: string };
 
@@ -517,6 +532,13 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

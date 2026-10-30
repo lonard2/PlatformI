@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { Stop, StationType, StationScale } from "@/types/transit";
 import { TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 import { wilayahForCoordinate } from "@/lib/geodesy/wilayah";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 function inferStationType(s: { name: string; lineId: string; isInterchange?: boolean }): StationType {
   const nameLower = s.name.toLowerCase();
@@ -194,6 +195,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const {
@@ -314,6 +322,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { id } = body;
@@ -411,6 +426,13 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

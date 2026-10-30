@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import type { BoardingPoint, BoardingPointKind } from "@/types/transit";
+import { requireOperator } from "@/lib/services/adminAuthService";
 
 const BOARDING_POINT_KINDS: BoardingPointKind[] = ["TERMINAL", "AGEN", "POOL", "GATE", "PIER"];
 
@@ -50,6 +51,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { operatorId, label, kind } = body;
@@ -104,6 +112,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const body = await request.json();
     const { id } = body;
@@ -152,6 +167,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const operator = requireOperator(request.headers.get("cookie"));
+  if (!operator) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

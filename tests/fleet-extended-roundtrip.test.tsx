@@ -5,12 +5,25 @@
  */
 import { describe, it, expect, afterEach } from "vitest";
 import { NextRequest } from "next/server";
+import {
+  OPERATOR_COOKIE_NAME,
+  createOperatorSessionToken,
+} from "@/lib/services/adminAuthService";
+
+const OPS_COOKIE = `${OPERATOR_COOKIE_NAME}=${encodeURIComponent(createOperatorSessionToken("OCC-TEST-OPS", "CHIEF_DISPATCHER"))}`;
+
+function authed(url: string, init?: { method?: string; body?: string; headers?: Record<string, string> }): NextRequest {
+  return new NextRequest(url, {
+    ...init,
+    headers: { ...init?.headers, cookie: OPS_COOKIE },
+  });
+}
 import { POST, PUT, GET, DELETE } from "@/app/api/fleet/vehicles/route";
 
 const LINE_ID = "line-mrt-ns";
 
 function req(method: string, body?: unknown, query = ""): NextRequest {
-  return new NextRequest(`http://localhost:3000/api/fleet/vehicles${query}`, {
+  return authed(`http://localhost:3000/api/fleet/vehicles${query}`, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -46,7 +59,7 @@ describe("fleet extended identity round-trip", () => {
     // exact seeded counts: remove every vehicle this file creates.
     for (const id of createdIds.splice(0)) {
       await DELETE(
-        new NextRequest(`http://localhost:3000/api/fleet/vehicles?id=${id}`, {
+        authed(`http://localhost:3000/api/fleet/vehicles?id=${id}`, {
           method: "DELETE",
         })
       );
