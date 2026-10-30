@@ -16,6 +16,7 @@ import {
   JakLingkoLegInput,
 } from "@/lib/services/fareCalculator";
 import { TRANSIT_STOPS, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
+import { prodDetails } from "@/lib/api/serverError";
 
 export async function POST(request: NextRequest) {
   try {
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to calculate fare", details: (err as Error).message },
+      { error: "Failed to calculate fare", ...prodDetails(err) },
       { status: 500 }
     );
   }

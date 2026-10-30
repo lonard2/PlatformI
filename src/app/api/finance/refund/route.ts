@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   }
   const gate = requireFinanceRole(request.headers.get("cookie"), "refund", {
     amountRp: lookup.totalFareRp,
-  });
+  }, request.headers);
   if (!gate.ok) {
     return NextResponse.json({ success: false, error: gate.error }, { status: gate.status });
   }

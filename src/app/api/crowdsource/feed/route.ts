@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { TRANSIT_VEHICLES, TRANSIT_LINES } from "@/lib/data/jakarta-dataset";
 import { FLAG_THRESHOLD_COUNT } from "@/lib/services/memberTrust";
+import { prodDetails } from "@/lib/api/serverError";
 
 export interface FormattedFeedItem {
   id: string;
@@ -149,7 +150,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to fetch crowdsource feed", details: (err as Error).message },
+      { error: "Failed to fetch crowdsource feed", ...prodDetails(err) },
       { status: 500 }
     );
   }

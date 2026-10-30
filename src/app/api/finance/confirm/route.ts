@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ success: false, error: "INVALID_REQUEST" }, { status: 400 });
   }
-  const gate = requireFinanceRole(request.headers.get("cookie"), "confirm");
+  const gate = requireFinanceRole(request.headers.get("cookie"), "confirm", undefined, request.headers);
   if (!gate.ok) {
     return NextResponse.json({ success: false, error: gate.error }, { status: gate.status });
   }

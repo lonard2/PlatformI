@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -280,7 +280,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },

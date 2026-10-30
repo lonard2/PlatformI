@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { validateRollingQRToken } from "@/lib/services/qrSecurityService";
 import { ticketStateReason } from "@/lib/ticketing/reservationContract";
+import { prodDetails } from "@/lib/api/serverError";
 
 // In-memory gate scanned nonce store for active replay prevention
 const scannedNoncesCache = new Set<string>();
@@ -161,7 +162,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to validate gate QR token", details: (err as Error).message },
+      { error: "Failed to validate gate QR token", ...prodDetails(err) },
       { status: 500 }
     );
   }

@@ -47,7 +47,7 @@ export async function GET(request?: Request): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },

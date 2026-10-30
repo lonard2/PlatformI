@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { prodDetails } from "@/lib/api/serverError";
 import {
   hasGuestLookupFallback,
   matchesGuestLookupFallback,
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
         record = await db.ticket.findUnique({ where: { reservationCode: code } });
       } catch (err) {
         return NextResponse.json(
-          { error: "Failed to look up reservation", details: (err as Error).message },
+          { error: "Failed to look up reservation", ...prodDetails(err) },
           { status: 500 }
         );
       }
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       });
     } catch (err) {
       return NextResponse.json(
-        { error: "Failed to look up reservation", details: (err as Error).message },
+        { error: "Failed to look up reservation", ...prodDetails(err) },
         { status: 500 }
       );
     }
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, ticket: sanitizeGuestTicket(matches[0]) });
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to look up reservation", details: (err as Error).message },
+      { error: "Failed to look up reservation", ...prodDetails(err) },
       { status: 500 }
     );
   }

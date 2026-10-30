@@ -408,21 +408,33 @@ export function authenticateOperator(
 }
 
 /**
- * Resolve the calling operator from a raw Cookie header value.
- * Returns null when there is no usable operator session; callers map
- * that to 401. Role gating (e.g. finance-only) stays with the caller so
- * each route declares exactly what it requires.
+ * Resolve the calling operator from a raw Cookie header value, falling back
+ * to the same header token sources the edge middleware accepts
+ * (`x-operator-token`, then `Authorization: Bearer`). Returns null when
+ * there is no usable operator session; callers map that to 401. Role
+ * gating (e.g. finance-only) stays with the caller so each route declares
+ * exactly what it requires.
  */
 export function requireOperator(
-  cookieHeader: string | null | undefined
+  cookieHeader: string | null | undefined,
+  headers?: Headers | null
 ): { id: string; role: string } | null {
-  if (!cookieHeader) return null;
-  const part = cookieHeader
-    .split(";")
-    .map((p) => p.trim())
-    .find((p) => p.startsWith(`${OPERATOR_COOKIE_NAME}=`));
-  if (!part) return null;
-  const token = decodeURIComponent(part.slice(OPERATOR_COOKIE_NAME.length + 1));
+  let token: string | null = null;
+  if (cookieHeader) {
+    const part = cookieHeader
+      .split(";")
+      .map((p) => p.trim())
+      .find((p) => p.startsWith(`${OPERATOR_COOKIE_NAME}=`));
+    if (part) token = decodeURIComponent(part.slice(OPERATOR_COOKIE_NAME.length + 1));
+  }
+  if (!token && headers) {
+    token =
+      headers.get("x-operator-token") ??
+      headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+      null;
+    if (token !== null && token.trim() === "") token = null;
+  }
+  if (!token) return null;
   const validation = verifyOperatorSessionToken(token);
   if (!validation.isValid || !validation.operatorId) return null;
   return { id: validation.operatorId, role: validation.role ?? "CHIEF_DISPATCHER" };
@@ -441,9 +453,10 @@ export type FinanceAction = "confirm" | "refund";
 export function requireFinanceRole(
   cookieHeader: string | null | undefined,
   action: FinanceAction,
-  opts?: { amountRp?: number }
+  opts?: { amountRp?: number },
+  headers?: Headers | null
 ): { ok: true; id: string; role: string } | { ok: false; error: string; status: 401 | 403 } {
-  const operator = requireOperator(cookieHeader);
+  const operator = requireOperator(cookieHeader, headers);
   if (!operator) return { ok: false, error: "UNAUTHENTICATED", status: 401 };
   if (operator.role !== "FINANCE_OFFICER" && operator.role !== "FINANCE_SUPERVISOR") {
     return { ok: false, error: "FORBIDDEN_NOT_FINANCE", status: 403 };

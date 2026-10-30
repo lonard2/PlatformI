@@ -10,7 +10,7 @@ import { requireFinanceRole } from "@/lib/services/adminAuthService";
 const QUEUE_LIMIT = 50;
 
 export async function GET(request: Request) {
-  const gate = requireFinanceRole(request.headers.get("cookie"), "confirm");
+  const gate = requireFinanceRole(request.headers.get("cookie"), "confirm", undefined, request.headers);
   if (!gate.ok) {
     return NextResponse.json({ success: false, error: gate.error }, { status: gate.status });
   }

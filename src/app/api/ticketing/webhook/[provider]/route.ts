@@ -44,8 +44,8 @@ export async function POST(
   // re-checks the supervisor threshold after loading the stored amount.
   const baseGate =
     event === "payment.confirmed"
-      ? requireFinanceRole(request.headers.get("cookie"), "confirm")
-      : requireFinanceRole(request.headers.get("cookie"), "refund");
+      ? requireFinanceRole(request.headers.get("cookie"), "confirm", undefined, request.headers)
+      : requireFinanceRole(request.headers.get("cookie"), "refund", undefined, request.headers);
   if (!baseGate.ok) {
     return NextResponse.json({ success: false, error: baseGate.error }, { status: baseGate.status });
   }
@@ -83,7 +83,7 @@ export async function POST(
     }
     const gate = requireFinanceRole(request.headers.get("cookie"), "refund", {
       amountRp: lookup.totalFareRp,
-    });
+    }, request.headers);
     if (!gate.ok) {
       return NextResponse.json({ success: false, error: gate.error }, { status: gate.status });
     }

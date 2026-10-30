@@ -509,6 +509,17 @@ Based on your inquiry regarding transit across the Greater Jakarta & Bodetabek n
 }
 
 /**
+ * Resolve the OpenRouter key from the server-only env var. A NEXT_PUBLIC_
+ * fallback previously existed here; it was removed because anyone setting
+ * it for the server would ship the key in the client bundle.
+ */
+export function resolveAiApiKey(): string | null {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey || apiKey.trim() === "" || apiKey === "mock-key") return null;
+  return apiKey;
+}
+
+/**
  * Main AI Transit Assistant Query Function.
  * Connects to OpenRouter API with fallbacks to local grounded domain reasoning.
  */
@@ -517,7 +528,7 @@ export async function queryTransitAdvisor(
   modelId: string = DEFAULT_AI_MODEL_ID,
   apiKeyOverride?: string
 ): Promise<AIAdvisorResponse> {
-  const apiKey = apiKeyOverride || process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+  const apiKey = apiKeyOverride || resolveAiApiKey();
   const userMessage = messages[messages.length - 1]?.content || "";
 
   // Validate model id

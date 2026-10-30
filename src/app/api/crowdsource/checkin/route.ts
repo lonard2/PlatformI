@@ -21,6 +21,7 @@ import {
   effectiveReportWeight,
 } from "@/lib/services/memberTrust";
 import { requireOperator } from "@/lib/services/adminAuthService";
+import { prodDetails } from "@/lib/api/serverError";
 
 const CROWDSOURCE_HALF_LIFE_SECONDS = 600; // 10 minutes
 const RATE_LIMIT_SECONDS = 60;
@@ -202,14 +203,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to submit crowdsource check-in", details: (err as Error).message },
+      { error: "Failed to submit crowdsource check-in", ...prodDetails(err) },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },

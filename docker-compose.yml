@@ -3,16 +3,19 @@ services:
     image: postgres:16-alpine
     container_name: platformi-postgres
     restart: unless-stopped
+    # Dev defaults stay local: production injects POSTGRES_* from the
+    # environment (no committed prod credentials). Never point a prod
+    # DATABASE_URL at these values.
     environment:
-      POSTGRES_USER: platformi
-      POSTGRES_PASSWORD: platformi
-      POSTGRES_DB: platformi
+      POSTGRES_USER: ${POSTGRES_USER:-platformi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-platformi}
+      POSTGRES_DB: ${POSTGRES_DB:-platformi}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - platformi-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U platformi -d platformi"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-platformi} -d ${POSTGRES_DB:-platformi}"]
       interval: 10s
       timeout: 5s
       retries: 5

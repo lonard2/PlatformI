@@ -16,7 +16,7 @@ import { requireOperator } from "@/lib/services/adminAuthService";
 const QUEUE_LIMIT = 50;
 
 export async function GET(request: NextRequest) {
-  if (!requireOperator(request.headers.get("cookie"))) {
+  if (!requireOperator(request.headers.get("cookie"), request.headers)) {
     return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
   }
   try {

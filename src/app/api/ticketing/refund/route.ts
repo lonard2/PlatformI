@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireFinanceRole } from "@/lib/services/adminAuthService";
 import { refundTicketPayment, FinanceError } from "@/lib/ticketing/financeActions";
+import { prodDetails } from "@/lib/api/serverError";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const gate = requireFinanceRole(request.headers.get("cookie"), "refund", {
       amountRp: record.totalFareRp,
-    });
+    }, request.headers);
     if (!gate.ok) {
       const error = gate.status === 401 ? "Authentication required" : gate.error;
       return NextResponse.json({ error, reason: gate.error, ticketNumber }, { status: gate.status });
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to refund ticket", details: (err as Error).message },
+      { error: "Failed to refund ticket", ...prodDetails(err) },
       { status: 500 }
     );
   }

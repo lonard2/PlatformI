@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
  * aggregation weight. Operator-only; the report itself stays.
  */
 export async function DELETE(request: NextRequest) {
-  if (!requireOperator(request.headers.get("cookie"))) {
+  if (!requireOperator(request.headers.get("cookie"), request.headers)) {
     return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
   }
   const checkInId = new URL(request.url).searchParams.get("id")

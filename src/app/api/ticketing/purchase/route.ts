@@ -30,6 +30,7 @@ import {
 } from "@/lib/ticketing/reservationContract";
 import { OPERATOR_POINT_LISTS } from "@/lib/transit/salesMatrix";
 import { requireMember } from "@/lib/services/memberAuthService";
+import { prodDetails } from "@/lib/api/serverError";
 import {
   buildManualTransferInstructions,
   createManualSettlementProvider,
@@ -354,7 +355,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     return NextResponse.json(
-      { error: "Failed to purchase ticket", details: (err as Error).message },
+      { error: "Failed to purchase ticket", ...prodDetails(err) },
       { status: 500 }
     );
   }

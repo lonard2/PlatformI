@@ -14,6 +14,7 @@ import { TRANSIT_STOPS } from "@/lib/data/jakarta-dataset";
 import { wilayahForCoordinate } from "@/lib/geodesy/wilayah";
 import { requireOperator } from "@/lib/services/adminAuthService";
 import { paginate, readPageParams } from "@/lib/api/pagination";
+import { prodDetails } from "@/lib/api/serverError";
 
 function inferStationType(s: { name: string; lineId: string; isInterchange?: boolean }): StationType {
   const nameLower = s.name.toLowerCase();
@@ -192,7 +193,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: "Failed to retrieve transit stops",
-        details: error instanceof Error ? error.message : "Unknown error",
+        ...prodDetails(error),
       },
       { status: 500 }
     );
@@ -200,7 +201,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -319,7 +320,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: "Failed to create transit stop",
-        details: error instanceof Error ? error.message : "Unknown error",
+        ...prodDetails(error),
       },
       { status: 500 }
     );
@@ -327,7 +328,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -423,7 +424,7 @@ export async function PUT(request: NextRequest) {
       {
         success: false,
         error: "Failed to update transit stop",
-        details: error instanceof Error ? error.message : "Unknown error",
+        ...prodDetails(error),
       },
       { status: 500 }
     );
@@ -431,7 +432,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const operator = requireOperator(request.headers.get("cookie"));
+  const operator = requireOperator(request.headers.get("cookie"), request.headers);
   if (!operator) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
@@ -466,7 +467,7 @@ export async function DELETE(request: NextRequest) {
       {
         success: false,
         error: "Failed to delete transit stop",
-        details: error instanceof Error ? error.message : "Unknown error",
+        ...prodDetails(error),
       },
       { status: 500 }
     );
