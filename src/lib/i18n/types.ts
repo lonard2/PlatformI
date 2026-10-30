@@ -1234,6 +1234,10 @@ export interface TranslationDictionary {
     chooserHint: string;
     errorGeneric: string;
     cancelledAuth: string;
+    phoneWarning: string;
+    attachTitle: string;
+    attachPhoneLabel: string;
+    attachButton: string;
     countdownLeft: string;
     busyWaiting: string;
     errorNoAccount: string;

@@ -80,6 +80,8 @@ export const MemberAccountPanel: React.FC = () => {
   const [tripLabel, setTripLabel] = useState<string>("");
   const [linkCode, setLinkCode] = useState<string>("");
   const [linkPhone, setLinkPhone] = useState<string>("");
+  const [attachPhone, setAttachPhone] = useState<string>("");
+  const [attachError, setAttachError] = useState<string | null>(null);
   const [showAllHistory, setShowAllHistory] = useState<boolean>(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -345,6 +347,32 @@ export const MemberAccountPanel: React.FC = () => {
     }
   }
 
+  async function handleAttachPhone(): Promise<void> {
+    if (!attachPhone.trim() || busyAction !== null) return;
+    setAttachError(null);
+    try {
+      const res = await fetch("/api/members/me", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ phone: attachPhone.trim() }),
+      });
+      const json = (await res.json().catch(() => null)) as {
+        success?: boolean;
+        error?: string;
+        data?: MemberProfile;
+      } | null;
+      if (!res.ok || !json?.success || !json.data) {
+        throw new Error(typeof json?.error === "string" ? json.error : "ATTACH_FAILED");
+      }
+      setMe(json.data);
+      setAttachPhone("");
+    } catch (err) {
+      const code = (err as Error).message;
+      setAttachError(code === "ALREADY_REGISTERED" ? t.account.errorAlreadyRegistered : t.account.errorGeneric);
+    }
+  }
+
   async function handleLogout(): Promise<void> {
     await fetch("/api/members/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
     setMe(null);
@@ -445,6 +473,9 @@ export const MemberAccountPanel: React.FC = () => {
             inputMode="tel"
             className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
           />
+          {phone.trim() === "" && (
+            <p className="text-[11px] text-amber-300/90">{t.account.phoneWarning}</p>
+          )}
         </div>
         <p className="text-[11px] text-slate-400">{t.account.chooserHint}</p>
         <div className="flex flex-wrap items-center gap-2">
@@ -518,6 +549,9 @@ export const MemberAccountPanel: React.FC = () => {
         <div className="flex items-center gap-2 min-w-0">
           <User className="w-4 h-4 text-cyan-400 shrink-0" />
           <span className="text-xs font-bold text-white truncate">{me.displayName}</span>
+          {me.phone != null && me.phone !== "" && (
+            <span className="text-[10px] font-mono text-slate-400 truncate">{me.phone}</span>
+          )}
           {me.verifiedAt ? (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-mono font-bold flex items-center gap-1 shrink-0">
               <BadgeCheck className="w-3 h-3" />
@@ -539,6 +573,40 @@ export const MemberAccountPanel: React.FC = () => {
           <LogOut className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      {me.phone == null && (
+        <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <p className="text-[11px] text-slate-300">{t.account.attachTitle}</p>
+          <div className="flex gap-1.5 items-end">
+            <div className="space-y-1 flex-1 min-w-0">
+              <label htmlFor="member-attach-phone" className="text-[11px] font-medium text-slate-400">
+                {t.account.attachPhoneLabel}
+              </label>
+              <input
+                id="member-attach-phone"
+                value={attachPhone}
+                onChange={(e) => setAttachPhone(e.target.value)}
+                placeholder={t.account.attachPhoneLabel}
+                inputMode="tel"
+                className="touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 w-full px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleAttachPhone()}
+              disabled={busyAction !== null || attachPhone.trim() === ""}
+              className="touch-target px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 disabled:opacity-50 transition shrink-0"
+            >
+              {t.account.attachButton}
+            </button>
+          </div>
+          {attachError && (
+            <p role="alert" className="text-[11px] text-rose-400">
+              {attachError}
+            </p>
+          )}
+        </div>
+      )}
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
