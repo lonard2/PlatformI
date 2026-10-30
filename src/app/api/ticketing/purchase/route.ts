@@ -134,6 +134,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Explicit idempotency: same key returns the original ticket, a reused
+    // key with a conflicting payload is rejected instead of double-selling.
+    const idempotencyKey = request.headers.get("Idempotency-Key")?.trim() || null;
+    if (idempotencyKey) {
+      const existing = await db.ticket.findUnique({ where: { idempotencyKey } });
+      if (existing) {
+        const sameIntent =
+          existing.totalFareRp === totalFareRp &&
+          existing.originStopId === originStopId &&
+          existing.destinationStopId === destinationStopId;
+        if (!sameIntent) {
+          return NextResponse.json(
+            { error: "Idempotency key already used for a different purchase" },
+            { status: 409 }
+          );
+        }
+        return NextResponse.json(
+          {
+            success: true,
+            idempotentReplay: true,
+            ticketNumber: existing.ticketNumber,
+            reservationCode: existing.reservationCode,
+            status: existing.status,
+            ticket: existing,
+          },
+          { status: 200 }
+        );
+      }
+    }
+
     const buyerKey = ((buyer.phone ?? "").trim() || (buyer.email ?? "").trim() || userId).toLowerCase();
     const tripKey = tripCode || runId || `${originStopId}>${destinationStopId}`;
     if (tripKey !== "" && travelDate !== "" && buyerKey !== "") {
@@ -210,6 +240,7 @@ export async function POST(request: NextRequest) {
       serviceClass: (body.serviceClass ?? "").trim() || null,
       reservationCode,
       claimedByUserId: requireMember(request.headers.get("cookie"))?.id ?? null,
+      idempotencyKey,
     };
 
     let createdTicket;

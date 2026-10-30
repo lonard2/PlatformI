@@ -185,6 +185,13 @@ model Ticket {
   serviceClass      String?
   reservationCode   String    @unique @default(cuid())
   claimedByUserId   String?
+  paymentStatus     String    @default("UNPAID")
+  paidAt            DateTime?
+  paymentRef        String?
+  paymentMethod     String?
+  idempotencyKey    String?   @unique
+  refundReason      String?
+  refundedAt        DateTime?
 }
 
 model TimetableRun {
