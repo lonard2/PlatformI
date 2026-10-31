@@ -56,25 +56,34 @@ describe("Challenger 2 Empirical Verification: Milestone 1 Dataset & Specs", () 
     it("All transit line polyline coordinates should fall within geographic network bounds", () => {
       expect(TRANSIT_LINES.length).toBeGreaterThanOrEqual(16);
 
+      // Intercity corridors reach the archipelago (Bali, Sumatra, Sulawesi);
+      // metro lines stay in the Java network box.
+      const ARCHIPELAGO_BOX = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 142 };
+
       for (const line of TRANSIT_LINES) {
         expect(line.polylineCoordinates.length).toBeGreaterThanOrEqual(2);
+        const box = line.regionId === "reg-intercity-01" ? ARCHIPELAGO_BOX : NETWORK_BOUNDING_BOX;
 
         for (let i = 0; i < line.polylineCoordinates.length; i++) {
           const pt = line.polylineCoordinates[i];
-          expect(pt.latitude).toBeLessThan(0);
-          expect(pt.longitude).toBeGreaterThan(100);
-          expect(pt.latitude).toBeGreaterThan(NETWORK_BOUNDING_BOX.minLat);
-          expect(pt.latitude).toBeLessThan(NETWORK_BOUNDING_BOX.maxLat);
-          expect(pt.longitude).toBeGreaterThan(NETWORK_BOUNDING_BOX.minLon);
-          expect(pt.longitude).toBeLessThan(NETWORK_BOUNDING_BOX.maxLon);
+          if (line.regionId !== "reg-intercity-01") {
+            expect(pt.latitude).toBeLessThan(0);
+            expect(pt.longitude).toBeGreaterThan(100);
+          }
+          expect(pt.latitude).toBeGreaterThan(box.minLat);
+          expect(pt.latitude).toBeLessThan(box.maxLat);
+          expect(pt.longitude).toBeGreaterThan(box.minLon);
+          expect(pt.longitude).toBeLessThan(box.maxLon);
 
-          // Check consecutive node distance is reasonable (< 500 km per hop)
+          // Check consecutive node distance is reasonable per hop.
           if (i > 0) {
             const prev = line.polylineCoordinates[i - 1];
             const dLat = Math.abs(pt.latitude - prev.latitude);
             const dLon = Math.abs(pt.longitude - prev.longitude);
-            expect(dLat).toBeLessThan(3.0); // max 3 degrees lat per hop
-            expect(dLon).toBeLessThan(4.0); // max 4 degrees lon per hop
+            const maxLat = line.regionId === "reg-intercity-01" ? 12.0 : 3.0;
+            const maxLon = line.regionId === "reg-intercity-01" ? 18.0 : 4.0;
+            expect(dLat).toBeLessThan(maxLat);
+            expect(dLon).toBeLessThan(maxLon);
           }
         }
       }

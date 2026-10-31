@@ -112,10 +112,39 @@ export function useActiveLines(): Line[] {
   return useMemo(() => linesInRegion(allLines, regionId), [allLines, regionId]);
 }
 
+/** True when a coordinate falls inside the region's boundary box (inclusive). */
+export function inRegionBox(
+  point: { latitude: number; longitude: number },
+  region: { boundaryCoordinates: Array<{ latitude: number; longitude: number }> } | undefined | null
+): boolean {
+  const boundary = region?.boundaryCoordinates ?? [];
+  if (boundary.length === 0) return true;
+  const lats = boundary.map((c) => c.latitude);
+  const lngs = boundary.map((c) => c.longitude);
+  return (
+    point.latitude >= Math.min(...lats) &&
+    point.latitude <= Math.max(...lats) &&
+    point.longitude >= Math.min(...lngs) &&
+    point.longitude <= Math.max(...lngs)
+  );
+}
+
 export function useActiveStops(): Stop[] {
   const allStops = useTransitStore((s) => s.allStops);
   const activeLines = useActiveLines();
-  return useMemo(() => stopsInRegion(allStops, activeLines), [allStops, activeLines]);
+  const region = useActiveRegion();
+  return useMemo(() => {
+    const lineById = new Map(activeLines.map((line) => [line.id, line]));
+    return allStops.filter((stop) => {
+      const line = lineById.get(stop.lineId);
+      if (!line) return false;
+      // Primary owner: every stop belongs to this view.
+      if (line.regionId === region?.id) return true;
+      // Secondary (dual-region) membership: only the stops physically inside
+      // this region render, so a corridor's far end never lands on the metro map.
+      return inRegionBox(stop, region);
+    });
+  }, [allStops, activeLines, region]);
 }
 
 export function useActiveVehicles(): Vehicle[] {

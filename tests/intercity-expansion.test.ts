@@ -110,3 +110,22 @@ describe("intercity run fares", () => {
     expect(mine?.fareRp).toBe(150000);
   });
 });
+
+describe("dual-region stop scoping", () => {
+  it("keeps a corridor's far-end stops off the metro view", async () => {
+    const { inRegionBox } = await import("@/lib/stores/useRegionStore");
+    const jabodetabek = {
+      boundaryCoordinates: [
+        { latitude: -6.08, longitude: 106.65 },
+        { latitude: -6.08, longitude: 107.05 },
+        { latitude: -6.42, longitude: 107.05 },
+        { latitude: -6.42, longitude: 106.65 },
+      ],
+    };
+    // Jakarta-side stop renders; Bandung far end does not.
+    expect(inRegionBox({ latitude: -6.21, longitude: 106.95 }, jabodetabek)).toBe(true);
+    expect(inRegionBox({ latitude: -6.9147, longitude: 107.6026 }, jabodetabek)).toBe(false);
+    // No boundary means "no culling" rather than a blank map.
+    expect(inRegionBox({ latitude: 3.64, longitude: 98.88 }, null)).toBe(true);
+  });
+});
