@@ -22,6 +22,7 @@ export type TransitMode =
   // Land - Bus & Roadway Transit
   | "TRANSJAKARTA_BRT"
   | "TRANSJAKARTA_NON_BRT"
+  | "TRANSJAKARTA_AIRPORT"
   | "MIKROTRANS"
   | "AKAP_INTERCITY_BUS"
   | "EXECUTIVE_SHUTTLE"

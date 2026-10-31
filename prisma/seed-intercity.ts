@@ -20,7 +20,7 @@ import type { BoardingPointKind, TransitMode } from "../src/types/transit";
 import { JABODETABEK_REGION, TRANSIT_LINES } from "../src/lib/data/jakarta-dataset";
 import { db } from "../src/lib/db";
 
-export const INTERCITY_SEED_VERSION = 4;
+export const INTERCITY_SEED_VERSION = 5;
 
 const HH_MM_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -123,6 +123,7 @@ export const INTERCITY_OPERATORS: IntercitySeedOperator[] = [
     serviceTier: "EXECUTIVE_SHUTTLE",
     boardingPoints: [
       { code: "CT-RS", label: "Pool HR Rasuna Said", kind: "POOL" },
+      { code: "CT-SCBD", label: "Pool SCBD", kind: "POOL" },
       { code: "CT-PST", label: "Pool Pasteur Bandung", kind: "POOL" },
     ],
   },
@@ -139,6 +140,27 @@ export const INTERCITY_OPERATORS: IntercitySeedOperator[] = [
     ],
   },
   /** Slice v4: domestic airlines on the CGK trunk corridors. */
+  {
+    code: "XTRANS",
+    name: "XTrans Shuttle",
+    mode: "EXECUTIVE_SHUTTLE",
+    serviceTier: "EXECUTIVE_SHUTTLE",
+    boardingPoints: [
+      { code: "XT-BLR", label: "Pool Blora Menteng", kind: "POOL" },
+      { code: "XT-BKS", label: "Pool Bekasi", kind: "POOL" },
+      { code: "XT-PST", label: "Pool Pasteur Bandung", kind: "POOL" },
+    ],
+  },
+  {
+    code: "IDBTK",
+    name: "Batik Air",
+    mode: "AIRPORT_COMMERCIAL",
+    serviceTier: "FULL_SERVICE_AIR",
+    boardingPoints: [
+      { code: "CGK-T2", label: "Terminal 2", kind: "TERMINAL" },
+      { code: "CGK-T1", label: "Terminal 1", kind: "TERMINAL" },
+    ],
+  },
   {
     code: "GA",
     name: "Garuda Indonesia",
@@ -456,6 +478,63 @@ export const INTERCITY_RUNS: IntercitySeedRow[] = [
     gateOrBay: "Terminal 3",
     daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
     boardingPointCodes: ["CGK-T3"],
+  },
+  // Slice v5: fourth shuttle operator + SCBD pool + Batik Air trunks.
+  {
+    tripCode: "XT-01",
+    fareRp: 140000,
+    lineCode: "SHUTTLE-CT",
+    origin: "Pool Blora Menteng",
+    destination: "Pool Pasteur Bandung",
+    departureTime: "06:30",
+    arrivalTime: "09:00",
+    operatorCode: "XTRANS",
+    serviceClass: "Executive 16 Seat",
+    gateOrBay: "Blora",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["XT-BLR", "XT-PST"],
+  },
+  {
+    tripCode: "XT-02",
+    fareRp: 140000,
+    lineCode: "SHUTTLE-CT",
+    origin: "Pool Bekasi",
+    destination: "Pool Pasteur Bandung",
+    departureTime: "15:30",
+    arrivalTime: "18:30",
+    operatorCode: "XTRANS",
+    serviceClass: "Executive 16 Seat",
+    gateOrBay: "Bekasi",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["XT-BKS", "XT-PST"],
+  },
+  {
+    tripCode: "ID-301",
+    fareRp: 1050000,
+    lineCode: "CGK-DPS",
+    origin: "Bandara Soekarno-Hatta (CGK)",
+    destination: "Bandara I Gusti Ngurah Rai Denpasar (DPS)",
+    departureTime: "11:30",
+    arrivalTime: "14:15",
+    operatorCode: "IDBTK",
+    serviceClass: "Ekonomi",
+    gateOrBay: "Terminal 2",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["CGK-T2"],
+  },
+  {
+    tripCode: "ID-302",
+    fareRp: 950000,
+    lineCode: "CGK-SUB",
+    origin: "Bandara Soekarno-Hatta (CGK)",
+    destination: "Bandara Juanda Surabaya (SUB)",
+    departureTime: "14:00",
+    arrivalTime: "15:30",
+    operatorCode: "IDBTK",
+    serviceClass: "Ekonomi",
+    gateOrBay: "Terminal 2",
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 0],
+    boardingPointCodes: ["CGK-T2"],
   },
 ];
 

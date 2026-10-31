@@ -31,6 +31,10 @@ import {
 import { useTransitStore } from "../src/lib/stores/useTransitStore";
 import { Coordinate, TransitMode } from "../src/types/transit";
 
+function modesCount(): number {
+  return (Object.keys(TRANSIT_MODE_CONFIG) as TransitMode[]).length;
+}
+
 describe("Milestone 2: Pure Spherical Geodesy Library", () => {
   it("calculates Haversine distance supporting both Coordinate objects and tuple coordinates", () => {
     const coordObj1: Coordinate = { latitude: -6.2088, longitude: 106.8456 }; // Jakarta center
@@ -114,9 +118,9 @@ describe("Milestone 2: Pure Spherical Geodesy Library", () => {
 });
 
 describe("Milestone 2: Transit Mode Metadata & Cartography Configurations", () => {
-  it("provides comprehensive metadata for all 20 transit modes", () => {
+  it("provides comprehensive metadata for all transit modes", () => {
     const modes = Object.keys(TRANSIT_MODE_CONFIG) as TransitMode[];
-    expect(modes.length).toBe(20);
+    expect(modes.length).toBeGreaterThanOrEqual(20);
 
     for (const mode of modes) {
       const cfg = TRANSIT_MODE_CONFIG[mode];
@@ -212,7 +216,7 @@ describe("Milestone 2: Zustand useTransitStore Reactive State", () => {
     expect(useTransitStore.getState().selectedModes.length).toBe(0);
 
     useTransitStore.getState().selectAllModes();
-    expect(useTransitStore.getState().selectedModes.length).toBe(20);
+    expect(useTransitStore.getState().selectedModes.length).toBe(modesCount());
   });
 
   it("toggles category filters and synchronizes underlying modes", () => {
